@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PriceChart from "./components/PriceChart";
 
 type Overview = {
@@ -62,6 +62,30 @@ function formatPercent(value: number | null) {
   return `${value.toFixed(2)}%`;
 }
 
+async function fetchOverview(): Promise<Overview> {
+  const res = await fetch("/api/overview");
+  if (!res.ok) {
+    throw new Error("Overview konnte nicht geladen werden");
+  }
+  return res.json() as Promise<Overview>;
+}
+
+async function fetchNetwork(): Promise<Network> {
+  const res = await fetch("/api/network");
+  if (!res.ok) {
+    throw new Error("Network konnte nicht geladen werden");
+  }
+  return res.json() as Promise<Network>;
+}
+
+async function fetchChart(range: ChartRange): Promise<ChartData> {
+  const res = await fetch(`/api/chart?days=${range}`);
+  if (!res.ok) {
+    throw new Error("Chart konnte nicht geladen werden");
+  }
+  return res.json() as Promise<ChartData>;
+}
+
 export default function App() {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [network, setNetwork] = useState<Network | null>(null);
@@ -70,39 +94,97 @@ export default function App() {
 
   const [baseError, setBaseError] = useState<string>("");
   const [chartError, setChartError] = useState<string>("");
-  const [chartLoading, setChartLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/overview").then((res) => {
-        if (!res.ok) throw new Error("Overview konnte nicht geladen werden");
-        return res.json() as Promise<Overview>;
-      }),
-      fetch("/api/network").then((res) => {
-        if (!res.ok) throw new Error("Network konnte nicht geladen werden");
-        return res.json() as Promise<Network>;
-      }),
-    ])
-      .then(([overviewData, networkData]) => {
-        setOverview(overviewData);
-        setNetwork(networkData);
-      })
-      .catch((err: Error) => setBaseError(err.message));
+  const [baseLoading, setBaseLoading] = useState<boolean>(true);
+  const [chartLoading, setChartLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  const [lastRefreshAt, setLastRefreshAt] = useState<string | null>(null);
+
+  const initialChartHandledRef = useRef(false);
+
+  const loadBaseData = useCallback(async (): Promise<boolean> => {
+    setBaseError("");
+    setBaseLoading(true);
+
+    try {
+      const [overviewData, networkData] = await Promise.all([
+        fetchOverview(),
+        fetchNetwork(),
+      ]);
+
+      setOverview(overviewData);
+      setNetwork(networkData);
+      return true;
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Basisdaten konnten nicht geladen werden";
+      setBaseError(message);
+      return false;
+    } finally {
+      setBaseLoading(false);
+    }
   }, []);
 
-  useEffect(() => {
-    setChartLoading(true);
+  const loadChartData = useCallback(async (selectedRange: ChartRange): Promise<boolean> => {
     setChartError("");
+    setChartLoading(true);
 
-    fetch(`/api/chart?days=${range}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Chart konnte nicht geladen werden");
-        return res.json() as Promise<ChartData>;
-      })
-      .then(setChart)
-      .catch((err: Error) => setChartError(err.message))
-      .finally(() => setChartLoading(false));
-  }, [range]);
+    try {
+      const chartData = await fetchChart(selectedRange);
+      setChart(chartData);
+      return true;
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Chartdaten konnten nicht geladen werden";
+      setChartError(message);
+      return false;
+    } finally {
+      setChartLoading(false);
+    }
+  }, []);
+
+  const refreshAll = useCallback(
+    async (selectedRange: ChartRange) => {
+      setRefreshing(true);
+
+      const [baseOk, chartOk] = await Promise.all([
+        loadBaseData(),
+        loadChartData(selectedRange),
+      ]);
+
+      if (baseOk && chartOk) {
+        setLastRefreshAt(new Date().toISOString());
+      }
+
+      setRefreshing(false);
+    },
+    [loadBaseData, loadChartData]
+  );
+
+  useEffect(() => {
+    void refreshAll(1);
+  }, [refreshAll]);
+
+  useEffect(() => {
+    if (!initialChartHandledRef.current) {
+      initialChartHandledRef.current = true;
+      return;
+    }
+
+    void loadChartData(range);
+  }, [range, loadChartData]);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      void refreshAll(range);
+    }, 60_000);
+
+    return () => window.clearInterval(id);
+  }, [range, refreshAll]);
+
+  const showBaseSkeleton = !baseError && baseLoading && (!overview || !network);
+  const showChartSkeleton = !chartError && chartLoading && !chart;
 
   return (
     <main className="page">
@@ -115,10 +197,33 @@ export default function App() {
           </p>
         </header>
 
+        <div className="toolbar">
+          <div className="toolbar-info">
+            <span className="toolbar-label">Auto-Refresh:</span>
+            <span>alle 60 Sekunden</span>
+          </div>
+
+          <div className="toolbar-actions">
+            <span className="toolbar-time">
+              Zuletzt aktualisiert:{" "}
+              {lastRefreshAt
+                ? new Date(lastRefreshAt).toLocaleString("de-DE")
+                : "–"}
+            </span>
+
+            <button
+              type="button"
+              className="refresh-btn"
+              onClick={() => void refreshAll(range)}
+              disabled={refreshing}
+            >
+              {refreshing ? "Aktualisiere…" : "Jetzt aktualisieren"}
+            </button>
+          </div>
+        </div>
+
         {baseError && <div className="card error">Fehler: {baseError}</div>}
-        {!baseError && (!overview || !network) && (
-          <div className="card">Lade Basisdaten…</div>
-        )}
+        {showBaseSkeleton && <div className="card">Lade Basisdaten…</div>}
 
         {overview && network && (
           <section className="grid">
@@ -189,9 +294,7 @@ export default function App() {
               </div>
 
               {chartError && <div className="chart-empty">Fehler: {chartError}</div>}
-              {!chartError && chartLoading && (
-                <div className="chart-empty">Lade Chartdaten…</div>
-              )}
+              {showChartSkeleton && <div className="chart-empty">Lade Chartdaten…</div>}
               {!chartError && !chartLoading && chart && (
                 <PriceChart points={chart.points} range={chart.range} />
               )}

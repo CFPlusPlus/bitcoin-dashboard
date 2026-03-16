@@ -185,3 +185,69 @@ h2 {
   color: #aab3c5;
   padding: 18px 0 6px;
 }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 18px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(17, 24, 39, 0.55);
+  backdrop-filter: blur(10px);
+}
+
+.toolbar-info,
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toolbar-label,
+.toolbar-time {
+  color: #aab3c5;
+  font-size: 0.95rem;
+}
+
+.refresh-btn {
+  appearance: none;
+  border: 1px solid rgba(247, 147, 26, 0.55);
+  background: rgba(247, 147, 26, 0.14);
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease,
+    background 120ms ease,
+    opacity 120ms ease;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: rgba(247, 147, 26, 0.22);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+@media (max-width: 720px) {
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .toolbar-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
