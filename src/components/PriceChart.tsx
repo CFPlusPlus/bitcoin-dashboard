@@ -1,17 +1,13 @@
-type Currency = "usd" | "eur";
-
-type ChartPoint = {
-  timestamp: number;
-  price: number;
-};
+﻿import { formatCurrency } from "../lib/format";
+import type { ChartPoint, ChartRange, Currency } from "../types/dashboard";
 
 type PriceChartProps = {
-  points: ChartPoint[];
-  range: 1 | 7 | 30;
   currency: Currency;
+  points: ChartPoint[];
+  range: ChartRange;
 };
 
-function formatAxisLabel(timestamp: number, range: 1 | 7 | 30) {
+function formatAxisLabel(timestamp: number, range: ChartRange) {
   const date = new Date(timestamp);
 
   if (range === 1) {
@@ -27,19 +23,7 @@ function formatAxisLabel(timestamp: number, range: 1 | 7 | 30) {
   }).format(date);
 }
 
-function formatPrice(value: number, currency: Currency) {
-  return new Intl.NumberFormat(currency === "usd" ? "en-US" : "de-DE", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-export default function PriceChart({
-  points,
-  range,
-  currency,
-}: PriceChartProps) {
+export default function PriceChart({ currency, points, range }: PriceChartProps) {
   const width = 900;
   const height = 280;
   const padding = 20;
@@ -75,19 +59,16 @@ export default function PriceChart({
   const lastX = getX(points.length - 1);
   const baseY = height - padding;
 
-  const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(
+  const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(
     2
-  )} L ${firstX.toFixed(2)} ${baseY.toFixed(2)} Z`;
-
-  const startLabel = formatAxisLabel(points[0].timestamp, range);
-  const endLabel = formatAxisLabel(points[points.length - 1].timestamp, range);
+  )} ${baseY.toFixed(2)} Z`;
 
   return (
     <div className="chart-shell">
       <div className="chart-summary">
-        <span>Tief: {formatPrice(minPrice, currency)}</span>
-        <span>Hoch: {formatPrice(maxPrice, currency)}</span>
-        <span>Jetzt: {formatPrice(points[points.length - 1].price, currency)}</span>
+        <span>Tief: {formatCurrency(minPrice, currency)}</span>
+        <span>Hoch: {formatCurrency(maxPrice, currency)}</span>
+        <span>Jetzt: {formatCurrency(points[points.length - 1].price, currency)}</span>
       </div>
 
       <svg
@@ -115,7 +96,7 @@ export default function PriceChart({
         <path d={linePath} className="chart-line" />
 
         <text x={padding} y={height - 2} className="chart-label" textAnchor="start">
-          {startLabel}
+          {formatAxisLabel(points[0].timestamp, range)}
         </text>
         <text
           x={width - padding}
@@ -123,7 +104,7 @@ export default function PriceChart({
           className="chart-label"
           textAnchor="end"
         >
-          {endLabel}
+          {formatAxisLabel(points[points.length - 1].timestamp, range)}
         </text>
       </svg>
     </div>
