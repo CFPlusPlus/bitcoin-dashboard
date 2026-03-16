@@ -2,45 +2,24 @@ type Env = {
   COINGECKO_DEMO_API_KEY?: string;
 };
 
-type CoinGeckoSimplePriceResponse = {
-  bitcoin?: {
-    usd?: number;
-    eur?: number;
-    usd_market_cap?: number;
-    eur_market_cap?: number;
-    usd_24h_vol?: number;
-    eur_24h_vol?: number;
-    usd_24h_change?: number;
-    eur_24h_change?: number;
-    last_updated_at?: number;
-  };
+type MarketItem = {
+  current_price?: number | null;
+  market_cap?: number | null;
+  total_volume?: number | null;
+  high_24h?: number | null;
+  low_24h?: number | null;
+  price_change_percentage_24h?: number | null;
+  last_updated?: string | null;
 };
 
-export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
-  const apiKey = env.COINGECKO_DEMO_API_KEY;
-
-  if (!apiKey) {
-    return new Response(
-      JSON.stringify({
-        error: "COINGECKO_DEMO_API_KEY fehlt.",
-      }),
-      {
-        status: 500,
-        headers: {
-          "content-type": "application/json; charset=utf-8",
-        },
-      }
-    );
-  }
-
+async function fetchMarketData(
+  currency: "usd" | "eur",
+  apiKey: string
+): Promise<MarketItem> {
   const url =
-    "https://api.coingecko.com/api/v3/simple/price" +
-    "?ids=bitcoin" +
-    "&vs_currencies=usd,eur" +
-    "&include_market_cap=true" +
-    "&include_24hr_vol=true" +
-    "&include_24hr_change=true" +
-    "&include_last_updated_at=true" +
+    "https://api.coingecko.com/api/v3/coins/markets" +
+    `?vs_currency=${currency}` +
+    "&ids=bitcoin" +
     "&precision=2";
 
   const response = await fetch(url, {
@@ -51,62 +30,76 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
+    const details = await response.text();
+    throw new Error(
+      `CoinGecko markets request failed (${currency}): ${response.status} ${details}`
+    );
+  }
 
+  const data = (await response.json()) as MarketItem[];
+
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new Error(`Keine Bitcoin-Marktdaten für ${currency} erhalten.`);
+  }
+
+  return data[0];
+}
+
+export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
+  const apiKey = env.COINGECKO_DEMO_API_KEY;
+
+  if (!apiKey) {
     return new Response(
-      JSON.stringify({
-        error: "Fehler beim Laden der CoinGecko-Daten.",
-        status: response.status,
-        details: errorText,
-      }),
+      JSON.stringify({ error: "COINGECKO_DEMO_API_KEY fehlt." }),
       {
-        status: 502,
-        headers: {
-          "content-type": "application/json; charset=utf-8",
-        },
+        status: 500,
+        headers: { "content-type": "application/json; charset=utf-8" },
       }
     );
   }
 
-  const data = (await response.json()) as CoinGeckoSimplePriceResponse;
-  const btc = data.bitcoin;
+  try {
+    const [usd, eur] = await Promise.all([
+      fetchMarketData("usd", apiKey),
+      fetchMarketData("eur", apiKey),
+    ]);
 
-  if (!btc) {
     return new Response(
       JSON.stringify({
-        error: "Bitcoin-Daten wurden nicht zurückgegeben.",
+        name: "bitcoin-dashboard",
+        source: "coingecko",
+        priceUsd: usd.current_price ?? null,
+        priceEur: eur.current_price ?? null,
+        change24hUsd: usd.price_change_percentage_24h ?? null,
+        change24hEur: eur.price_change_percentage_24h ?? null,
+        marketCapUsd: usd.market_cap ?? null,
+        marketCapEur: eur.market_cap ?? null,
+        volume24hUsd: usd.total_volume ?? null,
+        volume24hEur: eur.total_volume ?? null,
+        high24hUsd: usd.high_24h ?? null,
+        high24hEur: eur.high_24h ?? null,
+        low24hUsd: usd.low_24h ?? null,
+        low24hEur: eur.low_24h ?? null,
+        lastUpdatedAt: usd.last_updated ?? eur.last_updated ?? null,
+        fetchedAt: new Date().toISOString(),
       }),
       {
-        status: 502,
         headers: {
           "content-type": "application/json; charset=utf-8",
+          "cache-control": "public, max-age=60",
         },
       }
     );
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        error: "Fehler beim Laden der Overview-Daten.",
+        details: error instanceof Error ? error.message : String(error),
+      }),
+      {
+        status: 502,
+        headers: { "content-type": "application/json; charset=utf-8" },
+      }
+    );
   }
-
-  return new Response(
-    JSON.stringify({
-      name: "bitcoin-dashboard",
-      source: "coingecko",
-      priceUsd: btc.usd ?? null,
-      priceEur: btc.eur ?? null,
-      change24hUsd: btc.usd_24h_change ?? null,
-      change24hEur: btc.eur_24h_change ?? null,
-      marketCapUsd: btc.usd_market_cap ?? null,
-      marketCapEur: btc.eur_market_cap ?? null,
-      volume24hUsd: btc.usd_24h_vol ?? null,
-      volume24hEur: btc.eur_24h_vol ?? null,
-      lastUpdatedAt: btc.last_updated_at
-        ? new Date(btc.last_updated_at * 1000).toISOString()
-        : null,
-      fetchedAt: new Date().toISOString(),
-    }),
-    {
-      headers: {
-        "content-type": "application/json; charset=utf-8",
-        "cache-control": "public, max-age=30",
-      },
-    }
-  );
 };

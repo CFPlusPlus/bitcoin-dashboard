@@ -251,3 +251,26 @@ h2 {
     justify-content: space-between;
   }
 }
+
+.stat-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #dce3f1;
+}
+
+.stat-row span {
+  color: #aab3c5;
+}
+
+.stat-row strong {
+  font-size: 1rem;
+}

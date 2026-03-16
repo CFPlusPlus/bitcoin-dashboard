@@ -15,6 +15,10 @@ type Overview = {
   marketCapEur: number | null;
   volume24hUsd: number | null;
   volume24hEur: number | null;
+  high24hUsd: number | null;
+  high24hEur: number | null;
+  low24hUsd: number | null;
+  low24hEur: number | null;
   lastUpdatedAt: string | null;
   fetchedAt: string;
 };
@@ -29,6 +33,18 @@ type Network = {
     economyFee: number | null;
     minimumFee: number | null;
   };
+  fetchedAt: string;
+};
+
+type Sentiment = {
+  source: string;
+  name: string;
+  value: number;
+  classification: string | null;
+  timestamp: string | null;
+  timeUntilUpdateSeconds: number | null;
+  nextUpdateAt: string | null;
+  attribution: string;
   fetchedAt: string;
 };
 
@@ -63,6 +79,20 @@ function formatPercent(value: number | null) {
   return `${value.toFixed(2)}%`;
 }
 
+function formatCountdown(seconds: number | null) {
+  if (seconds === null || Number.isNaN(seconds)) return "–";
+  if (seconds <= 0) return "bald";
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+
+  return `${minutes}m`;
+}
+
 async function fetchOverview(): Promise<Overview> {
   const res = await fetch("/api/overview");
   if (!res.ok) {
@@ -79,6 +109,14 @@ async function fetchNetwork(): Promise<Network> {
   return res.json() as Promise<Network>;
 }
 
+async function fetchSentiment(): Promise<Sentiment> {
+  const res = await fetch("/api/sentiment");
+  if (!res.ok) {
+    throw new Error("Fear-&-Greed konnte nicht geladen werden");
+  }
+  return res.json() as Promise<Sentiment>;
+}
+
 async function fetchChart(range: ChartRange, currency: Currency): Promise<ChartData> {
   const res = await fetch(`/api/chart?days=${range}&currency=${currency}`);
   if (!res.ok) {
@@ -90,6 +128,7 @@ async function fetchChart(range: ChartRange, currency: Currency): Promise<ChartD
 export default function App() {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [network, setNetwork] = useState<Network | null>(null);
+  const [sentiment, setSentiment] = useState<Sentiment | null>(null);
   const [chart, setChart] = useState<ChartData | null>(null);
 
   const [range, setRange] = useState<ChartRange>(1);
@@ -97,9 +136,11 @@ export default function App() {
 
   const [baseError, setBaseError] = useState<string>("");
   const [chartError, setChartError] = useState<string>("");
+  const [sentimentError, setSentimentError] = useState<string>("");
 
   const [baseLoading, setBaseLoading] = useState<boolean>(true);
   const [chartLoading, setChartLoading] = useState<boolean>(true);
+  const [sentimentLoading, setSentimentLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const [lastRefreshAt, setLastRefreshAt] = useState<string | null>(null);
@@ -130,6 +171,24 @@ export default function App() {
     }
   }, []);
 
+  const loadSentimentData = useCallback(async (): Promise<boolean> => {
+    setSentimentError("");
+    setSentimentLoading(true);
+
+    try {
+      const sentimentData = await fetchSentiment();
+      setSentiment(sentimentData);
+      return true;
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Fear-&-Greed konnte nicht geladen werden";
+      setSentimentError(message);
+      return false;
+    } finally {
+      setSentimentLoading(false);
+    }
+  }, []);
+
   const loadChartData = useCallback(
     async (selectedRange: ChartRange, selectedCurrency: Currency): Promise<boolean> => {
       setChartError("");
@@ -155,18 +214,19 @@ export default function App() {
     async (selectedRange: ChartRange, selectedCurrency: Currency) => {
       setRefreshing(true);
 
-      const [baseOk, chartOk] = await Promise.all([
+      const [baseOk, chartOk, sentimentOk] = await Promise.all([
         loadBaseData(),
         loadChartData(selectedRange, selectedCurrency),
+        loadSentimentData(),
       ]);
 
-      if (baseOk && chartOk) {
+      if (baseOk && chartOk && sentimentOk) {
         setLastRefreshAt(new Date().toISOString());
       }
 
       setRefreshing(false);
     },
-    [loadBaseData, loadChartData]
+    [loadBaseData, loadChartData, loadSentimentData]
   );
 
   useEffect(() => {
@@ -194,6 +254,7 @@ export default function App() {
 
   const showBaseSkeleton = !baseError && baseLoading && (!overview || !network);
   const showChartSkeleton = !chartError && chartLoading && !chart;
+  const showSentimentSkeleton = !sentimentError && sentimentLoading && !sentiment;
 
   const selectedPrice =
     currency === "usd" ? overview?.priceUsd ?? null : overview?.priceEur ?? null;
@@ -213,6 +274,16 @@ export default function App() {
       ? overview?.marketCapUsd ?? null
       : overview?.marketCapEur ?? null;
 
+  const selectedHigh24h =
+    currency === "usd"
+      ? overview?.high24hUsd ?? null
+      : overview?.high24hEur ?? null;
+
+  const selectedLow24h =
+    currency === "usd"
+      ? overview?.low24hUsd ?? null
+      : overview?.low24hEur ?? null;
+
   const currencyLabel = currency.toUpperCase();
 
   return (
@@ -222,7 +293,8 @@ export default function App() {
           <p className="eyebrow">MVP</p>
           <h1>Bitcoin Dashboard</h1>
           <p className="subtitle">
-            Marktdaten über CoinGecko und Netzwerkdaten über mempool.space.
+            Marktdaten über CoinGecko, Netzwerkdaten über mempool.space und Sentiment
+            über Alternative.me.
           </p>
         </header>
 
@@ -290,6 +362,20 @@ export default function App() {
             </article>
 
             <article className="card">
+              <p className="label">24h High / Low ({currencyLabel})</p>
+              <div className="stat-stack">
+                <div className="stat-row">
+                  <span>High</span>
+                  <strong>{formatCurrency(selectedHigh24h, currency)}</strong>
+                </div>
+                <div className="stat-row">
+                  <span>Low</span>
+                  <strong>{formatCurrency(selectedLow24h, currency)}</strong>
+                </div>
+              </div>
+            </article>
+
+            <article className="card">
               <p className="label">Letzte Blockhöhe</p>
               <h2>{network.latestBlockHeight.toLocaleString("de-DE")}</h2>
             </article>
@@ -307,6 +393,24 @@ export default function App() {
             <article className="card">
               <p className="label">Hour Fee</p>
               <h2>{network.fees.hourFee ?? "–"} sat/vB</h2>
+            </article>
+
+            <article className="card">
+              <p className="label">Fear &amp; Greed</p>
+
+              {sentimentError && <p className="muted">Fehler: {sentimentError}</p>}
+              {showSentimentSkeleton && <p className="muted">Lade Sentiment…</p>}
+
+              {!sentimentError && !sentimentLoading && sentiment && (
+                <>
+                  <h2>{sentiment.value} / 100</h2>
+                  <p className="muted">{sentiment.classification ?? "–"}</p>
+                  <p className="muted">
+                    Nächstes Update in: {formatCountdown(sentiment.timeUntilUpdateSeconds)}
+                  </p>
+                  <p className="muted">{sentiment.attribution}</p>
+                </>
+              )}
             </article>
 
             <article className="card card-wide">
@@ -347,6 +451,7 @@ export default function App() {
               <p className="muted">Aktive Währung: {currencyLabel}</p>
               <p className="muted">Market source: {overview.source}</p>
               <p className="muted">Network source: {network.source}</p>
+              <p className="muted">Sentiment source: {sentiment?.source ?? "–"}</p>
               <p className="muted">Chart source: {chart?.source ?? "–"}</p>
               <p className="muted">
                 CoinGecko lastUpdatedAt:{" "}
@@ -356,6 +461,10 @@ export default function App() {
               </p>
               <p className="muted">
                 Network fetchedAt: {new Date(network.fetchedAt).toLocaleString("de-DE")}
+              </p>
+              <p className="muted">
+                Sentiment fetchedAt:{" "}
+                {sentiment ? new Date(sentiment.fetchedAt).toLocaleString("de-DE") : "–"}
               </p>
               <p className="muted">
                 Chart fetchedAt:{" "}
