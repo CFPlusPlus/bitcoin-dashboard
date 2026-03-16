@@ -10,8 +10,10 @@ A lightweight Bitcoin dashboard built with React, TypeScript and Vite, powered b
 
 ## Preview
 
-The dashboard currently includes:
+The app currently includes:
 
+- Dashboard home page for market, network and sentiment overview
+- Dedicated tools area for interactive Bitcoin utilities
 - BTC price in USD and EUR
 - 24h change
 - 24h volume
@@ -21,6 +23,7 @@ The dashboard currently includes:
 - Latest block height
 - Recommended network fees
 - Fear & Greed Index
+- Fully working DCA calculator with local persistence
 - Auto-refresh every 60 seconds
 - Manual refresh button
 - Persisted dashboard preferences on the current device
@@ -29,6 +32,7 @@ The dashboard currently includes:
 
 ### Frontend
 - React
+- React Router
 - TypeScript
 - Vite
 
@@ -47,34 +51,34 @@ This project is designed as a single-repo full-stack Pages app:
 - the frontend is served as static assets via Cloudflare Pages
 - the backend layer is implemented through Cloudflare Pages Functions
 - external APIs are called server-side through the Functions layer
+- the UI is split into dashboard pages and dedicated tool pages
 - no traditional database is required for the current MVP
+
+## Routes
+
+- `/` - dashboard home
+- `/tools` - tool overview
+- `/tools/dca-rechner` - DCA calculator tool page
 
 ## Features
 
-### Market Data
+### Dashboard
 - Current BTC price
 - 24h change
 - 24h volume
 - Market cap
 - 24h high / low
-
-### Network Data
 - Latest Bitcoin block height
-- Recommended fees:
-  - Fastest Fee
-  - Half Hour Fee
-  - Hour Fee
-
-### Sentiment
+- Recommended fees
 - Fear & Greed Index
-- Classification
-- Next update countdown
-
-### Charting
-- 1 day
-- 7 days
-- 30 days
+- 1D / 7D / 30D chart
 - USD / EUR support
+
+### Tools Area
+- Dedicated space for future calculators and utilities
+- DCA calculator with separate USD and EUR entry histories
+- Average buy price, invested capital, BTC amount and PnL overview
+- Current market-price comparison based on live overview data
 
 ## Getting Started
 
@@ -167,11 +171,12 @@ bitcoin-dashboard/
 |   |   `-- sentiment.ts
 |   `-- lib/
 |       `-- http.ts
-|-- public/
 |-- src/
 |   |-- components/
+|   |-- data/
 |   |-- hooks/
 |   |-- lib/
+|   |-- pages/
 |   |-- types/
 |   |-- App.tsx
 |   `-- main.tsx
@@ -180,61 +185,3 @@ bitcoin-dashboard/
 |-- vite.config.ts
 `-- wrangler.jsonc
 ```
-
-## API Routes
-
-### `GET /api/overview`
-
-Returns a Bitcoin market overview.
-
-### `GET /api/network`
-
-Returns Bitcoin network information.
-
-### `GET /api/chart?days=1&currency=usd`
-
-Returns Bitcoin price chart data.
-
-Supported query parameters:
-
-- `days`: `1`, `7`, `30`
-- `currency`: `usd`, `eur`
-
-### `GET /api/sentiment`
-
-Returns the current Fear & Greed Index.
-
-## Deployment
-
-This project is intended to run on Cloudflare Pages.
-
-### Recommended Cloudflare Pages settings
-
-- Build command: `npm run build`
-- Build output directory: `dist`
-
-### Required environment variables
-
-Set the following variable in Cloudflare Pages:
-
-```bash
-COINGECKO_DEMO_API_KEY=your_demo_key
-```
-
-## Data Sources
-
-- CoinGecko - market data and chart data
-- mempool.space - network data
-- Alternative.me - Fear & Greed Index
-
-## MVP Status
-
-This project is currently in the MVP phase.
-
-The current focus is on:
-
-- a simple and maintainable architecture
-- useful real-world Bitcoin data
-- fast deployment via Cloudflare
-- resilient provider handling
-- clean extensibility for future sticky features

@@ -61,3 +61,28 @@ export type ChartData = ApiEnvelope & {
     maxPrice: number | null;
   };
 };
+
+export type DcaEntry = {
+  id: string;
+  date: string;
+  amountInvested: number;
+  bitcoinPrice: number;
+  note: string;
+};
+
+export type DcaEntryStore = Record<Currency, DcaEntry[]>;
+
+export type DcaEntrySnapshot = DcaEntry & {
+  bitcoinAmount: number;
+};
+
+export type DcaSummary = {
+  totalEntries: number;
+  totalInvested: number;
+  totalBitcoin: number;
+  averageBuyPrice: number | null;
+  currentPrice: number | null;
+  currentValue: number | null;
+  pnlAbsolute: number | null;
+  pnlPercent: number | null;
+};

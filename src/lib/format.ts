@@ -37,6 +37,15 @@ export function formatDateTime(value: string | null) {
   return date.toLocaleString("de-DE");
 }
 
+export function formatDate(value: string | null) {
+  if (!value) return FALLBACK_TEXT;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return FALLBACK_TEXT;
+
+  return date.toLocaleDateString("de-DE");
+}
+
 export function formatCountdown(seconds: number | null) {
   if (!isFiniteNumber(seconds)) return FALLBACK_TEXT;
   if (seconds <= 0) return "bald";
@@ -49,4 +58,13 @@ export function formatCountdown(seconds: number | null) {
   }
 
   return `${minutes}m`;
+}
+
+export function formatBtc(value: number | null) {
+  if (!isFiniteNumber(value)) return FALLBACK_TEXT;
+
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 8,
+  }).format(value);
 }

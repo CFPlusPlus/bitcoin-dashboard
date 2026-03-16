@@ -1,89 +1,18 @@
-﻿import DashboardOverviewSection from "./components/DashboardOverviewSection";
-import DashboardToolbar from "./components/DashboardToolbar";
-import ChartSection from "./components/ChartSection";
-import MetadataSection from "./components/MetadataSection";
-import NoticeBar from "./components/NoticeBar";
-import PageHeader from "./components/PageHeader";
-import { useDashboardData } from "./hooks/useDashboardData";
+﻿import { Navigate, Route, Routes } from "react-router-dom";
+import AppLayout from "./components/AppLayout";
+import DashboardPage from "./pages/DashboardPage";
+import DcaCalculatorPage from "./pages/DcaCalculatorPage";
+import ToolsPage from "./pages/ToolsPage";
 
 export default function App() {
-  const {
-    autoRefresh,
-    baseError,
-    chart,
-    chartError,
-    chartLoading,
-    currency,
-    lastRefreshAt,
-    network,
-    overview,
-    range,
-    refreshing,
-    sentiment,
-    sentimentError,
-    sentimentLoading,
-    showBaseSkeleton,
-    showChartSkeleton,
-    showSentimentSkeleton,
-    warnings,
-    refreshAll,
-    setAutoRefresh,
-    setCurrency,
-    setRange,
-  } = useDashboardData();
-
   return (
-    <main className="page">
-      <div className="container">
-        <PageHeader />
-
-        <DashboardToolbar
-          autoRefresh={autoRefresh}
-          currency={currency}
-          lastRefreshAt={lastRefreshAt}
-          refreshing={refreshing}
-          onAutoRefreshChange={setAutoRefresh}
-          onCurrencyChange={setCurrency}
-          onRefresh={() => void refreshAll(range, currency)}
-        />
-
-        <NoticeBar warnings={warnings} />
-
-        {baseError && <div className="card error">Fehler: {baseError}</div>}
-        {showBaseSkeleton && <div className="card">Lade Basisdaten...</div>}
-
-        {overview && network && (
-          <section className="grid">
-            <DashboardOverviewSection
-              currency={currency}
-              network={network}
-              overview={overview}
-              sentiment={sentiment}
-              sentimentError={sentimentError}
-              sentimentLoading={sentimentLoading}
-              showSentimentSkeleton={showSentimentSkeleton}
-            />
-
-            <ChartSection
-              chart={chart}
-              chartError={chartError}
-              chartLoading={chartLoading}
-              currency={currency}
-              range={range}
-              showChartSkeleton={showChartSkeleton}
-              onRangeChange={setRange}
-            />
-
-            <MetadataSection
-              chart={chart}
-              currency={currency}
-              network={network}
-              overview={overview}
-              sentiment={sentiment}
-            />
-          </section>
-        )}
-      </div>
-    </main>
+    <Routes>
+      <Route path="/" element={<AppLayout />}>
+        <Route index element={<DashboardPage />} />
+        <Route path="tools" element={<ToolsPage />} />
+        <Route path="tools/dca-rechner" element={<DcaCalculatorPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>
   );
 }
