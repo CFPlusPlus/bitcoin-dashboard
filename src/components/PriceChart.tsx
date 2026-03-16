@@ -1,3 +1,5 @@
+type Currency = "usd" | "eur";
+
 type ChartPoint = {
   timestamp: number;
   price: number;
@@ -6,6 +8,7 @@ type ChartPoint = {
 type PriceChartProps = {
   points: ChartPoint[];
   range: 1 | 7 | 30;
+  currency: Currency;
 };
 
 function formatAxisLabel(timestamp: number, range: 1 | 7 | 30) {
@@ -24,15 +27,19 @@ function formatAxisLabel(timestamp: number, range: 1 | 7 | 30) {
   }).format(date);
 }
 
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("en-US", {
+function formatPrice(value: number, currency: Currency) {
+  return new Intl.NumberFormat(currency === "usd" ? "en-US" : "de-DE", {
     style: "currency",
-    currency: "USD",
+    currency: currency.toUpperCase(),
     maximumFractionDigits: 0,
   }).format(value);
 }
 
-export default function PriceChart({ points, range }: PriceChartProps) {
+export default function PriceChart({
+  points,
+  range,
+  currency,
+}: PriceChartProps) {
   const width = 900;
   const height = 280;
   const padding = 20;
@@ -78,16 +85,16 @@ export default function PriceChart({ points, range }: PriceChartProps) {
   return (
     <div className="chart-shell">
       <div className="chart-summary">
-        <span>Tief: {formatPrice(minPrice)}</span>
-        <span>Hoch: {formatPrice(maxPrice)}</span>
-        <span>Jetzt: {formatPrice(points[points.length - 1].price)}</span>
+        <span>Tief: {formatPrice(minPrice, currency)}</span>
+        <span>Hoch: {formatPrice(maxPrice, currency)}</span>
+        <span>Jetzt: {formatPrice(points[points.length - 1].price, currency)}</span>
       </div>
 
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="chart-svg"
         role="img"
-        aria-label={`Bitcoin-Preischart für ${range} Tage`}
+        aria-label={`Bitcoin-Preischart für ${range} Tage in ${currency.toUpperCase()}`}
       >
         <defs>
           <linearGradient id="chartAreaGradient" x1="0" x2="0" y1="0" y2="1">

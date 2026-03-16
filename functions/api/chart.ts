@@ -3,6 +3,7 @@ type Env = {
 };
 
 type ChartRange = 1 | 7 | 30;
+type Currency = "usd" | "eur";
 
 type CoinGeckoMarketChartResponse = {
   prices?: [number, number][];
@@ -12,6 +13,10 @@ type CoinGeckoMarketChartResponse = {
 
 function isValidRange(value: string | null): value is `${ChartRange}` {
   return value === "1" || value === "7" || value === "30";
+}
+
+function isValidCurrency(value: string | null): value is Currency {
+  return value === "usd" || value === "eur";
 }
 
 export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
@@ -29,6 +34,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
 
   const url = new URL(request.url);
   const daysParam = url.searchParams.get("days");
+  const currencyParam = url.searchParams.get("currency") ?? "usd";
 
   if (!isValidRange(daysParam)) {
     return new Response(
@@ -42,11 +48,24 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
     );
   }
 
+  if (!isValidCurrency(currencyParam)) {
+    return new Response(
+      JSON.stringify({
+        error: "Ungültiger currency-Parameter. Erlaubt sind nur usd oder eur.",
+      }),
+      {
+        status: 400,
+        headers: { "content-type": "application/json; charset=utf-8" },
+      }
+    );
+  }
+
   const days = Number(daysParam) as ChartRange;
+  const currency = currencyParam as Currency;
 
   const apiUrl =
     "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart" +
-    `?vs_currency=usd&days=${days}&precision=2`;
+    `?vs_currency=${currency}&days=${days}&precision=2`;
 
   const response = await fetch(apiUrl, {
     headers: {
@@ -97,7 +116,7 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
   return new Response(
     JSON.stringify({
       source: "coingecko",
-      currency: "usd",
+      currency,
       range: days,
       points,
       stats: {

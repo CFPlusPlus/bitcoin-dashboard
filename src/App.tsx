@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import PriceChart from "./components/PriceChart";
 
+type Currency = "usd" | "eur";
+type ChartRange = 1 | 7 | 30;
+
 type Overview = {
   name: string;
   source: string;
@@ -29,11 +32,9 @@ type Network = {
   fetchedAt: string;
 };
 
-type ChartRange = 1 | 7 | 30;
-
 type ChartData = {
   source: string;
-  currency: "usd";
+  currency: Currency;
   range: ChartRange;
   points: Array<{
     timestamp: number;
@@ -47,12 +48,12 @@ type ChartData = {
   fetchedAt: string;
 };
 
-function formatCurrency(value: number | null, locale: string, currency: string) {
+function formatCurrency(value: number | null, currency: Currency) {
   if (value === null) return "–";
 
-  return new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat(currency === "usd" ? "en-US" : "de-DE", {
     style: "currency",
-    currency,
+    currency: currency.toUpperCase(),
     maximumFractionDigits: 0,
   }).format(value);
 }
@@ -78,8 +79,8 @@ async function fetchNetwork(): Promise<Network> {
   return res.json() as Promise<Network>;
 }
 
-async function fetchChart(range: ChartRange): Promise<ChartData> {
-  const res = await fetch(`/api/chart?days=${range}`);
+async function fetchChart(range: ChartRange, currency: Currency): Promise<ChartData> {
+  const res = await fetch(`/api/chart?days=${range}&currency=${currency}`);
   if (!res.ok) {
     throw new Error("Chart konnte nicht geladen werden");
   }
@@ -90,7 +91,9 @@ export default function App() {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [network, setNetwork] = useState<Network | null>(null);
   const [chart, setChart] = useState<ChartData | null>(null);
+
   const [range, setRange] = useState<ChartRange>(1);
+  const [currency, setCurrency] = useState<Currency>("usd");
 
   const [baseError, setBaseError] = useState<string>("");
   const [chartError, setChartError] = useState<string>("");
@@ -102,6 +105,7 @@ export default function App() {
   const [lastRefreshAt, setLastRefreshAt] = useState<string | null>(null);
 
   const initialChartHandledRef = useRef(false);
+  const initialRefreshHandledRef = useRef(false);
 
   const loadBaseData = useCallback(async (): Promise<boolean> => {
     setBaseError("");
@@ -126,31 +130,34 @@ export default function App() {
     }
   }, []);
 
-  const loadChartData = useCallback(async (selectedRange: ChartRange): Promise<boolean> => {
-    setChartError("");
-    setChartLoading(true);
+  const loadChartData = useCallback(
+    async (selectedRange: ChartRange, selectedCurrency: Currency): Promise<boolean> => {
+      setChartError("");
+      setChartLoading(true);
 
-    try {
-      const chartData = await fetchChart(selectedRange);
-      setChart(chartData);
-      return true;
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Chartdaten konnten nicht geladen werden";
-      setChartError(message);
-      return false;
-    } finally {
-      setChartLoading(false);
-    }
-  }, []);
+      try {
+        const chartData = await fetchChart(selectedRange, selectedCurrency);
+        setChart(chartData);
+        return true;
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Chartdaten konnten nicht geladen werden";
+        setChartError(message);
+        return false;
+      } finally {
+        setChartLoading(false);
+      }
+    },
+    []
+  );
 
   const refreshAll = useCallback(
-    async (selectedRange: ChartRange) => {
+    async (selectedRange: ChartRange, selectedCurrency: Currency) => {
       setRefreshing(true);
 
       const [baseOk, chartOk] = await Promise.all([
         loadBaseData(),
-        loadChartData(selectedRange),
+        loadChartData(selectedRange, selectedCurrency),
       ]);
 
       if (baseOk && chartOk) {
@@ -163,8 +170,10 @@ export default function App() {
   );
 
   useEffect(() => {
-    void refreshAll(1);
-  }, [refreshAll]);
+    if (initialRefreshHandledRef.current) return;
+    initialRefreshHandledRef.current = true;
+    void refreshAll(range, currency);
+  }, [range, currency, refreshAll]);
 
   useEffect(() => {
     if (!initialChartHandledRef.current) {
@@ -172,19 +181,39 @@ export default function App() {
       return;
     }
 
-    void loadChartData(range);
-  }, [range, loadChartData]);
+    void loadChartData(range, currency);
+  }, [range, currency, loadChartData]);
 
   useEffect(() => {
     const id = window.setInterval(() => {
-      void refreshAll(range);
+      void refreshAll(range, currency);
     }, 60_000);
 
     return () => window.clearInterval(id);
-  }, [range, refreshAll]);
+  }, [range, currency, refreshAll]);
 
   const showBaseSkeleton = !baseError && baseLoading && (!overview || !network);
   const showChartSkeleton = !chartError && chartLoading && !chart;
+
+  const selectedPrice =
+    currency === "usd" ? overview?.priceUsd ?? null : overview?.priceEur ?? null;
+
+  const selectedChange24h =
+    currency === "usd"
+      ? overview?.change24hUsd ?? null
+      : overview?.change24hEur ?? null;
+
+  const selectedVolume24h =
+    currency === "usd"
+      ? overview?.volume24hUsd ?? null
+      : overview?.volume24hEur ?? null;
+
+  const selectedMarketCap =
+    currency === "usd"
+      ? overview?.marketCapUsd ?? null
+      : overview?.marketCapEur ?? null;
+
+  const currencyLabel = currency.toUpperCase();
 
   return (
     <main className="page">
@@ -204,6 +233,19 @@ export default function App() {
           </div>
 
           <div className="toolbar-actions">
+            <div className="range-switcher" role="tablist" aria-label="Währung">
+              {(["usd", "eur"] as const).map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={currency === value ? "range-btn active" : "range-btn"}
+                  onClick={() => setCurrency(value)}
+                >
+                  {value.toUpperCase()}
+                </button>
+              ))}
+            </div>
+
             <span className="toolbar-time">
               Zuletzt aktualisiert:{" "}
               {lastRefreshAt
@@ -214,7 +256,7 @@ export default function App() {
             <button
               type="button"
               className="refresh-btn"
-              onClick={() => void refreshAll(range)}
+              onClick={() => void refreshAll(range, currency)}
               disabled={refreshing}
             >
               {refreshing ? "Aktualisiere…" : "Jetzt aktualisieren"}
@@ -228,28 +270,23 @@ export default function App() {
         {overview && network && (
           <section className="grid">
             <article className="card">
-              <p className="label">BTC Preis (USD)</p>
-              <h2>{formatCurrency(overview.priceUsd, "en-US", "USD")}</h2>
+              <p className="label">BTC Preis ({currencyLabel})</p>
+              <h2>{formatCurrency(selectedPrice, currency)}</h2>
             </article>
 
             <article className="card">
-              <p className="label">BTC Preis (EUR)</p>
-              <h2>{formatCurrency(overview.priceEur, "de-DE", "EUR")}</h2>
+              <p className="label">24h Änderung ({currencyLabel})</p>
+              <h2>{formatPercent(selectedChange24h)}</h2>
             </article>
 
             <article className="card">
-              <p className="label">24h Änderung (USD)</p>
-              <h2>{formatPercent(overview.change24hUsd)}</h2>
+              <p className="label">24h Volumen ({currencyLabel})</p>
+              <h2>{formatCurrency(selectedVolume24h, currency)}</h2>
             </article>
 
             <article className="card">
-              <p className="label">24h Volumen (USD)</p>
-              <h2>{formatCurrency(overview.volume24hUsd, "en-US", "USD")}</h2>
-            </article>
-
-            <article className="card">
-              <p className="label">Market Cap (USD)</p>
-              <h2>{formatCurrency(overview.marketCapUsd, "en-US", "USD")}</h2>
+              <p className="label">Market Cap ({currencyLabel})</p>
+              <h2>{formatCurrency(selectedMarketCap, currency)}</h2>
             </article>
 
             <article className="card">
@@ -275,7 +312,7 @@ export default function App() {
             <article className="card card-wide">
               <div className="chart-header">
                 <div>
-                  <p className="label">BTC Preisverlauf (USD)</p>
+                  <p className="label">BTC Preisverlauf ({currencyLabel})</p>
                   <h2>Chart</h2>
                 </div>
 
@@ -296,13 +333,18 @@ export default function App() {
               {chartError && <div className="chart-empty">Fehler: {chartError}</div>}
               {showChartSkeleton && <div className="chart-empty">Lade Chartdaten…</div>}
               {!chartError && !chartLoading && chart && (
-                <PriceChart points={chart.points} range={chart.range} />
+                <PriceChart
+                  points={chart.points}
+                  range={chart.range}
+                  currency={chart.currency}
+                />
               )}
             </article>
 
             <article className="card card-wide">
               <p className="label">Metadaten</p>
               <h2>{overview.name}</h2>
+              <p className="muted">Aktive Währung: {currencyLabel}</p>
               <p className="muted">Market source: {overview.source}</p>
               <p className="muted">Network source: {network.source}</p>
               <p className="muted">Chart source: {chart?.source ?? "–"}</p>
