@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PriceChart from "./components/PriceChart";
 
 type Overview = {
   name: string;
@@ -28,6 +29,24 @@ type Network = {
   fetchedAt: string;
 };
 
+type ChartRange = 1 | 7 | 30;
+
+type ChartData = {
+  source: string;
+  currency: "usd";
+  range: ChartRange;
+  points: Array<{
+    timestamp: number;
+    price: number;
+  }>;
+  stats: {
+    currentPrice: number | null;
+    minPrice: number | null;
+    maxPrice: number | null;
+  };
+  fetchedAt: string;
+};
+
 function formatCurrency(value: number | null, locale: string, currency: string) {
   if (value === null) return "–";
 
@@ -46,7 +65,12 @@ function formatPercent(value: number | null) {
 export default function App() {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [network, setNetwork] = useState<Network | null>(null);
-  const [error, setError] = useState<string>("");
+  const [chart, setChart] = useState<ChartData | null>(null);
+  const [range, setRange] = useState<ChartRange>(1);
+
+  const [baseError, setBaseError] = useState<string>("");
+  const [chartError, setChartError] = useState<string>("");
+  const [chartLoading, setChartLoading] = useState<boolean>(false);
 
   useEffect(() => {
     Promise.all([
@@ -63,8 +87,22 @@ export default function App() {
         setOverview(overviewData);
         setNetwork(networkData);
       })
-      .catch((err: Error) => setError(err.message));
+      .catch((err: Error) => setBaseError(err.message));
   }, []);
+
+  useEffect(() => {
+    setChartLoading(true);
+    setChartError("");
+
+    fetch(`/api/chart?days=${range}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Chart konnte nicht geladen werden");
+        return res.json() as Promise<ChartData>;
+      })
+      .then(setChart)
+      .catch((err: Error) => setChartError(err.message))
+      .finally(() => setChartLoading(false));
+  }, [range]);
 
   return (
     <main className="page">
@@ -77,8 +115,10 @@ export default function App() {
           </p>
         </header>
 
-        {error && <div className="card error">Fehler: {error}</div>}
-        {!error && (!overview || !network) && <div className="card">Lade Daten…</div>}
+        {baseError && <div className="card error">Fehler: {baseError}</div>}
+        {!baseError && (!overview || !network) && (
+          <div className="card">Lade Basisdaten…</div>
+        )}
 
         {overview && network && (
           <section className="grid">
@@ -128,10 +168,41 @@ export default function App() {
             </article>
 
             <article className="card card-wide">
+              <div className="chart-header">
+                <div>
+                  <p className="label">BTC Preisverlauf (USD)</p>
+                  <h2>Chart</h2>
+                </div>
+
+                <div className="range-switcher" role="tablist" aria-label="Zeitraum">
+                  {[1, 7, 30].map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={range === value ? "range-btn active" : "range-btn"}
+                      onClick={() => setRange(value as ChartRange)}
+                    >
+                      {value === 1 ? "1D" : `${value}D`}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {chartError && <div className="chart-empty">Fehler: {chartError}</div>}
+              {!chartError && chartLoading && (
+                <div className="chart-empty">Lade Chartdaten…</div>
+              )}
+              {!chartError && !chartLoading && chart && (
+                <PriceChart points={chart.points} range={chart.range} />
+              )}
+            </article>
+
+            <article className="card card-wide">
               <p className="label">Metadaten</p>
               <h2>{overview.name}</h2>
               <p className="muted">Market source: {overview.source}</p>
               <p className="muted">Network source: {network.source}</p>
+              <p className="muted">Chart source: {chart?.source ?? "–"}</p>
               <p className="muted">
                 CoinGecko lastUpdatedAt:{" "}
                 {overview.lastUpdatedAt
@@ -140,6 +211,10 @@ export default function App() {
               </p>
               <p className="muted">
                 Network fetchedAt: {new Date(network.fetchedAt).toLocaleString("de-DE")}
+              </p>
+              <p className="muted">
+                Chart fetchedAt:{" "}
+                {chart ? new Date(chart.fetchedAt).toLocaleString("de-DE") : "–"}
               </p>
             </article>
           </section>

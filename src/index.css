@@ -100,3 +100,88 @@ h2 {
   border-color: rgba(255, 99, 132, 0.35);
   color: #ffd5de;
 }
+
+.chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.range-switcher {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.range-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #dce3f1;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease,
+    background 120ms ease;
+}
+
+.range-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(247, 147, 26, 0.5);
+}
+
+.range-btn.active {
+  background: rgba(247, 147, 26, 0.14);
+  border-color: rgba(247, 147, 26, 0.65);
+  color: #fff;
+}
+
+.chart-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chart-summary {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  color: #aab3c5;
+  font-size: 0.95rem;
+}
+
+.chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart-axis {
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+}
+
+.chart-line {
+  fill: none;
+  stroke: #f7931a;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-label {
+  fill: #93a0b8;
+  font-size: 14px;
+}
+
+.chart-empty {
+  color: #aab3c5;
+  padding: 18px 0 6px;
+}
