@@ -1,31 +1,20 @@
-﻿import js from "@eslint/js";
-import globals from "globals";
-import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
-import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
 
 export default defineConfig([
-  globalIgnores(["coverage", "dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      js.configs.recommended,
-      ...tseslint.configs.recommended,
-      reactHooks.configs["recommended-latest"],
-      reactRefresh.configs.vite,
-    ],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
-  },
+  ...nextVitals,
+  globalIgnores([
+    ".next/**",
+    ".open-next/**",
+    "build/**",
+    "coverage/**",
+    "dist/**",
+    "next-env.d.ts",
+  ]),
   {
     files: ["**/*.{test,spec}.{ts,tsx}"],
     languageOptions: {
       globals: {
-        ...globals.browser,
-        ...globals.node,
         afterEach: "readonly",
         beforeEach: "readonly",
         describe: "readonly",

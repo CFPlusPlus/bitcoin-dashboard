@@ -1,6 +1,9 @@
-﻿import type { FormEvent } from "react";
+"use client";
+
+import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
+import { usePersistentState } from "../hooks/usePersistentState";
 import { fetchJson } from "../lib/api";
 import { buildDcaView } from "../lib/dca";
 import {
@@ -11,7 +14,6 @@ import {
   formatDateTime,
   formatPercent,
 } from "../lib/format";
-import { usePersistentState } from "../hooks/usePersistentState";
 import type { Currency, DcaEntry, DcaEntryStore, Overview } from "../types/dashboard";
 
 const STORAGE_KEYS = {
@@ -96,7 +98,7 @@ export default function DcaCalculatorPage() {
   const [marketLoading, setMarketLoading] = useState(true);
   const [marketError, setMarketError] = useState("");
 
-  const [date, setDate] = useState(getDefaultDate);
+  const [date, setDate] = useState("");
   const [amountInvested, setAmountInvested] = useState("");
   const [bitcoinPrice, setBitcoinPrice] = useState("");
   const [note, setNote] = useState("");
@@ -121,6 +123,10 @@ export default function DcaCalculatorPage() {
   useEffect(() => {
     void loadMarketOverview();
   }, [loadMarketOverview]);
+
+  useEffect(() => {
+    setDate((currentDate) => currentDate || getDefaultDate());
+  }, []);
 
   const entries = entryStore[currency];
   const currentPrice = getCurrentPrice(overview, currency);
@@ -262,7 +268,9 @@ export default function DcaCalculatorPage() {
         </article>
         <article className="card dca-summary-card">
           <p className="label">PnL</p>
-          <h3 className={pnlValueClassName}>{formatCurrency(dcaView.summary.pnlAbsolute, currency)}</h3>
+          <h3 className={pnlValueClassName}>
+            {formatCurrency(dcaView.summary.pnlAbsolute, currency)}
+          </h3>
           <p className={pnlClassName}>{formatPercent(dcaView.summary.pnlPercent)}</p>
         </article>
       </div>
@@ -335,7 +343,7 @@ export default function DcaCalculatorPage() {
             </div>
 
             <div className="dca-list-actions">
-              <Link className="range-btn tool-back-link" to="/tools">
+              <Link className="range-btn tool-back-link" href="/tools">
                 Zur Tool-Übersicht
               </Link>
               <button

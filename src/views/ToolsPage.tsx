@@ -1,4 +1,6 @@
-﻿import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 import { toolCards } from "../data/tools";
 
 export default function ToolsPage() {
@@ -26,7 +28,7 @@ export default function ToolsPage() {
                 </span>
               ))}
             </div>
-            <Link className="refresh-btn tool-link" to={tool.href}>
+            <Link className="refresh-btn tool-link" href={tool.href}>
               Tool öffnen
             </Link>
           </article>

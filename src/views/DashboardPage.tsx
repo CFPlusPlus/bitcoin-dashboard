@@ -1,6 +1,8 @@
-﻿import DashboardOverviewSection from "../components/DashboardOverviewSection";
-import DashboardToolbar from "../components/DashboardToolbar";
+"use client";
+
 import ChartSection from "../components/ChartSection";
+import DashboardOverviewSection from "../components/DashboardOverviewSection";
+import DashboardToolbar from "../components/DashboardToolbar";
 import MetadataSection from "../components/MetadataSection";
 import NoticeBar from "../components/NoticeBar";
 import PageHeader from "../components/PageHeader";

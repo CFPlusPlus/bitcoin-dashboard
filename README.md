@@ -1,14 +1,14 @@
-﻿# Bitcoin Dashboard
+# Bitcoin Dashboard
 
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)](#tech-stack)
 [![React](https://img.shields.io/badge/React-19-blue?logo=react)](#tech-stack)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](#tech-stack)
-[![Vite](https://img.shields.io/badge/Vite-7-purple?logo=vite)](#tech-stack)
-[![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-orange?logo=cloudflare)](#deployment)
-[![Status](https://img.shields.io/badge/status-MVP-yellow)](#mvp-status)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange?logo=cloudflare)](#deployment)
+[![Status](https://img.shields.io/badge/status-MVP-yellow)](#project-status)
 
-A lightweight Bitcoin dashboard built with React, TypeScript and Vite, powered by Cloudflare Pages Functions.
+A lightweight Bitcoin dashboard built with Next.js, React and TypeScript, deployed to Cloudflare Workers via OpenNext.
 
-## Preview
+## Project Status
 
 The app currently includes:
 
@@ -31,54 +31,42 @@ The app currently includes:
 ## Tech Stack
 
 ### Frontend
-- React
-- React Router
-- TypeScript
-- Vite
 
-### Serverless API
-- Cloudflare Pages Functions
+- Next.js App Router
+- React
+- TypeScript
+
+### Server Runtime
+
+- Next.js Route Handlers
+- Cloudflare Workers
+- OpenNext for Cloudflare
 
 ### Data Providers
+
 - CoinGecko for market and chart data
 - mempool.space for Bitcoin network data
 - Alternative.me for Fear & Greed
 
 ## Architecture
 
-This project is designed as a single-repo full-stack Pages app:
+This project is a single-repo full-stack Next.js app:
 
-- the frontend is served as static assets via Cloudflare Pages
-- the backend layer is implemented through Cloudflare Pages Functions
-- external APIs are called server-side through the Functions layer
-- the UI is split into dashboard pages and dedicated tool pages
-- no traditional database is required for the current MVP
+- UI routes live in `src/app`
+- shared interactive UI lives in `src/views`, `src/components`, `src/hooks` and `src/lib`
+- API endpoints live in `src/app/api/*/route.ts`
+- provider access and server helpers live in `src/server`
+- Cloudflare Worker output is generated into `.open-next/`
 
 ## Routes
 
 - `/` - dashboard home
 - `/tools` - tool overview
 - `/tools/dca-rechner` - DCA calculator tool page
-
-## Features
-
-### Dashboard
-- Current BTC price
-- 24h change
-- 24h volume
-- Market cap
-- 24h high / low
-- Latest Bitcoin block height
-- Recommended fees
-- Fear & Greed Index
-- 1D / 7D / 30D chart
-- USD / EUR support
-
-### Tools Area
-- Dedicated space for future calculators and utilities
-- DCA calculator with separate USD and EUR entry histories
-- Average buy price, invested capital, BTC amount and PnL overview
-- Current market-price comparison based on live overview data
+- `/api/overview` - market overview proxy
+- `/api/chart` - chart proxy
+- `/api/network` - network proxy
+- `/api/sentiment` - sentiment proxy
 
 ## Getting Started
 
@@ -104,48 +92,57 @@ COINGECKO_DEMO_API_KEY="your_demo_key"
 Important:
 
 - do not commit `.dev.vars`
-- set the same variable later in Cloudflare Pages for production
+- set the same variable in your Cloudflare Worker environment for production
 
-### Run locally
-
-For local development with Cloudflare Pages Functions:
-
-```bash
-npm run build
-npx wrangler pages dev dist
-```
-
-You can also use the predefined script:
-
-```bash
-npm run cf:dev
-```
-
-## Available Scripts
+## Development
 
 ```bash
 npm run dev
 ```
 
-Starts the Vite frontend in development mode.
-
-```bash
-npm run build
-```
-
-Builds the production bundle.
-
-```bash
-npm run preview
-```
-
-Serves the Vite production build locally.
+Starts the Next.js development server.
 
 ```bash
 npm run cf:dev
 ```
 
-Builds the app and starts it locally with Cloudflare Pages / Wrangler.
+Builds the OpenNext Cloudflare bundle and starts the local Cloudflare preview.
+
+```bash
+npm run cf:build
+```
+
+Builds the OpenNext Cloudflare Worker bundle only.
+
+```bash
+npm run cf:preview
+```
+
+Starts the local Cloudflare preview from an existing OpenNext build.
+
+```bash
+npm run build
+```
+
+Builds the Next.js production app.
+
+`npm run preview` does the same as `npm run cf:dev`.
+
+### Windows note
+
+OpenNext currently warns that native Windows is not fully reliable for local preview.
+
+In practice this means:
+
+- `npm run dev` is the best default command for day-to-day local development on Windows
+- `npm run cf:dev` and `npm run cf:preview` are better run in WSL when you want Cloudflare parity
+- rerunning OpenNext preview on native Windows can also hit `.open-next` file-lock errors
+
+```bash
+npm run deploy
+```
+
+Builds and deploys the OpenNext bundle to Cloudflare Workers.
 
 ```bash
 npm run lint
@@ -159,29 +156,56 @@ npm run test
 
 Runs the Vitest test suite once.
 
+```bash
+npm run cf:typegen
+```
+
+Generates Cloudflare environment typings.
+
+## Deployment
+
+This project targets Cloudflare Workers with OpenNext.
+
+Typical flow:
+
+```bash
+npm run build
+npx opennextjs-cloudflare build
+wrangler deploy
+```
+
+Important:
+
+- `npx wrangler pages dev dist` is from the old Vite + Cloudflare Pages setup and no longer applies
+- this project now runs as a Cloudflare Worker via OpenNext, not as a Pages app with `functions/`
+
 ## Project Structure
 
 ```text
 bitcoin-dashboard/
-|-- functions/
-|   |-- api/
-|   |   |-- chart.ts
-|   |   |-- network.ts
-|   |   |-- overview.ts
-|   |   `-- sentiment.ts
-|   `-- lib/
-|       `-- http.ts
+|-- public/
 |-- src/
+|   |-- app/
+|   |   |-- api/
+|   |   |   |-- chart/
+|   |   |   |-- network/
+|   |   |   |-- overview/
+|   |   |   `-- sentiment/
+|   |   |-- tools/
+|   |   |   `-- dca-rechner/
+|   |   |-- globals.css
+|   |   |-- layout.tsx
+|   |   `-- page.tsx
 |   |-- components/
 |   |-- data/
 |   |-- hooks/
 |   |-- lib/
-|   |-- pages/
+|   |-- server/
 |   |-- types/
-|   |-- App.tsx
-|   `-- main.tsx
+|   `-- views/
+|-- next.config.ts
+|-- open-next.config.ts
 |-- package.json
 |-- tsconfig.json
-|-- vite.config.ts
 `-- wrangler.jsonc
 ```

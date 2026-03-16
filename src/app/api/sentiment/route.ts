@@ -1,4 +1,4 @@
-﻿import { errorResponse, fetchWithTimeout, jsonResponse, readErrorBody } from "../lib/http";
+import { errorResponse, fetchWithTimeout, jsonResponse, readErrorBody } from "../../../server/http";
 
 type FearAndGreedApiResponse = {
   name?: string;
@@ -13,7 +13,7 @@ type FearAndGreedApiResponse = {
   };
 };
 
-export const onRequestGet: PagesFunction = async () => {
+export async function GET() {
   let response: Response;
 
   try {
@@ -82,4 +82,4 @@ export const onRequestGet: PagesFunction = async () => {
       },
     }
   );
-};
+}

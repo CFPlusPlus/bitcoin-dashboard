@@ -1,8 +1,11 @@
-﻿import { errorResponse, fetchWithTimeout, getReasonMessage, jsonResponse, readErrorBody } from "../lib/http";
-
-type Env = {
-  COINGECKO_DEMO_API_KEY?: string;
-};
+import { getAppEnv } from "../../../server/env";
+import {
+  errorResponse,
+  fetchWithTimeout,
+  getReasonMessage,
+  jsonResponse,
+  readErrorBody,
+} from "../../../server/http";
 
 type MarketItem = {
   current_price?: number | null;
@@ -46,8 +49,8 @@ async function fetchMarketData(currency: "usd" | "eur", apiKey: string): Promise
   return data[0];
 }
 
-export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
-  const apiKey = env.COINGECKO_DEMO_API_KEY;
+export async function GET() {
+  const apiKey = getAppEnv().COINGECKO_DEMO_API_KEY;
 
   if (!apiKey) {
     return errorResponse(500, "COINGECKO_DEMO_API_KEY fehlt.");
@@ -101,4 +104,4 @@ export const onRequestGet: PagesFunction<Env> = async ({ env }) => {
       },
     }
   );
-};
+}

@@ -1,4 +1,10 @@
-﻿import { errorResponse, fetchWithTimeout, getReasonMessage, jsonResponse, readErrorBody } from "../lib/http";
+import {
+  errorResponse,
+  fetchWithTimeout,
+  getReasonMessage,
+  jsonResponse,
+  readErrorBody,
+} from "../../../server/http";
 
 type RecommendedFees = {
   fastestFee?: number;
@@ -48,7 +54,7 @@ async function fetchLatestBlockHeight() {
   return latestBlockHeight;
 }
 
-export const onRequestGet: PagesFunction = async () => {
+export async function GET() {
   const [feesResult, blockHeightResult] = await Promise.allSettled([
     fetchRecommendedFees(),
     fetchLatestBlockHeight(),
@@ -93,4 +99,4 @@ export const onRequestGet: PagesFunction = async () => {
       },
     }
   );
-};
+}

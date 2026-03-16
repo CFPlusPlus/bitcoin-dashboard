@@ -1,12 +1,8 @@
-﻿const JSON_HEADERS = {
+const JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",
 };
 
-export async function fetchWithTimeout(
-  input: string,
-  init: RequestInit,
-  timeoutMs = 8000
-) {
+export async function fetchWithTimeout(input: string, init: RequestInit, timeoutMs = 8000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 

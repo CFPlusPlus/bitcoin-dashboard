@@ -1,8 +1,5 @@
-﻿import { errorResponse, fetchWithTimeout, jsonResponse, readErrorBody } from "../lib/http";
-
-type Env = {
-  COINGECKO_DEMO_API_KEY?: string;
-};
+import { getAppEnv } from "../../../server/env";
+import { errorResponse, fetchWithTimeout, jsonResponse, readErrorBody } from "../../../server/http";
 
 type ChartRange = 1 | 7 | 30;
 type Currency = "usd" | "eur";
@@ -30,8 +27,8 @@ function isPoint(value: unknown): value is [number, number] {
   );
 }
 
-export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
-  const apiKey = env.COINGECKO_DEMO_API_KEY;
+export async function GET(request: Request) {
+  const apiKey = getAppEnv().COINGECKO_DEMO_API_KEY;
 
   if (!apiKey) {
     return errorResponse(500, "COINGECKO_DEMO_API_KEY fehlt.");
@@ -122,4 +119,4 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env }) => {
       },
     }
   );
-};
+}
