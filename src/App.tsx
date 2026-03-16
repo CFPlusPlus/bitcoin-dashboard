@@ -15,6 +15,19 @@ type Overview = {
   fetchedAt: string;
 };
 
+type Network = {
+  source: string;
+  latestBlockHeight: number;
+  fees: {
+    fastestFee: number | null;
+    halfHourFee: number | null;
+    hourFee: number | null;
+    economyFee: number | null;
+    minimumFee: number | null;
+  };
+  fetchedAt: string;
+};
+
 function formatCurrency(value: number | null, locale: string, currency: string) {
   if (value === null) return "–";
 
@@ -31,18 +44,25 @@ function formatPercent(value: number | null) {
 }
 
 export default function App() {
-  const [data, setData] = useState<Overview | null>(null);
+  const [overview, setOverview] = useState<Overview | null>(null);
+  const [network, setNetwork] = useState<Network | null>(null);
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    fetch("/api/overview")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("API konnte nicht geladen werden");
-        }
+    Promise.all([
+      fetch("/api/overview").then((res) => {
+        if (!res.ok) throw new Error("Overview konnte nicht geladen werden");
         return res.json() as Promise<Overview>;
+      }),
+      fetch("/api/network").then((res) => {
+        if (!res.ok) throw new Error("Network konnte nicht geladen werden");
+        return res.json() as Promise<Network>;
+      }),
+    ])
+      .then(([overviewData, networkData]) => {
+        setOverview(overviewData);
+        setNetwork(networkData);
       })
-      .then(setData)
       .catch((err: Error) => setError(err.message));
   }, []);
 
@@ -53,53 +73,73 @@ export default function App() {
           <p className="eyebrow">MVP</p>
           <h1>Bitcoin Dashboard</h1>
           <p className="subtitle">
-            Erste echte Marktdaten über CoinGecko und Cloudflare Pages Functions.
+            Marktdaten über CoinGecko und Netzwerkdaten über mempool.space.
           </p>
         </header>
 
         {error && <div className="card error">Fehler: {error}</div>}
-        {!error && !data && <div className="card">Lade Daten…</div>}
+        {!error && (!overview || !network) && <div className="card">Lade Daten…</div>}
 
-        {data && (
+        {overview && network && (
           <section className="grid">
             <article className="card">
               <p className="label">BTC Preis (USD)</p>
-              <h2>{formatCurrency(data.priceUsd, "en-US", "USD")}</h2>
+              <h2>{formatCurrency(overview.priceUsd, "en-US", "USD")}</h2>
             </article>
 
             <article className="card">
               <p className="label">BTC Preis (EUR)</p>
-              <h2>{formatCurrency(data.priceEur, "de-DE", "EUR")}</h2>
+              <h2>{formatCurrency(overview.priceEur, "de-DE", "EUR")}</h2>
             </article>
 
             <article className="card">
               <p className="label">24h Änderung (USD)</p>
-              <h2>{formatPercent(data.change24hUsd)}</h2>
+              <h2>{formatPercent(overview.change24hUsd)}</h2>
             </article>
 
             <article className="card">
               <p className="label">24h Volumen (USD)</p>
-              <h2>{formatCurrency(data.volume24hUsd, "en-US", "USD")}</h2>
+              <h2>{formatCurrency(overview.volume24hUsd, "en-US", "USD")}</h2>
             </article>
 
             <article className="card">
               <p className="label">Market Cap (USD)</p>
-              <h2>{formatCurrency(data.marketCapUsd, "en-US", "USD")}</h2>
+              <h2>{formatCurrency(overview.marketCapUsd, "en-US", "USD")}</h2>
+            </article>
+
+            <article className="card">
+              <p className="label">Letzte Blockhöhe</p>
+              <h2>{network.latestBlockHeight.toLocaleString("de-DE")}</h2>
+            </article>
+
+            <article className="card">
+              <p className="label">Fastest Fee</p>
+              <h2>{network.fees.fastestFee ?? "–"} sat/vB</h2>
+            </article>
+
+            <article className="card">
+              <p className="label">Half Hour Fee</p>
+              <h2>{network.fees.halfHourFee ?? "–"} sat/vB</h2>
+            </article>
+
+            <article className="card">
+              <p className="label">Hour Fee</p>
+              <h2>{network.fees.hourFee ?? "–"} sat/vB</h2>
             </article>
 
             <article className="card card-wide">
               <p className="label">Metadaten</p>
-              <h2>{data.name}</h2>
-              <p className="muted">Quelle: {data.source}</p>
+              <h2>{overview.name}</h2>
+              <p className="muted">Market source: {overview.source}</p>
+              <p className="muted">Network source: {network.source}</p>
               <p className="muted">
                 CoinGecko lastUpdatedAt:{" "}
-                {data.lastUpdatedAt
-                  ? new Date(data.lastUpdatedAt).toLocaleString("de-DE")
+                {overview.lastUpdatedAt
+                  ? new Date(overview.lastUpdatedAt).toLocaleString("de-DE")
                   : "–"}
               </p>
               <p className="muted">
-                Function fetchedAt:{" "}
-                {new Date(data.fetchedAt).toLocaleString("de-DE")}
+                Network fetchedAt: {new Date(network.fetchedAt).toLocaleString("de-DE")}
               </p>
             </article>
           </section>
