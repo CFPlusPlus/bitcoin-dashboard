@@ -2,12 +2,33 @@ import { useEffect, useState } from "react";
 
 type Overview = {
   name: string;
-  btcPriceUsd: number;
-  btcPriceEur: number;
-  change24h: number;
   source: string;
-  updatedAt: string;
+  priceUsd: number | null;
+  priceEur: number | null;
+  change24hUsd: number | null;
+  change24hEur: number | null;
+  marketCapUsd: number | null;
+  marketCapEur: number | null;
+  volume24hUsd: number | null;
+  volume24hEur: number | null;
+  lastUpdatedAt: string | null;
+  fetchedAt: string;
 };
+
+function formatCurrency(value: number | null, locale: string, currency: string) {
+  if (value === null) return "–";
+
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatPercent(value: number | null) {
+  if (value === null) return "–";
+  return `${value.toFixed(2)}%`;
+}
 
 export default function App() {
   const [data, setData] = useState<Overview | null>(null);
@@ -32,41 +53,53 @@ export default function App() {
           <p className="eyebrow">MVP</p>
           <h1>Bitcoin Dashboard</h1>
           <p className="subtitle">
-            Erste lokale Version mit React und Cloudflare Pages Functions.
+            Erste echte Marktdaten über CoinGecko und Cloudflare Pages Functions.
           </p>
         </header>
 
         {error && <div className="card error">Fehler: {error}</div>}
-
         {!error && !data && <div className="card">Lade Daten…</div>}
 
         {data && (
           <section className="grid">
             <article className="card">
               <p className="label">BTC Preis (USD)</p>
-              <h2>${data.btcPriceUsd.toLocaleString("en-US")}</h2>
+              <h2>{formatCurrency(data.priceUsd, "en-US", "USD")}</h2>
             </article>
 
             <article className="card">
               <p className="label">BTC Preis (EUR)</p>
-              <h2>€{data.btcPriceEur.toLocaleString("de-DE")}</h2>
+              <h2>{formatCurrency(data.priceEur, "de-DE", "EUR")}</h2>
             </article>
 
             <article className="card">
-              <p className="label">24h Änderung</p>
-              <h2>{data.change24h.toFixed(2)}%</h2>
+              <p className="label">24h Änderung (USD)</p>
+              <h2>{formatPercent(data.change24hUsd)}</h2>
             </article>
 
             <article className="card">
-              <p className="label">Quelle</p>
-              <h2>{data.source}</h2>
+              <p className="label">24h Volumen (USD)</p>
+              <h2>{formatCurrency(data.volume24hUsd, "en-US", "USD")}</h2>
+            </article>
+
+            <article className="card">
+              <p className="label">Market Cap (USD)</p>
+              <h2>{formatCurrency(data.marketCapUsd, "en-US", "USD")}</h2>
             </article>
 
             <article className="card card-wide">
-              <p className="label">Projekt</p>
+              <p className="label">Metadaten</p>
               <h2>{data.name}</h2>
+              <p className="muted">Quelle: {data.source}</p>
               <p className="muted">
-                Aktualisiert: {new Date(data.updatedAt).toLocaleString("de-DE")}
+                CoinGecko lastUpdatedAt:{" "}
+                {data.lastUpdatedAt
+                  ? new Date(data.lastUpdatedAt).toLocaleString("de-DE")
+                  : "–"}
+              </p>
+              <p className="muted">
+                Function fetchedAt:{" "}
+                {new Date(data.fetchedAt).toLocaleString("de-DE")}
               </p>
             </article>
           </section>
