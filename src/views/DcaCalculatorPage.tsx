@@ -3,6 +3,7 @@
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import AsyncContent from "../components/AsyncContent";
 import { usePersistentState } from "../hooks/usePersistentState";
 import { fetchJson } from "../lib/api";
 import { buildDcaView } from "../lib/dca";
@@ -141,17 +142,17 @@ export default function DcaCalculatorPage() {
     const parsedBitcoinPrice = Number(bitcoinPrice.replace(",", "."));
 
     if (!date) {
-      setFormError("Bitte ein gültiges Kaufdatum angeben.");
+      setFormError("Bitte ein gultiges Kaufdatum angeben.");
       return;
     }
 
     if (!Number.isFinite(parsedAmountInvested) || parsedAmountInvested <= 0) {
-      setFormError("Bitte einen gültigen Investitionsbetrag größer als 0 eingeben.");
+      setFormError("Bitte einen gultigen Investitionsbetrag grosser als 0 eingeben.");
       return;
     }
 
     if (!Number.isFinite(parsedBitcoinPrice) || parsedBitcoinPrice <= 0) {
-      setFormError("Bitte einen gültigen BTC-Preis größer als 0 eingeben.");
+      setFormError("Bitte einen gultigen BTC-Preis grosser als 0 eingeben.");
       return;
     }
 
@@ -198,7 +199,7 @@ export default function DcaCalculatorPage() {
         <p className="eyebrow">Tool</p>
         <h2>DCA-Rechner / Durchschnittskaufpreis</h2>
         <p className="subtitle">
-          Erfasse wiederkehrende Käufe, berechne deinen durchschnittlichen Einstieg und
+          Erfasse wiederkehrende Kaufe, berechne deinen durchschnittlichen Einstieg und
           vergleiche ihn mit dem aktuellen Marktpreis in {currency.toUpperCase()}.
         </p>
       </header>
@@ -207,18 +208,27 @@ export default function DcaCalculatorPage() {
         <div className="tool-toolbar-copy">
           <p className="label">Marktdaten</p>
           <h3>Aktueller Referenzpreis</h3>
-          <p className="muted">
-            {marketLoading
-              ? "Lade aktuellen BTC-Preis..."
-              : `Marktpreis: ${formatCurrency(currentPrice, currency)} · Stand: ${formatDateTime(
-                  overview?.fetchedAt ?? null
-                )}`}
-          </p>
-          {marketError && <p className="muted">Fehler: {marketError}</p>}
+          <AsyncContent
+            error={marketError}
+            hasContent={overview !== null}
+            loading={marketLoading}
+            loadingMessage="Der aktuelle BTC-Preis wird geladen."
+            loadingTitle="Referenzpreis wird geladen"
+            onAction={() => void loadMarketOverview()}
+            preserveContentOnError
+            unavailableMessage="Letzter Referenzpreis wird angezeigt. Live-Daten sind gerade nicht verfugbar."
+            unavailableTitle="Referenzpreis vorubergehend nicht verfugbar"
+          >
+            <p className="muted">
+              {`Marktpreis: ${formatCurrency(currentPrice, currency)} · Stand: ${formatDateTime(
+                overview?.fetchedAt ?? null
+              )}`}
+            </p>
+          </AsyncContent>
         </div>
 
         <div className="tool-toolbar-actions">
-          <div className="range-switcher" role="tablist" aria-label="Tool-Währung">
+          <div className="range-switcher" role="tablist" aria-label="Tool-Wahrung">
             {(["usd", "eur"] as const).map((value) => (
               <button
                 key={value}
@@ -278,7 +288,7 @@ export default function DcaCalculatorPage() {
       <div className="tool-detail-layout dca-layout">
         <article className="card dca-form-card">
           <p className="label">Neuer Kauf</p>
-          <h3>DCA-Eintrag hinzufügen</h3>
+          <h3>DCA-Eintrag hinzufugen</h3>
 
           <form className="dca-form" onSubmit={handleAddEntry}>
             <label className="input-group">
@@ -318,7 +328,7 @@ export default function DcaCalculatorPage() {
                 type="text"
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
-                placeholder="z. B. Monatsrate März"
+                placeholder="z. B. Monatsrate Marz"
               />
             </label>
 
@@ -326,10 +336,10 @@ export default function DcaCalculatorPage() {
 
             <div className="dca-form-actions">
               <button type="submit" className="refresh-btn">
-                Kauf hinzufügen
+                Kauf hinzufugen
               </button>
               <p className="muted">
-                Einträge werden lokal gespeichert. USD- und EUR-Reihen werden getrennt geführt.
+                Eintrage werden lokal gespeichert. USD- und EUR-Reihen werden getrennt gefuhrt.
               </p>
             </div>
           </form>
@@ -339,12 +349,12 @@ export default function DcaCalculatorPage() {
           <div className="dca-list-header">
             <div>
               <p className="label">Kaufhistorie</p>
-              <h3>{dcaView.summary.totalEntries} Einträge</h3>
+              <h3>{dcaView.summary.totalEntries} Eintrage</h3>
             </div>
 
             <div className="dca-list-actions">
               <Link className="range-btn tool-back-link" href="/tools">
-                Zur Tool-Übersicht
+                Zur Tool-Ubersicht
               </Link>
               <button
                 type="button"
@@ -352,19 +362,25 @@ export default function DcaCalculatorPage() {
                 onClick={handleClearEntries}
                 disabled={entries.length === 0}
               >
-                Alles löschen
+                Alles loschen
               </button>
             </div>
           </div>
 
           {entries.length === 0 ? (
-            <div className="dca-empty-state">
-              <p>Noch keine DCA-Einträge in {currency.toUpperCase()} vorhanden.</p>
-              <p className="muted">
-                Füge deinen ersten Kauf hinzu, damit der Rechner Durchschnittspreis und
-                Performance berechnen kann.
-              </p>
-            </div>
+            <AsyncContent
+              emptyMessage={`Fuge deinen ersten Kauf in ${currency.toUpperCase()} hinzu, damit der Rechner Durchschnittspreis und Performance berechnen kann.`}
+              emptyTitle={`Keine DCA-Eintrage in ${currency.toUpperCase()}`}
+              error=""
+              hasContent={false}
+              isEmpty
+              loading={false}
+              loadingMessage=""
+              loadingTitle=""
+              stateClassName="dca-empty-state"
+            >
+              {null}
+            </AsyncContent>
           ) : (
             <ul className="dca-entry-list">
               {dcaView.items.map((entry) => (

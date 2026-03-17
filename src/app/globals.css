@@ -182,6 +182,73 @@ h3 {
   color: #ffd5de;
 }
 
+.async-state {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.async-state-compact {
+  margin-bottom: 16px;
+}
+
+.async-state-loading {
+  border-style: dashed;
+}
+
+.async-state-error {
+  border-color: rgba(255, 159, 122, 0.3);
+  background: rgba(255, 159, 122, 0.08);
+}
+
+.async-state-empty {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.async-state-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.async-state-title,
+.async-state-message {
+  margin: 0;
+}
+
+.async-state-title {
+  color: #f5f7fb;
+  font-weight: 700;
+}
+
+.async-state-message {
+  color: #93a0b8;
+}
+
+.async-state-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(247, 147, 26, 0.18);
+  border-top-color: #f7931a;
+  animation: async-state-spin 0.9s linear infinite;
+}
+
+.async-state-action {
+  width: fit-content;
+}
+
+@keyframes async-state-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .notice-card {
   margin-bottom: 16px;
   border-color: rgba(247, 147, 26, 0.22);
@@ -334,13 +401,7 @@ h3 {
 }
 
 .dca-empty-state {
-  border-radius: 16px;
-  border: 1px dashed rgba(255, 255, 255, 0.12);
-  padding: 18px;
-}
-
-.dca-empty-state p {
-  margin: 0;
+  min-height: 100%;
 }
 
 .dca-entry-list {
@@ -475,8 +536,7 @@ h3 {
 }
 
 .chart-empty {
-  color: #aab3c5;
-  padding: 18px 0 6px;
+  margin-top: 4px;
 }
 
 .toolbar {

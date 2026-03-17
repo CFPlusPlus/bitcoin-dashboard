@@ -9,21 +9,29 @@ import DashboardControlsSection from "../views/dashboard/DashboardControlsSectio
 export default function HomePage() {
   const {
     autoRefresh,
-    baseError,
     chart,
     chartError,
     chartLoading,
     currency,
+    loadChartData,
+    loadNetworkData,
+    loadOverviewData,
+    loadSentimentData,
     lastRefreshAt,
     network,
+    networkError,
+    networkLoading,
     overview,
+    overviewError,
+    overviewLoading,
     range,
     refreshing,
     sentiment,
     sentimentError,
     sentimentLoading,
-    showBaseSkeleton,
     showChartSkeleton,
+    showNetworkSkeleton,
+    showOverviewSkeleton,
     showSentimentSkeleton,
     warnings,
     refreshAll,
@@ -48,26 +56,31 @@ export default function HomePage() {
 
       <NoticeBar warnings={warnings} />
 
-      {baseError && <div className="card error">Fehler: {baseError}</div>}
-      {showBaseSkeleton && <div className="card">Lade Basisdaten...</div>}
-
-      {overview && network && (
-        <DashboardContent
-          chart={chart}
-          chartError={chartError}
-          chartLoading={chartLoading}
-          currency={currency}
-          network={network}
-          overview={overview}
-          range={range}
-          sentiment={sentiment}
-          sentimentError={sentimentError}
-          sentimentLoading={sentimentLoading}
-          showChartSkeleton={showChartSkeleton}
-          showSentimentSkeleton={showSentimentSkeleton}
-          onRangeChange={setRange}
-        />
-      )}
+      <DashboardContent
+        chart={chart}
+        chartError={chartError}
+        chartLoading={chartLoading}
+        currency={currency}
+        network={network}
+        networkError={networkError}
+        networkLoading={networkLoading}
+        overview={overview}
+        overviewError={overviewError}
+        overviewLoading={overviewLoading}
+        range={range}
+        sentiment={sentiment}
+        sentimentError={sentimentError}
+        sentimentLoading={sentimentLoading}
+        showChartSkeleton={showChartSkeleton}
+        showNetworkSkeleton={showNetworkSkeleton}
+        showOverviewSkeleton={showOverviewSkeleton}
+        showSentimentSkeleton={showSentimentSkeleton}
+        onChartRetry={() => void loadChartData(range, currency)}
+        onNetworkRetry={() => void loadNetworkData()}
+        onOverviewRetry={() => void loadOverviewData()}
+        onSentimentRetry={() => void loadSentimentData()}
+        onRangeChange={setRange}
+      />
     </>
   );
 }

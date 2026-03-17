@@ -66,11 +66,13 @@ export function useDashboardData() {
     isBoolean
   );
 
-  const [baseError, setBaseError] = useState("");
+  const [overviewError, setOverviewError] = useState("");
+  const [networkError, setNetworkError] = useState("");
   const [chartError, setChartError] = useState("");
   const [sentimentError, setSentimentError] = useState("");
 
-  const [baseLoading, setBaseLoading] = useState(true);
+  const [overviewLoading, setOverviewLoading] = useState(true);
+  const [networkLoading, setNetworkLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
   const [sentimentLoading, setSentimentLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -80,26 +82,39 @@ export function useDashboardData() {
   const initialChartHandledRef = useRef(false);
   const initialRefreshHandledRef = useRef(false);
 
-  const loadBaseData = useCallback(async () => {
-    setBaseError("");
-    setBaseLoading(true);
+  const loadOverviewData = useCallback(async () => {
+    setOverviewError("");
+    setOverviewLoading(true);
 
     try {
-      const [overviewData, networkData] = await Promise.all([
-        fetchOverview(),
-        fetchNetwork(),
-      ]);
-
+      const overviewData = await fetchOverview();
       setOverview(overviewData);
+      return true;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Marktdaten konnten nicht geladen werden.";
+      setOverviewError(message);
+      return false;
+    } finally {
+      setOverviewLoading(false);
+    }
+  }, []);
+
+  const loadNetworkData = useCallback(async () => {
+    setNetworkError("");
+    setNetworkLoading(true);
+
+    try {
+      const networkData = await fetchNetwork();
       setNetwork(networkData);
       return true;
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Basisdaten konnten nicht geladen werden.";
-      setBaseError(message);
+        error instanceof Error ? error.message : "Netzwerkdaten konnten nicht geladen werden.";
+      setNetworkError(message);
       return false;
     } finally {
-      setBaseLoading(false);
+      setNetworkLoading(false);
     }
   }, []);
 
@@ -143,19 +158,20 @@ export function useDashboardData() {
     async (selectedRange: ChartRange, selectedCurrency: Currency) => {
       setRefreshing(true);
 
-      const [baseOk, chartOk, sentimentOk] = await Promise.all([
-        loadBaseData(),
+      const [overviewOk, networkOk, chartOk, sentimentOk] = await Promise.all([
+        loadOverviewData(),
+        loadNetworkData(),
         loadChartData(selectedRange, selectedCurrency),
         loadSentimentData(),
       ]);
 
-      if (baseOk && chartOk && sentimentOk) {
+      if (overviewOk && networkOk && chartOk && sentimentOk) {
         setLastRefreshAt(new Date().toISOString());
       }
 
       setRefreshing(false);
     },
-    [loadBaseData, loadChartData, loadSentimentData]
+    [loadChartData, loadNetworkData, loadOverviewData, loadSentimentData]
   );
 
   useEffect(() => {
@@ -196,27 +212,34 @@ export function useDashboardData() {
 
   return {
     autoRefresh,
-    baseError,
-    baseLoading,
     chart,
     chartError,
     chartLoading,
     currency,
     lastRefreshAt,
     network,
+    networkError,
+    networkLoading,
     overview,
+    overviewError,
+    overviewLoading,
     range,
     refreshing,
     sentiment,
     sentimentError,
     sentimentLoading,
-    showBaseSkeleton: !baseError && baseLoading && (!overview || !network),
+    showNetworkSkeleton: !networkError && networkLoading && !network,
+    showOverviewSkeleton: !overviewError && overviewLoading && !overview,
     showChartSkeleton: !chartError && chartLoading && !chart,
     showSentimentSkeleton: !sentimentError && sentimentLoading && !sentiment,
     warnings,
     setAutoRefresh,
     setCurrency,
     setRange,
+    loadNetworkData,
+    loadOverviewData,
+    loadSentimentData,
+    loadChartData,
     refreshAll,
   };
 }

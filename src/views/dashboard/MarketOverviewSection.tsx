@@ -1,16 +1,43 @@
+import AsyncContent from "../../components/AsyncContent";
+import MetricCard from "../../components/MetricCard";
 import { formatCurrency, formatPercent } from "../../lib/format";
 import type { Currency, Overview } from "../../types/dashboard";
-import MetricCard from "../../components/MetricCard";
 
 type MarketOverviewSectionProps = {
   currency: Currency;
-  overview: Overview;
+  overview: Overview | null;
+  overviewError: string;
+  overviewLoading: boolean;
+  showOverviewSkeleton: boolean;
+  onRetry: () => void;
 };
 
 export default function MarketOverviewSection({
   currency,
   overview,
+  overviewError,
+  overviewLoading,
+  showOverviewSkeleton,
+  onRetry,
 }: MarketOverviewSectionProps) {
+  if (!overview) {
+    return (
+      <AsyncContent
+        error={overviewError}
+        hasContent={false}
+        loading={showOverviewSkeleton || overviewLoading}
+        loadingMessage="Preis, Volumen und Market Cap werden aktualisiert."
+        loadingTitle="Marktdaten werden geladen"
+        onAction={onRetry}
+        stateClassName="card card-wide"
+        unavailableMessage={overviewError}
+        unavailableTitle="Marktdaten vorubergehend nicht verfugbar"
+      >
+        {null}
+      </AsyncContent>
+    );
+  }
+
   const currencyLabel = currency.toUpperCase();
   const selectedPrice = currency === "usd" ? overview.priceUsd : overview.priceEur;
   const selectedChange24h =
@@ -30,41 +57,54 @@ export default function MarketOverviewSection({
         : "default";
 
   return (
-    <>
-      <MetricCard
-        label={`BTC Preis (${currencyLabel})`}
-        value={formatCurrency(selectedPrice, currency)}
-      />
+    <AsyncContent
+      error={overviewError}
+      hasContent
+      loading={showOverviewSkeleton || overviewLoading}
+      loadingMessage="Preis, Volumen und Market Cap werden aktualisiert."
+      loadingTitle="Marktdaten werden geladen"
+      onAction={onRetry}
+      preserveContentOnError
+      stateClassName="card card-wide"
+      unavailableMessage="Letzte Marktdaten werden angezeigt. Live-Daten sind gerade nicht verfugbar."
+      unavailableTitle="Marktdaten vorubergehend nicht verfugbar"
+    >
+      <>
+        <MetricCard
+          label={`BTC Preis (${currencyLabel})`}
+          value={formatCurrency(selectedPrice, currency)}
+        />
 
-      <MetricCard
-        label={`24h Änderung (${currencyLabel})`}
-        value={formatPercent(selectedChange24h)}
-        valueTone={changeTone}
-      />
+        <MetricCard
+          label={`24h Anderung (${currencyLabel})`}
+          value={formatPercent(selectedChange24h)}
+          valueTone={changeTone}
+        />
 
-      <MetricCard
-        label={`24h Volumen (${currencyLabel})`}
-        value={formatCurrency(selectedVolume24h, currency)}
-      />
+        <MetricCard
+          label={`24h Volumen (${currencyLabel})`}
+          value={formatCurrency(selectedVolume24h, currency)}
+        />
 
-      <MetricCard
-        label={`Market Cap (${currencyLabel})`}
-        value={formatCurrency(selectedMarketCap, currency)}
-      />
+        <MetricCard
+          label={`Market Cap (${currencyLabel})`}
+          value={formatCurrency(selectedMarketCap, currency)}
+        />
 
-      <article className="card">
-        <p className="label">24h High / Low ({currencyLabel})</p>
-        <div className="stat-stack">
-          <div className="stat-row">
-            <span>High</span>
-            <strong>{formatCurrency(selectedHigh24h, currency)}</strong>
+        <article className="card">
+          <p className="label">24h High / Low ({currencyLabel})</p>
+          <div className="stat-stack">
+            <div className="stat-row">
+              <span>High</span>
+              <strong>{formatCurrency(selectedHigh24h, currency)}</strong>
+            </div>
+            <div className="stat-row">
+              <span>Low</span>
+              <strong>{formatCurrency(selectedLow24h, currency)}</strong>
+            </div>
           </div>
-          <div className="stat-row">
-            <span>Low</span>
-            <strong>{formatCurrency(selectedLow24h, currency)}</strong>
-          </div>
-        </div>
-      </article>
-    </>
+        </article>
+      </>
+    </AsyncContent>
   );
 }
