@@ -44,7 +44,7 @@ export function getTimestamp(value: string | null | undefined) {
 
 export function isStaleByAge(
   lastUpdatedAt: string | null | undefined,
-  staleAfterMs = DEFAULT_STALE_AFTER_MS,
+  staleAfterMs: number | null = DEFAULT_STALE_AFTER_MS,
   now = Date.now()
 ) {
   if (staleAfterMs === null) return false;

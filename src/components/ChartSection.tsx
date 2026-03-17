@@ -26,11 +26,11 @@ export default function ChartSection({
   range,
 }: ChartSectionProps) {
   return (
-    <Card as="section" className="gap-5">
+    <Card as="section" id="main-chart-zone" tone="elevated" padding="lg" gap="lg">
       <SectionHeader
         eyebrow="Preisverlauf"
         title={`BTC Preisverlauf (${currency.toUpperCase()})`}
-        description="Vergleiche die kurzfristige Entwicklung ueber einen kleinen, wiederverwendbaren Chart-Block."
+        description="Der Chart ist die primaere Explorationsflaeche direkt nach dem Ueberblick und bleibt auch mobil ruhig und gut lesbar."
         meta={<DataStateMeta state={chartState} />}
         action={
           <Cluster role="tablist" aria-label="Zeitraum" gap="sm">
@@ -82,11 +82,13 @@ export default function ChartSection({
           },
         }}
       >
-        <PriceChart
-          points={chart?.points ?? []}
-          range={chart?.range ?? range}
-          currency={chart?.currency ?? currency}
-        />
+        <div className="rounded-[calc(var(--radius-lg)-0.125rem)] border border-border-subtle bg-muted-surface/70 p-4 sm:p-5">
+          <PriceChart
+            points={chart?.points ?? []}
+            range={chart?.range ?? range}
+            currency={chart?.currency ?? currency}
+          />
+        </div>
       </DataState>
     </Card>
   );

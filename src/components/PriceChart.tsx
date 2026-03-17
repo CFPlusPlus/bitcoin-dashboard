@@ -26,10 +26,14 @@ function formatAxisLabel(timestamp: number, range: ChartRange) {
 export default function PriceChart({ currency, points, range }: PriceChartProps) {
   const width = 900;
   const height = 280;
-  const padding = 20;
+  const padding = 24;
 
   if (points.length === 0) {
-    return <div className="chart-empty">Keine Chartdaten vorhanden.</div>;
+    return (
+      <div className="rounded-lg border border-dashed border-border-default bg-app/20 p-6 text-sm text-fg-muted">
+        Keine Chartdaten vorhanden.
+      </div>
+    );
   }
 
   const prices = points.map((point) => point.price);
@@ -64,49 +68,77 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   )} ${baseY.toFixed(2)} Z`;
 
   return (
-    <div className="chart-shell">
-      <div className="chart-summary">
-        <span>Tief: {formatCurrency(minPrice, currency)}</span>
-        <span>Hoch: {formatCurrency(maxPrice, currency)}</span>
-        <span>Jetzt: {formatCurrency(points[points.length - 1].price, currency)}</span>
+    <div className="flex flex-col gap-5">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-lg border border-border-subtle bg-app/20 px-4 py-3">
+          <p className="text-xs uppercase tracking-[0.04em] text-fg-muted">Tief</p>
+          <p className="mt-2 text-base font-semibold text-fg">{formatCurrency(minPrice, currency)}</p>
+        </div>
+        <div className="rounded-lg border border-border-subtle bg-app/20 px-4 py-3">
+          <p className="text-xs uppercase tracking-[0.04em] text-fg-muted">Hoch</p>
+          <p className="mt-2 text-base font-semibold text-fg">{formatCurrency(maxPrice, currency)}</p>
+        </div>
+        <div className="rounded-lg border border-border-subtle bg-app/20 px-4 py-3">
+          <p className="text-xs uppercase tracking-[0.04em] text-fg-muted">Jetzt</p>
+          <p className="mt-2 text-base font-semibold text-fg">
+            {formatCurrency(points[points.length - 1].price, currency)}
+          </p>
+        </div>
       </div>
 
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="chart-svg"
-        role="img"
-        aria-label={`Bitcoin-Preischart für ${range} Tage in ${currency.toUpperCase()}`}
-      >
-        <defs>
-          <linearGradient id="chartAreaGradient" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="rgba(247, 147, 26, 0.35)" />
-            <stop offset="100%" stopColor="rgba(247, 147, 26, 0.02)" />
-          </linearGradient>
-        </defs>
-
-        <line
-          x1={padding}
-          y1={baseY}
-          x2={width - padding}
-          y2={baseY}
-          className="chart-axis"
-        />
-
-        <path d={areaPath} fill="url(#chartAreaGradient)" />
-        <path d={linePath} className="chart-line" />
-
-        <text x={padding} y={height - 2} className="chart-label" textAnchor="start">
-          {formatAxisLabel(points[0].timestamp, range)}
-        </text>
-        <text
-          x={width - padding}
-          y={height - 2}
-          className="chart-label"
-          textAnchor="end"
+      <div className="overflow-hidden rounded-lg border border-border-subtle bg-app/20 p-3 sm:p-4">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="block h-auto w-full overflow-visible"
+          role="img"
+          aria-label={`Bitcoin-Preischart fuer ${range} Tage in ${currency.toUpperCase()}`}
         >
-          {formatAxisLabel(points[points.length - 1].timestamp, range)}
-        </text>
-      </svg>
+          <defs>
+            <linearGradient id="chartAreaGradient" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="rgba(247, 147, 26, 0.35)" />
+              <stop offset="100%" stopColor="rgba(247, 147, 26, 0.02)" />
+            </linearGradient>
+          </defs>
+
+          <line
+            x1={padding}
+            y1={baseY}
+            x2={width - padding}
+            y2={baseY}
+            stroke="rgb(255 255 255 / 10%)"
+            strokeWidth="1"
+          />
+
+          <path d={areaPath} fill="url(#chartAreaGradient)" />
+          <path
+            d={linePath}
+            fill="none"
+            stroke="#f7931a"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          <text
+            x={padding}
+            y={height - 2}
+            fill="#93a0b8"
+            fontSize="14"
+            textAnchor="start"
+          >
+            {formatAxisLabel(points[0].timestamp, range)}
+          </text>
+          <text
+            x={width - padding}
+            y={height - 2}
+            fill="#93a0b8"
+            fontSize="14"
+            textAnchor="end"
+          >
+            {formatAxisLabel(points[points.length - 1].timestamp, range)}
+          </text>
+        </svg>
+      </div>
     </div>
   );
 }

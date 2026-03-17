@@ -10,9 +10,12 @@ import type {
 import ChartSection from "../../components/ChartSection";
 import MetadataSection from "../../components/MetadataSection";
 import Section from "../../components/ui/layout/Section";
-import MarketOverviewSection from "./MarketOverviewSection";
+import SectionHeader from "../../components/ui/layout/SectionHeader";
+import MarketContextSection from "./MarketContextSection";
 import NetworkOverviewSection from "./NetworkOverviewSection";
+import OverviewSection from "./OverviewSection";
 import SentimentSection from "./SentimentSection";
+import ToolsPreviewSection from "./ToolsPreviewSection";
 
 type DashboardContentProps = {
   chart: ChartData | null;
@@ -51,22 +54,12 @@ export default function DashboardContent({
 }: DashboardContentProps) {
   return (
     <Section aria-label="Dashboard Bereiche" space="lg">
-      <MarketOverviewSection
+      <OverviewSection
         currency={currency}
         overview={overview}
         overviewState={overviewState}
         onRetry={onOverviewRetry}
       />
-
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
-        <NetworkOverviewSection network={network} networkState={networkState} onRetry={onNetworkRetry} />
-
-        <SentimentSection
-          sentiment={sentiment}
-          sentimentState={sentimentState}
-          onRetry={onSentimentRetry}
-        />
-      </div>
 
       <ChartSection
         chart={chart}
@@ -76,6 +69,33 @@ export default function DashboardContent({
         onRetry={onChartRetry}
         onRangeChange={onRangeChange}
       />
+
+      <Section as="section" aria-label="Marktkontext und Sentiment" space="md">
+        <SectionHeader
+          eyebrow="Sekundaerer Kontext"
+          title="Stimmung und Marktgroesse"
+          description="Nach Preis und Chart folgen die kompakten Signale, die das Marktbild schneller einordnen helfen."
+        />
+
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <SentimentSection
+            sentiment={sentiment}
+            sentimentState={sentimentState}
+            onRetry={onSentimentRetry}
+          />
+
+          <MarketContextSection
+            currency={currency}
+            overview={overview}
+            overviewState={overviewState}
+            onRetry={onOverviewRetry}
+          />
+        </div>
+      </Section>
+
+      <NetworkOverviewSection network={network} networkState={networkState} onRetry={onNetworkRetry} />
+
+      <ToolsPreviewSection />
 
       <MetadataSection
         chart={chart}

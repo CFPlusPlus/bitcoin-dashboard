@@ -29,7 +29,7 @@ export default function DashboardControlsSection({
     <Surface
       as="section"
       tone="elevated"
-      className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+      className="flex h-full flex-col gap-5"
       aria-label="Aktualisierung und Einstellungen"
     >
       <RefreshStatus autoRefresh={autoRefresh} dashboardState={dashboardState} />

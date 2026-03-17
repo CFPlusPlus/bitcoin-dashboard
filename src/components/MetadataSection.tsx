@@ -21,11 +21,13 @@ export default function MetadataSection({
   sentiment,
 }: MetadataSectionProps) {
   return (
-    <Card as="section" tone="muted">
+    <Card as="section" tone="muted" gap="lg">
       <SectionHeader
-        eyebrow="Metadaten"
-        title={overview?.name ?? "Bitcoin"}
-        description={`Aktive Wahrung: ${currency.toUpperCase()}`}
+        eyebrow="Quellen und Zeitstempel"
+        title="Nachvollziehbarkeit"
+        titleAs="h3"
+        titleSize="md"
+        description={`Aktive Wahrung: ${currency.toUpperCase()}. Diese Angaben stuetzen Vertrauen und Datenherkunft, bleiben aber bewusst im Fussbereich der Seite.`}
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

@@ -1,11 +1,9 @@
 "use client";
 
-import NoticeBar from "../components/NoticeBar";
-import PageHeader from "../components/PageHeader";
 import Stack from "../components/ui/layout/Stack";
 import { useDashboardData } from "../hooks/useDashboardData";
 import DashboardContent from "./dashboard/DashboardContent";
-import DashboardControlsSection from "./dashboard/DashboardControlsSection";
+import HomepageIntro from "./dashboard/HomepageIntro";
 
 export default function HomePage() {
   const {
@@ -35,9 +33,7 @@ export default function HomePage() {
 
   return (
     <Stack gap="xl">
-      <PageHeader />
-
-      <DashboardControlsSection
+      <HomepageIntro
         autoRefresh={autoRefresh}
         currency={currency}
         dashboardState={dashboardState}
@@ -45,9 +41,8 @@ export default function HomePage() {
         onAutoRefreshChange={setAutoRefresh}
         onCurrencyChange={setCurrency}
         onRefresh={() => void refreshAll(range, currency)}
+        warnings={warnings}
       />
-
-      <NoticeBar warnings={warnings} />
 
       <DashboardContent
         chart={chart}

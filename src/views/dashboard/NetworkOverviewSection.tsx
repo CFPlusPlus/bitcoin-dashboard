@@ -23,11 +23,11 @@ export default function NetworkOverviewSection({
   onRetry,
 }: NetworkOverviewSectionProps) {
   return (
-    <Card as="section" className="gap-5">
+    <Card as="section" tone="muted" className="gap-5">
       <SectionHeader
-        eyebrow="Netzwerk"
-        title="On-Chain Signale"
-        description="Blockhoehe und aktuelle Fee-Schaetzungen in derselben Shell wie die Markt-KPIs."
+        eyebrow="Netzwerk und Blockchain"
+        title="Tieferer technischer Kontext"
+        description="Blockhoehe und aktuelle Fee-Schaetzungen bleiben erreichbar, treten aber bewusst hinter Marktueberblick, Chart und Stimmung zurueck."
         meta={<DataStateMeta state={networkState} />}
       />
 

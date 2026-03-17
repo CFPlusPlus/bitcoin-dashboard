@@ -21,7 +21,7 @@ export default function NoticeBar({ warnings }: NoticeBarProps) {
         <TriangleAlert className="size-4 text-accent" aria-hidden="true" />
         <p className="text-sm font-semibold text-fg-secondary">Hinweise</p>
       </div>
-      <ul className="notice-list">
+      <ul className="m-0 flex list-disc flex-col gap-2 pl-5 text-sm text-fg-secondary">
         {warnings.map((warning) => (
           <li key={warning}>{warning}</li>
         ))}

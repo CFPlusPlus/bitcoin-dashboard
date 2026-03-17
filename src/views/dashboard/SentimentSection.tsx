@@ -1,6 +1,7 @@
 import type { AsyncDataState } from "../../lib/data-state";
 import { FALLBACK_TEXT, formatCountdown } from "../../lib/format";
 import type { Sentiment } from "../../types/dashboard";
+import { cn } from "../../lib/cn";
 import Card from "../../components/ui/Card";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
@@ -15,17 +16,42 @@ type SentimentSectionProps = {
   sentimentState: AsyncDataState<Sentiment>;
 };
 
+function getSentimentTone(classification: string | null) {
+  const normalized = classification?.toLowerCase() ?? "";
+
+  if (normalized.includes("greed")) {
+    return {
+      badgeClassName: "border-success/30 bg-success/10 text-success",
+      tone: "positive" as const,
+    };
+  }
+
+  if (normalized.includes("fear")) {
+    return {
+      badgeClassName: "border-danger/30 bg-danger/10 text-danger",
+      tone: "negative" as const,
+    };
+  }
+
+  return {
+    badgeClassName: "border-border-default bg-muted-surface text-fg-secondary",
+    tone: "default" as const,
+  };
+}
+
 export default function SentimentSection({
   onRetry,
   sentiment,
   sentimentState,
 }: SentimentSectionProps) {
+  const sentimentUi = getSentimentTone(sentiment?.classification ?? null);
+
   return (
-    <Card as="section">
+    <Card as="section" tone="muted" className="h-full gap-5">
       <SectionHeader
         eyebrow="Sentiment"
         title="Fear &amp; Greed"
-        description="Ein kompakter Signalblock fuer Marktstimmung und den naechsten Veroeffentlichungszeitpunkt."
+        description="Ein kompakter Signalblock fuer Marktstimmung, der schnell erfassbar bleibt und sich klar hinter Preis und Chart einordnet."
         meta={<DataStateMeta state={sentimentState} />}
       />
 
@@ -62,15 +88,45 @@ export default function SentimentSection({
         }}
       >
         <Stack gap="md">
-          <KpiValue
-            label="Indexstand"
-            value={`${sentiment?.value ?? FALLBACK_TEXT} / 100`}
-            meta={sentiment?.classification ?? FALLBACK_TEXT}
-          />
-          <MetaText>
-            Naechstes Update in: {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null)}
-          </MetaText>
-          <MetaText>{sentiment?.attribution ?? FALLBACK_TEXT}</MetaText>
+          <Card as="article" tone="default" padding="sm" gap="md" className="border-border-subtle">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <KpiValue
+                label="Indexstand"
+                value={`${sentiment?.value ?? FALLBACK_TEXT} / 100`}
+                meta="Fear & Greed Index"
+                size="lg"
+                tone={sentimentUi.tone}
+              />
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.04em]",
+                  sentimentUi.badgeClassName
+                )}
+              >
+                {sentiment?.classification ?? FALLBACK_TEXT}
+              </span>
+            </div>
+          </Card>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Card as="article" tone="default" padding="sm" gap="sm" className="border-border-subtle">
+              <MetaText size="xs" className="uppercase tracking-[0.04em]">
+                Naechstes Update
+              </MetaText>
+              <p className="text-base font-semibold text-fg">
+                {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null)}
+              </p>
+            </Card>
+
+            <Card as="article" tone="default" padding="sm" gap="sm" className="border-border-subtle">
+              <MetaText size="xs" className="uppercase tracking-[0.04em]">
+                Quelle
+              </MetaText>
+              <p className="text-base font-semibold text-fg">
+                {sentiment?.attribution ?? FALLBACK_TEXT}
+              </p>
+            </Card>
+          </div>
         </Stack>
       </DataState>
     </Card>

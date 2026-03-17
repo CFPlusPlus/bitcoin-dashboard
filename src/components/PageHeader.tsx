@@ -4,12 +4,12 @@ export default function PageHeader() {
   return (
     <header>
       <SectionHeader
-        eyebrow="MVP+"
-        title="Bitcoin Dashboard"
+        eyebrow="Dashboard"
+        title="Bitcoin in klarer Reihenfolge"
         titleAs="h1"
         titleSize="xl"
-        description="Marktdaten ueber CoinGecko, Netzwerkdaten ueber mempool.space und Sentiment ueber Alternative.me. Einstellungen bleiben jetzt auf diesem Geraet gespeichert."
-        className="max-w-4xl"
+        description="Aktueller Preis, Hauptchart, Stimmung und Netzwerkdaten bleiben auf einer ruhigen Informationsflaeche gebuendelt. Daten kommen ueber CoinGecko, mempool.space und Alternative.me."
+        className="max-w-3xl"
       />
     </header>
   );
