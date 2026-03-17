@@ -1,4 +1,6 @@
 import { z } from "zod";
+import type { CachePolicy } from "../cache";
+import { getNextFetchCacheOptions } from "../cache";
 import { fetchWithTimeout, readErrorBody } from "../http";
 import {
   invalidUpstreamShape,
@@ -55,7 +57,11 @@ function ensureMarketItemCompleteness(item: CoinGeckoMarketItem, currency: "usd"
   }
 }
 
-export async function fetchCoinGeckoMarketData(currency: "usd" | "eur", apiKey: string) {
+export async function fetchCoinGeckoMarketData(
+  currency: "usd" | "eur",
+  apiKey: string,
+  cachePolicy?: CachePolicy
+) {
   const url =
     "https://api.coingecko.com/api/v3/coins/markets" +
     `?vs_currency=${currency}` +
@@ -68,6 +74,7 @@ export async function fetchCoinGeckoMarketData(currency: "usd" | "eur", apiKey: 
     response = await fetchWithTimeout(
       url,
       {
+        ...(cachePolicy ? getNextFetchCacheOptions(cachePolicy) : {}),
         headers: {
           accept: "application/json",
           "x-cg-demo-api-key": apiKey,
@@ -121,6 +128,7 @@ export async function fetchCoinGeckoMarketChart(input: {
   apiKey: string;
   currency: "usd" | "eur";
   days: 1 | 7 | 30;
+  cachePolicy?: CachePolicy;
 }) {
   const apiUrl =
     "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart" +
@@ -132,6 +140,7 @@ export async function fetchCoinGeckoMarketChart(input: {
     response = await fetchWithTimeout(
       apiUrl,
       {
+        ...(input.cachePolicy ? getNextFetchCacheOptions(input.cachePolicy) : {}),
         headers: {
           accept: "application/json",
           "x-cg-demo-api-key": input.apiKey,

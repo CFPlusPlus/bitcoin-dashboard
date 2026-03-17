@@ -1,4 +1,8 @@
 import { mapOverviewDto } from "../../../domain/dashboard/overview.mapper";
+import {
+  getCacheControlHeader,
+  overviewCachePolicy,
+} from "../../../server/cache";
 import { getAppEnv } from "../../../server/env";
 import { errorResponse, getReasonMessage, jsonResponse } from "../../../server/http";
 import { fetchCoinGeckoMarketData } from "../../../server/providers/coingecko";
@@ -16,8 +20,8 @@ export async function GET() {
   }
 
   const [usdResult, eurResult] = await Promise.allSettled([
-    fetchCoinGeckoMarketData("usd", apiKey),
-    fetchCoinGeckoMarketData("eur", apiKey),
+    fetchCoinGeckoMarketData("usd", apiKey, overviewCachePolicy),
+    fetchCoinGeckoMarketData("eur", apiKey, overviewCachePolicy),
   ]);
 
   const warnings: string[] = [];
@@ -52,7 +56,8 @@ export async function GET() {
 
   return jsonResponse(dto, {
     headers: {
-      "cache-control": "public, max-age=60",
+      // Keep browsers reasonably fresh while letting the edge serve a short-lived snapshot.
+      "cache-control": getCacheControlHeader(overviewCachePolicy),
     },
   });
 }

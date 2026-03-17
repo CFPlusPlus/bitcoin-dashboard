@@ -1,4 +1,5 @@
 import { mapNetworkDto } from "../../../domain/dashboard/network.mapper";
+import { getCacheControlHeader, networkCachePolicy } from "../../../server/cache";
 import { errorResponse, getReasonMessage, jsonResponse } from "../../../server/http";
 import {
   fetchLatestBlockHeight,
@@ -12,8 +13,8 @@ function getRejectedReason<T>(result: PromiseSettledResult<T>) {
 
 export async function GET() {
   const [feesResult, blockHeightResult] = await Promise.allSettled([
-    fetchRecommendedFees(),
-    fetchLatestBlockHeight(),
+    fetchRecommendedFees(networkCachePolicy),
+    fetchLatestBlockHeight(networkCachePolicy),
   ]);
 
   const warnings: string[] = [];
@@ -49,7 +50,8 @@ export async function GET() {
 
   return jsonResponse(dto, {
     headers: {
-      "cache-control": "public, max-age=30",
+      // Fee estimates and latest block height can move quickly, so keep this window short.
+      "cache-control": getCacheControlHeader(networkCachePolicy),
     },
   });
 }

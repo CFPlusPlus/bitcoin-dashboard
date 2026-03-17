@@ -1,4 +1,6 @@
 import { z } from "zod";
+import type { CachePolicy } from "../cache";
+import { getNextFetchCacheOptions } from "../cache";
 import { fetchWithTimeout, readErrorBody } from "../http";
 import {
   invalidUpstreamShape,
@@ -54,13 +56,14 @@ function ensurePrimaryItem(response: AlternativeMeFearAndGreedResponse) {
   return response;
 }
 
-export async function fetchFearAndGreedIndex() {
+export async function fetchFearAndGreedIndex(cachePolicy?: CachePolicy) {
   let response: Response;
 
   try {
     response = await fetchWithTimeout(
       "https://api.alternative.me/fng/?limit=1",
       {
+        ...(cachePolicy ? getNextFetchCacheOptions(cachePolicy) : {}),
         headers: {
           accept: "application/json",
         },

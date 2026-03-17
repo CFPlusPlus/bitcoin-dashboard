@@ -1,5 +1,6 @@
 import { mapChartDto } from "../../../domain/dashboard/chart.mapper";
 import type { ChartRange, Currency } from "../../../domain/dashboard/dto";
+import { getCacheControlHeader, getChartCachePolicy } from "../../../server/cache";
 import { getAppEnv } from "../../../server/env";
 import { errorResponse, jsonResponse } from "../../../server/http";
 import { fetchCoinGeckoMarketChart } from "../../../server/providers/coingecko";
@@ -34,10 +35,12 @@ export async function GET(request: Request) {
 
   const days = Number(daysParam) as ChartRange;
   const currency = currencyParam as Currency;
+  const cachePolicy = getChartCachePolicy(days);
 
   try {
     const payload = await fetchCoinGeckoMarketChart({
       apiKey,
+      cachePolicy,
       currency,
       days,
     });
@@ -51,7 +54,8 @@ export async function GET(request: Request) {
 
     return jsonResponse(dto, {
       headers: {
-        "cache-control": "public, max-age=60",
+        // Longer chart ranges can stay warm longer without affecting the dashboard meaningfully.
+        "cache-control": getCacheControlHeader(cachePolicy),
       },
     });
   } catch (error) {

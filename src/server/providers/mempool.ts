@@ -1,4 +1,6 @@
 import { z } from "zod";
+import type { CachePolicy } from "../cache";
+import { getNextFetchCacheOptions } from "../cache";
 import { fetchWithTimeout, readErrorBody } from "../http";
 import {
   invalidUpstreamShape,
@@ -42,13 +44,14 @@ function ensureRecommendedFeesComplete(fees: MempoolRecommendedFees) {
   }
 }
 
-export async function fetchRecommendedFees() {
+export async function fetchRecommendedFees(cachePolicy?: CachePolicy) {
   let response: Response;
 
   try {
     response = await fetchWithTimeout(
       "https://mempool.space/api/v1/fees/recommended",
       {
+        ...(cachePolicy ? getNextFetchCacheOptions(cachePolicy) : {}),
         headers: { accept: "application/json" },
       },
       6000
@@ -85,13 +88,14 @@ export async function fetchRecommendedFees() {
   return parsed.data;
 }
 
-export async function fetchLatestBlockHeight() {
+export async function fetchLatestBlockHeight(cachePolicy?: CachePolicy) {
   let response: Response;
 
   try {
     response = await fetchWithTimeout(
       "https://mempool.space/api/blocks/tip/height",
       {
+        ...(cachePolicy ? getNextFetchCacheOptions(cachePolicy) : {}),
         headers: { accept: "text/plain" },
       },
       6000

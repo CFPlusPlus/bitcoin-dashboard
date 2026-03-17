@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { networkCachePolicy, overviewCachePolicy, sentimentCachePolicy } from "../cache";
 import { fetchFearAndGreedIndex } from "./alternative";
 import { fetchCoinGeckoMarketChart, fetchCoinGeckoMarketData } from "./coingecko";
 import { fetchLatestBlockHeight, fetchRecommendedFees } from "./mempool";
@@ -26,6 +27,40 @@ describe("provider validation", () => {
     });
   });
 
+  it("passes overview revalidation options to CoinGecko market requests", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify([
+          {
+            current_price: 67000,
+            market_cap: 1,
+            total_volume: 1,
+            high_24h: 1,
+            low_24h: 1,
+            price_change_percentage_24h: 1,
+            last_updated: "2026-03-17T00:00:00.000Z",
+          },
+        ]),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }
+      )
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchCoinGeckoMarketData("usd", "demo-key", overviewCachePolicy);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        cache: "force-cache",
+        next: { revalidate: overviewCachePolicy.revalidateSeconds },
+      })
+    );
+  });
+
   it("rejects empty CoinGecko chart responses as missing data", async () => {
     vi.stubGlobal(
       "fetch",
@@ -43,6 +78,32 @@ describe("provider validation", () => {
       code: "upstream_missing_data",
       provider: "coingecko",
     });
+  });
+
+  it("passes revalidation options to CoinGecko chart requests", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ prices: [[1, 67000]] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      })
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchCoinGeckoMarketChart({
+      apiKey: "demo-key",
+      cachePolicy: overviewCachePolicy,
+      currency: "usd",
+      days: 1,
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        cache: "force-cache",
+        next: { revalidate: overviewCachePolicy.revalidateSeconds },
+      })
+    );
   });
 
   it("rejects incomplete mempool recommended fees", async () => {
@@ -85,6 +146,36 @@ describe("provider validation", () => {
       code: "upstream_invalid_shape",
       provider: "mempool.space",
     });
+  });
+
+  it("passes revalidation options to mempool requests", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          fastestFee: 12,
+          halfHourFee: 10,
+          hourFee: 8,
+          economyFee: 4,
+          minimumFee: 2,
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }
+      )
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchRecommendedFees(networkCachePolicy);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        cache: "force-cache",
+        next: { revalidate: networkCachePolicy.revalidateSeconds },
+      })
+    );
   });
 
   it("maps Alternative.me metadata errors to controlled fetch failures", async () => {
@@ -133,5 +224,33 @@ describe("provider validation", () => {
       code: "upstream_missing_data",
       provider: "alternative.me",
     });
+  });
+
+  it("passes revalidation options to Alternative.me requests", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          name: "Fear and Greed Index",
+          data: [{ value: "71", timestamp: "1710000000", time_until_update: "3600" }],
+          metadata: { error: null },
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }
+      )
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchFearAndGreedIndex(sentimentCachePolicy);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        cache: "force-cache",
+        next: { revalidate: sentimentCachePolicy.revalidateSeconds },
+      })
+    );
   });
 });

@@ -1,11 +1,12 @@
 import { mapSentimentDto } from "../../../domain/dashboard/sentiment.mapper";
+import { getCacheControlHeader, sentimentCachePolicy } from "../../../server/cache";
 import { jsonResponse } from "../../../server/http";
 import { fetchFearAndGreedIndex } from "../../../server/providers/alternative";
 import { upstreamErrorResponse } from "../../../server/upstream";
 
 export async function GET() {
   try {
-    const payload = await fetchFearAndGreedIndex();
+    const payload = await fetchFearAndGreedIndex(sentimentCachePolicy);
 
     const dto = mapSentimentDto({
       payload,
@@ -15,7 +16,8 @@ export async function GET() {
 
     return jsonResponse(dto, {
       headers: {
-        "cache-control": "public, max-age=300",
+        // Fear & Greed updates slowly enough that a warmer edge cache meaningfully cuts provider traffic.
+        "cache-control": getCacheControlHeader(sentimentCachePolicy),
       },
     });
   } catch (error) {
