@@ -1,47 +1,8 @@
-import {
-  mapOverviewDto,
-  type CoinGeckoMarketItem,
-} from "../../../domain/dashboard/overview.mapper";
+import { mapOverviewDto } from "../../../domain/dashboard/overview.mapper";
 import { getAppEnv } from "../../../server/env";
-import {
-  errorResponse,
-  fetchWithTimeout,
-  getReasonMessage,
-  jsonResponse,
-  readErrorBody,
-} from "../../../server/http";
-
-async function fetchMarketData(currency: "usd" | "eur", apiKey: string): Promise<CoinGeckoMarketItem> {
-  const url =
-    "https://api.coingecko.com/api/v3/coins/markets" +
-    `?vs_currency=${currency}` +
-    "&ids=bitcoin" +
-    "&precision=2";
-
-  const response = await fetchWithTimeout(
-    url,
-    {
-      headers: {
-        accept: "application/json",
-        "x-cg-demo-api-key": apiKey,
-      },
-    },
-    8000
-  );
-
-  if (!response.ok) {
-    const details = await readErrorBody(response);
-    throw new Error(`CoinGecko ${currency.toUpperCase()}: ${response.status} ${details}`);
-  }
-
-  const data = (await response.json()) as CoinGeckoMarketItem[];
-
-  if (!Array.isArray(data) || data.length === 0) {
-    throw new Error(`Keine Bitcoin-Marktdaten für ${currency} erhalten.`);
-  }
-
-  return data[0];
-}
+import { errorResponse, getReasonMessage, jsonResponse } from "../../../server/http";
+import { fetchCoinGeckoMarketData } from "../../../server/providers/coingecko";
+import { isUpstreamError } from "../../../server/upstream";
 
 export async function GET() {
   const apiKey = getAppEnv().COINGECKO_DEMO_API_KEY;
@@ -51,8 +12,8 @@ export async function GET() {
   }
 
   const [usdResult, eurResult] = await Promise.allSettled([
-    fetchMarketData("usd", apiKey),
-    fetchMarketData("eur", apiKey),
+    fetchCoinGeckoMarketData("usd", apiKey),
+    fetchCoinGeckoMarketData("eur", apiKey),
   ]);
 
   const warnings: string[] = [];
@@ -68,7 +29,14 @@ export async function GET() {
   }
 
   if (!usd && !eur) {
-    return errorResponse(502, "Fehler beim Laden der Overview-Daten.", warnings.join(" "));
+    const errors = [usdResult.reason, eurResult.reason].filter(isUpstreamError);
+
+    return errorResponse(502, "Fehler beim Laden der Overview-Daten.", warnings.join(" "), {
+      ...(errors.length > 0 ? { codes: [...new Set(errors.map((error) => error.code))] } : {}),
+      ...(errors.length > 0
+        ? { providers: [...new Set(errors.map((error) => error.provider))] }
+        : {}),
+    });
   }
 
   const dto = mapOverviewDto({

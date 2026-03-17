@@ -1,24 +1,12 @@
+import type { AlternativeMeFearAndGreedResponse } from "../../server/providers/alternative";
 import type { SentimentDto } from "./dto";
-
-export type AlternativeMeFearAndGreedResponse = {
-  name?: string;
-  data?: Array<{
-    value?: string;
-    value_classification?: string;
-    timestamp?: string;
-    time_until_update?: string;
-  }>;
-  metadata?: {
-    error?: string | null;
-  };
-};
 
 export function mapSentimentDto(input: {
   payload: AlternativeMeFearAndGreedResponse;
   now: number;
   fetchedAt: string;
 }): SentimentDto {
-  const item = input.payload.data?.[0];
+  const item = input.payload.data[0];
   const value = Number(item?.value);
   const timestamp = Number(item?.timestamp);
   const rawTimeUntilUpdate = item?.time_until_update;

@@ -1,14 +1,5 @@
+import type { CoinGeckoMarketItem } from "../../server/providers/coingecko";
 import type { OverviewDto } from "./dto";
-
-export type CoinGeckoMarketItem = {
-  current_price?: number | null;
-  market_cap?: number | null;
-  total_volume?: number | null;
-  high_24h?: number | null;
-  low_24h?: number | null;
-  price_change_percentage_24h?: number | null;
-  last_updated?: string | null;
-};
 
 type OverviewCurrencySlice = {
   price: number | null;

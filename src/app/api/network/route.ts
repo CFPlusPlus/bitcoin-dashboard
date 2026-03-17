@@ -1,54 +1,10 @@
+import { mapNetworkDto } from "../../../domain/dashboard/network.mapper";
+import { errorResponse, getReasonMessage, jsonResponse } from "../../../server/http";
 import {
-  mapNetworkDto,
-  type MempoolRecommendedFees,
-} from "../../../domain/dashboard/network.mapper";
-import {
-  errorResponse,
-  fetchWithTimeout,
-  getReasonMessage,
-  jsonResponse,
-  readErrorBody,
-} from "../../../server/http";
-
-async function fetchRecommendedFees(): Promise<MempoolRecommendedFees> {
-  const response = await fetchWithTimeout(
-    "https://mempool.space/api/v1/fees/recommended",
-    {
-      headers: { accept: "application/json" },
-    },
-    6000
-  );
-
-  if (!response.ok) {
-    const details = await readErrorBody(response);
-    throw new Error(`Fees: ${response.status} ${details}`);
-  }
-
-  return (await response.json()) as MempoolRecommendedFees;
-}
-
-async function fetchLatestBlockHeight() {
-  const response = await fetchWithTimeout(
-    "https://mempool.space/api/blocks/tip/height",
-    {
-      headers: { accept: "text/plain" },
-    },
-    6000
-  );
-
-  if (!response.ok) {
-    const details = await readErrorBody(response);
-    throw new Error(`Blockhöhe: ${response.status} ${details}`);
-  }
-
-  const latestBlockHeight = Number(await response.text());
-
-  if (!Number.isFinite(latestBlockHeight)) {
-    throw new Error("Blockhöhe konnte nicht geparst werden.");
-  }
-
-  return latestBlockHeight;
-}
+  fetchLatestBlockHeight,
+  fetchRecommendedFees,
+} from "../../../server/providers/mempool";
+import { isUpstreamError } from "../../../server/upstream";
 
 export async function GET() {
   const [feesResult, blockHeightResult] = await Promise.allSettled([
@@ -67,7 +23,14 @@ export async function GET() {
   }
 
   if (feesResult.status === "rejected" && blockHeightResult.status === "rejected") {
-    return errorResponse(502, "Fehler beim Laden der mempool.space-Daten.", warnings.join(" "));
+    const errors = [feesResult.reason, blockHeightResult.reason].filter(isUpstreamError);
+
+    return errorResponse(502, "Fehler beim Laden der mempool.space-Daten.", warnings.join(" "), {
+      ...(errors.length > 0 ? { codes: [...new Set(errors.map((error) => error.code))] } : {}),
+      ...(errors.length > 0
+        ? { providers: [...new Set(errors.map((error) => error.provider))] }
+        : {}),
+    });
   }
 
   const dto = mapNetworkDto({

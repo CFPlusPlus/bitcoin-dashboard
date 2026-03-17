@@ -1,12 +1,5 @@
+import type { MempoolRecommendedFees } from "../../server/providers/mempool";
 import type { NetworkDto } from "./dto";
-
-export type MempoolRecommendedFees = {
-  fastestFee?: number;
-  halfHourFee?: number;
-  hourFee?: number;
-  economyFee?: number;
-  minimumFee?: number;
-};
 
 export function mapNetworkDto(input: {
   fees: MempoolRecommendedFees | null;

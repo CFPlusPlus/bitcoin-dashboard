@@ -1,7 +1,9 @@
-import { mapChartDto, type CoinGeckoMarketChartResponse } from "../../../domain/dashboard/chart.mapper";
+import { mapChartDto } from "../../../domain/dashboard/chart.mapper";
 import type { ChartRange, Currency } from "../../../domain/dashboard/dto";
 import { getAppEnv } from "../../../server/env";
-import { errorResponse, fetchWithTimeout, jsonResponse, readErrorBody } from "../../../server/http";
+import { errorResponse, jsonResponse } from "../../../server/http";
+import { fetchCoinGeckoMarketChart } from "../../../server/providers/coingecko";
+import { upstreamErrorResponse } from "../../../server/upstream";
 
 function isValidRange(value: string | null): value is `${ChartRange}` {
   return value === "1" || value === "7" || value === "30";
@@ -32,49 +34,27 @@ export async function GET(request: Request) {
 
   const days = Number(daysParam) as ChartRange;
   const currency = currencyParam as Currency;
-  const apiUrl =
-    "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart" +
-    `?vs_currency=${currency}&days=${days}&precision=2`;
-
-  let response: Response;
 
   try {
-    response = await fetchWithTimeout(
-      apiUrl,
-      {
-        headers: {
-          accept: "application/json",
-          "x-cg-demo-api-key": apiKey,
-        },
-      },
-      9000
-    );
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return errorResponse(502, "Fehler beim Laden der Chartdaten von CoinGecko.", message);
-  }
-
-  if (!response.ok) {
-    const details = await readErrorBody(response);
-    return errorResponse(502, "Fehler beim Laden der Chartdaten von CoinGecko.", details, {
-      status: response.status,
+    const payload = await fetchCoinGeckoMarketChart({
+      apiKey,
+      currency,
+      days,
     });
+
+    const dto = mapChartDto({
+      payload,
+      currency,
+      range: days,
+      fetchedAt: new Date().toISOString(),
+    });
+
+    return jsonResponse(dto, {
+      headers: {
+        "cache-control": "public, max-age=60",
+      },
+    });
+  } catch (error) {
+    return upstreamErrorResponse("coingecko", error, "Fehler beim Laden der Chartdaten von CoinGecko.");
   }
-
-  const dto = mapChartDto({
-    payload: (await response.json()) as CoinGeckoMarketChartResponse,
-    currency,
-    range: days,
-    fetchedAt: new Date().toISOString(),
-  });
-
-  if (dto.points.length === 0) {
-    return errorResponse(502, "Keine Chartdaten erhalten.");
-  }
-
-  return jsonResponse(dto, {
-    headers: {
-      "cache-control": "public, max-age=60",
-    },
-  });
 }

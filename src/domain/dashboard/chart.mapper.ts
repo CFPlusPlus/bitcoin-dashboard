@@ -1,8 +1,5 @@
+import type { CoinGeckoMarketChartResponse } from "../../server/providers/coingecko";
 import type { ChartDto, ChartPointDto, ChartRange, Currency } from "./dto";
-
-export type CoinGeckoMarketChartResponse = {
-  prices?: Array<[number, number]>;
-};
 
 function isPoint(value: unknown): value is [number, number] {
   return (
@@ -28,7 +25,7 @@ export function mapChartDto(input: {
   range: ChartRange;
   fetchedAt: string;
 }): ChartDto {
-  const rawPoints = Array.isArray(input.payload.prices) ? input.payload.prices : [];
+  const rawPoints = input.payload.prices;
   const points = rawPoints.filter(isPoint).map(mapChartPoint);
   const warnings =
     points.length !== rawPoints.length
