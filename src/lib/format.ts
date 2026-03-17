@@ -37,6 +37,40 @@ export function formatDateTime(value: string | null) {
   return date.toLocaleString("de-DE");
 }
 
+export function formatRelativeTime(value: string | null, now = Date.now()) {
+  if (!value) return FALLBACK_TEXT;
+
+  const timestamp = new Date(value).getTime();
+  if (Number.isNaN(timestamp)) return FALLBACK_TEXT;
+
+  const diffMs = now - timestamp;
+  const absDiffSeconds = Math.round(Math.abs(diffMs) / 1000);
+
+  if (absDiffSeconds < 45) {
+    return diffMs >= 0 ? "gerade eben" : "in wenigen Sekunden";
+  }
+
+  const formatter = new Intl.RelativeTimeFormat("de-DE", { numeric: "auto" });
+  const units = [
+    { amount: 60, unit: "second" as const },
+    { amount: 60, unit: "minute" as const },
+    { amount: 24, unit: "hour" as const },
+    { amount: 7, unit: "day" as const },
+  ];
+
+  let valueToFormat = diffMs / 1000;
+
+  for (const currentUnit of units) {
+    if (Math.abs(valueToFormat) < currentUnit.amount) {
+      return formatter.format(-Math.round(valueToFormat), currentUnit.unit);
+    }
+
+    valueToFormat /= currentUnit.amount;
+  }
+
+  return formatter.format(-Math.round(valueToFormat), "week");
+}
+
 export function formatDate(value: string | null) {
   if (!value) return FALLBACK_TEXT;
 

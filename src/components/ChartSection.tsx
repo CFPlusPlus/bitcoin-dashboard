@@ -1,42 +1,37 @@
+import type { AsyncDataState } from "../lib/data-state";
 import type { ChartData, ChartRange, Currency } from "../types/dashboard";
-import AsyncContent from "./AsyncContent";
 import PriceChart from "./PriceChart";
 import Button from "./ui/Button";
 import Card from "./ui/Card";
+import DataState from "./ui/data-state/DataState";
+import DataStateMeta from "./ui/data-state/DataStateMeta";
 import Cluster from "./ui/layout/Cluster";
 import SectionHeader from "./ui/layout/SectionHeader";
 
 type ChartSectionProps = {
   chart: ChartData | null;
-  chartError: string;
-  chartLoading: boolean;
+  chartState: AsyncDataState<ChartData>;
   currency: Currency;
-  range: ChartRange;
-  showChartSkeleton: boolean;
-  onRetry: () => void;
   onRangeChange: (value: ChartRange) => void;
+  onRetry: () => void;
+  range: ChartRange;
 };
 
 export default function ChartSection({
   chart,
-  chartError,
-  chartLoading,
+  chartState,
   currency,
-  range,
-  showChartSkeleton,
-  onRetry,
   onRangeChange,
+  onRetry,
+  range,
 }: ChartSectionProps) {
-  const hasChart = chart !== null && chart.points.length > 0;
-  const hasStoredChart = chart !== null;
-  const isEmpty = chart !== null && chart.points.length === 0;
-
   return (
     <Card as="section" className="gap-5">
       <SectionHeader
         eyebrow="Preisverlauf"
         title={`BTC Preisverlauf (${currency.toUpperCase()})`}
         description="Vergleiche die kurzfristige Entwicklung ueber einen kleinen, wiederverwendbaren Chart-Block."
+        meta={<DataStateMeta state={chartState} />}
         action={
           <Cluster role="tablist" aria-label="Zeitraum" gap="sm">
             {[1, 7, 30].map((value) => (
@@ -55,31 +50,44 @@ export default function ChartSection({
         }
       />
 
-      <AsyncContent
-        emptyMessage="Fur den ausgewahlten Zeitraum sind aktuell keine Chartpunkte verfugbar."
-        emptyTitle="Keine Chartdaten"
-        error={chartError}
-        hasContent={hasChart}
-        isEmpty={isEmpty}
-        loading={showChartSkeleton || chartLoading}
-        loadingMessage="Chartpunkte fur den gewahlten Zeitraum werden geladen."
-        loadingTitle="Chart wird geladen"
-        onAction={onRetry}
-        preserveContentOnError={hasStoredChart}
-        stateClassName="mt-1"
-        unavailableMessage={
-          hasStoredChart
-            ? "Letzte Chartdaten werden angezeigt. Neue Werte sind gerade nicht verfugbar."
-            : chartError
-        }
-        unavailableTitle="Chart vorubergehend nicht verfugbar"
+      <DataState
+        state={chartState}
+        onRetry={onRetry}
+        retryBusy={chartState.isLoading}
+        messages={{
+          loading: {
+            title: "Chart wird geladen",
+            description: "Chartpunkte fuer den gewaehlten Zeitraum werden vorbereitet.",
+          },
+          empty: {
+            title: "Keine Chartdaten",
+            description:
+              "Fuer den ausgewaehlten Zeitraum sind aktuell keine auswertbaren Chartpunkte verfuegbar.",
+          },
+          error: {
+            title: "Chart ist gerade nicht verfuegbar",
+            description:
+              chartState.error ??
+              "Es konnten noch keine verlaesslichen Chartdaten geladen werden.",
+          },
+          partial: {
+            title: "Chart ist teilweise verfuegbar",
+            description:
+              "Der aktuelle Abruf ist unvollstaendig. Vorhandene Kursdaten bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzter Chart bleibt sichtbar",
+            description:
+              "Der Chart konnte nicht neu geladen werden. Die dargestellten Kurse koennen inzwischen veraltet sein.",
+          },
+        }}
       >
         <PriceChart
           points={chart?.points ?? []}
           range={chart?.range ?? range}
           currency={chart?.currency ?? currency}
         />
-      </AsyncContent>
+      </DataState>
     </Card>
   );
 }

@@ -1,56 +1,39 @@
-import AsyncContent from "../../components/AsyncContent";
+import type { AsyncDataState } from "../../lib/data-state";
+import { formatCurrency, formatPercent } from "../../lib/format";
+import type { Currency, Overview } from "../../types/dashboard";
 import MetricCard from "../../components/MetricCard";
 import Card from "../../components/ui/Card";
+import DataState from "../../components/ui/data-state/DataState";
+import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
 import MetaText from "../../components/ui/content/MetaText";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
 import Stack from "../../components/ui/layout/Stack";
-import { formatCurrency, formatPercent } from "../../lib/format";
-import type { Currency, Overview } from "../../types/dashboard";
 
 type MarketOverviewSectionProps = {
   currency: Currency;
-  overview: Overview | null;
-  overviewError: string;
-  overviewLoading: boolean;
-  showOverviewSkeleton: boolean;
   onRetry: () => void;
+  overview: Overview | null;
+  overviewState: AsyncDataState<Overview>;
 };
 
 export default function MarketOverviewSection({
   currency,
-  overview,
-  overviewError,
-  overviewLoading,
-  showOverviewSkeleton,
   onRetry,
+  overview,
+  overviewState,
 }: MarketOverviewSectionProps) {
-  if (!overview) {
-    return (
-      <AsyncContent
-        error={overviewError}
-        hasContent={false}
-        loading={showOverviewSkeleton || overviewLoading}
-        loadingMessage="Preis, Volumen und Market Cap werden aktualisiert."
-        loadingTitle="Marktdaten werden geladen"
-        onAction={onRetry}
-        unavailableMessage={overviewError}
-        unavailableTitle="Marktdaten vorubergehend nicht verfugbar"
-      >
-        {null}
-      </AsyncContent>
-    );
-  }
-
   const currencyLabel = currency.toUpperCase();
-  const selectedPrice = currency === "usd" ? overview.priceUsd : overview.priceEur;
+  const selectedPrice = currency === "usd" ? overview?.priceUsd ?? null : overview?.priceEur ?? null;
   const selectedChange24h =
-    currency === "usd" ? overview.change24hUsd : overview.change24hEur;
+    currency === "usd" ? overview?.change24hUsd ?? null : overview?.change24hEur ?? null;
   const selectedVolume24h =
-    currency === "usd" ? overview.volume24hUsd : overview.volume24hEur;
+    currency === "usd" ? overview?.volume24hUsd ?? null : overview?.volume24hEur ?? null;
   const selectedMarketCap =
-    currency === "usd" ? overview.marketCapUsd : overview.marketCapEur;
-  const selectedHigh24h = currency === "usd" ? overview.high24hUsd : overview.high24hEur;
-  const selectedLow24h = currency === "usd" ? overview.low24hUsd : overview.low24hEur;
+    currency === "usd" ? overview?.marketCapUsd ?? null : overview?.marketCapEur ?? null;
+  const selectedHigh24h =
+    currency === "usd" ? overview?.high24hUsd ?? null : overview?.high24hEur ?? null;
+  const selectedLow24h =
+    currency === "usd" ? overview?.low24hUsd ?? null : overview?.low24hEur ?? null;
 
   const changeTone =
     typeof selectedChange24h === "number" && selectedChange24h > 0
@@ -65,18 +48,40 @@ export default function MarketOverviewSection({
         eyebrow="Marktueberblick"
         title="Live-Marktuebersicht"
         description="Preis, Veraenderung, Liquiditaet und Spanne in einem wiederverwendbaren KPI-Block."
+        meta={<DataStateMeta state={overviewState} />}
       />
 
-      <AsyncContent
-        error={overviewError}
-        hasContent
-        loading={showOverviewSkeleton || overviewLoading}
-        loadingMessage="Preis, Volumen und Market Cap werden aktualisiert."
-        loadingTitle="Marktdaten werden geladen"
-        onAction={onRetry}
-        preserveContentOnError
-        unavailableMessage="Letzte Marktdaten werden angezeigt. Live-Daten sind gerade nicht verfugbar."
-        unavailableTitle="Marktdaten vorubergehend nicht verfugbar"
+      <DataState
+        state={overviewState}
+        onRetry={onRetry}
+        retryBusy={overviewState.isLoading}
+        messages={{
+          loading: {
+            title: "Marktdaten werden geladen",
+            description: "Preis, Volumen und Market Cap werden vorbereitet.",
+          },
+          empty: {
+            title: "Keine Marktdaten verfuegbar",
+            description:
+              "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren Marktdaten.",
+          },
+          error: {
+            title: "Marktdaten sind gerade nicht verfuegbar",
+            description:
+              overviewState.error ??
+              "Es konnten noch keine verlaesslichen Marktdaten geladen werden.",
+          },
+          partial: {
+            title: "Marktdaten sind teilweise verfuegbar",
+            description:
+              "Einzelne Kennzahlen fehlen im aktuellen Abruf. Verfuegbare Werte bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzte Marktdaten bleiben sichtbar",
+            description:
+              "Die letzte Aktualisierung ist fehlgeschlagen. Die angezeigten Werte koennen inzwischen veraltet sein.",
+          },
+        }}
       >
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           <MetricCard
@@ -120,7 +125,7 @@ export default function MarketOverviewSection({
             </Stack>
           </Card>
         </div>
-      </AsyncContent>
+      </DataState>
     </Card>
   );
 }

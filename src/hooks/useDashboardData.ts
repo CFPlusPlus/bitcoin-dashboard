@@ -1,14 +1,8 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchJson } from "../lib/api";
+import { getLatestSuccessfulUpdate, resolveAsyncDataState } from "../lib/data-state";
+import type { ChartData, ChartRange, Currency, Network, Overview, Sentiment } from "../types/dashboard";
 import { usePersistentState } from "./usePersistentState";
-import type {
-  ChartData,
-  ChartRange,
-  Currency,
-  Network,
-  Overview,
-  Sentiment,
-} from "../types/dashboard";
 
 const STORAGE_KEYS = {
   autoRefresh: "bitcoin-dashboard:auto-refresh",
@@ -81,8 +75,6 @@ export function useDashboardData() {
   const [sentimentLoading, setSentimentLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [lastRefreshAt, setLastRefreshAt] = useState<string | null>(null);
-
   const initialChartHandledRef = useRef(false);
   const initialRefreshHandledRef = useRef(false);
 
@@ -93,12 +85,12 @@ export function useDashboardData() {
     try {
       const overviewData = await fetchOverview();
       setOverview(overviewData);
-      return true;
+      return overviewData.fetchedAt;
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Marktdaten konnten nicht geladen werden.";
       setOverviewError(message);
-      return false;
+      return null;
     } finally {
       setOverviewLoading(false);
     }
@@ -111,12 +103,12 @@ export function useDashboardData() {
     try {
       const networkData = await fetchNetwork();
       setNetwork(networkData);
-      return true;
+      return networkData.fetchedAt;
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Netzwerkdaten konnten nicht geladen werden.";
       setNetworkError(message);
-      return false;
+      return null;
     } finally {
       setNetworkLoading(false);
     }
@@ -129,12 +121,12 @@ export function useDashboardData() {
     try {
       const sentimentData = await fetchSentiment();
       setSentiment(sentimentData);
-      return true;
+      return sentimentData.fetchedAt;
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Sentiment konnte nicht geladen werden.";
       setSentimentError(message);
-      return false;
+      return null;
     } finally {
       setSentimentLoading(false);
     }
@@ -147,12 +139,12 @@ export function useDashboardData() {
     try {
       const chartData = await fetchChart(selectedRange, selectedCurrency);
       setChart(chartData);
-      return true;
+      return chartData.fetchedAt;
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Chartdaten konnten nicht geladen werden.";
       setChartError(message);
-      return false;
+      return null;
     } finally {
       setChartLoading(false);
     }
@@ -162,16 +154,12 @@ export function useDashboardData() {
     async (selectedRange: ChartRange, selectedCurrency: Currency) => {
       setRefreshing(true);
 
-      const [overviewOk, networkOk, chartOk, sentimentOk] = await Promise.all([
+      await Promise.all([
         loadOverviewData(),
         loadNetworkData(),
         loadChartData(selectedRange, selectedCurrency),
         loadSentimentData(),
       ]);
-
-      if (overviewOk && networkOk && chartOk && sentimentOk) {
-        setLastRefreshAt(new Date().toISOString());
-      }
 
       setRefreshing(false);
     },
@@ -214,28 +202,193 @@ export function useDashboardData() {
     return [...new Set(items)];
   }, [chart, network, overview, sentiment]);
 
+  const overviewMetrics = useMemo(
+    () =>
+      overview
+        ? [
+            overview.priceUsd,
+            overview.priceEur,
+            overview.change24hUsd,
+            overview.change24hEur,
+            overview.volume24hUsd,
+            overview.volume24hEur,
+            overview.marketCapUsd,
+            overview.marketCapEur,
+            overview.high24hUsd,
+            overview.high24hEur,
+            overview.low24hUsd,
+            overview.low24hEur,
+          ]
+        : [],
+    [overview]
+  );
+
+  const networkMetrics = useMemo(
+    () =>
+      network
+        ? [
+            network.latestBlockHeight,
+            network.fees.fastestFee,
+            network.fees.halfHourFee,
+            network.fees.hourFee,
+            network.fees.economyFee,
+            network.fees.minimumFee,
+          ]
+        : [],
+    [network]
+  );
+
+  const sentimentMetrics = useMemo(
+    () =>
+      sentiment
+        ? [
+            sentiment.value,
+            sentiment.classification,
+            sentiment.timeUntilUpdateSeconds,
+            sentiment.nextUpdateAt,
+          ]
+        : [],
+    [sentiment]
+  );
+
+  const hasOverviewData = overviewMetrics.some((value) => value !== null);
+  const hasNetworkData = networkMetrics.some((value) => value !== null);
+  const hasSentimentData = sentimentMetrics.some((value) => value !== null);
+  const hasChartData = chart !== null && chart.points.length > 0;
+
+  const overviewState = useMemo(
+    () =>
+      resolveAsyncDataState({
+        data: overview,
+        error: overviewError,
+        hasUsableData: hasOverviewData,
+        isEmpty: overview !== null && !hasOverviewData,
+        isLoading: overviewLoading,
+        isPartial:
+          Boolean(overview?.partial) ||
+          (hasOverviewData && overviewMetrics.some((value) => value === null)),
+        lastUpdatedAt: overview?.fetchedAt ?? null,
+      }),
+    [hasOverviewData, overview, overviewError, overviewLoading, overviewMetrics]
+  );
+
+  const networkState = useMemo(
+    () =>
+      resolveAsyncDataState({
+        data: network,
+        error: networkError,
+        hasUsableData: hasNetworkData,
+        isEmpty: network !== null && !hasNetworkData,
+        isLoading: networkLoading,
+        isPartial:
+          Boolean(network?.partial) ||
+          (hasNetworkData && networkMetrics.some((value) => value === null)),
+        lastUpdatedAt: network?.fetchedAt ?? null,
+      }),
+    [hasNetworkData, network, networkError, networkLoading, networkMetrics]
+  );
+
+  const sentimentState = useMemo(
+    () =>
+      resolveAsyncDataState({
+        data: sentiment,
+        error: sentimentError,
+        hasUsableData: hasSentimentData,
+        isEmpty: sentiment !== null && !hasSentimentData,
+        isLoading: sentimentLoading,
+        isPartial:
+          Boolean(sentiment?.partial) ||
+          (hasSentimentData && sentimentMetrics.some((value) => value === null)),
+        lastUpdatedAt: sentiment?.fetchedAt ?? null,
+      }),
+    [hasSentimentData, sentiment, sentimentError, sentimentLoading, sentimentMetrics]
+  );
+
+  const chartState = useMemo(
+    () =>
+      resolveAsyncDataState({
+        data: chart,
+        error: chartError,
+        hasUsableData: hasChartData,
+        isEmpty: chart !== null && chart.points.length === 0,
+        isLoading: chartLoading,
+        isPartial: Boolean(chart?.partial),
+        lastUpdatedAt: chart?.fetchedAt ?? null,
+      }),
+    [chart, chartError, chartLoading, hasChartData]
+  );
+
+  const lastRefreshAt = useMemo(
+    () =>
+      getLatestSuccessfulUpdate([
+        overview?.fetchedAt,
+        network?.fetchedAt,
+        sentiment?.fetchedAt,
+        chart?.fetchedAt,
+      ]),
+    [chart?.fetchedAt, network?.fetchedAt, overview?.fetchedAt, sentiment?.fetchedAt]
+  );
+
+  const dashboardState = useMemo(
+    () =>
+      resolveAsyncDataState({
+        data: lastRefreshAt ? { lastRefreshAt } : null,
+        error: [overviewError, networkError, sentimentError, chartError].find(Boolean),
+        hasUsableData:
+          overviewState.hasUsableData ||
+          networkState.hasUsableData ||
+          sentimentState.hasUsableData ||
+          chartState.hasUsableData,
+        isLoading: refreshing && !lastRefreshAt,
+        isPartial:
+          overviewState.status === "partial" ||
+          networkState.status === "partial" ||
+          sentimentState.status === "partial" ||
+          chartState.status === "partial",
+        isRefreshing: refreshing && Boolean(lastRefreshAt),
+        lastUpdatedAt: lastRefreshAt,
+      }),
+    [
+      chartError,
+      chartState.hasUsableData,
+      chartState.status,
+      lastRefreshAt,
+      networkError,
+      networkState.hasUsableData,
+      networkState.status,
+      overviewError,
+      overviewState.hasUsableData,
+      overviewState.status,
+      refreshing,
+      sentimentError,
+      sentimentState.hasUsableData,
+      sentimentState.status,
+    ]
+  );
+
   return {
     autoRefresh,
     chart,
     chartError,
     chartLoading,
+    chartState,
     currency,
+    dashboardState,
     lastRefreshAt,
     network,
     networkError,
     networkLoading,
+    networkState,
     overview,
     overviewError,
     overviewLoading,
+    overviewState,
     range,
     refreshing,
     sentiment,
     sentimentError,
     sentimentLoading,
-    showNetworkSkeleton: !networkError && networkLoading && !network,
-    showOverviewSkeleton: !overviewError && overviewLoading && !overview,
-    showChartSkeleton: !chartError && chartLoading && !chart,
-    showSentimentSkeleton: !sentimentError && sentimentLoading && !sentiment,
+    sentimentState,
     warnings,
     setAutoRefresh,
     setCurrency,

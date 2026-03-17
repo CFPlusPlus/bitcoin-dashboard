@@ -1,15 +1,15 @@
-import AsyncContent from "../../components/AsyncContent";
-import MetricCard from "../../components/MetricCard";
-import Card from "../../components/ui/Card";
-import SectionHeader from "../../components/ui/layout/SectionHeader";
+import type { AsyncDataState } from "../../lib/data-state";
 import { FALLBACK_TEXT, formatNumber } from "../../lib/format";
 import type { Network } from "../../types/dashboard";
+import MetricCard from "../../components/MetricCard";
+import Card from "../../components/ui/Card";
+import DataState from "../../components/ui/data-state/DataState";
+import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
+import SectionHeader from "../../components/ui/layout/SectionHeader";
 
 type NetworkOverviewSectionProps = {
   network: Network | null;
-  networkError: string;
-  networkLoading: boolean;
-  showNetworkSkeleton: boolean;
+  networkState: AsyncDataState<Network>;
   onRetry: () => void;
 };
 
@@ -19,62 +19,65 @@ function formatFee(value: number | null) {
 
 export default function NetworkOverviewSection({
   network,
-  networkError,
-  networkLoading,
-  showNetworkSkeleton,
+  networkState,
   onRetry,
 }: NetworkOverviewSectionProps) {
-  if (!network) {
-    return (
-      <AsyncContent
-        error={networkError}
-        hasContent={false}
-        loading={showNetworkSkeleton || networkLoading}
-        loadingMessage="Blockhohe und Fee-Schatzungen werden aktualisiert."
-        loadingTitle="Netzwerkdaten werden geladen"
-        onAction={onRetry}
-        unavailableMessage={networkError}
-        unavailableTitle="Netzwerkdaten vorubergehend nicht verfugbar"
-      >
-        {null}
-      </AsyncContent>
-    );
-  }
-
   return (
     <Card as="section" className="gap-5">
       <SectionHeader
         eyebrow="Netzwerk"
         title="On-Chain Signale"
         description="Blockhoehe und aktuelle Fee-Schaetzungen in derselben Shell wie die Markt-KPIs."
+        meta={<DataStateMeta state={networkState} />}
       />
 
-      <AsyncContent
-        error={networkError}
-        hasContent
-        loading={showNetworkSkeleton || networkLoading}
-        loadingMessage="Blockhohe und Fee-Schatzungen werden aktualisiert."
-        loadingTitle="Netzwerkdaten werden geladen"
-        onAction={onRetry}
-        preserveContentOnError
-        unavailableMessage="Letzte Netzwerkdaten werden angezeigt. Live-Daten sind gerade nicht verfugbar."
-        unavailableTitle="Netzwerkdaten vorubergehend nicht verfugbar"
+      <DataState
+        state={networkState}
+        onRetry={onRetry}
+        retryBusy={networkState.isLoading}
+        messages={{
+          loading: {
+            title: "Netzwerkdaten werden geladen",
+            description: "Blockhoehe und Fee-Schaetzungen werden vorbereitet.",
+          },
+          empty: {
+            title: "Keine Netzwerkdaten verfuegbar",
+            description:
+              "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren On-Chain Werte.",
+          },
+          error: {
+            title: "Netzwerkdaten sind gerade nicht verfuegbar",
+            description:
+              networkState.error ??
+              "Es konnten noch keine verlaesslichen Netzwerkdaten geladen werden.",
+          },
+          partial: {
+            title: "Netzwerkdaten sind teilweise verfuegbar",
+            description:
+              "Einzelne On-Chain Werte fehlen im aktuellen Abruf. Verfuegbare Kennzahlen bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzte Netzwerkdaten bleiben sichtbar",
+            description:
+              "Die Aktualisierung hat nicht alle Werte erneuert. Die angezeigten Angaben koennen inzwischen veraltet sein.",
+          },
+        }}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <MetricCard
             label="Letzte Blockhohe"
             value={
-              network.latestBlockHeight === null
+              network?.latestBlockHeight === null || network?.latestBlockHeight === undefined
                 ? FALLBACK_TEXT
                 : formatNumber(network.latestBlockHeight)
             }
           />
 
-          <MetricCard label="Fastest Fee" value={formatFee(network.fees.fastestFee)} />
-          <MetricCard label="Half Hour Fee" value={formatFee(network.fees.halfHourFee)} />
-          <MetricCard label="Hour Fee" value={formatFee(network.fees.hourFee)} />
+          <MetricCard label="Fastest Fee" value={formatFee(network?.fees.fastestFee ?? null)} />
+          <MetricCard label="Half Hour Fee" value={formatFee(network?.fees.halfHourFee ?? null)} />
+          <MetricCard label="Hour Fee" value={formatFee(network?.fees.hourFee ?? null)} />
         </div>
-      </AsyncContent>
+      </DataState>
     </Card>
   );
 }

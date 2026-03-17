@@ -1,22 +1,43 @@
-import { formatDateTime } from "../../lib/format";
+import type { AsyncDataState } from "../../lib/data-state";
+import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
 
 type RefreshStatusProps = {
   autoRefresh: boolean;
-  lastRefreshAt: string | null;
+  dashboardState: AsyncDataState<{ lastRefreshAt: string }>;
 };
+
+function getStatusCopy(state: AsyncDataState<{ lastRefreshAt: string }>) {
+  if (!state.hasUsableData && state.isLoading) {
+    return "Der erste Abruf laeuft. Bestehende Bereiche werden befuellt, sobald Daten vorliegen.";
+  }
+
+  if (state.isStale) {
+    return "Mindestens ein Bereich zeigt derzeit aeltere Daten. Vorhandene Inhalte bleiben sichtbar.";
+  }
+
+  if (state.isPartial) {
+    return "Einzelne Bereiche liefern gerade unvollstaendige Werte. Die restlichen Daten bleiben nutzbar.";
+  }
+
+  if (state.isRefreshing) {
+    return "Bestehende Inhalte bleiben waehrend der Aktualisierung sichtbar.";
+  }
+
+  return "Einstellungen werden lokal gespeichert.";
+}
 
 export default function RefreshStatus({
   autoRefresh,
-  lastRefreshAt,
+  dashboardState,
 }: RefreshStatusProps) {
   return (
-    <div className="flex flex-col items-start gap-1.5">
+    <div className="flex flex-col items-start gap-2">
       <div className="flex flex-wrap items-center gap-2 text-sm text-fg-secondary">
         <span className="font-medium text-fg-muted">Auto-Refresh:</span>
         <span>{autoRefresh ? "alle 60 Sekunden" : "pausiert"}</span>
       </div>
-      <p className="text-sm text-fg-muted">Einstellungen werden lokal gespeichert.</p>
-      <span className="text-sm text-fg-muted">Zuletzt aktualisiert: {formatDateTime(lastRefreshAt)}</span>
+      <DataStateMeta lastUpdatedLabel="Zuletzt erfolgreich" state={dashboardState} />
+      <p className="text-sm text-fg-muted">{getStatusCopy(dashboardState)}</p>
     </div>
   );
 }

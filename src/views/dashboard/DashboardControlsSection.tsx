@@ -1,5 +1,6 @@
-import Surface from "../../components/ui/Surface";
+import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency } from "../../types/dashboard";
+import Surface from "../../components/ui/Surface";
 import AutoRefreshToggle from "./AutoRefreshToggle";
 import CurrencySwitcher from "./CurrencySwitcher";
 import RefreshButton from "./RefreshButton";
@@ -8,7 +9,7 @@ import RefreshStatus from "./RefreshStatus";
 type DashboardControlsSectionProps = {
   autoRefresh: boolean;
   currency: Currency;
-  lastRefreshAt: string | null;
+  dashboardState: AsyncDataState<{ lastRefreshAt: string }>;
   refreshing: boolean;
   onAutoRefreshChange: (value: boolean) => void;
   onCurrencyChange: (value: Currency) => void;
@@ -18,7 +19,7 @@ type DashboardControlsSectionProps = {
 export default function DashboardControlsSection({
   autoRefresh,
   currency,
-  lastRefreshAt,
+  dashboardState,
   refreshing,
   onAutoRefreshChange,
   onCurrencyChange,
@@ -31,7 +32,7 @@ export default function DashboardControlsSection({
       className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
       aria-label="Aktualisierung und Einstellungen"
     >
-      <RefreshStatus autoRefresh={autoRefresh} lastRefreshAt={lastRefreshAt} />
+      <RefreshStatus autoRefresh={autoRefresh} dashboardState={dashboardState} />
 
       <div className="flex flex-wrap items-center gap-3">
         <CurrencySwitcher currency={currency} onChange={onCurrencyChange} />

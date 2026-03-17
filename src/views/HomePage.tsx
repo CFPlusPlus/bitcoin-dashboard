@@ -11,29 +11,21 @@ export default function HomePage() {
   const {
     autoRefresh,
     chart,
-    chartError,
-    chartLoading,
+    chartState,
     currency,
+    dashboardState,
     loadChartData,
     loadNetworkData,
     loadOverviewData,
     loadSentimentData,
-    lastRefreshAt,
     network,
-    networkError,
-    networkLoading,
+    networkState,
     overview,
-    overviewError,
-    overviewLoading,
+    overviewState,
     range,
     refreshing,
     sentiment,
-    sentimentError,
-    sentimentLoading,
-    showChartSkeleton,
-    showNetworkSkeleton,
-    showOverviewSkeleton,
-    showSentimentSkeleton,
+    sentimentState,
     warnings,
     refreshAll,
     setAutoRefresh,
@@ -48,7 +40,7 @@ export default function HomePage() {
       <DashboardControlsSection
         autoRefresh={autoRefresh}
         currency={currency}
-        lastRefreshAt={lastRefreshAt}
+        dashboardState={dashboardState}
         refreshing={refreshing}
         onAutoRefreshChange={setAutoRefresh}
         onCurrencyChange={setCurrency}
@@ -59,23 +51,15 @@ export default function HomePage() {
 
       <DashboardContent
         chart={chart}
-        chartError={chartError}
-        chartLoading={chartLoading}
+        chartState={chartState}
         currency={currency}
         network={network}
-        networkError={networkError}
-        networkLoading={networkLoading}
+        networkState={networkState}
         overview={overview}
-        overviewError={overviewError}
-        overviewLoading={overviewLoading}
+        overviewState={overviewState}
         range={range}
         sentiment={sentiment}
-        sentimentError={sentimentError}
-        sentimentLoading={sentimentLoading}
-        showChartSkeleton={showChartSkeleton}
-        showNetworkSkeleton={showNetworkSkeleton}
-        showOverviewSkeleton={showOverviewSkeleton}
-        showSentimentSkeleton={showSentimentSkeleton}
+        sentimentState={sentimentState}
         onChartRetry={() => void loadChartData(range, currency)}
         onNetworkRetry={() => void loadNetworkData()}
         onOverviewRetry={() => void loadOverviewData()}

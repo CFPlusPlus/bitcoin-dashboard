@@ -1,11 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import AsyncContent from "../components/AsyncContent";
+import DataState from "../components/ui/data-state/DataState";
+import DataStateMeta from "../components/ui/data-state/DataStateMeta";
+import EmptyState from "../components/ui/data-state/EmptyState";
 import { usePersistentState } from "../hooks/usePersistentState";
 import { fetchJson } from "../lib/api";
+import { resolveAsyncDataState } from "../lib/data-state";
 import {
   addDcaEntry,
   buildDcaView,
@@ -24,7 +27,6 @@ import {
   formatBtc,
   formatCurrency,
   formatDate,
-  formatDateTime,
   formatPercent,
 } from "../lib/format";
 import type { Currency, DcaEntryStore, Overview } from "../types/dashboard";
@@ -90,6 +92,19 @@ export default function DcaCalculatorPage() {
   const currentPrice = getCurrentPrice(overview, currency);
   const dcaView = useMemo(() => buildDcaView(entries, currentPrice), [currentPrice, entries]);
   const summaryTone = getDcaTone(dcaView.summary.pnlAbsolute);
+  const marketState = useMemo(
+    () =>
+      resolveAsyncDataState({
+        data: overview,
+        error: marketError,
+        hasUsableData: currentPrice !== null,
+        isEmpty: overview !== null && currentPrice === null,
+        isLoading: marketLoading,
+        isPartial: Boolean(overview?.partial),
+        lastUpdatedAt: overview?.fetchedAt ?? null,
+      }),
+    [currentPrice, marketError, marketLoading, overview]
+  );
 
   const handleAddEntry = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -142,23 +157,43 @@ export default function DcaCalculatorPage() {
         <div className="tool-toolbar-copy">
           <p className="label">Marktdaten</p>
           <h3>Aktueller Referenzpreis</h3>
-          <AsyncContent
-            error={marketError}
-            hasContent={overview !== null}
-            loading={marketLoading}
-            loadingMessage="Der aktuelle BTC-Preis wird geladen."
-            loadingTitle="Referenzpreis wird geladen"
-            onAction={() => void loadMarketOverview()}
-            preserveContentOnError
-            unavailableMessage="Letzter Referenzpreis wird angezeigt. Live-Daten sind gerade nicht verfugbar."
-            unavailableTitle="Referenzpreis vorubergehend nicht verfugbar"
-          >
-            <p className="muted">
-              {`Marktpreis: ${formatCurrency(currentPrice, currency)} · Stand: ${formatDateTime(
-                overview?.fetchedAt ?? null
-              )}`}
-            </p>
-          </AsyncContent>
+          <div className="mt-3 flex flex-col gap-3">
+            <DataStateMeta lastUpdatedLabel="Zuletzt erfolgreich" state={marketState} />
+            <DataState
+              state={marketState}
+              onRetry={() => void loadMarketOverview()}
+              retryBusy={marketState.isLoading}
+              messages={{
+                loading: {
+                  title: "Referenzpreis wird geladen",
+                  description: "Der aktuelle BTC-Preis fuer den Rechner wird vorbereitet.",
+                },
+                empty: {
+                  title: "Kein Referenzpreis verfuegbar",
+                  description:
+                    "Der Abruf war erfolgreich, liefert fuer die aktive Waehrung aber keinen verwendbaren Preis.",
+                },
+                error: {
+                  title: "Referenzpreis ist gerade nicht verfuegbar",
+                  description:
+                    marketState.error ??
+                    "Es konnte noch kein verlaesslicher Marktpreis fuer den Rechner geladen werden.",
+                },
+                partial: {
+                  title: "Referenzpreis ist teilweise verfuegbar",
+                  description:
+                    "Der aktuelle Marktabruf ist unvollstaendig. Vorhandene Werte bleiben fuer den Rechner sichtbar.",
+                },
+                stale: {
+                  title: "Letzter Referenzpreis bleibt sichtbar",
+                  description:
+                    "Die Aktualisierung ist fehlgeschlagen. Der angezeigte Preis kann inzwischen veraltet sein.",
+                },
+              }}
+            >
+              <p className="muted">{`Marktpreis: ${formatCurrency(currentPrice, currency)} / BTC`}</p>
+            </DataState>
+          </div>
         </div>
 
         <div className="tool-toolbar-actions">
@@ -273,7 +308,7 @@ export default function DcaCalculatorPage() {
                 Kauf hinzufugen
               </button>
               <p className="muted">
-                Eintrage werden lokal gespeichert. USD- und EUR-Reihen werden getrennt gefuhrt.
+                Eintraege werden lokal gespeichert. USD- und EUR-Reihen werden getrennt gefuehrt.
               </p>
             </div>
           </form>
@@ -283,7 +318,7 @@ export default function DcaCalculatorPage() {
           <div className="dca-list-header">
             <div>
               <p className="label">Kaufhistorie</p>
-              <h3>{dcaView.summary.totalEntries} Eintrage</h3>
+              <h3>{dcaView.summary.totalEntries} Eintraege</h3>
             </div>
 
             <div className="dca-list-actions">
@@ -296,25 +331,17 @@ export default function DcaCalculatorPage() {
                 onClick={handleClearEntries}
                 disabled={entries.length === 0}
               >
-                Alles loschen
+                Alles loeschen
               </button>
             </div>
           </div>
 
           {entries.length === 0 ? (
-            <AsyncContent
-              emptyMessage={`Fuge deinen ersten Kauf in ${currency.toUpperCase()} hinzu, damit der Rechner Durchschnittspreis und Performance berechnen kann.`}
-              emptyTitle={`Keine DCA-Eintrage in ${currency.toUpperCase()}`}
-              error=""
-              hasContent={false}
-              isEmpty
-              loading={false}
-              loadingMessage=""
-              loadingTitle=""
-              stateClassName="dca-empty-state"
-            >
-              {null}
-            </AsyncContent>
+            <EmptyState
+              className="dca-empty-state"
+              title={`Keine DCA-Eintraege in ${currency.toUpperCase()}`}
+              description={`Fuege deinen ersten Kauf in ${currency.toUpperCase()} hinzu, damit der Rechner Durchschnittspreis und Performance berechnen kann.`}
+            />
           ) : (
             <ul className="dca-entry-list">
               {dcaView.items.map((entry) => (
