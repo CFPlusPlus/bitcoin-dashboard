@@ -6,6 +6,10 @@ import {
 } from "../../../server/providers/mempool";
 import { isUpstreamError } from "../../../server/upstream";
 
+function getRejectedReason<T>(result: PromiseSettledResult<T>) {
+  return result.status === "rejected" ? result.reason : null;
+}
+
 export async function GET() {
   const [feesResult, blockHeightResult] = await Promise.allSettled([
     fetchRecommendedFees(),
@@ -23,7 +27,10 @@ export async function GET() {
   }
 
   if (feesResult.status === "rejected" && blockHeightResult.status === "rejected") {
-    const errors = [feesResult.reason, blockHeightResult.reason].filter(isUpstreamError);
+    const errors = [
+      getRejectedReason(feesResult),
+      getRejectedReason(blockHeightResult),
+    ].filter(isUpstreamError);
 
     return errorResponse(502, "Fehler beim Laden der mempool.space-Daten.", warnings.join(" "), {
       ...(errors.length > 0 ? { codes: [...new Set(errors.map((error) => error.code))] } : {}),

@@ -4,6 +4,10 @@ import { errorResponse, getReasonMessage, jsonResponse } from "../../../server/h
 import { fetchCoinGeckoMarketData } from "../../../server/providers/coingecko";
 import { isUpstreamError } from "../../../server/upstream";
 
+function getRejectedReason<T>(result: PromiseSettledResult<T>) {
+  return result.status === "rejected" ? result.reason : null;
+}
+
 export async function GET() {
   const apiKey = getAppEnv().COINGECKO_DEMO_API_KEY;
 
@@ -29,7 +33,7 @@ export async function GET() {
   }
 
   if (!usd && !eur) {
-    const errors = [usdResult.reason, eurResult.reason].filter(isUpstreamError);
+    const errors = [getRejectedReason(usdResult), getRejectedReason(eurResult)].filter(isUpstreamError);
 
     return errorResponse(502, "Fehler beim Laden der Overview-Daten.", warnings.join(" "), {
       ...(errors.length > 0 ? { codes: [...new Set(errors.map((error) => error.code))] } : {}),
