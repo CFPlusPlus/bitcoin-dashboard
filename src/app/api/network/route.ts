@@ -1,4 +1,8 @@
 import {
+  mapNetworkDto,
+  type MempoolRecommendedFees,
+} from "../../../domain/dashboard/network.mapper";
+import {
   errorResponse,
   fetchWithTimeout,
   getReasonMessage,
@@ -6,15 +10,7 @@ import {
   readErrorBody,
 } from "../../../server/http";
 
-type RecommendedFees = {
-  fastestFee?: number;
-  halfHourFee?: number;
-  hourFee?: number;
-  economyFee?: number;
-  minimumFee?: number;
-};
-
-async function fetchRecommendedFees() {
+async function fetchRecommendedFees(): Promise<MempoolRecommendedFees> {
   const response = await fetchWithTimeout(
     "https://mempool.space/api/v1/fees/recommended",
     {
@@ -28,7 +24,7 @@ async function fetchRecommendedFees() {
     throw new Error(`Fees: ${response.status} ${details}`);
   }
 
-  return (await response.json()) as RecommendedFees;
+  return (await response.json()) as MempoolRecommendedFees;
 }
 
 async function fetchLatestBlockHeight() {
@@ -74,29 +70,16 @@ export async function GET() {
     return errorResponse(502, "Fehler beim Laden der mempool.space-Daten.", warnings.join(" "));
   }
 
-  const fees = feesResult.status === "fulfilled" ? feesResult.value : null;
-  const latestBlockHeight =
-    blockHeightResult.status === "fulfilled" ? blockHeightResult.value : null;
+  const dto = mapNetworkDto({
+    fees: feesResult.status === "fulfilled" ? feesResult.value : null,
+    latestBlockHeight: blockHeightResult.status === "fulfilled" ? blockHeightResult.value : null,
+    fetchedAt: new Date().toISOString(),
+    warnings,
+  });
 
-  return jsonResponse(
-    {
-      source: "mempool.space",
-      latestBlockHeight,
-      fees: {
-        fastestFee: fees?.fastestFee ?? null,
-        halfHourFee: fees?.halfHourFee ?? null,
-        hourFee: fees?.hourFee ?? null,
-        economyFee: fees?.economyFee ?? null,
-        minimumFee: fees?.minimumFee ?? null,
-      },
-      partial: warnings.length > 0,
-      warnings: warnings.length > 0 ? warnings : undefined,
-      fetchedAt: new Date().toISOString(),
+  return jsonResponse(dto, {
+    headers: {
+      "cache-control": "public, max-age=30",
     },
-    {
-      headers: {
-        "cache-control": "public, max-age=30",
-      },
-    }
-  );
+  });
 }

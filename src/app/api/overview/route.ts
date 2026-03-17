@@ -1,3 +1,7 @@
+import {
+  mapOverviewDto,
+  type CoinGeckoMarketItem,
+} from "../../../domain/dashboard/overview.mapper";
 import { getAppEnv } from "../../../server/env";
 import {
   errorResponse,
@@ -7,17 +11,7 @@ import {
   readErrorBody,
 } from "../../../server/http";
 
-type MarketItem = {
-  current_price?: number | null;
-  market_cap?: number | null;
-  total_volume?: number | null;
-  high_24h?: number | null;
-  low_24h?: number | null;
-  price_change_percentage_24h?: number | null;
-  last_updated?: string | null;
-};
-
-async function fetchMarketData(currency: "usd" | "eur", apiKey: string): Promise<MarketItem> {
+async function fetchMarketData(currency: "usd" | "eur", apiKey: string): Promise<CoinGeckoMarketItem> {
   const url =
     "https://api.coingecko.com/api/v3/coins/markets" +
     `?vs_currency=${currency}` +
@@ -40,7 +34,7 @@ async function fetchMarketData(currency: "usd" | "eur", apiKey: string): Promise
     throw new Error(`CoinGecko ${currency.toUpperCase()}: ${response.status} ${details}`);
   }
 
-  const data = (await response.json()) as MarketItem[];
+  const data = (await response.json()) as CoinGeckoMarketItem[];
 
   if (!Array.isArray(data) || data.length === 0) {
     throw new Error(`Keine Bitcoin-Marktdaten für ${currency} erhalten.`);
@@ -77,31 +71,16 @@ export async function GET() {
     return errorResponse(502, "Fehler beim Laden der Overview-Daten.", warnings.join(" "));
   }
 
-  return jsonResponse(
-    {
-      name: "bitcoin-dashboard",
-      source: "coingecko",
-      priceUsd: usd?.current_price ?? null,
-      priceEur: eur?.current_price ?? null,
-      change24hUsd: usd?.price_change_percentage_24h ?? null,
-      change24hEur: eur?.price_change_percentage_24h ?? null,
-      marketCapUsd: usd?.market_cap ?? null,
-      marketCapEur: eur?.market_cap ?? null,
-      volume24hUsd: usd?.total_volume ?? null,
-      volume24hEur: eur?.total_volume ?? null,
-      high24hUsd: usd?.high_24h ?? null,
-      high24hEur: eur?.high_24h ?? null,
-      low24hUsd: usd?.low_24h ?? null,
-      low24hEur: eur?.low_24h ?? null,
-      lastUpdatedAt: usd?.last_updated ?? eur?.last_updated ?? null,
-      partial: warnings.length > 0,
-      warnings: warnings.length > 0 ? warnings : undefined,
-      fetchedAt: new Date().toISOString(),
+  const dto = mapOverviewDto({
+    usd,
+    eur,
+    fetchedAt: new Date().toISOString(),
+    warnings,
+  });
+
+  return jsonResponse(dto, {
+    headers: {
+      "cache-control": "public, max-age=60",
     },
-    {
-      headers: {
-        "cache-control": "public, max-age=60",
-      },
-    }
-  );
+  });
 }

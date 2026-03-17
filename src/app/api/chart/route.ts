@@ -1,12 +1,7 @@
+import { mapChartDto, type CoinGeckoMarketChartResponse } from "../../../domain/dashboard/chart.mapper";
+import type { ChartRange, Currency } from "../../../domain/dashboard/dto";
 import { getAppEnv } from "../../../server/env";
 import { errorResponse, fetchWithTimeout, jsonResponse, readErrorBody } from "../../../server/http";
-
-type ChartRange = 1 | 7 | 30;
-type Currency = "usd" | "eur";
-
-type CoinGeckoMarketChartResponse = {
-  prices?: Array<[number, number]>;
-};
 
 function isValidRange(value: string | null): value is `${ChartRange}` {
   return value === "1" || value === "7" || value === "30";
@@ -14,17 +9,6 @@ function isValidRange(value: string | null): value is `${ChartRange}` {
 
 function isValidCurrency(value: string | null): value is Currency {
   return value === "usd" || value === "eur";
-}
-
-function isPoint(value: unknown): value is [number, number] {
-  return (
-    Array.isArray(value) &&
-    value.length === 2 &&
-    typeof value[0] === "number" &&
-    Number.isFinite(value[0]) &&
-    typeof value[1] === "number" &&
-    Number.isFinite(value[1])
-  );
 }
 
 export async function GET(request: Request) {
@@ -77,46 +61,20 @@ export async function GET(request: Request) {
     });
   }
 
-  const data = (await response.json()) as CoinGeckoMarketChartResponse;
-  const rawPoints = Array.isArray(data.prices) ? data.prices : [];
-  const points = rawPoints.filter(isPoint).map(([timestamp, price]) => ({
-    timestamp,
-    price: Number(price.toFixed(2)),
-  }));
+  const dto = mapChartDto({
+    payload: (await response.json()) as CoinGeckoMarketChartResponse,
+    currency,
+    range: days,
+    fetchedAt: new Date().toISOString(),
+  });
 
-  if (points.length === 0) {
+  if (dto.points.length === 0) {
     return errorResponse(502, "Keine Chartdaten erhalten.");
   }
 
-  const warnings =
-    points.length !== rawPoints.length
-      ? ["Einige Chartpunkte konnten nicht verarbeitet werden."]
-      : undefined;
-
-  const prices = points.map((point) => point.price);
-  const currentPrice = prices[prices.length - 1] ?? null;
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
-
-  return jsonResponse(
-    {
-      source: "coingecko",
-      currency,
-      range: days,
-      points,
-      stats: {
-        currentPrice,
-        minPrice,
-        maxPrice,
-      },
-      partial: Boolean(warnings),
-      warnings,
-      fetchedAt: new Date().toISOString(),
+  return jsonResponse(dto, {
+    headers: {
+      "cache-control": "public, max-age=60",
     },
-    {
-      headers: {
-        "cache-control": "public, max-age=60",
-      },
-    }
-  );
+  });
 }

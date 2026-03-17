@@ -1,17 +1,8 @@
+import {
+  mapSentimentDto,
+  type AlternativeMeFearAndGreedResponse,
+} from "../../../domain/dashboard/sentiment.mapper";
 import { errorResponse, fetchWithTimeout, jsonResponse, readErrorBody } from "../../../server/http";
-
-type FearAndGreedApiResponse = {
-  name?: string;
-  data?: Array<{
-    value?: string;
-    value_classification?: string;
-    timestamp?: string;
-    time_until_update?: string;
-  }>;
-  metadata?: {
-    error?: string | null;
-  };
-};
 
 export async function GET() {
   let response: Response;
@@ -38,48 +29,25 @@ export async function GET() {
     });
   }
 
-  const payload = (await response.json()) as FearAndGreedApiResponse;
+  const payload = (await response.json()) as AlternativeMeFearAndGreedResponse;
 
   if (payload.metadata?.error) {
     return errorResponse(502, "Fear-&-Greed-Providerfehler.", payload.metadata.error);
   }
 
-  const item = payload.data?.[0];
-  const value = Number(item?.value);
-  const timestamp = Number(item?.timestamp);
-  const rawTimeUntilUpdate = item?.time_until_update;
-  const timeUntilUpdateSeconds = rawTimeUntilUpdate ? Number(rawTimeUntilUpdate) : null;
-  const warnings: string[] = [];
+  const dto = mapSentimentDto({
+    payload,
+    now: Date.now(),
+    fetchedAt: new Date().toISOString(),
+  });
 
-  if (!Number.isFinite(value) || !Number.isFinite(timestamp)) {
+  if (dto.value === null || dto.timestamp === null) {
     return errorResponse(502, "Fear-&-Greed-Daten unvollständig.");
   }
 
-  if (rawTimeUntilUpdate && !Number.isFinite(timeUntilUpdateSeconds)) {
-    warnings.push("Zeit bis zum nächsten Sentiment-Update konnte nicht verarbeitet werden.");
-  }
-
-  return jsonResponse(
-    {
-      source: "alternative.me",
-      name: payload.name ?? "Fear and Greed Index",
-      value,
-      classification: item?.value_classification ?? null,
-      timestamp: new Date(timestamp * 1000).toISOString(),
-      timeUntilUpdateSeconds: Number.isFinite(timeUntilUpdateSeconds) ? timeUntilUpdateSeconds : null,
-      nextUpdateAt:
-        Number.isFinite(timeUntilUpdateSeconds) && timeUntilUpdateSeconds !== null
-          ? new Date(Date.now() + timeUntilUpdateSeconds * 1000).toISOString()
-          : null,
-      attribution: "Source: Alternative.me",
-      partial: warnings.length > 0,
-      warnings: warnings.length > 0 ? warnings : undefined,
-      fetchedAt: new Date().toISOString(),
+  return jsonResponse(dto, {
+    headers: {
+      "cache-control": "public, max-age=300",
     },
-    {
-      headers: {
-        "cache-control": "public, max-age=300",
-      },
-    }
-  );
+  });
 }
