@@ -1,0 +1,65 @@
+import Link from "next/link";
+import { cn } from "../../../lib/cn";
+import { buttonVariants } from "../Button";
+import Card from "../Card";
+import MetaText from "../content/MetaText";
+import SectionHeader from "../layout/SectionHeader";
+import Stack from "../layout/Stack";
+
+type ToolTeaserCardProps = {
+  category: string;
+  description: string;
+  href: string;
+  tags: readonly string[];
+  title: string;
+};
+
+export default function ToolTeaserCard({
+  category,
+  description,
+  href,
+  tags,
+  title,
+}: ToolTeaserCardProps) {
+  return (
+    <Card as="article" tone="interactive" className="h-full">
+      <SectionHeader
+        eyebrow={category}
+        title={title}
+        titleAs="h3"
+        titleSize="md"
+        description={description}
+        className="gap-3 sm:flex-col sm:justify-start"
+      />
+
+      <Stack gap="md" className="mt-auto">
+        <div className="flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center rounded-full border border-border-subtle bg-muted-surface px-3 py-1 text-sm text-fg-secondary"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <MetaText>Eigenstaendiger Workspace fuer Eingaben, Erklaerungen und Ergebnisse.</MetaText>
+          <Link
+            className={cn(
+              buttonVariants({
+                intent: "secondary",
+                size: "sm",
+              }),
+              "w-fit shrink-0 no-underline"
+            )}
+            href={href}
+          >
+            Tool oeffnen
+          </Link>
+        </div>
+      </Stack>
+    </Card>
+  );
+}

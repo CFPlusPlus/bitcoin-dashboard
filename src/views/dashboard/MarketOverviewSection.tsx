@@ -1,5 +1,9 @@
 import AsyncContent from "../../components/AsyncContent";
 import MetricCard from "../../components/MetricCard";
+import Card from "../../components/ui/Card";
+import MetaText from "../../components/ui/content/MetaText";
+import SectionHeader from "../../components/ui/layout/SectionHeader";
+import Stack from "../../components/ui/layout/Stack";
 import { formatCurrency, formatPercent } from "../../lib/format";
 import type { Currency, Overview } from "../../types/dashboard";
 
@@ -29,7 +33,6 @@ export default function MarketOverviewSection({
         loadingMessage="Preis, Volumen und Market Cap werden aktualisiert."
         loadingTitle="Marktdaten werden geladen"
         onAction={onRetry}
-        stateClassName="col-span-full"
         unavailableMessage={overviewError}
         unavailableTitle="Marktdaten vorubergehend nicht verfugbar"
       >
@@ -57,54 +60,67 @@ export default function MarketOverviewSection({
         : "default";
 
   return (
-    <AsyncContent
-      error={overviewError}
-      hasContent
-      loading={showOverviewSkeleton || overviewLoading}
-      loadingMessage="Preis, Volumen und Market Cap werden aktualisiert."
-      loadingTitle="Marktdaten werden geladen"
-      onAction={onRetry}
-      preserveContentOnError
-      stateClassName="col-span-full"
-      unavailableMessage="Letzte Marktdaten werden angezeigt. Live-Daten sind gerade nicht verfugbar."
-      unavailableTitle="Marktdaten vorubergehend nicht verfugbar"
-    >
-      <>
-        <MetricCard
-          label={`BTC Preis (${currencyLabel})`}
-          value={formatCurrency(selectedPrice, currency)}
-        />
+    <Card as="section" className="gap-5">
+      <SectionHeader
+        eyebrow="Marktueberblick"
+        title="Live-Marktuebersicht"
+        description="Preis, Veraenderung, Liquiditaet und Spanne in einem wiederverwendbaren KPI-Block."
+      />
 
-        <MetricCard
-          label={`24h Anderung (${currencyLabel})`}
-          value={formatPercent(selectedChange24h)}
-          valueTone={changeTone}
-        />
+      <AsyncContent
+        error={overviewError}
+        hasContent
+        loading={showOverviewSkeleton || overviewLoading}
+        loadingMessage="Preis, Volumen und Market Cap werden aktualisiert."
+        loadingTitle="Marktdaten werden geladen"
+        onAction={onRetry}
+        preserveContentOnError
+        unavailableMessage="Letzte Marktdaten werden angezeigt. Live-Daten sind gerade nicht verfugbar."
+        unavailableTitle="Marktdaten vorubergehend nicht verfugbar"
+      >
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <MetricCard
+            label={`BTC Preis (${currencyLabel})`}
+            value={formatCurrency(selectedPrice, currency)}
+          />
 
-        <MetricCard
-          label={`24h Volumen (${currencyLabel})`}
-          value={formatCurrency(selectedVolume24h, currency)}
-        />
+          <MetricCard
+            label={`24h Anderung (${currencyLabel})`}
+            value={formatPercent(selectedChange24h)}
+            valueTone={changeTone}
+          />
 
-        <MetricCard
-          label={`Market Cap (${currencyLabel})`}
-          value={formatCurrency(selectedMarketCap, currency)}
-        />
+          <MetricCard
+            label={`24h Volumen (${currencyLabel})`}
+            value={formatCurrency(selectedVolume24h, currency)}
+          />
 
-        <article className="card">
-          <p className="label">24h High / Low ({currencyLabel})</p>
-          <div className="stat-stack">
-            <div className="stat-row">
-              <span>High</span>
-              <strong>{formatCurrency(selectedHigh24h, currency)}</strong>
-            </div>
-            <div className="stat-row">
-              <span>Low</span>
-              <strong>{formatCurrency(selectedLow24h, currency)}</strong>
-            </div>
-          </div>
-        </article>
-      </>
-    </AsyncContent>
+          <MetricCard
+            label={`Market Cap (${currencyLabel})`}
+            value={formatCurrency(selectedMarketCap, currency)}
+          />
+
+          <Card as="article" tone="muted" padding="sm" gap="sm">
+            <MetaText className="uppercase tracking-[0.04em]" size="xs">
+              24h High / Low ({currencyLabel})
+            </MetaText>
+            <Stack gap="sm">
+              <div className="flex items-center justify-between gap-3">
+                <MetaText>High</MetaText>
+                <p className="text-base font-semibold text-fg">
+                  {formatCurrency(selectedHigh24h, currency)}
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <MetaText>Low</MetaText>
+                <p className="text-base font-semibold text-fg">
+                  {formatCurrency(selectedLow24h, currency)}
+                </p>
+              </div>
+            </Stack>
+          </Card>
+        </div>
+      </AsyncContent>
+    </Card>
   );
 }

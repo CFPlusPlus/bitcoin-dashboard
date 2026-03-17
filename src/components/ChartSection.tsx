@@ -1,6 +1,10 @@
+import type { ChartData, ChartRange, Currency } from "../types/dashboard";
 import AsyncContent from "./AsyncContent";
 import PriceChart from "./PriceChart";
-import type { ChartData, ChartRange, Currency } from "../types/dashboard";
+import Button from "./ui/Button";
+import Card from "./ui/Card";
+import Cluster from "./ui/layout/Cluster";
+import SectionHeader from "./ui/layout/SectionHeader";
 
 type ChartSectionProps = {
   chart: ChartData | null;
@@ -28,26 +32,28 @@ export default function ChartSection({
   const isEmpty = chart !== null && chart.points.length === 0;
 
   return (
-    <article className="card card-wide">
-      <div className="chart-header">
-        <div>
-          <p className="label">BTC Preisverlauf ({currency.toUpperCase()})</p>
-          <h2>Chart</h2>
-        </div>
-
-        <div className="range-switcher" role="tablist" aria-label="Zeitraum">
-          {[1, 7, 30].map((value) => (
-            <button
-              key={value}
-              type="button"
-              className={range === value ? "range-btn active" : "range-btn"}
-              onClick={() => onRangeChange(value as ChartRange)}
-            >
-              {value === 1 ? "1D" : `${value}D`}
-            </button>
-          ))}
-        </div>
-      </div>
+    <Card as="section" className="gap-5">
+      <SectionHeader
+        eyebrow="Preisverlauf"
+        title={`BTC Preisverlauf (${currency.toUpperCase()})`}
+        description="Vergleiche die kurzfristige Entwicklung ueber einen kleinen, wiederverwendbaren Chart-Block."
+        action={
+          <Cluster role="tablist" aria-label="Zeitraum" gap="sm">
+            {[1, 7, 30].map((value) => (
+              <Button
+                key={value}
+                type="button"
+                active={range === value}
+                intent="secondary"
+                size="sm"
+                onClick={() => onRangeChange(value as ChartRange)}
+              >
+                {value === 1 ? "1D" : `${value}D`}
+              </Button>
+            ))}
+          </Cluster>
+        }
+      />
 
       <AsyncContent
         emptyMessage="Fur den ausgewahlten Zeitraum sind aktuell keine Chartpunkte verfugbar."
@@ -74,6 +80,6 @@ export default function ChartSection({
           currency={chart?.currency ?? currency}
         />
       </AsyncContent>
-    </article>
+    </Card>
   );
 }

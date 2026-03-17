@@ -2,6 +2,7 @@
 
 import NoticeBar from "../components/NoticeBar";
 import PageHeader from "../components/PageHeader";
+import Stack from "../components/ui/layout/Stack";
 import { useDashboardData } from "../hooks/useDashboardData";
 import DashboardContent from "./dashboard/DashboardContent";
 import DashboardControlsSection from "./dashboard/DashboardControlsSection";
@@ -41,7 +42,7 @@ export default function HomePage() {
   } = useDashboardData();
 
   return (
-    <>
+    <Stack gap="xl">
       <PageHeader />
 
       <DashboardControlsSection
@@ -81,6 +82,6 @@ export default function HomePage() {
         onSentimentRetry={() => void loadSentimentData()}
         onRangeChange={setRange}
       />
-    </>
+    </Stack>
   );
 }

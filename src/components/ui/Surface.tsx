@@ -2,7 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { createElement, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
-const surfaceVariants = cva(
+export const surfaceVariants = cva(
   "rounded-xl border border-border-default bg-surface text-fg shadow-surface backdrop-blur-sm",
   {
     variants: {
@@ -17,6 +17,8 @@ const surfaceVariants = cva(
         elevated: "bg-elevated shadow-elevated",
         muted: "bg-muted-surface shadow-none",
         accent: "border-accent/25 bg-accent-soft",
+        interactive:
+          "bg-elevated shadow-surface transition-[transform,border-color,background-color,box-shadow] duration-[var(--motion-base)] ease-[var(--ease-standard)] motion-safe:hover:-translate-y-0.5 motion-safe:hover:border-accent/35 motion-safe:hover:shadow-elevated",
       },
     },
     defaultVariants: {
@@ -26,7 +28,7 @@ const surfaceVariants = cva(
   }
 );
 
-type SurfaceProps = HTMLAttributes<HTMLElement> &
+export type SurfaceProps = HTMLAttributes<HTMLElement> &
   VariantProps<typeof surfaceVariants> & {
     as?: "article" | "aside" | "div" | "header" | "section";
     children: ReactNode;

@@ -1,12 +1,16 @@
+import SectionHeader from "./ui/layout/SectionHeader";
+
 export default function PageHeader() {
   return (
-    <header className="space-y-3">
-      <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-accent">MVP+</p>
-      <h1>Bitcoin Dashboard</h1>
-      <p className="max-w-[65ch] text-fg-muted">
-        Marktdaten über CoinGecko, Netzwerkdaten über mempool.space und Sentiment über Alternative.me. Einstellungen
-        bleiben jetzt auf diesem Gerät gespeichert.
-      </p>
+    <header>
+      <SectionHeader
+        eyebrow="MVP+"
+        title="Bitcoin Dashboard"
+        titleAs="h1"
+        titleSize="xl"
+        description="Marktdaten ueber CoinGecko, Netzwerkdaten ueber mempool.space und Sentiment ueber Alternative.me. Einstellungen bleiben jetzt auf diesem Geraet gespeichert."
+        className="max-w-4xl"
+      />
     </header>
   );
 }

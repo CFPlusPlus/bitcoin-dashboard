@@ -1,4 +1,9 @@
 import AsyncContent from "../../components/AsyncContent";
+import Card from "../../components/ui/Card";
+import KpiValue from "../../components/ui/content/KpiValue";
+import MetaText from "../../components/ui/content/MetaText";
+import SectionHeader from "../../components/ui/layout/SectionHeader";
+import Stack from "../../components/ui/layout/Stack";
 import { FALLBACK_TEXT, formatCountdown } from "../../lib/format";
 import type { Sentiment } from "../../types/dashboard";
 
@@ -24,8 +29,13 @@ export default function SentimentSection({
       sentiment.timeUntilUpdateSeconds !== null);
 
   return (
-    <article className="card">
-      <p className="label">Fear &amp; Greed</p>
+    <Card as="section">
+      <SectionHeader
+        eyebrow="Sentiment"
+        title="Fear &amp; Greed"
+        description="Ein kompakter Signalblock fuer Marktstimmung und den naechsten Veroeffentlichungszeitpunkt."
+      />
+
       <AsyncContent
         emptyMessage="Der Sentiment-Index liefert aktuell keine verwertbaren Werte."
         emptyTitle="Kein Sentiment verfugbar"
@@ -40,15 +50,18 @@ export default function SentimentSection({
         unavailableMessage="Letzte Sentimentdaten werden angezeigt. Neue Werte sind gerade nicht verfugbar."
         unavailableTitle="Sentiment vorubergehend nicht verfugbar"
       >
-        <>
-          <h2>{sentiment?.value ?? FALLBACK_TEXT} / 100</h2>
-          <p className="muted">{sentiment?.classification ?? FALLBACK_TEXT}</p>
-          <p className="muted">
-            Nachstes Update in: {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null)}
-          </p>
-          <p className="muted">{sentiment?.attribution ?? FALLBACK_TEXT}</p>
-        </>
+        <Stack gap="md">
+          <KpiValue
+            label="Indexstand"
+            value={`${sentiment?.value ?? FALLBACK_TEXT} / 100`}
+            meta={sentiment?.classification ?? FALLBACK_TEXT}
+          />
+          <MetaText>
+            Naechstes Update in: {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null)}
+          </MetaText>
+          <MetaText>{sentiment?.attribution ?? FALLBACK_TEXT}</MetaText>
+        </Stack>
       </AsyncContent>
-    </article>
+    </Card>
   );
 }

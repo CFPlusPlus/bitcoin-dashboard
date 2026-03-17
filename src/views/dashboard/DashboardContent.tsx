@@ -1,5 +1,3 @@
-import ChartSection from "../../components/ChartSection";
-import MetadataSection from "../../components/MetadataSection";
 import type {
   ChartData,
   ChartRange,
@@ -8,6 +6,9 @@ import type {
   Overview,
   Sentiment,
 } from "../../types/dashboard";
+import ChartSection from "../../components/ChartSection";
+import MetadataSection from "../../components/MetadataSection";
+import Section from "../../components/ui/layout/Section";
 import MarketOverviewSection from "./MarketOverviewSection";
 import NetworkOverviewSection from "./NetworkOverviewSection";
 import SentimentSection from "./SentimentSection";
@@ -64,7 +65,7 @@ export default function DashboardContent({
   onRangeChange,
 }: DashboardContentProps) {
   return (
-    <section className="grid" aria-label="Dashboard Bereiche">
+    <Section aria-label="Dashboard Bereiche" space="lg">
       <MarketOverviewSection
         currency={currency}
         overview={overview}
@@ -74,21 +75,23 @@ export default function DashboardContent({
         onRetry={onOverviewRetry}
       />
 
-      <NetworkOverviewSection
-        network={network}
-        networkError={networkError}
-        networkLoading={networkLoading}
-        showNetworkSkeleton={showNetworkSkeleton}
-        onRetry={onNetworkRetry}
-      />
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+        <NetworkOverviewSection
+          network={network}
+          networkError={networkError}
+          networkLoading={networkLoading}
+          showNetworkSkeleton={showNetworkSkeleton}
+          onRetry={onNetworkRetry}
+        />
 
-      <SentimentSection
-        sentiment={sentiment}
-        sentimentError={sentimentError}
-        sentimentLoading={sentimentLoading}
-        showSentimentSkeleton={showSentimentSkeleton}
-        onRetry={onSentimentRetry}
-      />
+        <SentimentSection
+          sentiment={sentiment}
+          sentimentError={sentimentError}
+          sentimentLoading={sentimentLoading}
+          showSentimentSkeleton={showSentimentSkeleton}
+          onRetry={onSentimentRetry}
+        />
+      </div>
 
       <ChartSection
         chart={chart}
@@ -108,6 +111,6 @@ export default function DashboardContent({
         overview={overview}
         sentiment={sentiment}
       />
-    </section>
+    </Section>
   );
 }

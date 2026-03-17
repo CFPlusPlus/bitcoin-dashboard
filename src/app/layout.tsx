@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import SiteNavigation from "../components/SiteNavigation";
 import StructuredData from "../components/StructuredData";
 import Surface from "../components/ui/Surface";
+import PageContainer from "../components/ui/layout/PageContainer";
 import {
   DEFAULT_DESCRIPTION,
   DEFAULT_SOCIAL_IMAGE_PATH,
@@ -55,8 +56,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="de">
       <body className="min-h-screen bg-app text-fg antialiased">
         <StructuredData data={serializeJsonLd(createWebsiteSchema())} />
-        <main className="min-h-screen px-4 py-8 sm:px-6 sm:py-10">
-          <div className="mx-auto flex w-full max-w-[var(--container-max-width)] flex-col gap-6">
+        <main className="min-h-screen py-8 sm:py-10">
+          <PageContainer className="flex flex-col gap-6">
             <Surface
               as="header"
               tone="elevated"
@@ -75,7 +76,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </Surface>
 
             {children}
-          </div>
+          </PageContainer>
         </main>
       </body>
     </html>

@@ -1,8 +1,11 @@
-﻿import type { ReactNode } from "react";
+import type { ReactNode } from "react";
+import Card from "./ui/Card";
+import KpiValue from "./ui/content/KpiValue";
 
 type MetricCardProps = {
   children?: ReactNode;
   label: string;
+  tone?: "default" | "elevated" | "muted" | "interactive";
   value: ReactNode;
   valueTone?: "default" | "positive" | "negative";
 };
@@ -10,17 +13,14 @@ type MetricCardProps = {
 export default function MetricCard({
   children,
   label,
+  tone = "muted",
   value,
   valueTone = "default",
 }: MetricCardProps) {
-  const className =
-    valueTone === "default" ? "metric-value" : `metric-value metric-value-${valueTone}`;
-
   return (
-    <article className="card">
-      <p className="label">{label}</p>
-      <h2 className={className}>{value}</h2>
+    <Card as="article" tone={tone} padding="sm" gap="sm" className="h-full">
+      <KpiValue label={label} value={value} size="md" tone={valueTone} />
       {children}
-    </article>
+    </Card>
   );
 }

@@ -1,5 +1,7 @@
 import AsyncContent from "../../components/AsyncContent";
 import MetricCard from "../../components/MetricCard";
+import Card from "../../components/ui/Card";
+import SectionHeader from "../../components/ui/layout/SectionHeader";
 import { FALLBACK_TEXT, formatNumber } from "../../lib/format";
 import type { Network } from "../../types/dashboard";
 
@@ -31,7 +33,6 @@ export default function NetworkOverviewSection({
         loadingMessage="Blockhohe und Fee-Schatzungen werden aktualisiert."
         loadingTitle="Netzwerkdaten werden geladen"
         onAction={onRetry}
-        stateClassName="col-span-full"
         unavailableMessage={networkError}
         unavailableTitle="Netzwerkdaten vorubergehend nicht verfugbar"
       >
@@ -41,32 +42,39 @@ export default function NetworkOverviewSection({
   }
 
   return (
-    <AsyncContent
-      error={networkError}
-      hasContent
-      loading={showNetworkSkeleton || networkLoading}
-      loadingMessage="Blockhohe und Fee-Schatzungen werden aktualisiert."
-      loadingTitle="Netzwerkdaten werden geladen"
-      onAction={onRetry}
-      preserveContentOnError
-      stateClassName="col-span-full"
-      unavailableMessage="Letzte Netzwerkdaten werden angezeigt. Live-Daten sind gerade nicht verfugbar."
-      unavailableTitle="Netzwerkdaten vorubergehend nicht verfugbar"
-    >
-      <>
-        <MetricCard
-          label="Letzte Blockhohe"
-          value={
-            network.latestBlockHeight === null
-              ? FALLBACK_TEXT
-              : formatNumber(network.latestBlockHeight)
-          }
-        />
+    <Card as="section" className="gap-5">
+      <SectionHeader
+        eyebrow="Netzwerk"
+        title="On-Chain Signale"
+        description="Blockhoehe und aktuelle Fee-Schaetzungen in derselben Shell wie die Markt-KPIs."
+      />
 
-        <MetricCard label="Fastest Fee" value={formatFee(network.fees.fastestFee)} />
-        <MetricCard label="Half Hour Fee" value={formatFee(network.fees.halfHourFee)} />
-        <MetricCard label="Hour Fee" value={formatFee(network.fees.hourFee)} />
-      </>
-    </AsyncContent>
+      <AsyncContent
+        error={networkError}
+        hasContent
+        loading={showNetworkSkeleton || networkLoading}
+        loadingMessage="Blockhohe und Fee-Schatzungen werden aktualisiert."
+        loadingTitle="Netzwerkdaten werden geladen"
+        onAction={onRetry}
+        preserveContentOnError
+        unavailableMessage="Letzte Netzwerkdaten werden angezeigt. Live-Daten sind gerade nicht verfugbar."
+        unavailableTitle="Netzwerkdaten vorubergehend nicht verfugbar"
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <MetricCard
+            label="Letzte Blockhohe"
+            value={
+              network.latestBlockHeight === null
+                ? FALLBACK_TEXT
+                : formatNumber(network.latestBlockHeight)
+            }
+          />
+
+          <MetricCard label="Fastest Fee" value={formatFee(network.fees.fastestFee)} />
+          <MetricCard label="Half Hour Fee" value={formatFee(network.fees.halfHourFee)} />
+          <MetricCard label="Hour Fee" value={formatFee(network.fees.hourFee)} />
+        </div>
+      </AsyncContent>
+    </Card>
   );
 }
