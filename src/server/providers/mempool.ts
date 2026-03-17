@@ -1,19 +1,10 @@
 import { z } from "zod";
 import type { CachePolicy } from "../cache";
-import { getNextFetchCacheOptions } from "../cache";
-import { fetchWithTimeout, readErrorBody } from "../http";
-import {
-  invalidUpstreamShape,
-  missingUpstreamData,
-  upstreamFetchFailed,
-} from "../upstream";
+import { readUpstreamJson, requestUpstream } from "../provider-fetch";
+import { invalidUpstreamShape, missingUpstreamData } from "../upstream";
 
 const provider = "mempool.space";
 const finiteNumber = z.number().finite();
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
-}
 
 const mempoolRecommendedFeesSchema = z.object({
   fastestFee: finiteNumber.optional(),
@@ -45,37 +36,20 @@ function ensureRecommendedFeesComplete(fees: MempoolRecommendedFees) {
 }
 
 export async function fetchRecommendedFees(cachePolicy?: CachePolicy) {
-  let response: Response;
+  const response = await requestUpstream({
+    provider,
+    resource: "Recommended fees",
+    url: "https://mempool.space/api/v1/fees/recommended",
+    accept: "application/json",
+    timeoutMs: 6000,
+    cachePolicy,
+  });
 
-  try {
-    response = await fetchWithTimeout(
-      "https://mempool.space/api/v1/fees/recommended",
-      {
-        ...(cachePolicy ? getNextFetchCacheOptions(cachePolicy) : {}),
-        headers: { accept: "application/json" },
-      },
-      6000
-    );
-  } catch (error) {
-    throw upstreamFetchFailed(provider, `Recommended fees request failed: ${getErrorMessage(error)}`, {
-      cause: error,
-    });
-  }
-
-  if (!response.ok) {
-    const details = await readErrorBody(response);
-    throw upstreamFetchFailed(provider, `Recommended fees request failed: ${response.status} ${details}`.trim(), {
-      upstreamStatus: response.status,
-    });
-  }
-
-  let payload: unknown;
-
-  try {
-    payload = await response.json();
-  } catch {
-    throw invalidUpstreamShape(provider, "mempool.space fee response returned invalid JSON.");
-  }
+  const payload = await readUpstreamJson(
+    response,
+    provider,
+    "mempool.space fee response returned invalid JSON."
+  );
 
   const parsed = mempoolRecommendedFeesSchema.safeParse(payload);
 
@@ -89,29 +63,14 @@ export async function fetchRecommendedFees(cachePolicy?: CachePolicy) {
 }
 
 export async function fetchLatestBlockHeight(cachePolicy?: CachePolicy) {
-  let response: Response;
-
-  try {
-    response = await fetchWithTimeout(
-      "https://mempool.space/api/blocks/tip/height",
-      {
-        ...(cachePolicy ? getNextFetchCacheOptions(cachePolicy) : {}),
-        headers: { accept: "text/plain" },
-      },
-      6000
-    );
-  } catch (error) {
-    throw upstreamFetchFailed(provider, `Block height request failed: ${getErrorMessage(error)}`, {
-      cause: error,
-    });
-  }
-
-  if (!response.ok) {
-    const details = await readErrorBody(response);
-    throw upstreamFetchFailed(provider, `Block height request failed: ${response.status} ${details}`.trim(), {
-      upstreamStatus: response.status,
-    });
-  }
+  const response = await requestUpstream({
+    provider,
+    resource: "Block height",
+    url: "https://mempool.space/api/blocks/tip/height",
+    accept: "text/plain",
+    timeoutMs: 6000,
+    cachePolicy,
+  });
 
   const text = (await response.text()).trim();
 

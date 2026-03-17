@@ -1,12 +1,7 @@
 import { z } from "zod";
 import type { CachePolicy } from "../cache";
-import { getNextFetchCacheOptions } from "../cache";
-import { fetchWithTimeout, readErrorBody } from "../http";
-import {
-  invalidUpstreamShape,
-  missingUpstreamData,
-  upstreamFetchFailed,
-} from "../upstream";
+import { readUpstreamJson, requestUpstream } from "../provider-fetch";
+import { invalidUpstreamShape, missingUpstreamData } from "../upstream";
 
 const provider = "coingecko";
 
@@ -31,10 +26,6 @@ const coinGeckoChartResponseSchema = z.object({
 
 export type CoinGeckoMarketItem = z.infer<typeof coinGeckoMarketItemSchema>;
 export type CoinGeckoMarketChartResponse = z.infer<typeof coinGeckoChartResponseSchema>;
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
-}
 
 function ensureMarketItemCompleteness(item: CoinGeckoMarketItem, currency: "usd" | "eur") {
   const requiredFields = [
@@ -68,44 +59,23 @@ export async function fetchCoinGeckoMarketData(
     "&ids=bitcoin" +
     "&precision=2";
 
-  let response: Response;
+  const response = await requestUpstream({
+    provider,
+    resource: `CoinGecko ${currency.toUpperCase()}`,
+    url,
+    accept: "application/json",
+    timeoutMs: 8000,
+    cachePolicy,
+    headers: {
+      "x-cg-demo-api-key": apiKey,
+    },
+  });
 
-  try {
-    response = await fetchWithTimeout(
-      url,
-      {
-        ...(cachePolicy ? getNextFetchCacheOptions(cachePolicy) : {}),
-        headers: {
-          accept: "application/json",
-          "x-cg-demo-api-key": apiKey,
-        },
-      },
-      8000
-    );
-  } catch (error) {
-    throw upstreamFetchFailed(provider, `CoinGecko ${currency.toUpperCase()}: ${getErrorMessage(error)}`, {
-      cause: error,
-    });
-  }
-
-  if (!response.ok) {
-    const details = await readErrorBody(response);
-    throw upstreamFetchFailed(
-      provider,
-      `CoinGecko ${currency.toUpperCase()}: ${response.status} ${details}`.trim(),
-      {
-        upstreamStatus: response.status,
-      }
-    );
-  }
-
-  let payload: unknown;
-
-  try {
-    payload = await response.json();
-  } catch (error) {
-    throw invalidUpstreamShape(provider, `CoinGecko ${currency.toUpperCase()} returned invalid JSON.`);
-  }
+  const payload = await readUpstreamJson(
+    response,
+    provider,
+    `CoinGecko ${currency.toUpperCase()} returned invalid JSON.`
+  );
 
   const parsed = coinGeckoMarketResponseSchema.safeParse(payload);
 
@@ -134,40 +104,23 @@ export async function fetchCoinGeckoMarketChart(input: {
     "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart" +
     `?vs_currency=${input.currency}&days=${input.days}&precision=2`;
 
-  let response: Response;
+  const response = await requestUpstream({
+    provider,
+    resource: "CoinGecko chart",
+    url: apiUrl,
+    accept: "application/json",
+    timeoutMs: 9000,
+    cachePolicy: input.cachePolicy,
+    headers: {
+      "x-cg-demo-api-key": input.apiKey,
+    },
+  });
 
-  try {
-    response = await fetchWithTimeout(
-      apiUrl,
-      {
-        ...(input.cachePolicy ? getNextFetchCacheOptions(input.cachePolicy) : {}),
-        headers: {
-          accept: "application/json",
-          "x-cg-demo-api-key": input.apiKey,
-        },
-      },
-      9000
-    );
-  } catch (error) {
-    throw upstreamFetchFailed(provider, `CoinGecko chart request failed: ${getErrorMessage(error)}`, {
-      cause: error,
-    });
-  }
-
-  if (!response.ok) {
-    const details = await readErrorBody(response);
-    throw upstreamFetchFailed(provider, `CoinGecko chart request failed: ${response.status} ${details}`.trim(), {
-      upstreamStatus: response.status,
-    });
-  }
-
-  let payload: unknown;
-
-  try {
-    payload = await response.json();
-  } catch {
-    throw invalidUpstreamShape(provider, "CoinGecko chart response returned invalid JSON.");
-  }
+  const payload = await readUpstreamJson(
+    response,
+    provider,
+    "CoinGecko chart response returned invalid JSON."
+  );
 
   const parsed = coinGeckoChartResponseSchema.safeParse(payload);
 

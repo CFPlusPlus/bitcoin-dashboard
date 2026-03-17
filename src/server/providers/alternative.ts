@@ -1,18 +1,9 @@
 import { z } from "zod";
 import type { CachePolicy } from "../cache";
-import { getNextFetchCacheOptions } from "../cache";
-import { fetchWithTimeout, readErrorBody } from "../http";
-import {
-  invalidUpstreamShape,
-  missingUpstreamData,
-  upstreamFetchFailed,
-} from "../upstream";
+import { readUpstreamJson, requestUpstream } from "../provider-fetch";
+import { invalidUpstreamShape, missingUpstreamData, upstreamFetchFailed } from "../upstream";
 
 const provider = "alternative.me";
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
-}
 
 const alternativeMeItemSchema = z.object({
   value: z.string().optional(),
@@ -57,39 +48,20 @@ function ensurePrimaryItem(response: AlternativeMeFearAndGreedResponse) {
 }
 
 export async function fetchFearAndGreedIndex(cachePolicy?: CachePolicy) {
-  let response: Response;
+  const response = await requestUpstream({
+    provider,
+    resource: "Fear and Greed",
+    url: "https://api.alternative.me/fng/?limit=1",
+    accept: "application/json",
+    timeoutMs: 6000,
+    cachePolicy,
+  });
 
-  try {
-    response = await fetchWithTimeout(
-      "https://api.alternative.me/fng/?limit=1",
-      {
-        ...(cachePolicy ? getNextFetchCacheOptions(cachePolicy) : {}),
-        headers: {
-          accept: "application/json",
-        },
-      },
-      6000
-    );
-  } catch (error) {
-    throw upstreamFetchFailed(provider, `Fear and Greed request failed: ${getErrorMessage(error)}`, {
-      cause: error,
-    });
-  }
-
-  if (!response.ok) {
-    const details = await readErrorBody(response);
-    throw upstreamFetchFailed(provider, `Fear and Greed request failed: ${response.status} ${details}`.trim(), {
-      upstreamStatus: response.status,
-    });
-  }
-
-  let payload: unknown;
-
-  try {
-    payload = await response.json();
-  } catch {
-    throw invalidUpstreamShape(provider, "Alternative.me response returned invalid JSON.");
-  }
+  const payload = await readUpstreamJson(
+    response,
+    provider,
+    "Alternative.me response returned invalid JSON."
+  );
 
   const parsed = alternativeMeResponseSchema.safeParse(payload);
 
