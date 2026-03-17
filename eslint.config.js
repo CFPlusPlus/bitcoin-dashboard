@@ -6,6 +6,7 @@ export default defineConfig([
   globalIgnores([
     ".next/**",
     ".open-next/**",
+    ".wrangler/**",
     "build/**",
     "coverage/**",
     "dist/**",

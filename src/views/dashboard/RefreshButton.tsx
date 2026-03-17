@@ -1,3 +1,6 @@
+import { RefreshCw } from "lucide-react";
+import Button from "../../components/ui/Button";
+
 type RefreshButtonProps = {
   refreshing: boolean;
   onRefresh: () => void;
@@ -8,13 +11,9 @@ export default function RefreshButton({
   onRefresh,
 }: RefreshButtonProps) {
   return (
-    <button
-      type="button"
-      className="refresh-btn"
-      onClick={onRefresh}
-      disabled={refreshing}
-    >
+    <Button intent="primary" onClick={onRefresh} disabled={refreshing}>
+      <RefreshCw className={refreshing ? "size-4 animate-spin" : "size-4"} aria-hidden="true" />
       {refreshing ? "Aktualisiere..." : "Jetzt aktualisieren"}
-    </button>
+    </Button>
   );
 }

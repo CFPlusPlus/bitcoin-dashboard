@@ -31,7 +31,7 @@ export default function NetworkOverviewSection({
         loadingMessage="Blockhohe und Fee-Schatzungen werden aktualisiert."
         loadingTitle="Netzwerkdaten werden geladen"
         onAction={onRetry}
-        stateClassName="card card-wide"
+        stateClassName="col-span-full"
         unavailableMessage={networkError}
         unavailableTitle="Netzwerkdaten vorubergehend nicht verfugbar"
       >
@@ -49,7 +49,7 @@ export default function NetworkOverviewSection({
       loadingTitle="Netzwerkdaten werden geladen"
       onAction={onRetry}
       preserveContentOnError
-      stateClassName="card card-wide"
+      stateClassName="col-span-full"
       unavailableMessage="Letzte Netzwerkdaten werden angezeigt. Live-Daten sind gerade nicht verfugbar."
       unavailableTitle="Netzwerkdaten vorubergehend nicht verfugbar"
     >

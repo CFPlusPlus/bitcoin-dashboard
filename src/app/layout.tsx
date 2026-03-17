@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import SiteNavigation from "../components/SiteNavigation";
 import StructuredData from "../components/StructuredData";
+import Surface from "../components/ui/Surface";
 import {
   DEFAULT_DESCRIPTION,
   DEFAULT_SOCIAL_IMAGE_PATH,
@@ -12,6 +13,7 @@ import {
   serializeJsonLd,
 } from "../lib/seo";
 import "./globals.css";
+import "../styles/legacy.css";
 
 export const metadata: Metadata = {
   metadataBase,
@@ -51,18 +53,26 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="de">
-      <body>
+      <body className="min-h-screen bg-app text-fg antialiased">
         <StructuredData data={serializeJsonLd(createWebsiteSchema())} />
-        <main className="page">
-          <div className="container app-shell">
-            <header className="site-header">
+        <main className="min-h-screen px-4 py-8 sm:px-6 sm:py-10">
+          <div className="mx-auto flex w-full max-w-[var(--container-max-width)] flex-col gap-6">
+            <Surface
+              as="header"
+              tone="elevated"
+              className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between"
+            >
               <div>
-                <p className="site-kicker">Bitcoin Dashboard</p>
-                <h1 className="site-title">Dashboard und Tools in einer klaren Struktur</h1>
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                  Bitcoin Dashboard
+                </p>
+                <p className="mt-3 max-w-2xl font-serif text-2xl leading-tight text-fg sm:text-4xl">
+                  Dashboard und Tools in einer klaren Struktur
+                </p>
               </div>
 
               <SiteNavigation />
-            </header>
+            </Surface>
 
             {children}
           </div>

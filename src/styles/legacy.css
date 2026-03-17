@@ -1,0 +1,404 @@
+.section-hero {
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #f7931a;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.subtitle {
+  margin: 12px 0 0;
+  color: #aab3c5;
+  max-width: 65ch;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: rgb(17 24 39 / 80%);
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 18%);
+}
+
+.card-wide {
+  grid-column: 1 / -1;
+}
+
+.label {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: #aab3c5;
+}
+
+.metric-value-positive {
+  color: #66d18f;
+}
+
+.metric-value-negative {
+  color: #ff8a8a;
+}
+
+.muted {
+  margin: 12px 0 0;
+  color: #93a0b8;
+}
+
+.error {
+  border-color: rgb(255 99 132 / 35%);
+  color: #ffd5de;
+}
+
+.notice-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #dce3f1;
+}
+
+.notice-list li + li {
+  margin-top: 8px;
+}
+
+.tools-grid,
+.tool-detail-layout,
+.dca-summary-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.tools-grid,
+.tool-detail-layout {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.dca-summary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-bottom: 16px;
+}
+
+.tool-card,
+.tool-stage-card,
+.dca-form,
+.dca-form-card,
+.dca-list-card,
+.dca-summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tool-copy {
+  margin: 0;
+}
+
+.tool-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tool-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 5%);
+  color: #dce3f1;
+  font-size: 0.9rem;
+}
+
+.tool-link,
+.tool-back-link {
+  width: fit-content;
+  text-decoration: none;
+}
+
+.tool-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #dce3f1;
+}
+
+.tool-list li + li {
+  margin-top: 8px;
+}
+
+.tool-toolbar-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.tool-toolbar-copy,
+.tool-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.tool-toolbar-copy {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.dca-layout {
+  align-items: flex-start;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #dce3f1;
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  background: rgb(255 255 255 / 4%);
+  color: #f5f7fb;
+  padding: 12px 14px;
+}
+
+.input-group input::placeholder {
+  color: #7d89a0;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: rgb(247 147 26 / 50%);
+}
+
+.form-error {
+  margin: 0;
+  color: #ffb4c2;
+}
+
+.dca-form-actions,
+.dca-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.dca-list-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.dca-empty-state {
+  min-height: 100%;
+}
+
+.dca-entry-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dca-entry-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgb(255 255 255 / 3%);
+  border: 1px solid rgb(255 255 255 / 6%);
+}
+
+.dca-entry-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.dca-entry-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.dca-entry-note {
+  color: #93a0b8;
+}
+
+.dca-entry-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px 14px;
+  color: #dce3f1;
+}
+
+.chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.range-switcher {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.range-btn,
+.remove-btn,
+.refresh-btn {
+  appearance: none;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 4%);
+  color: #dce3f1;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease,
+    background 120ms ease,
+    opacity 120ms ease;
+}
+
+.refresh-btn {
+  border-color: rgb(247 147 26 / 55%);
+  background: rgb(247 147 26 / 14%);
+  color: #fff;
+  font-weight: 700;
+}
+
+.range-btn:hover,
+.remove-btn:hover,
+.refresh-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgb(247 147 26 / 50%);
+}
+
+.range-btn:disabled,
+.remove-btn:disabled,
+.refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.range-btn.active {
+  background: rgb(247 147 26 / 14%);
+  border-color: rgb(247 147 26 / 65%);
+  color: #fff;
+}
+
+.chart-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chart-summary {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  color: #aab3c5;
+  font-size: 0.95rem;
+}
+
+.chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.chart-axis {
+  stroke: rgb(255 255 255 / 8%);
+  stroke-width: 1;
+}
+
+.chart-line {
+  fill: none;
+  stroke: #f7931a;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.chart-label {
+  fill: #93a0b8;
+  font-size: 14px;
+}
+
+.stat-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #dce3f1;
+}
+
+.stat-row span {
+  color: #aab3c5;
+}
+
+.stat-row strong {
+  font-size: 1rem;
+}
+
+@media (max-width: 720px) {
+  .tool-toolbar-card,
+  .dca-list-header,
+  .dca-entry-row,
+  .dca-entry-topline {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tool-toolbar-actions,
+  .dca-list-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .tool-link,
+  .tool-back-link,
+  .refresh-btn,
+  .range-btn,
+  .remove-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .chart-header {
+    flex-direction: column;
+  }
+}

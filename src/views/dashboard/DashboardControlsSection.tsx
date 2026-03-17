@@ -1,3 +1,4 @@
+import Surface from "../../components/ui/Surface";
 import type { Currency } from "../../types/dashboard";
 import AutoRefreshToggle from "./AutoRefreshToggle";
 import CurrencySwitcher from "./CurrencySwitcher";
@@ -24,14 +25,19 @@ export default function DashboardControlsSection({
   onRefresh,
 }: DashboardControlsSectionProps) {
   return (
-    <section className="toolbar" aria-label="Aktualisierung und Einstellungen">
+    <Surface
+      as="section"
+      tone="elevated"
+      className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+      aria-label="Aktualisierung und Einstellungen"
+    >
       <RefreshStatus autoRefresh={autoRefresh} lastRefreshAt={lastRefreshAt} />
 
-      <div className="toolbar-actions">
+      <div className="flex flex-wrap items-center gap-3">
         <CurrencySwitcher currency={currency} onChange={onCurrencyChange} />
         <AutoRefreshToggle autoRefresh={autoRefresh} onChange={onAutoRefreshChange} />
         <RefreshButton refreshing={refreshing} onRefresh={onRefresh} />
       </div>
-    </section>
+    </Surface>
   );
 }

@@ -1,3 +1,5 @@
+import Button from "../../components/ui/Button";
+
 type AutoRefreshToggleProps = {
   autoRefresh: boolean;
   onChange: (value: boolean) => void;
@@ -8,12 +10,13 @@ export default function AutoRefreshToggle({
   onChange,
 }: AutoRefreshToggleProps) {
   return (
-    <button
-      type="button"
-      className={autoRefresh ? "range-btn active" : "range-btn"}
+    <Button
+      active={autoRefresh}
+      intent="secondary"
+      size="sm"
       onClick={() => onChange(!autoRefresh)}
     >
       {autoRefresh ? "Live an" : "Live aus"}
-    </button>
+    </Button>
   );
 }

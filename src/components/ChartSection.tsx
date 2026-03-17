@@ -60,7 +60,7 @@ export default function ChartSection({
         loadingTitle="Chart wird geladen"
         onAction={onRetry}
         preserveContentOnError={hasStoredChart}
-        stateClassName="chart-empty"
+        stateClassName="mt-1"
         unavailableMessage={
           hasStoredChart
             ? "Letzte Chartdaten werden angezeigt. Neue Werte sind gerade nicht verfugbar."

@@ -1,3 +1,4 @@
+import Button from "../../components/ui/Button";
 import type { Currency } from "../../types/dashboard";
 
 type CurrencySwitcherProps = {
@@ -10,16 +11,17 @@ export default function CurrencySwitcher({
   onChange,
 }: CurrencySwitcherProps) {
   return (
-    <div className="range-switcher" role="tablist" aria-label="Währung">
+    <div className="flex flex-wrap gap-2" role="tablist" aria-label="Währung">
       {(["usd", "eur"] as const).map((value) => (
-        <button
+        <Button
           key={value}
-          type="button"
-          className={currency === value ? "range-btn active" : "range-btn"}
+          active={currency === value}
+          intent="secondary"
+          size="sm"
           onClick={() => onChange(value)}
         >
           {value.toUpperCase()}
-        </button>
+        </Button>
       ))}
     </div>
   );

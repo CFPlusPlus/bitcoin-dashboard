@@ -29,7 +29,7 @@ export default function MarketOverviewSection({
         loadingMessage="Preis, Volumen und Market Cap werden aktualisiert."
         loadingTitle="Marktdaten werden geladen"
         onAction={onRetry}
-        stateClassName="card card-wide"
+        stateClassName="col-span-full"
         unavailableMessage={overviewError}
         unavailableTitle="Marktdaten vorubergehend nicht verfugbar"
       >
@@ -65,7 +65,7 @@ export default function MarketOverviewSection({
       loadingTitle="Marktdaten werden geladen"
       onAction={onRetry}
       preserveContentOnError
-      stateClassName="card card-wide"
+      stateClassName="col-span-full"
       unavailableMessage="Letzte Marktdaten werden angezeigt. Live-Daten sind gerade nicht verfugbar."
       unavailableTitle="Marktdaten vorubergehend nicht verfugbar"
     >
