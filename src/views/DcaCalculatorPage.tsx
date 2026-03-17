@@ -6,7 +6,19 @@ import Link from "next/link";
 import AsyncContent from "../components/AsyncContent";
 import { usePersistentState } from "../hooks/usePersistentState";
 import { fetchJson } from "../lib/api";
-import { buildDcaView } from "../lib/dca";
+import {
+  addDcaEntry,
+  buildDcaView,
+  clearDcaEntries,
+  createDcaEntry,
+  EMPTY_DCA_ENTRY_STORE,
+  getCurrentPrice,
+  getDcaTone,
+  getDefaultDcaDate,
+  isCurrency,
+  normalizeDcaEntryStore,
+  removeDcaEntry,
+} from "../lib/dca";
 import {
   FALLBACK_TEXT,
   formatBtc,
@@ -15,84 +27,29 @@ import {
   formatDateTime,
   formatPercent,
 } from "../lib/format";
-import type { Currency, DcaEntry, DcaEntryStore, Overview } from "../types/dashboard";
+import type { Currency, DcaEntryStore, Overview } from "../types/dashboard";
 
 const STORAGE_KEYS = {
   currency: "bitcoin-dashboard:currency",
   dcaEntries: "bitcoin-dashboard:dca-entries",
 } as const;
 
-const EMPTY_ENTRY_STORE: DcaEntryStore = {
-  usd: [],
-  eur: [],
-};
-
-function isCurrency(value: unknown): value is Currency {
-  return value === "usd" || value === "eur";
-}
-
-function isDcaEntry(value: unknown): value is DcaEntry {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-
-  const entry = value as Record<string, unknown>;
-
-  return (
-    typeof entry.id === "string" &&
-    typeof entry.date === "string" &&
-    typeof entry.note === "string" &&
-    typeof entry.amountInvested === "number" &&
-    Number.isFinite(entry.amountInvested) &&
-    entry.amountInvested > 0 &&
-    typeof entry.bitcoinPrice === "number" &&
-    Number.isFinite(entry.bitcoinPrice) &&
-    entry.bitcoinPrice > 0
-  );
-}
-
-function isDcaEntryStore(value: unknown): value is DcaEntryStore {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-
-  const store = value as Record<string, unknown>;
-  return (
-    Array.isArray(store.usd) &&
-    Array.isArray(store.eur) &&
-    store.usd.every(isDcaEntry) &&
-    store.eur.every(isDcaEntry)
-  );
-}
-
-function createEntryId() {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-function getCurrentPrice(overview: Overview | null, currency: Currency) {
-  if (!overview) return null;
-  return currency === "usd" ? overview.priceUsd : overview.priceEur;
-}
-
-function getDefaultDate() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function getTone(value: number | null) {
-  if (value === null || value === 0) return "default";
-  return value > 0 ? "positive" : "negative";
-}
-
 export default function DcaCalculatorPage() {
+  const currencyStateOptions = useMemo(() => ({ validator: isCurrency }), []);
+  const entryStoreStateOptions = useMemo(
+    () => ({ normalize: normalizeDcaEntryStore }),
+    []
+  );
+
   const [currency, setCurrency] = usePersistentState<Currency>(
     STORAGE_KEYS.currency,
     "usd",
-    isCurrency
+    currencyStateOptions
   );
   const [entryStore, setEntryStore] = usePersistentState<DcaEntryStore>(
     STORAGE_KEYS.dcaEntries,
-    EMPTY_ENTRY_STORE,
-    isDcaEntryStore
+    EMPTY_DCA_ENTRY_STORE,
+    entryStoreStateOptions
   );
 
   const [overview, setOverview] = useState<Overview | null>(null);
@@ -126,67 +83,44 @@ export default function DcaCalculatorPage() {
   }, [loadMarketOverview]);
 
   useEffect(() => {
-    setDate((currentDate) => currentDate || getDefaultDate());
+    setDate((currentDate) => currentDate || getDefaultDcaDate());
   }, []);
 
   const entries = entryStore[currency];
   const currentPrice = getCurrentPrice(overview, currency);
   const dcaView = useMemo(() => buildDcaView(entries, currentPrice), [currentPrice, entries]);
-  const summaryTone = getTone(dcaView.summary.pnlAbsolute);
+  const summaryTone = getDcaTone(dcaView.summary.pnlAbsolute);
 
   const handleAddEntry = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormError("");
 
-    const parsedAmountInvested = Number(amountInvested.replace(",", "."));
-    const parsedBitcoinPrice = Number(bitcoinPrice.replace(",", "."));
-
-    if (!date) {
-      setFormError("Bitte ein gultiges Kaufdatum angeben.");
-      return;
-    }
-
-    if (!Number.isFinite(parsedAmountInvested) || parsedAmountInvested <= 0) {
-      setFormError("Bitte einen gultigen Investitionsbetrag grosser als 0 eingeben.");
-      return;
-    }
-
-    if (!Number.isFinite(parsedBitcoinPrice) || parsedBitcoinPrice <= 0) {
-      setFormError("Bitte einen gultigen BTC-Preis grosser als 0 eingeben.");
-      return;
-    }
-
-    const newEntry: DcaEntry = {
-      id: createEntryId(),
+    const result = createDcaEntry({
+      amountInvested,
+      bitcoinPrice,
       date,
-      amountInvested: parsedAmountInvested,
-      bitcoinPrice: parsedBitcoinPrice,
-      note: note.trim(),
-    };
+      note,
+    });
 
-    setEntryStore((currentStore) => ({
-      ...currentStore,
-      [currency]: [newEntry, ...currentStore[currency]],
-    }));
+    if (!result.success) {
+      setFormError(result.error);
+      return;
+    }
+
+    setEntryStore((currentStore) => addDcaEntry(currentStore, currency, result.value));
 
     setAmountInvested("");
     setBitcoinPrice("");
     setNote("");
-    setDate(getDefaultDate());
+    setDate(getDefaultDcaDate());
   };
 
   const handleRemoveEntry = (entryId: string) => {
-    setEntryStore((currentStore) => ({
-      ...currentStore,
-      [currency]: currentStore[currency].filter((entry) => entry.id !== entryId),
-    }));
+    setEntryStore((currentStore) => removeDcaEntry(currentStore, currency, entryId));
   };
 
   const handleClearEntries = () => {
-    setEntryStore((currentStore) => ({
-      ...currentStore,
-      [currency]: [],
-    }));
+    setEntryStore((currentStore) => clearDcaEntries(currentStore, currency));
   };
 
   const pnlClassName =

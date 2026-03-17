@@ -1,15 +1,225 @@
-﻿import type {
+import type {
+  Currency,
   DcaEntry,
   DcaEntrySnapshot,
+  DcaEntryStore,
   DcaSummary,
+  Overview,
 } from "../types/dashboard";
+
+export type DcaFormInput = {
+  amountInvested: string;
+  bitcoinPrice: string;
+  date: string;
+  note: string;
+};
+
+type DcaDraftEntry = Omit<DcaEntry, "id">;
+
+export type DcaValidationResult =
+  | {
+      error: string;
+      success: false;
+    }
+  | {
+      success: true;
+      value: DcaDraftEntry;
+    };
+
+export const EMPTY_DCA_ENTRY_STORE: DcaEntryStore = {
+  eur: [],
+  usd: [],
+};
 
 function isFiniteNumber(value: number | null | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
+function isPositiveNumber(value: number | null | undefined): value is number {
+  return isFiniteNumber(value) && value > 0;
+}
+
+function normalizeDecimalInput(value: string) {
+  return value.trim().replace(",", ".");
+}
+
+function sanitizeNote(note: string) {
+  return note.trim();
+}
+
+function isValidDateString(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+function normalizeDcaEntry(entry: DcaEntry): DcaEntry {
+  return {
+    ...entry,
+    note: sanitizeNote(entry.note),
+  };
+}
+
+export function isCurrency(value: unknown): value is Currency {
+  return value === "usd" || value === "eur";
+}
+
+export function isDcaEntry(value: unknown): value is DcaEntry {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const entry = value as Record<string, unknown>;
+
+  return (
+    typeof entry.id === "string" &&
+    entry.id.length > 0 &&
+    typeof entry.date === "string" &&
+    isValidDateString(entry.date) &&
+    typeof entry.note === "string" &&
+    isPositiveNumber(entry.amountInvested as number | null | undefined) &&
+    isPositiveNumber(entry.bitcoinPrice as number | null | undefined)
+  );
+}
+
+export function normalizeDcaEntryStore(value: unknown, initialValue = EMPTY_DCA_ENTRY_STORE) {
+  if (typeof value !== "object" || value === null) {
+    return initialValue;
+  }
+
+  const store = value as Record<string, unknown>;
+  const usd = Array.isArray(store.usd) ? store.usd.filter(isDcaEntry).map(normalizeDcaEntry) : [];
+  const eur = Array.isArray(store.eur) ? store.eur.filter(isDcaEntry).map(normalizeDcaEntry) : [];
+
+  return { usd, eur };
+}
+
+export function isDcaEntryStore(value: unknown): value is DcaEntryStore {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const store = value as Record<string, unknown>;
+  return (
+    Array.isArray(store.usd) &&
+    Array.isArray(store.eur) &&
+    store.usd.every(isDcaEntry) &&
+    store.eur.every(isDcaEntry)
+  );
+}
+
+export function createDcaEntryId(now = Date.now(), random = Math.random()) {
+  return `${now}-${random.toString(36).slice(2, 8)}`;
+}
+
+export function getCurrentPrice(overview: Overview | null, currency: Currency) {
+  if (!overview) {
+    return null;
+  }
+
+  const price = currency === "usd" ? overview.priceUsd : overview.priceEur;
+  return isPositiveNumber(price) ? price : null;
+}
+
+export function getDefaultDcaDate(now = new Date()) {
+  return now.toISOString().slice(0, 10);
+}
+
+export function getDcaTone(value: number | null) {
+  if (value === null || value === 0) {
+    return "default";
+  }
+
+  return value > 0 ? "positive" : "negative";
+}
+
+export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
+  if (!isValidDateString(input.date)) {
+    return {
+      error: "Bitte ein gueltiges Kaufdatum angeben.",
+      success: false,
+    };
+  }
+
+  const amountInvested = Number(normalizeDecimalInput(input.amountInvested));
+
+  if (!isPositiveNumber(amountInvested)) {
+    return {
+      error: "Bitte einen gueltigen Investitionsbetrag groesser als 0 eingeben.",
+      success: false,
+    };
+  }
+
+  const bitcoinPrice = Number(normalizeDecimalInput(input.bitcoinPrice));
+
+  if (!isPositiveNumber(bitcoinPrice)) {
+    return {
+      error: "Bitte einen gueltigen BTC-Preis groesser als 0 eingeben.",
+      success: false,
+    };
+  }
+
+  return {
+    success: true,
+    value: {
+      amountInvested,
+      bitcoinPrice,
+      date: input.date,
+      note: sanitizeNote(input.note),
+    },
+  };
+}
+
+export function createDcaEntry(input: DcaFormInput, entryId = createDcaEntryId()) {
+  const validation = validateDcaFormInput(input);
+
+  if (!validation.success) {
+    return validation;
+  }
+
+  return {
+    success: true as const,
+    value: {
+      ...validation.value,
+      id: entryId,
+    },
+  };
+}
+
+export function addDcaEntry(
+  store: DcaEntryStore,
+  currency: Currency,
+  entry: DcaEntry
+): DcaEntryStore {
+  return {
+    ...store,
+    [currency]: [normalizeDcaEntry(entry), ...store[currency]],
+  };
+}
+
+export function removeDcaEntry(
+  store: DcaEntryStore,
+  currency: Currency,
+  entryId: string
+): DcaEntryStore {
+  return {
+    ...store,
+    [currency]: store[currency].filter((entry) => entry.id !== entryId),
+  };
+}
+
+export function clearDcaEntries(store: DcaEntryStore, currency: Currency): DcaEntryStore {
+  return {
+    ...store,
+    [currency]: [],
+  };
+}
+
 export function calculateBitcoinAmount(amountInvested: number, bitcoinPrice: number) {
-  if (!isFiniteNumber(amountInvested) || !isFiniteNumber(bitcoinPrice) || bitcoinPrice <= 0) {
+  if (!isPositiveNumber(amountInvested) || !isPositiveNumber(bitcoinPrice)) {
     return 0;
   }
 
@@ -17,35 +227,43 @@ export function calculateBitcoinAmount(amountInvested: number, bitcoinPrice: num
 }
 
 export function buildDcaEntries(entries: DcaEntry[]): DcaEntrySnapshot[] {
-  return entries.map((entry) => ({
-    ...entry,
-    bitcoinAmount: calculateBitcoinAmount(entry.amountInvested, entry.bitcoinPrice),
-  }));
+  return entries.filter(isDcaEntry).map((entry) => {
+    const normalizedEntry = normalizeDcaEntry(entry);
+
+    return {
+      ...normalizedEntry,
+      bitcoinAmount: calculateBitcoinAmount(
+        normalizedEntry.amountInvested,
+        normalizedEntry.bitcoinPrice
+      ),
+    };
+  });
 }
 
 export function buildDcaSummary(
   entries: DcaEntrySnapshot[],
   currentPrice: number | null
 ): DcaSummary {
+  const normalizedCurrentPrice = isPositiveNumber(currentPrice) ? currentPrice : null;
   const totalEntries = entries.length;
   const totalInvested = entries.reduce((sum, entry) => sum + entry.amountInvested, 0);
   const totalBitcoin = entries.reduce((sum, entry) => sum + entry.bitcoinAmount, 0);
   const averageBuyPrice = totalBitcoin > 0 ? totalInvested / totalBitcoin : null;
   const currentValue =
-    isFiniteNumber(currentPrice) && totalBitcoin > 0 ? totalBitcoin * currentPrice : null;
+    normalizedCurrentPrice !== null && totalBitcoin > 0 ? totalBitcoin * normalizedCurrentPrice : null;
   const pnlAbsolute = currentValue === null ? null : currentValue - totalInvested;
   const pnlPercent =
     pnlAbsolute === null || totalInvested <= 0 ? null : (pnlAbsolute / totalInvested) * 100;
 
   return {
-    totalEntries,
-    totalInvested,
-    totalBitcoin,
     averageBuyPrice,
-    currentPrice,
+    currentPrice: normalizedCurrentPrice,
     currentValue,
     pnlAbsolute,
     pnlPercent,
+    totalBitcoin,
+    totalEntries,
+    totalInvested,
   };
 }
 

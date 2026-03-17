@@ -45,6 +45,10 @@ async function fetchChart(range: ChartRange, currency: Currency) {
 }
 
 export function useDashboardData() {
+  const chartRangeStateOptions = useMemo(() => ({ validator: isChartRange }), []);
+  const currencyStateOptions = useMemo(() => ({ validator: isCurrency }), []);
+  const autoRefreshStateOptions = useMemo(() => ({ validator: isBoolean }), []);
+
   const [overview, setOverview] = useState<Overview | null>(null);
   const [network, setNetwork] = useState<Network | null>(null);
   const [sentiment, setSentiment] = useState<Sentiment | null>(null);
@@ -53,17 +57,17 @@ export function useDashboardData() {
   const [range, setRange] = usePersistentState<ChartRange>(
     STORAGE_KEYS.range,
     1,
-    isChartRange
+    chartRangeStateOptions
   );
   const [currency, setCurrency] = usePersistentState<Currency>(
     STORAGE_KEYS.currency,
     "usd",
-    isCurrency
+    currencyStateOptions
   );
   const [autoRefresh, setAutoRefresh] = usePersistentState<boolean>(
     STORAGE_KEYS.autoRefresh,
     true,
-    isBoolean
+    autoRefreshStateOptions
   );
 
   const [overviewError, setOverviewError] = useState("");
