@@ -15,10 +15,10 @@
   --token-color-accent-soft: rgb(242 143 45 / 12%);
   --token-color-accent-strong: #ffb25a;
 
-  --token-color-success: #57c39a;
-  --token-color-warning: #e0ad55;
-  --token-color-danger: #f07b73;
-  --token-color-info: #72b7ff;
+  --token-color-success: #63b68d;
+  --token-color-warning: #d6a15b;
+  --token-color-danger: #db7a72;
+  --token-color-info: #78addb;
 
   --token-color-border-subtle: rgb(255 245 232 / 5%);
   --token-color-border-default: rgb(255 245 232 / 9%);
@@ -52,11 +52,11 @@
   --state-loading-fg: var(--token-color-accent-primary);
   --state-empty-bg: rgb(255 245 232 / 2%);
   --state-empty-fg: var(--token-color-text-secondary);
-  --state-partial-bg: rgb(124 199 255 / 8%);
+  --state-partial-bg: rgb(120 173 219 / 10%);
   --state-partial-fg: var(--token-color-info);
-  --state-error-bg: rgb(240 123 115 / 10%);
+  --state-error-bg: rgb(219 122 114 / 10%);
   --state-error-fg: #ffd5d0;
-  --state-stale-bg: rgb(242 179 93 / 8%);
+  --state-stale-bg: rgb(214 161 91 / 10%);
   --state-stale-fg: var(--token-color-warning);
 
   --token-font-family-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
