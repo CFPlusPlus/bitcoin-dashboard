@@ -4,7 +4,15 @@ import { getDictionary } from "../i18n/dictionaries";
 import { fetchJson } from "../lib/api";
 import { normalizeDashboardWarningMessage, sanitizeDashboardErrorMessage } from "../lib/dashboard-state-copy";
 import { getLatestSuccessfulUpdate, resolveAsyncDataState } from "../lib/data-state";
-import type { ChartData, ChartRange, Currency, Network, Overview, Sentiment } from "../types/dashboard";
+import type {
+  ChartData,
+  ChartRange,
+  Currency,
+  Network,
+  Overview,
+  Performance,
+  Sentiment,
+} from "../types/dashboard";
 import { usePersistentState } from "./usePersistentState";
 
 const STORAGE_KEYS = {
@@ -41,6 +49,10 @@ async function fetchChart(range: ChartRange, currency: Currency, locale: AppLoca
   return fetchJson<ChartData>(`/api/chart?days=${range}&currency=${currency}`, locale);
 }
 
+async function fetchPerformance(currency: Currency, locale: AppLocale) {
+  return fetchJson<Performance>(`/api/performance?currency=${currency}`, locale);
+}
+
 function getSectionErrorMessage(
   fallback: string,
   error: unknown,
@@ -63,6 +75,7 @@ export function useDashboardData(locale: AppLocale) {
   const [network, setNetwork] = useState<Network | null>(null);
   const [sentiment, setSentiment] = useState<Sentiment | null>(null);
   const [chart, setChart] = useState<ChartData | null>(null);
+  const [performance, setPerformance] = useState<Performance | null>(null);
 
   const [range, setRange] = usePersistentState<ChartRange>(
     STORAGE_KEYS.range,
@@ -84,14 +97,17 @@ export function useDashboardData(locale: AppLocale) {
   const [networkError, setNetworkError] = useState("");
   const [chartError, setChartError] = useState("");
   const [sentimentError, setSentimentError] = useState("");
+  const [performanceError, setPerformanceError] = useState("");
 
   const [overviewLoading, setOverviewLoading] = useState(true);
   const [networkLoading, setNetworkLoading] = useState(true);
   const [chartLoading, setChartLoading] = useState(true);
   const [sentimentLoading, setSentimentLoading] = useState(true);
+  const [performanceLoading, setPerformanceLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const initialChartHandledRef = useRef(false);
+  const initialPerformanceHandledRef = useRef(false);
   const initialRefreshHandledRef = useRef(false);
 
   const loadOverviewData = useCallback(async () => {
@@ -182,6 +198,28 @@ export function useDashboardData(locale: AppLocale) {
     }
   }, [copy.stateCopy.fallbacks.chartUnavailable, locale]);
 
+  const loadPerformanceData = useCallback(async (selectedCurrency: Currency) => {
+    setPerformanceError("");
+    setPerformanceLoading(true);
+
+    try {
+      const performanceData = await fetchPerformance(selectedCurrency, locale);
+      setPerformance(performanceData);
+      return performanceData.fetchedAt;
+    } catch (error) {
+      setPerformanceError(
+        getSectionErrorMessage(
+          copy.stateCopy.fallbacks.performanceUnavailable,
+          error,
+          locale
+        )
+      );
+      return null;
+    } finally {
+      setPerformanceLoading(false);
+    }
+  }, [copy.stateCopy.fallbacks.performanceUnavailable, locale]);
+
   const refreshAll = useCallback(
     async (selectedRange: ChartRange, selectedCurrency: Currency) => {
       setRefreshing(true);
@@ -191,11 +229,12 @@ export function useDashboardData(locale: AppLocale) {
         loadNetworkData(),
         loadChartData(selectedRange, selectedCurrency),
         loadSentimentData(),
+        loadPerformanceData(selectedCurrency),
       ]);
 
       setRefreshing(false);
     },
-    [loadChartData, loadNetworkData, loadOverviewData, loadSentimentData]
+    [loadChartData, loadNetworkData, loadOverviewData, loadPerformanceData, loadSentimentData]
   );
 
   useEffect(() => {
@@ -214,6 +253,15 @@ export function useDashboardData(locale: AppLocale) {
   }, [currency, range, loadChartData]);
 
   useEffect(() => {
+    if (!initialPerformanceHandledRef.current) {
+      initialPerformanceHandledRef.current = true;
+      return;
+    }
+
+    void loadPerformanceData(currency);
+  }, [currency, loadPerformanceData]);
+
+  useEffect(() => {
     if (!autoRefresh) return;
 
     const timerId = window.setInterval(() => {
@@ -229,12 +277,13 @@ export function useDashboardData(locale: AppLocale) {
       ...(network?.warnings ?? []),
       ...(sentiment?.warnings ?? []),
       ...(chart?.warnings ?? []),
+      ...(performance?.warnings ?? []),
     ]
       .map((warning) => normalizeDashboardWarningMessage(warning, locale))
       .filter(Boolean);
 
     return [...new Set(items)];
-  }, [chart, locale, network, overview, sentiment]);
+  }, [chart, locale, network, overview, performance, sentiment]);
 
   const overviewMetrics = useMemo(
     () =>
@@ -289,6 +338,9 @@ export function useDashboardData(locale: AppLocale) {
   const hasNetworkData = networkMetrics.some((value) => value !== null);
   const hasSentimentData = sentimentMetrics.some((value) => value !== null);
   const hasChartData = chart !== null && chart.points.length > 0;
+  const hasPerformanceData = Boolean(
+    performance?.periods.some((period) => period.changePercent !== null)
+  );
 
   const overviewState = useMemo(
     () =>
@@ -352,6 +404,26 @@ export function useDashboardData(locale: AppLocale) {
     [chart, chartError, chartLoading, hasChartData]
   );
 
+  const performanceState = useMemo(
+    () =>
+      resolveAsyncDataState({
+        data: performance,
+        error: performanceError,
+        hasUsableData: hasPerformanceData,
+        isEmpty: performance !== null && performance.periods.length === 0,
+        isLoading: performanceLoading,
+        isPartial:
+          Boolean(performance?.partial) ||
+          Boolean(
+            performance &&
+              performance.periods.length > 0 &&
+              performance.periods.some((period) => period.changePercent === null)
+          ),
+        lastUpdatedAt: performance?.fetchedAt ?? null,
+      }),
+    [hasPerformanceData, performance, performanceError, performanceLoading]
+  );
+
   const lastRefreshAt = useMemo(
     () =>
       getLatestSuccessfulUpdate([
@@ -359,26 +431,29 @@ export function useDashboardData(locale: AppLocale) {
         network?.fetchedAt,
         sentiment?.fetchedAt,
         chart?.fetchedAt,
+        performance?.fetchedAt,
       ]),
-    [chart?.fetchedAt, network?.fetchedAt, overview?.fetchedAt, sentiment?.fetchedAt]
+    [chart?.fetchedAt, network?.fetchedAt, overview?.fetchedAt, performance?.fetchedAt, sentiment?.fetchedAt]
   );
 
   const dashboardState = useMemo(
     () =>
       resolveAsyncDataState({
         data: lastRefreshAt ? { lastRefreshAt } : null,
-        error: [overviewError, networkError, sentimentError, chartError].find(Boolean),
+        error: [overviewError, networkError, sentimentError, chartError, performanceError].find(Boolean),
         hasUsableData:
           overviewState.hasUsableData ||
           networkState.hasUsableData ||
           sentimentState.hasUsableData ||
-          chartState.hasUsableData,
+          chartState.hasUsableData ||
+          performanceState.hasUsableData,
         isLoading: refreshing && !lastRefreshAt,
         isPartial:
           overviewState.status === "partial" ||
           networkState.status === "partial" ||
           sentimentState.status === "partial" ||
-          chartState.status === "partial",
+          chartState.status === "partial" ||
+          performanceState.status === "partial",
         isRefreshing: refreshing && Boolean(lastRefreshAt),
         lastUpdatedAt: lastRefreshAt,
       }),
@@ -393,6 +468,9 @@ export function useDashboardData(locale: AppLocale) {
       overviewError,
       overviewState.hasUsableData,
       overviewState.status,
+      performanceError,
+      performanceState.hasUsableData,
+      performanceState.status,
       refreshing,
       sentimentError,
       sentimentState.hasUsableData,
@@ -417,6 +495,10 @@ export function useDashboardData(locale: AppLocale) {
     overviewError,
     overviewLoading,
     overviewState,
+    performance,
+    performanceError,
+    performanceLoading,
+    performanceState,
     range,
     refreshing,
     sentiment,
@@ -429,6 +511,7 @@ export function useDashboardData(locale: AppLocale) {
     setRange,
     loadNetworkData,
     loadOverviewData,
+    loadPerformanceData,
     loadSentimentData,
     loadChartData,
     refreshAll,

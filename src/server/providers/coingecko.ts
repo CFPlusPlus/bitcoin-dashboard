@@ -97,7 +97,7 @@ export async function fetchCoinGeckoMarketData(
 export async function fetchCoinGeckoMarketChart(input: {
   apiKey: string;
   currency: "usd" | "eur";
-  days: 1 | 7 | 30;
+  days: number;
   cachePolicy?: CachePolicy;
 }) {
   const apiUrl =

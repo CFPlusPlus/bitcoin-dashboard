@@ -4,6 +4,7 @@ import {
   getChartCachePolicy,
   networkCachePolicy,
   overviewCachePolicy,
+  performanceCachePolicy,
   sentimentCachePolicy,
 } from "../../server/cache";
 
@@ -110,6 +111,48 @@ describe("route validation handling", () => {
 
     expect(response.headers.get("cache-control")).toBe(
       getCacheControlHeader(getChartCachePolicy(30))
+    );
+  });
+
+  it("returns a controlled performance error for malformed upstream data", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ prices: [] }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })
+      )
+    );
+
+    const { GET } = await import("./performance/route");
+    const response = await GET(new Request("https://example.com/api/performance?currency=usd"));
+    const body = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(body).toMatchObject({
+      error: "Fehler beim Laden der Performance-Daten von CoinGecko.",
+      code: "upstream_missing_data",
+      provider: "coingecko",
+    });
+  });
+
+  it("sets the performance cache header explicitly", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ prices: [[1, 67000], [2, 68000]] }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })
+      )
+    );
+
+    const { GET } = await import("./performance/route");
+    const response = await GET(new Request("https://example.com/api/performance?currency=usd"));
+
+    expect(response.headers.get("cache-control")).toBe(
+      getCacheControlHeader(performanceCachePolicy)
     );
   });
 

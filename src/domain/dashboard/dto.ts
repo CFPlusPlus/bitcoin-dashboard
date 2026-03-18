@@ -1,5 +1,6 @@
 export type Currency = "usd" | "eur";
 export type ChartRange = 1 | 7 | 30;
+export type PerformanceWindowKey = "7d" | "30d" | "1y" | "ytd";
 
 export type ApiEnvelope = {
   source: string;
@@ -60,4 +61,17 @@ export type ChartDto = ApiEnvelope & {
     minPrice: number | null;
     maxPrice: number | null;
   };
+};
+
+export type PerformanceWindowDto = {
+  key: PerformanceWindowKey;
+  referencePrice: number | null;
+  referenceTimestamp: number | null;
+  changePercent: number | null;
+};
+
+export type PerformanceDto = ApiEnvelope & {
+  currency: Currency;
+  currentPrice: number | null;
+  periods: PerformanceWindowDto[];
 };

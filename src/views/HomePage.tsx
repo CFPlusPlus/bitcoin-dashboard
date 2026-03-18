@@ -17,11 +17,14 @@ export default function HomePage() {
     loadChartData,
     loadNetworkData,
     loadOverviewData,
+    loadPerformanceData,
     loadSentimentData,
     network,
     networkState,
     overview,
     overviewState,
+    performance,
+    performanceState,
     range,
     refreshing,
     sentiment,
@@ -55,6 +58,8 @@ export default function HomePage() {
         networkState={networkState}
         overview={overview}
         overviewState={overviewState}
+        performance={performance}
+        performanceState={performanceState}
         range={range}
         sentiment={sentiment}
         sentimentState={sentimentState}
@@ -62,6 +67,7 @@ export default function HomePage() {
         onDashboardRetry={() => void refreshAll(range, currency)}
         onNetworkRetry={() => void loadNetworkData()}
         onOverviewRetry={() => void loadOverviewData()}
+        onPerformanceRetry={() => void loadPerformanceData(currency)}
         onSentimentRetry={() => void loadSentimentData()}
         onRangeChange={setRange}
       />

@@ -6,6 +6,9 @@ export type {
   ChartRange,
   NetworkDto as Network,
   OverviewDto as Overview,
+  PerformanceDto as Performance,
+  PerformanceWindowDto as PerformanceWindow,
+  PerformanceWindowKey,
   SentimentDto as Sentiment,
 } from "../domain/dashboard/dto";
 

@@ -3,6 +3,7 @@ import { getDictionary } from "../i18n/dictionaries";
 
 type DashboardSectionKey =
   | "overview"
+  | "performance"
   | "chart"
   | "marketContext"
   | "network"

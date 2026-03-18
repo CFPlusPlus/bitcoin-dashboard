@@ -36,6 +36,12 @@ export function getChartCachePolicy(range: ChartRange): CachePolicy {
   };
 }
 
+export const performanceCachePolicy: CachePolicy = {
+  revalidateSeconds: 1800,
+  staleWhileRevalidateSeconds: 7200,
+  browserMaxAgeSeconds: 300,
+};
+
 export const networkCachePolicy: CachePolicy = {
   revalidateSeconds: 20,
   staleWhileRevalidateSeconds: 40,

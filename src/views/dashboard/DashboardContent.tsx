@@ -7,6 +7,7 @@ import type {
   Currency,
   Network,
   Overview,
+  Performance,
   Sentiment,
 } from "../../types/dashboard";
 import ChartSection from "../../components/ChartSection";
@@ -17,6 +18,7 @@ import { useI18n } from "../../i18n/context";
 import MarketContextSection from "./MarketContextSection";
 import NetworkOverviewSection from "./NetworkOverviewSection";
 import OverviewSection from "./OverviewSection";
+import PerformanceSection from "./PerformanceSection";
 import SentimentSection from "./SentimentSection";
 import ToolsPreviewSection from "./ToolsPreviewSection";
 
@@ -31,10 +33,13 @@ type DashboardContentProps = {
   onDashboardRetry: () => void;
   onNetworkRetry: () => void;
   onOverviewRetry: () => void;
+  onPerformanceRetry: () => void;
   onRangeChange: (value: ChartRange) => void;
   onSentimentRetry: () => void;
   overview: Overview | null;
   overviewState: AsyncDataState<Overview>;
+  performance: Performance | null;
+  performanceState: AsyncDataState<Performance>;
   range: ChartRange;
   sentiment: Sentiment | null;
   sentimentState: AsyncDataState<Sentiment>;
@@ -51,6 +56,13 @@ export default function DashboardContent(props: DashboardContentProps) {
         overview={props.overview}
         overviewState={props.overviewState}
         onRetry={props.onOverviewRetry}
+      />
+
+      <PerformanceSection
+        currency={props.currency}
+        performance={props.performance}
+        performanceState={props.performanceState}
+        onRetry={props.onPerformanceRetry}
       />
 
       <ChartSection

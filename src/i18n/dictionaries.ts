@@ -222,6 +222,19 @@ export const dictionaries = {
         lowMeta: "Niedrigster Preis der letzten 24 Stunden.",
         lowFootnote: "Zeigt, wie tief BTC heute schon gefallen ist.",
       },
+      performance: {
+        eyebrow: "Performance",
+        title: "Bitcoin über mehrere Zeiträume",
+        description: "Die prozentuale BTC-Performance in {currency} für wichtige Vergleichsfenster.",
+        referenceDate: "Seit {value}",
+        referencePrice: "Referenz: {value}",
+        periods: {
+          "7d": "7 Tage",
+          "30d": "30 Tage",
+          "1y": "1 Jahr",
+          ytd: "YTD",
+        },
+      },
       chart: {
         eyebrow: "Preisverlauf",
         title: "Bitcoin-Chart in {currency}",
@@ -312,6 +325,13 @@ export const dictionaries = {
           partial: { title: "Marktdaten sind teilweise verfügbar", description: "Einzelne Kennzahlen fehlen im aktuellen Abruf. Verfügbare Werte bleiben sichtbar." },
           stale: { title: "Letzte Marktdaten bleiben sichtbar", description: "Die letzte Aktualisierung ist fehlgeschlagen. Die angezeigten Werte können inzwischen überholt sein." },
         },
+        performance: {
+          loading: { title: "Performance wird geladen", description: "Die BTC-Performance für mehrere Vergleichszeiträume wird vorbereitet." },
+          empty: { title: "Keine Performance verfügbar", description: "Der Abruf war erfolgreich, liefert aber aktuell keine auswertbaren Vergleichswerte." },
+          error: { title: "Performance ist gerade nicht verfügbar", fallbackDescription: "Es konnten noch keine verlässlichen Performance-Daten geladen werden." },
+          partial: { title: "Performance ist teilweise verfügbar", description: "Einzelne Zeiträume fehlen im aktuellen Abruf. Verfügbare Werte bleiben sichtbar." },
+          stale: { title: "Letzte Performance bleibt sichtbar", description: "Die Aktualisierung ist fehlgeschlagen. Die angezeigten Vergleichswerte können inzwischen überholt sein." },
+        },
         chart: {
           loading: { title: "Chart wird vorbereitet", description: "Der Preisverlauf für den gewählten Zeitraum wird geladen und aufbereitet." },
           empty: { title: "Keine Chartdaten verfügbar", description: "Für den ausgewählten Zeitraum liegen aktuell keine auswertbaren Kursdaten vor. Bitte wähle später erneut oder wechsle kurz den Zeitraum." },
@@ -364,6 +384,8 @@ export const dictionaries = {
         fallbacks: {
           overviewUnavailable:
             "Marktdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
+          performanceUnavailable:
+            "Performance-Daten sind gerade nicht verfügbar. Bitte später erneut laden.",
           networkUnavailable:
             "Netzwerkdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
           sentimentUnavailable:
@@ -717,6 +739,19 @@ export const dictionaries = {
         lowMeta: "Lowest price in the last 24 hours.",
         lowFootnote: "Shows how far BTC has already dropped today.",
       },
+      performance: {
+        eyebrow: "Performance",
+        title: "Bitcoin across key timeframes",
+        description: "BTC percentage performance in {currency} across the comparison windows that matter most.",
+        referenceDate: "Since {value}",
+        referencePrice: "Reference: {value}",
+        periods: {
+          "7d": "7 days",
+          "30d": "30 days",
+          "1y": "1 year",
+          ytd: "YTD",
+        },
+      },
       chart: {
         eyebrow: "Price action",
         title: "Bitcoin chart in {currency}",
@@ -807,6 +842,13 @@ export const dictionaries = {
           partial: { title: "Market data is partially available", description: "Some metrics are missing in the current fetch. Available values stay visible." },
           stale: { title: "Latest market data stays visible", description: "The latest refresh failed. The visible values may now be outdated." },
         },
+        performance: {
+          loading: { title: "Loading performance", description: "BTC performance across multiple comparison windows is being prepared." },
+          empty: { title: "No performance available", description: "The fetch succeeded, but there are currently no usable comparison values." },
+          error: { title: "Performance is currently unavailable", fallbackDescription: "No reliable performance data could be loaded yet." },
+          partial: { title: "Performance is partially available", description: "Some timeframes are missing in the current fetch. Available values stay visible." },
+          stale: { title: "Latest performance stays visible", description: "The refresh failed. The displayed comparison values may now be outdated." },
+        },
         chart: {
           loading: { title: "Preparing chart", description: "Price action for the selected range is loading and being processed." },
           empty: { title: "No chart data available", description: "There is currently no usable price data for the selected range. Please try again later or switch the range briefly." },
@@ -858,6 +900,7 @@ export const dictionaries = {
         },
         fallbacks: {
           overviewUnavailable: "Market data is currently unavailable. Please try again later.",
+          performanceUnavailable: "Performance data is currently unavailable. Please try again later.",
           networkUnavailable: "Network data is currently unavailable. Please try again later.",
           sentimentUnavailable: "Sentiment data is currently unavailable. Please try again later.",
           chartUnavailable: "Chart data is currently unavailable. Please try again later.",
