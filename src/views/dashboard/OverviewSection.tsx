@@ -1,14 +1,22 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import LivePriceSparkline, {
+  type LivePricePoint,
+} from "../../components/LivePriceSparkline";
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import { formatCurrency, formatDateTime, formatPercent } from "../../lib/format";
+import {
+  formatCurrency,
+  formatDateTime,
+  formatPercent,
+  formatRelativeTime,
+} from "../../lib/format";
 import { formatMessage } from "../../i18n/template";
 import { useI18n } from "../../i18n/context";
 import MetricCard from "../../components/MetricCard";
 import Card from "../../components/ui/Card";
-import KpiValue from "../../components/ui/content/KpiValue";
 import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
@@ -23,6 +31,87 @@ type OverviewSectionProps = {
   overviewState: AsyncDataState<Overview>;
 };
 
+type LivePriceSeries = {
+  currency: Currency;
+  points: LivePricePoint[];
+};
+
+type LiveSnapshot = {
+  currency: Currency;
+  price: number | null;
+  updatedAt: string | null;
+};
+
+const LIVE_WINDOW_MS = 30_000;
+const COINBASE_WS_URL = "wss://advanced-trade-ws.coinbase.com";
+const RECONNECT_DELAY_MS = 1_500;
+
+type LiveConnectionState = "connecting" | "live" | "reconnecting" | "fallback";
+
+type CoinbaseTickerMessage = {
+  channel?: string;
+  events?: Array<{
+    tickers?: Array<{
+      price?: string;
+      product_id?: string;
+    }>;
+    type?: string;
+  }>;
+  timestamp?: string;
+  type?: string;
+};
+
+function getSeedTimestamp(value: string | null) {
+  if (!value) return 0;
+
+  const parsed = new Date(value).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function pruneLivePoints(points: LivePricePoint[], now = Date.now()) {
+  return points.filter((point) => now - point.timestamp <= LIVE_WINDOW_MS);
+}
+
+function getLiveProductId(currency: Currency) {
+  return currency === "eur" ? "BTC-EUR" : "BTC-USD";
+}
+
+function parseCoinbaseTickerMessage(raw: string, productId: string) {
+  let payload: CoinbaseTickerMessage;
+
+  try {
+    payload = JSON.parse(raw) as CoinbaseTickerMessage;
+  } catch {
+    return null;
+  }
+
+  if (payload.channel !== "ticker" || !payload.events?.length) {
+    return null;
+  }
+
+  for (const event of payload.events) {
+    for (const ticker of event.tickers ?? []) {
+      if (ticker.product_id !== productId || typeof ticker.price !== "string") {
+        continue;
+      }
+
+      const price = Number(ticker.price);
+      const timestamp = payload.timestamp ?? null;
+
+      if (!Number.isFinite(price)) {
+        continue;
+      }
+
+      return {
+        price,
+        timestamp,
+      };
+    }
+  }
+
+  return null;
+}
+
 export default function OverviewSection({
   currency,
   onRetry,
@@ -34,13 +123,150 @@ export default function OverviewSection({
   const currencyLabel = currency.toUpperCase();
   const { change24h, high24h, low24h, price } = getOverviewValues(overview, currency);
   const stateMessages = getDashboardSectionStateMessages("overview", overviewState.error, locale);
+  const [liveSeries, setLiveSeries] = useState<LivePriceSeries | null>(null);
+  const [liveSnapshot, setLiveSnapshot] = useState<LiveSnapshot | null>(null);
+  const [liveConnection, setLiveConnection] = useState<{ currency: Currency; state: LiveConnectionState } | null>(null);
+  const reconnectTimeoutRef = useRef<number | null>(null);
+  const activeLiveSnapshot = liveSnapshot?.currency === currency ? liveSnapshot : null;
+  const livePoints =
+    liveSeries?.currency === currency
+      ? liveSeries.points
+      : typeof price === "number"
+        ? [
+            {
+              price,
+              timestamp: getSeedTimestamp(overview?.fetchedAt ?? null),
+            },
+          ]
+        : [];
+  const displayedPrice = activeLiveSnapshot?.price ?? price;
+  const displayedChange24h = change24h;
+  const displayedFetchedAt = activeLiveSnapshot?.updatedAt ?? overview?.fetchedAt ?? null;
+  const liveConnectionState =
+    liveConnection?.currency === currency ? liveConnection.state : "connecting";
 
-  const changeTone =
-    typeof change24h === "number" && change24h > 0
-      ? "positive"
-      : typeof change24h === "number" && change24h < 0
-        ? "negative"
-        : "default";
+  useEffect(() => {
+    const productId = getLiveProductId(currency);
+    let socket: WebSocket | null = null;
+    let cancelled = false;
+
+    if (reconnectTimeoutRef.current !== null) {
+      window.clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+
+    const connect = () => {
+      if (cancelled) return;
+
+      socket = new WebSocket(COINBASE_WS_URL);
+
+      socket.addEventListener("open", () => {
+        if (cancelled || !socket) return;
+
+        setLiveConnection({ currency, state: "connecting" });
+        socket.send(
+          JSON.stringify({
+            type: "subscribe",
+            channel: "heartbeats",
+            product_ids: [productId],
+          })
+        );
+        socket.send(
+          JSON.stringify({
+            type: "subscribe",
+            channel: "ticker",
+            product_ids: [productId],
+          })
+        );
+      });
+
+      socket.addEventListener("message", (event) => {
+        if (cancelled) return;
+
+        const tick = parseCoinbaseTickerMessage(String(event.data), productId);
+
+        if (!tick) {
+          return;
+        }
+
+        const pointTimestamp = getSeedTimestamp(tick.timestamp) || Date.now();
+
+        setLiveSnapshot({
+          currency,
+          price: tick.price,
+          updatedAt: tick.timestamp,
+        });
+        setLiveConnection({ currency, state: "live" });
+        setLiveSeries((currentSeries) => ({
+          currency,
+          points: pruneLivePoints(
+            [
+              ...(currentSeries?.currency === currency ? currentSeries.points : []),
+              {
+                price: tick.price,
+                timestamp: pointTimestamp,
+              },
+            ],
+            pointTimestamp
+          ),
+        }));
+      });
+
+      socket.addEventListener("error", () => {
+        if (cancelled) return;
+        setLiveConnection({ currency, state: "fallback" });
+      });
+
+      socket.addEventListener("close", () => {
+        if (cancelled) return;
+
+        setLiveConnection((currentConnection) => ({
+          currency,
+          state:
+            currentConnection?.currency === currency &&
+            (currentConnection.state === "live" || currentConnection.state === "connecting")
+              ? "reconnecting"
+              : "fallback",
+        }));
+
+        reconnectTimeoutRef.current = window.setTimeout(() => {
+          reconnectTimeoutRef.current = null;
+          connect();
+        }, RECONNECT_DELAY_MS);
+      });
+    };
+
+    connect();
+
+    return () => {
+      cancelled = true;
+
+      if (reconnectTimeoutRef.current !== null) {
+        window.clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+
+      socket?.close();
+    };
+  }, [currency]);
+
+  const liveStatusTone =
+    liveConnectionState === "live"
+      ? "text-success"
+      : liveConnectionState === "connecting" || liveConnectionState === "reconnecting"
+        ? "text-accent"
+        : "text-fg-muted";
+  const liveStatusLabel =
+    liveConnectionState === "live"
+      ? copy.liveStatusActive
+      : liveConnectionState === "connecting"
+        ? copy.liveStatusConnecting
+        : liveConnectionState === "reconnecting"
+          ? copy.liveStatusReconnecting
+          : copy.liveStatusFallback;
+  const liveUpdatedLabel = formatMessage(copy.liveUpdated, {
+    value: formatRelativeTime(displayedFetchedAt, locale),
+  });
 
   return (
     <Card as="section" tone="elevated" padding="md" gap="md" className="overflow-hidden">
@@ -58,15 +284,40 @@ export default function OverviewSection({
         messages={stateMessages}
       >
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(15rem,0.8fr)]">
-          <div className="flex h-full flex-col justify-between gap-4 border border-border-strong bg-muted-surface px-4 py-4">
-            <KpiValue
-              label={formatMessage(copy.spotLabel, { currency: currencyLabel })}
-              value={formatCurrency(price, currency, locale)}
-              delta={formatPercent(change24h, locale)}
-              meta={formatMessage(copy.spotMeta, { currency: currencyLabel })}
-              size="lg"
-              tone={changeTone}
-              className="gap-2"
+          <div className="flex h-full flex-col justify-between gap-5 border border-accent/30 bg-[radial-gradient(circle_at_top,_rgba(242,143,45,0.08),_transparent_32%),linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))] px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex flex-col gap-4 border-b border-white/6 pb-5">
+              <MetaText className="uppercase tracking-[0.18em]" size="xs">
+                {formatMessage(copy.spotLabel, { currency: currencyLabel })}
+              </MetaText>
+
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div className="flex flex-col gap-3">
+                  <p className="font-mono text-[2.5rem] font-medium leading-none tracking-[-0.06em] text-fg sm:text-[4rem] xl:text-[4.8rem]">
+                    {formatCurrency(displayedPrice, currency, locale)}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <MetaText>{formatMessage(copy.spotMeta, { currency: currencyLabel })}</MetaText>
+                    <MetaText
+                      className={
+                        typeof displayedChange24h === "number" && displayedChange24h > 0
+                          ? "text-success"
+                          : typeof displayedChange24h === "number" && displayedChange24h < 0
+                            ? "text-danger"
+                            : undefined
+                      }
+                    >
+                      {formatPercent(displayedChange24h, locale)} {copy.liveDeltaLabel}
+                    </MetaText>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <LivePriceSparkline
+              key={currency}
+              currency={currency}
+              performancePercent={displayedChange24h}
+              points={livePoints}
             />
 
             <div className="grid gap-4 border-t border-border-subtle pt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
@@ -77,8 +328,12 @@ export default function OverviewSection({
                     value: formatDateTime(overview?.lastUpdatedAt ?? null, locale),
                   })}
                 </MetaText>
+                <MetaText className={liveStatusTone}>
+                  {liveStatusLabel}
+                </MetaText>
+                <MetaText>{liveUpdatedLabel}</MetaText>
               </Stack>
-              <div className="border border-accent/40 bg-accent-soft px-3 py-2">
+              <div className="border border-accent/35 bg-accent-soft/80 px-3 py-2">
                 <p className="font-serif text-base leading-none tracking-[-0.03em] text-accent">
                   {copy.spotBadge}
                 </p>
