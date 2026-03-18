@@ -111,6 +111,8 @@ The following should be explicitly avoided:
 - modern
 - slightly premium-tech
 - neutral and factual, but still distinctive
+- flat surfaces, not glassy material effects
+- tighter radii, not soft bubble-like shapes
 
 ### Product character
 The product should feel more like a distinct premium Bitcoin product
@@ -141,11 +143,17 @@ than like a generic dashboard template.
 - dark mode as the starting point for V1
 - dark, calm surfaces
 - strong contrast without aggressive harshness
+- no gradients as a foundational surface treatment
 
 ### Accent
 - orange as the central brand / signal accent color
 - use it sparingly and deliberately
 - not as dominant full-surface color, but as a focus color
+
+### Materiality
+- solid fills instead of translucent glass effects
+- borders should define structure more than shadows
+- surfaces should feel crisp and stable, not floating
 
 ---
 

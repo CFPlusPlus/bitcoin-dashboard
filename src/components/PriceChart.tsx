@@ -30,7 +30,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
 
   if (points.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border-default bg-app/20 p-6 text-sm text-fg-muted">
+      <div className="rounded-md border border-dashed border-border-default bg-app/20 p-6 text-sm text-fg-muted">
         Keine Chartdaten vorhanden.
       </div>
     );
@@ -70,15 +70,15 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   return (
     <div className="flex flex-col gap-5">
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-lg border border-border-subtle bg-app/20 px-4 py-3">
+        <div className="rounded-md border border-border-subtle bg-app/20 px-4 py-3">
           <p className="text-xs uppercase tracking-[0.04em] text-fg-muted">Tief</p>
           <p className="mt-2 text-base font-semibold text-fg">{formatCurrency(minPrice, currency)}</p>
         </div>
-        <div className="rounded-lg border border-border-subtle bg-app/20 px-4 py-3">
+        <div className="rounded-md border border-border-subtle bg-app/20 px-4 py-3">
           <p className="text-xs uppercase tracking-[0.04em] text-fg-muted">Hoch</p>
           <p className="mt-2 text-base font-semibold text-fg">{formatCurrency(maxPrice, currency)}</p>
         </div>
-        <div className="rounded-lg border border-border-subtle bg-app/20 px-4 py-3">
+        <div className="rounded-md border border-border-subtle bg-app/20 px-4 py-3">
           <p className="text-xs uppercase tracking-[0.04em] text-fg-muted">Jetzt</p>
           <p className="mt-2 text-base font-semibold text-fg">
             {formatCurrency(points[points.length - 1].price, currency)}
@@ -86,20 +86,13 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border-subtle bg-app/20 p-3 sm:p-4">
+      <div className="overflow-hidden rounded-md border border-border-subtle bg-app/20 p-3 sm:p-4">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="block h-auto w-full overflow-visible"
           role="img"
           aria-label={`Bitcoin-Preischart fuer ${range} Tage in ${currency.toUpperCase()}`}
         >
-          <defs>
-            <linearGradient id="chartAreaGradient" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="rgba(247, 147, 26, 0.35)" />
-              <stop offset="100%" stopColor="rgba(247, 147, 26, 0.02)" />
-            </linearGradient>
-          </defs>
-
           <line
             x1={padding}
             y1={baseY}
@@ -109,7 +102,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
             strokeWidth="1"
           />
 
-          <path d={areaPath} fill="url(#chartAreaGradient)" />
+          <path d={areaPath} fill="rgba(247, 147, 26, 0.12)" />
           <path
             d={linePath}
             fill="none"

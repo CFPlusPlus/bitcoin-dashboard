@@ -47,10 +47,7 @@
   }
 
   body {
-    background:
-      radial-gradient(circle at top left, rgb(247 147 26 / 18%), transparent 30%),
-      radial-gradient(circle at top right, rgb(255 255 255 / 6%), transparent 25%),
-      var(--token-color-bg-app);
+    background: var(--token-color-bg-app);
     color: var(--token-color-text-primary);
     font-family: var(--token-font-family-sans);
     line-height: 1.5;
@@ -59,7 +56,7 @@
   }
 
   ::selection {
-    background: rgb(247 147 26 / 28%);
+    background: rgb(247 147 26 / 24%);
     color: var(--token-color-text-primary);
   }
 

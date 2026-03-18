@@ -3,7 +3,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "../../lib/cn";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border text-sm font-semibold tracking-[0.01em] transition-[transform,border-color,background-color,color,opacity,box-shadow] duration-[var(--motion-fast)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-app disabled:pointer-events-none disabled:opacity-60 motion-safe:hover:-translate-y-px",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md border text-sm font-semibold tracking-[0.01em] transition-[border-color,background-color,color,opacity] duration-[var(--motion-fast)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-app disabled:pointer-events-none disabled:opacity-60",
   {
     variants: {
       active: {
@@ -12,7 +12,7 @@ export const buttonVariants = cva(
       },
       intent: {
         primary:
-          "border-accent/60 bg-accent-soft text-fg shadow-surface hover:border-accent hover:bg-accent/20",
+          "border-accent/60 bg-accent-soft text-fg hover:border-accent hover:bg-accent/18",
         secondary:
           "border-border-default bg-elevated text-fg-secondary hover:border-accent/40 hover:bg-elevated hover:text-fg",
         ghost:

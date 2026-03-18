@@ -82,7 +82,7 @@ export default function ChartSection({
           },
         }}
       >
-        <div className="rounded-[calc(var(--radius-lg)-0.125rem)] border border-border-subtle bg-muted-surface/70 p-4 sm:p-5">
+        <div className="rounded-md border border-border-subtle bg-muted-surface p-4 sm:p-5">
           <PriceChart
             points={chart?.points ?? []}
             range={chart?.range ?? range}

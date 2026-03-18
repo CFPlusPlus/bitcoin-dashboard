@@ -37,7 +37,7 @@ export default function ToolTeaserCard({
           {tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center rounded-full border border-border-subtle bg-muted-surface px-3 py-1 text-sm text-fg-secondary"
+              className="inline-flex items-center rounded-md border border-border-subtle bg-muted-surface px-3 py-1 text-sm text-fg-secondary"
             >
               {tag}
             </span>

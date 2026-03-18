@@ -59,6 +59,7 @@ Instead of spreading hard-coded individual values too early, the system should u
 
 ### Base
 - very dark app background
+- flat, matte surfaces without gradients
 - lightly stepped surface layers
 - avoid relying only on pure black hard surfaces
 - strong contrast, but not overly harsh
@@ -135,7 +136,7 @@ Recommended scale:
 
 ## 6. Radius Tokens
 
-Surfaces should feel modern, calm, and premium.
+Surfaces should feel precise, calm, and architectural.
 
 Recommended roles:
 - `--radius-sm`
@@ -144,9 +145,9 @@ Recommended roles:
 - `--radius-xl`
 
 Recommended direction:
-- not too sharp
-- not overly playful or rounded
-- soft-modern with clear geometry
+- noticeably tighter than typical SaaS dashboards
+- no pill-heavy component language as the default
+- clear geometry with only slight softening at the corners
 
 ---
 
@@ -161,9 +162,9 @@ Roles:
 - `--shadow-lg`
 
 Principles:
-- prefer subtle depth over strong shadows
-- create elevation more through surface and border differences than dramatic shadows
-- avoid the floating app-card look common in generic SaaS dashboards
+- keep shadows minimal to none
+- create elevation mainly through surface and border differences
+- avoid floating, glassy, or layered card effects
 
 ---
 
