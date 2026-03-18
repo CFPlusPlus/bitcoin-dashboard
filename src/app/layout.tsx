@@ -17,7 +17,6 @@ import {
   serializeJsonLd,
 } from "../lib/seo";
 import "./globals.css";
-import "../styles/legacy.css";
 
 export const metadata: Metadata = {
   metadataBase,

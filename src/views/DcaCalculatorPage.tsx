@@ -3,10 +3,13 @@
 import Link from "next/link";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Card from "../components/ui/Card";
+import Button, { buttonVariants } from "../components/ui/Button";
 import DataState from "../components/ui/data-state/DataState";
 import DataStateMeta from "../components/ui/data-state/DataStateMeta";
 import EmptyState from "../components/ui/data-state/EmptyState";
 import { usePersistentState } from "../hooks/usePersistentState";
+import { cn } from "../lib/cn";
 import { fetchJson } from "../lib/api";
 import { resolveAsyncDataState } from "../lib/data-state";
 import {
@@ -112,7 +115,7 @@ export default function DcaCalculatorPage() {
   const [note, setNote] = useState("");
   const [formError, setFormError] = useState("");
   const [formErrorField, setFormErrorField] = useState<DcaFormField | null>(null);
-  const formCardRef = useRef<HTMLElement | null>(null);
+  const formCardRef = useRef<HTMLDivElement | null>(null);
 
   const loadMarketOverview = useCallback(async () => {
     setMarketLoading(true);
@@ -142,6 +145,12 @@ export default function DcaCalculatorPage() {
   const currentPrice = getCurrentPrice(overview, currency);
   const dcaView = useMemo(() => buildDcaView(entries, currentPrice), [currentPrice, entries]);
   const summaryTone = getDcaTone(dcaView.summary.pnlAbsolute);
+  const summaryToneClassName =
+    summaryTone === "positive"
+      ? "text-success"
+      : summaryTone === "negative"
+        ? "text-danger"
+        : "text-fg-muted";
   const marketState = useMemo(
     () =>
       resolveAsyncDataState({
@@ -189,10 +198,6 @@ export default function DcaCalculatorPage() {
   const handleClearEntries = () => {
     setEntryStore((currentStore) => clearDcaEntries(currentStore, currency));
   };
-
-  const pnlClassName =
-    summaryTone === "default" ? "muted" : `muted metric-value-${summaryTone}`;
-  const pnlValueClassName = summaryTone === "default" ? undefined : `metric-value-${summaryTone}`;
   const primaryResult = getPrimaryResultCopy(
     dcaView.summary.totalEntries,
     dcaView.summary.averageBuyPrice,
@@ -208,19 +213,21 @@ export default function DcaCalculatorPage() {
   const hasEntries = entries.length > 0;
 
   return (
-    <section className="tool-detail-page">
-      <header className="section-hero">
-        <p className="eyebrow">Werkzeug</p>
+    <section className="dca-page">
+      <header className="dca-page__hero">
+        <p className="text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-accent">
+          Werkzeug
+        </p>
         <h2>DCA-Rechner fuer deinen Durchschnittspreis</h2>
-        <p className="subtitle">
+        <p className="dca-page__intro">
           Erfasse deine Bitcoin-Kaeufe, behalte deinen Durchschnittspreis im Blick und
           vergleiche deinen Einstieg mit dem aktuellen Referenzpreis in {currency.toUpperCase()}.
         </p>
       </header>
 
-      <div className="card tool-toolbar-card">
-        <div className="tool-toolbar-copy">
-          <p className="label">Marktdaten</p>
+      <Card as="section" padding="lg" gap="md" className="dca-toolbar">
+        <div className="dca-toolbar__copy">
+          <p className="text-sm text-fg-secondary">Marktdaten</p>
           <h3>Aktueller Referenzpreis</h3>
           <div className="mt-3 flex flex-col gap-3">
             <DataStateMeta lastUpdatedLabel="Zuletzt erneuert" state={marketState} />
@@ -256,176 +263,197 @@ export default function DcaCalculatorPage() {
                 },
               }}
             >
-              <p className="muted">{`Marktpreis: ${formatCurrency(currentPrice, currency)} / BTC`}</p>
+              <p className="text-sm leading-6 text-fg-muted">
+                {`Marktpreis: ${formatCurrency(currentPrice, currency)} / BTC`}
+              </p>
             </DataState>
           </div>
         </div>
 
-        <div className="tool-toolbar-actions">
-          <div className="range-switcher" role="tablist" aria-label="Werkzeugwaehrung">
+        <div className="dca-toolbar__actions">
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Werkzeugwaehrung">
             {(["usd", "eur"] as const).map((value) => (
-              <button
+              <Button
                 key={value}
                 type="button"
-                className={currency === value ? "range-btn active" : "range-btn"}
+                active={currency === value}
+                intent="secondary"
+                size="sm"
+                className="min-w-[5rem]"
                 onClick={() => setCurrency(value)}
               >
                 {value.toUpperCase()}
-              </button>
+              </Button>
             ))}
           </div>
 
-          <button type="button" className="refresh-btn" onClick={() => void loadMarketOverview()}>
+          <Button type="button" intent="primary" size="sm" onClick={() => void loadMarketOverview()}>
             Preis erneuern
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
 
-      <article className="card dca-insight-card">
+      <Card as="article" padding="lg" gap="md" className="dca-insight-card">
         <div>
-          <p className="label">Einordnung</p>
+          <p className="text-sm text-fg-secondary">Einordnung</p>
           <h3>{primaryResult.title}</h3>
         </div>
         <p className="dca-insight-copy">{primaryResult.description}</p>
         <p className="dca-insight-copy">{performanceCopy}</p>
-      </article>
+      </Card>
 
       <div className="dca-summary-grid">
-        <article className="card dca-summary-card">
-          <p className="label">Bisher investiert</p>
+        <Card as="article" padding="md" gap="sm" className="dca-summary-card">
+          <p className="text-sm text-fg-secondary">Bisher investiert</p>
           <h3>{formatCurrency(dcaView.summary.totalInvested, currency)}</h3>
-          <p className="muted">Summe aller erfassten Kauefe in {currency.toUpperCase()}.</p>
-        </article>
-        <article className="card dca-summary-card">
-          <p className="label">Erhaltenes BTC</p>
+          <p className="text-sm leading-6 text-fg-muted">
+            Summe aller erfassten Kauefe in {currency.toUpperCase()}.
+          </p>
+        </Card>
+        <Card as="article" padding="md" gap="sm" className="dca-summary-card">
+          <p className="text-sm text-fg-secondary">Erhaltenes BTC</p>
           <h3>{formatBtc(dcaView.summary.totalBitcoin)}</h3>
-          <p className="muted">Berechnet aus Betrag und BTC-Preis jedes Kaufs.</p>
-        </article>
-        <article className="card dca-summary-card">
-          <p className="label">Durchschnittlicher Kaufpreis</p>
+          <p className="text-sm leading-6 text-fg-muted">
+            Berechnet aus Betrag und BTC-Preis jedes Kaufs.
+          </p>
+        </Card>
+        <Card as="article" padding="md" gap="sm" className="dca-summary-card">
+          <p className="text-sm text-fg-secondary">Durchschnittlicher Kaufpreis</p>
           <h3>
             {dcaView.summary.averageBuyPrice === null
               ? FALLBACK_TEXT
               : `${formatCurrency(dcaView.summary.averageBuyPrice, currency)} / BTC`}
           </h3>
-          <p className="muted">Dein rechnerischer Einstieg ueber alle Eintraege hinweg.</p>
-        </article>
-        <article className="card dca-summary-card">
-          <p className="label">Aktueller Vergleichspreis</p>
+          <p className="text-sm leading-6 text-fg-muted">
+            Dein rechnerischer Einstieg ueber alle Eintraege hinweg.
+          </p>
+        </Card>
+        <Card as="article" padding="md" gap="sm" className="dca-summary-card">
+          <p className="text-sm text-fg-secondary">Aktueller Vergleichspreis</p>
           <h3>
             {dcaView.summary.currentPrice === null
               ? FALLBACK_TEXT
               : `${formatCurrency(dcaView.summary.currentPrice, currency)} / BTC`}
           </h3>
-          <p className="muted">Der zuletzt geladene BTC-Referenzpreis fuer diese Waehrung.</p>
-        </article>
-        <article className="card dca-summary-card">
-          <p className="label">Geschaetzter Wert heute</p>
+          <p className="text-sm leading-6 text-fg-muted">
+            Der zuletzt geladene BTC-Referenzpreis fuer diese Waehrung.
+          </p>
+        </Card>
+        <Card as="article" padding="md" gap="sm" className="dca-summary-card">
+          <p className="text-sm text-fg-secondary">Geschaetzter Wert heute</p>
           <h3>{formatCurrency(dcaView.summary.currentValue, currency)}</h3>
-          <p className="muted">So viel waere dein Bestand beim aktuellen Referenzpreis wert.</p>
-        </article>
-        <article className="card dca-summary-card">
-          <p className="label">Abweichung zum Einsatz</p>
-          <h3 className={pnlValueClassName}>
+          <p className="text-sm leading-6 text-fg-muted">
+            So viel waere dein Bestand beim aktuellen Referenzpreis wert.
+          </p>
+        </Card>
+        <Card as="article" padding="md" gap="sm" className="dca-summary-card">
+          <p className="text-sm text-fg-secondary">Abweichung zum Einsatz</p>
+          <h3 className={summaryTone === "default" ? undefined : summaryToneClassName}>
             {formatCurrency(dcaView.summary.pnlAbsolute, currency)}
           </h3>
-          <p className={pnlClassName}>{formatPercent(dcaView.summary.pnlPercent)}</p>
-        </article>
+          <p className={cn("text-sm leading-6", summaryToneClassName)}>
+            {formatPercent(dcaView.summary.pnlPercent)}
+          </p>
+        </Card>
       </div>
 
-      <div className="tool-detail-layout dca-layout">
-        <article ref={formCardRef} className="card dca-form-card">
-          <p className="label">Neuer Kauf</p>
-          <h3>Kauf eintragen</h3>
-          <p className="muted dca-form-intro">
-            Eintraege werden automatisch nur in diesem Browser gespeichert. USD und EUR
-            bleiben bewusst getrennt, damit deine Reihen sauber vergleichbar bleiben.
-          </p>
+      <div className="dca-layout">
+        <div ref={formCardRef}>
+          <Card as="article" padding="lg" gap="md" className="dca-form-card">
+            <p className="text-sm text-fg-secondary">Neuer Kauf</p>
+            <h3>Kauf eintragen</h3>
+            <p className="text-sm leading-6 text-fg-muted">
+              Eintraege werden automatisch nur in diesem Browser gespeichert. USD und EUR
+              bleiben bewusst getrennt, damit deine Reihen sauber vergleichbar bleiben.
+            </p>
 
-          <form className="dca-form" onSubmit={handleAddEntry}>
-            <label className="input-group">
-              <span>Kaufdatum</span>
-              <input
-                aria-invalid={formErrorField === "date"}
-                type="date"
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-              />
-              <small className="input-hint">Nutze das Datum, an dem der Kauf ausgefuehrt wurde.</small>
-            </label>
+            <form className="dca-form" onSubmit={handleAddEntry}>
+              <label className="dca-input-group">
+                <span>Kaufdatum</span>
+                <input
+                  aria-invalid={formErrorField === "date"}
+                  type="date"
+                  value={date}
+                  onChange={(event) => setDate(event.target.value)}
+                />
+                <small className="dca-input-hint">
+                  Nutze das Datum, an dem der Kauf ausgefuehrt wurde.
+                </small>
+              </label>
 
-            <label className="input-group">
-              <span>Wie viel hast du investiert? ({currency.toUpperCase()})</span>
-              <input
-                aria-invalid={formErrorField === "amountInvested"}
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="0.01"
-                value={amountInvested}
-                onChange={(event) => setAmountInvested(event.target.value)}
-                placeholder={currency === "usd" ? "250" : "200"}
-              />
-              <small className="input-hint">
-                Gib den Gesamtbetrag des Kaufs ein. Komma und Punkt werden akzeptiert.
-              </small>
-            </label>
+              <label className="dca-input-group">
+                <span>Wie viel hast du investiert? ({currency.toUpperCase()})</span>
+                <input
+                  aria-invalid={formErrorField === "amountInvested"}
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="0.01"
+                  value={amountInvested}
+                  onChange={(event) => setAmountInvested(event.target.value)}
+                  placeholder={currency === "usd" ? "250" : "200"}
+                />
+                <small className="dca-input-hint">
+                  Gib den Gesamtbetrag des Kaufs ein. Komma und Punkt werden akzeptiert.
+                </small>
+              </label>
 
-            <label className="input-group">
-              <span>Welcher BTC-Preis galt beim Kauf? ({currency.toUpperCase()})</span>
-              <input
-                aria-invalid={formErrorField === "bitcoinPrice"}
-                type="number"
-                inputMode="decimal"
-                min="0"
-                step="0.01"
-                value={bitcoinPrice}
-                onChange={(event) => setBitcoinPrice(event.target.value)}
-                placeholder={currency === "usd" ? "50000" : "46000"}
-              />
-              <small className="input-hint">
-                Das ist der Preis pro 1 BTC zum Kaufzeitpunkt, nicht dein investierter Gesamtbetrag.
-              </small>
-            </label>
+              <label className="dca-input-group">
+                <span>Welcher BTC-Preis galt beim Kauf? ({currency.toUpperCase()})</span>
+                <input
+                  aria-invalid={formErrorField === "bitcoinPrice"}
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  step="0.01"
+                  value={bitcoinPrice}
+                  onChange={(event) => setBitcoinPrice(event.target.value)}
+                  placeholder={currency === "usd" ? "50000" : "46000"}
+                />
+                <small className="dca-input-hint">
+                  Das ist der Preis pro 1 BTC zum Kaufzeitpunkt, nicht dein investierter Gesamtbetrag.
+                </small>
+              </label>
 
-            <label className="input-group">
-              <span>Kurze Notiz (optional)</span>
-              <input
-                type="text"
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                placeholder="z. B. Monatsrate Marz"
-              />
-              <small className="input-hint">
-                Hilfreich fuer Erinnerungen wie Sparplan, Sonderkauf oder Ruecksetzer.
-              </small>
-            </label>
+              <label className="dca-input-group">
+                <span>Kurze Notiz (optional)</span>
+                <input
+                  type="text"
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  placeholder="z. B. Monatsrate Marz"
+                />
+                <small className="dca-input-hint">
+                  Hilfreich fuer Erinnerungen wie Sparplan, Sonderkauf oder Ruecksetzer.
+                </small>
+              </label>
 
-            {formError && (
-              <p className="form-error" role="alert">
-                {formError}
-              </p>
-            )}
+              {formError && (
+                <p className="dca-form-error" role="alert">
+                  {formError}
+                </p>
+              )}
 
-            <div className="dca-form-actions">
-              <button type="submit" className="refresh-btn">
-                Kauf speichern
-              </button>
-              <p className="muted dca-persistence-note">
-                Deine Liste bleibt auf diesem Geraet erhalten, bis du sie selbst loeschst.
-              </p>
-            </div>
-          </form>
-        </article>
+              <div className="dca-form-actions">
+                <Button type="submit" intent="primary" size="sm">
+                  Kauf speichern
+                </Button>
+                <p className="dca-persistence-note">
+                  Deine Liste bleibt auf diesem Geraet erhalten, bis du sie selbst loeschst.
+                </p>
+              </div>
+            </form>
+          </Card>
+        </div>
 
-        <article className="card dca-list-card">
+        <Card as="article" padding="lg" gap="md" className="dca-list-card">
           <div className="dca-list-header">
             <div>
-              <p className="label">Kaufhistorie</p>
+              <p className="text-sm text-fg-secondary">Kaufhistorie</p>
               <h3>
                 {dcaView.summary.totalEntries} {dcaView.summary.totalEntries === 1 ? "Eintrag" : "Eintraege"}
               </h3>
-              <p className="muted dca-history-copy">
+              <p className="text-sm leading-6 text-fg-muted">
                 {hasEntries
                   ? `Du siehst hier deine lokal gespeicherte ${currency.toUpperCase()}-Kaufreihe.`
                   : `Noch keine lokal gespeicherten Kauefe in ${currency.toUpperCase()}.`}
@@ -433,17 +461,21 @@ export default function DcaCalculatorPage() {
             </div>
 
             <div className="dca-list-actions">
-              <Link className="range-btn tool-back-link" href="/tools">
+              <Link
+                className={cn(buttonVariants({ intent: "secondary", size: "sm" }), "min-w-[11rem] no-underline")}
+                href="/tools"
+              >
                 Zur Werkzeugseite
               </Link>
-              <button
+              <Button
                 type="button"
-                className="range-btn"
+                intent="secondary"
+                size="sm"
                 onClick={handleClearEntries}
                 disabled={entries.length === 0}
               >
                 {currency.toUpperCase()}-Reihe loeschen
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -453,13 +485,14 @@ export default function DcaCalculatorPage() {
               title={`Deine ${currency.toUpperCase()}-Kaufreihe ist noch leer`}
               description={`Sobald du den ersten Kauf eintraegst, zeigt dir der Rechner deinen Durchschnittspreis, deinen BTC-Bestand und den heutigen Vergleichswert.`}
               action={
-                <button
+                <Button
                   type="button"
-                  className="refresh-btn"
+                  intent="primary"
+                  size="sm"
                   onClick={() => formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
                 >
                   Ersten Kauf erfassen
-                </button>
+                </Button>
               }
             />
           ) : (
@@ -479,18 +512,19 @@ export default function DcaCalculatorPage() {
                       <span>BTC erhalten: {formatBtc(entry.bitcoinAmount)}</span>
                     </div>
                   </div>
-                  <button
+                  <Button
                     type="button"
-                    className="remove-btn"
+                    intent="secondary"
+                    size="sm"
                     onClick={() => handleRemoveEntry(entry.id)}
                   >
                     Entfernen
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
           )}
-        </article>
+        </Card>
       </div>
     </section>
   );

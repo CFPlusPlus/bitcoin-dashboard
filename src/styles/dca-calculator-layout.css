@@ -1,0 +1,133 @@
+.dca-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dca-page__hero {
+  margin-bottom: var(--space-3);
+}
+
+.dca-page__intro {
+  margin-top: var(--space-3);
+  max-width: 65ch;
+  color: var(--token-color-text-secondary);
+}
+
+.dca-toolbar,
+.dca-layout,
+.dca-summary-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.dca-toolbar {
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.dca-toolbar__copy,
+.dca-toolbar__actions,
+.dca-insight-card,
+.dca-summary-card,
+.dca-form-card,
+.dca-list-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.dca-toolbar__actions {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.dca-insight-copy,
+.dca-persistence-note {
+  margin: 0;
+}
+
+.dca-summary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr));
+}
+
+.dca-layout {
+  align-items: flex-start;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.dca-list-header,
+.dca-list-actions {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.dca-list-header {
+  justify-content: space-between;
+}
+
+.dca-empty-state {
+  min-height: 100%;
+}
+
+.dca-entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dca-entry-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--token-color-border-subtle);
+  background: var(--token-color-bg-muted);
+}
+
+.dca-entry-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.dca-entry-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.dca-entry-note,
+.dca-persistence-note {
+  color: var(--token-color-text-muted);
+}
+
+.dca-entry-metrics {
+  display: grid;
+  gap: 0.625rem 0.875rem;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  color: var(--token-color-text-primary);
+}
+
+@media (max-width: 720px) {
+  .dca-toolbar__actions,
+  .dca-list-header,
+  .dca-entry-row,
+  .dca-entry-topline {
+    flex-direction: column;
+  }
+
+  .dca-list-actions {
+    width: 100%;
+  }
+
+  .dca-list-actions > *,
+  .dca-toolbar__actions > button,
+  .dca-toolbar__actions > div {
+    width: 100%;
+  }
+}

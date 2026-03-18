@@ -1,0 +1,58 @@
+.dca-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dca-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--token-color-text-primary);
+}
+
+.dca-input-group input,
+.dca-input-group select {
+  width: 100%;
+  border: 1px solid var(--token-color-border-default);
+  background: rgb(255 245 232 / 4%);
+  color: var(--token-color-text-primary);
+  padding: 0.75rem 0.875rem;
+}
+
+.dca-input-group input::placeholder {
+  color: var(--token-color-text-muted);
+}
+
+.dca-input-group input:focus,
+.dca-input-group select:focus {
+  outline: none;
+  border-color: rgb(242 143 45 / 50%);
+}
+
+.dca-input-group input[aria-invalid="true"],
+.dca-input-group select[aria-invalid="true"] {
+  border-color: rgb(219 122 114 / 55%);
+  background: rgb(219 122 114 / 8%);
+}
+
+.dca-input-hint,
+.dca-form-error {
+  margin: 0;
+}
+
+.dca-input-hint {
+  color: var(--token-color-text-muted);
+  line-height: 1.5;
+}
+
+.dca-form-error {
+  color: var(--state-error-fg);
+}
+
+.dca-form-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

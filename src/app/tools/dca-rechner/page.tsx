@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import "../../../styles/dca-calculator-layout.css";
+import "../../../styles/dca-calculator-form.css";
 import StructuredData from "../../../components/StructuredData";
 import { dcaCalculatorMetadata } from "../../../lib/public-metadata";
 import {
