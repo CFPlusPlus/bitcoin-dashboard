@@ -19,6 +19,7 @@ type DcaDraftEntry = Omit<DcaEntry, "id">;
 export type DcaValidationResult =
   | {
       error: string;
+      field: "amountInvested" | "bitcoinPrice" | "date";
       success: false;
     }
   | {
@@ -137,9 +138,34 @@ export function getDcaTone(value: number | null) {
 }
 
 export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
+  if (input.date.trim().length === 0) {
+    return {
+      error: "Bitte waehle das Kaufdatum aus.",
+      field: "date",
+      success: false,
+    };
+  }
+
   if (!isValidDateString(input.date)) {
     return {
-      error: "Bitte ein gueltiges Kaufdatum angeben.",
+      error: "Bitte gib ein gueltiges Kaufdatum an.",
+      field: "date",
+      success: false,
+    };
+  }
+
+  if (input.date > getDefaultDcaDate()) {
+    return {
+      error: "Das Kaufdatum darf nicht in der Zukunft liegen.",
+      field: "date",
+      success: false,
+    };
+  }
+
+  if (input.amountInvested.trim().length === 0) {
+    return {
+      error: "Bitte gib ein, wie viel du investiert hast.",
+      field: "amountInvested",
       success: false,
     };
   }
@@ -148,7 +174,16 @@ export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
 
   if (!isPositiveNumber(amountInvested)) {
     return {
-      error: "Bitte einen gueltigen Investitionsbetrag groesser als 0 eingeben.",
+      error: "Der investierte Betrag muss groesser als 0 sein.",
+      field: "amountInvested",
+      success: false,
+    };
+  }
+
+  if (input.bitcoinPrice.trim().length === 0) {
+    return {
+      error: "Bitte gib den BTC-Preis zum Kaufzeitpunkt ein.",
+      field: "bitcoinPrice",
       success: false,
     };
   }
@@ -157,7 +192,8 @@ export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
 
   if (!isPositiveNumber(bitcoinPrice)) {
     return {
-      error: "Bitte einen gueltigen BTC-Preis groesser als 0 eingeben.",
+      error: "Der BTC-Preis muss groesser als 0 sein.",
+      field: "bitcoinPrice",
       success: false,
     };
   }

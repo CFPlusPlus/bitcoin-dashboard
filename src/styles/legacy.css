@@ -87,6 +87,20 @@
   margin-bottom: 16px;
 }
 
+.dca-insight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dca-insight-copy,
+.dca-form-intro,
+.dca-history-copy,
+.dca-persistence-note {
+  margin: 0;
+}
+
 .tool-card,
 .tool-stage-card,
 .dca-form,
@@ -184,6 +198,17 @@
 .input-group select:focus {
   outline: none;
   border-color: rgb(247 147 26 / 50%);
+}
+
+.input-group input[aria-invalid="true"],
+.input-group select[aria-invalid="true"] {
+  border-color: rgb(255 123 146 / 55%);
+  background: rgb(255 123 146 / 8%);
+}
+
+.input-hint {
+  color: #93a0b8;
+  line-height: 1.5;
 }
 
 .form-error {

@@ -128,7 +128,8 @@ describe("dca validation and persistence helpers", () => {
         note: "",
       })
     ).toEqual({
-      error: "Bitte einen gueltigen Investitionsbetrag groesser als 0 eingeben.",
+      error: "Bitte gib ein, wie viel du investiert hast.",
+      field: "amountInvested",
       success: false,
     });
 
@@ -140,7 +141,8 @@ describe("dca validation and persistence helpers", () => {
         note: "",
       })
     ).toEqual({
-      error: "Bitte einen gueltigen BTC-Preis groesser als 0 eingeben.",
+      error: "Der BTC-Preis muss groesser als 0 sein.",
+      field: "bitcoinPrice",
       success: false,
     });
 
@@ -152,7 +154,23 @@ describe("dca validation and persistence helpers", () => {
         note: "",
       })
     ).toEqual({
-      error: "Bitte ein gueltiges Kaufdatum angeben.",
+      error: "Bitte gib ein gueltiges Kaufdatum an.",
+      field: "date",
+      success: false,
+    });
+  });
+
+  it("rejects future dates explicitly", () => {
+    expect(
+      validateDcaFormInput({
+        amountInvested: "50",
+        bitcoinPrice: "50000",
+        date: "2999-03-17",
+        note: "",
+      })
+    ).toEqual({
+      error: "Das Kaufdatum darf nicht in der Zukunft liegen.",
+      field: "date",
       success: false,
     });
   });
