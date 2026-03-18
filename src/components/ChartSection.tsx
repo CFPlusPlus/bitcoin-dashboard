@@ -26,7 +26,14 @@ export default function ChartSection({
   range,
 }: ChartSectionProps) {
   return (
-    <Card as="section" id="main-chart-zone" tone="elevated" padding="lg" gap="lg">
+    <Card
+      as="section"
+      id="main-chart-zone"
+      tone="elevated"
+      padding="md"
+      gap="md"
+      className="overflow-hidden border-border-default/80"
+    >
       <SectionHeader
         eyebrow="Preisverlauf"
         title={`BTC Preisverlauf (${currency.toUpperCase()})`}
@@ -82,7 +89,7 @@ export default function ChartSection({
           },
         }}
       >
-        <div className="rounded-md border border-border-subtle bg-muted-surface p-4 sm:p-5">
+        <div className="border border-border-subtle bg-muted-surface p-3 sm:p-4">
           <PriceChart
             points={chart?.points ?? []}
             range={chart?.range ?? range}

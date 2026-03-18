@@ -35,42 +35,71 @@ export default function HomepageIntro({
 }: HomepageIntroProps) {
   return (
     <Section aria-label="Seiteneinordnung und Einstellungen" space="md">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] xl:items-stretch">
-        <Surface as="section" tone="elevated" padding="lg" className="flex flex-col gap-6">
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(19rem,0.8fr)] xl:items-start">
+        <Surface
+          as="section"
+          tone="elevated"
+          padding="md"
+          className="border-border-default/80"
+        >
+          <div className="flex flex-col gap-5">
           <PageHeader />
 
-          <Stack gap="sm" className="max-w-2xl">
-            <p className="text-sm font-medium text-fg-secondary">
-              Preis, Verlauf, Sentiment und Netzwerkdaten folgen der V1-Prioritaet: zuerst
-              Orientierung, dann Exploration, dann tieferer Kontext.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="#main-chart-zone"
-                className={cn(
-                  buttonVariants({
-                    intent: "primary",
-                    size: "md",
-                  }),
-                  "no-underline"
-                )}
-              >
-                Zum Hauptchart
-              </Link>
-              <Link
-                href="/tools"
-                className={cn(
-                  buttonVariants({
-                    intent: "ghost",
-                    size: "md",
-                  }),
-                  "no-underline"
-                )}
-              >
-                Tools ansehen
-              </Link>
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_14rem]">
+              <Stack gap="md" className="max-w-2xl">
+                <p className="text-sm leading-7 text-fg-secondary">
+                  Preis, Verlauf, Sentiment und Netzwerkdaten folgen weiterhin eurer V1-Prioritaet:
+                  zuerst Orientierung, dann Exploration, dann tieferer Kontext. Der neue Look
+                  macht diese Reihenfolge sichtbarer.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    href="#main-chart-zone"
+                    className={cn(
+                      buttonVariants({
+                        intent: "primary",
+                        size: "md",
+                      }),
+                      "no-underline"
+                    )}
+                  >
+                    Zum Hauptchart
+                  </Link>
+                  <Link
+                    href="/tools"
+                    className={cn(
+                      buttonVariants({
+                        intent: "ghost",
+                        size: "md",
+                      }),
+                      "no-underline"
+                    )}
+                  >
+                    Tools ansehen
+                  </Link>
+                </div>
+              </Stack>
+
+              <div className="grid gap-2 xl:border-l xl:border-border-subtle xl:pl-4">
+                <div className="border border-border-subtle bg-muted-surface px-3 py-3">
+                  <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-fg-muted">
+                    Fokus
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-fg-secondary">
+                    Schnell lesbar, ernsthaft, weniger Template-Charakter.
+                  </p>
+                </div>
+                <div className="border border-accent/40 bg-accent-soft px-3 py-3">
+                  <p className="font-serif text-base leading-none tracking-[-0.03em] text-accent">
+                    Quellen
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-fg-secondary">
+                    CoinGecko, mempool.space und Alternative.me.
+                  </p>
+                </div>
+              </div>
             </div>
-          </Stack>
+          </div>
         </Surface>
 
         <DashboardControlsSection

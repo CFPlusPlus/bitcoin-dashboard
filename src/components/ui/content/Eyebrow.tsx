@@ -2,7 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../../../lib/cn";
 
-const eyebrowVariants = cva("font-mono text-xs font-semibold uppercase tracking-[0.18em]", {
+const eyebrowVariants = cva("font-mono text-[0.68rem] font-medium uppercase tracking-[0.28em]", {
   variants: {
     tone: {
       accent: "text-accent",

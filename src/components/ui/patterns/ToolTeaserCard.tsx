@@ -22,7 +22,7 @@ export default function ToolTeaserCard({
   title,
 }: ToolTeaserCardProps) {
   return (
-    <Card as="article" tone="interactive" className="h-full">
+    <Card as="article" tone="interactive" padding="md" className="h-full overflow-hidden">
       <SectionHeader
         eyebrow={category}
         title={title}
@@ -37,7 +37,7 @@ export default function ToolTeaserCard({
           {tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center rounded-md border border-border-subtle bg-muted-surface px-3 py-1 text-sm text-fg-secondary"
+              className="inline-flex items-center rounded-sm border border-border-subtle bg-muted-surface px-3 py-1 text-[0.72rem] uppercase tracking-[0.14em] text-fg-secondary"
             >
               {tag}
             </span>

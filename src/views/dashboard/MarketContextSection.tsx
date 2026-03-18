@@ -25,7 +25,7 @@ export default function MarketContextSection({
   const { marketCap, volume24h } = getOverviewValues(overview, currency);
 
   return (
-    <Card as="section" tone="default" className="h-full gap-5">
+    <Card as="section" tone="default" padding="md" className="h-full gap-4 border-border-default/80">
       <SectionHeader
         eyebrow="Marktkontext"
         title="Groessere Marktgroesse"

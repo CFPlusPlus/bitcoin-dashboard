@@ -29,12 +29,13 @@ export default function DashboardControlsSection({
     <Surface
       as="section"
       tone="elevated"
-      className="flex h-full flex-col gap-5"
+      padding="md"
+      className="flex h-full flex-col gap-4 border-border-default/80"
       aria-label="Aktualisierung und Einstellungen"
     >
       <RefreshStatus autoRefresh={autoRefresh} dashboardState={dashboardState} />
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2 border-t border-border-subtle pt-3">
         <CurrencySwitcher currency={currency} onChange={onCurrencyChange} />
         <AutoRefreshToggle autoRefresh={autoRefresh} onChange={onAutoRefreshChange} />
         <RefreshButton refreshing={refreshing} onRefresh={onRefresh} />

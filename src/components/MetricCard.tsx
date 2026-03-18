@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import Card from "./ui/Card";
+import { cn } from "../lib/cn";
 import KpiValue from "./ui/content/KpiValue";
 
 type MetricCardProps = {
@@ -17,10 +17,24 @@ export default function MetricCard({
   value,
   valueTone = "default",
 }: MetricCardProps) {
+  const toneClassName =
+    tone === "elevated"
+      ? "bg-elevated"
+      : tone === "interactive"
+        ? "bg-elevated transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent/40"
+        : tone === "default"
+          ? "bg-surface"
+          : "bg-muted-surface";
+
   return (
-    <Card as="article" tone={tone} padding="sm" gap="sm" className="h-full">
+    <div
+      className={cn(
+        "flex h-full flex-col gap-2 border border-border-subtle px-3 py-3",
+        toneClassName
+      )}
+    >
       <KpiValue label={label} value={value} size="md" tone={valueTone} />
       {children}
-    </Card>
+    </div>
   );
 }

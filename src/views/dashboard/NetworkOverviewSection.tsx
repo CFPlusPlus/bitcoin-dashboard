@@ -23,7 +23,7 @@ export default function NetworkOverviewSection({
   onRetry,
 }: NetworkOverviewSectionProps) {
   return (
-    <Card as="section" tone="muted" className="gap-5">
+    <Card as="section" tone="muted" padding="md" className="gap-4 border-border-default/80">
       <SectionHeader
         eyebrow="Netzwerk und Blockchain"
         title="Tieferer technischer Kontext"

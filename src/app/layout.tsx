@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import "@fontsource-variable/instrument-sans";
+import "@fontsource-variable/newsreader";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
 import SiteNavigation from "../components/SiteNavigation";
 import StructuredData from "../components/StructuredData";
-import Surface from "../components/ui/Surface";
 import PageContainer from "../components/ui/layout/PageContainer";
 import {
   DEFAULT_DESCRIPTION,
@@ -56,25 +59,23 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="de">
       <body className="min-h-screen bg-app text-fg antialiased">
         <StructuredData data={serializeJsonLd(createWebsiteSchema())} />
-        <main className="min-h-screen py-8 sm:py-10">
-          <PageContainer className="flex flex-col gap-6">
-            <Surface
-              as="header"
-              tone="elevated"
-              className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between"
-            >
-              <div>
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+        <main className="min-h-screen py-0">
+          <header className="w-full border-b border-border-default/80 bg-surface">
+            <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+              <div className="flex min-w-0 items-center gap-3">
+                <p className="shrink-0 border-r border-border-subtle pr-3 font-mono text-[0.68rem] uppercase tracking-[0.26em] text-accent">
                   Bitcoin Dashboard
                 </p>
-                <p className="mt-3 max-w-2xl font-serif text-2xl leading-tight text-fg sm:text-4xl">
-                  Dashboard und Tools in einer klaren Struktur
+                <p className="truncate font-serif text-lg tracking-[-0.03em] text-fg-secondary sm:text-xl">
+                  <span className="text-accent">Bitcoin</span> in ruhigerem Fokus
                 </p>
               </div>
 
               <SiteNavigation />
-            </Surface>
+            </div>
+          </header>
 
+          <PageContainer className="flex flex-col gap-5 py-4 sm:py-5">
             {children}
           </PageContainer>
         </main>

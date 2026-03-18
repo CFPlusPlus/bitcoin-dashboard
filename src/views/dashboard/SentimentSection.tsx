@@ -47,7 +47,7 @@ export default function SentimentSection({
   const sentimentUi = getSentimentTone(sentiment?.classification ?? null);
 
   return (
-    <Card as="section" tone="muted" className="h-full gap-5">
+    <Card as="section" tone="muted" padding="md" className="h-full gap-4 border-border-default/80">
       <SectionHeader
         eyebrow="Sentiment"
         title="Fear &amp; Greed"
@@ -88,7 +88,7 @@ export default function SentimentSection({
         }}
       >
         <Stack gap="md">
-          <Card as="article" tone="default" padding="sm" gap="md" className="border-border-subtle">
+          <div className="flex flex-col gap-4 border border-border-subtle bg-surface px-3 py-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <KpiValue
                 label="Indexstand"
@@ -99,33 +99,33 @@ export default function SentimentSection({
               />
               <span
                 className={cn(
-                  "inline-flex items-center rounded-md border px-3 py-1 text-xs font-semibold uppercase tracking-[0.04em]",
+                  "inline-flex items-center rounded-sm border px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.18em]",
                   sentimentUi.badgeClassName
                 )}
               >
                 {sentiment?.classification ?? FALLBACK_TEXT}
               </span>
             </div>
-          </Card>
+          </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <Card as="article" tone="default" padding="sm" gap="sm" className="border-border-subtle">
-              <MetaText size="xs" className="uppercase tracking-[0.04em]">
+            <div className="flex flex-col gap-2 border border-border-subtle bg-surface px-3 py-3">
+              <MetaText size="xs" className="uppercase tracking-[0.16em]">
                 Naechstes Update
               </MetaText>
-              <p className="text-base font-semibold text-fg">
+              <p className="font-mono text-base text-fg">
                 {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null)}
               </p>
-            </Card>
+            </div>
 
-            <Card as="article" tone="default" padding="sm" gap="sm" className="border-border-subtle">
-              <MetaText size="xs" className="uppercase tracking-[0.04em]">
+            <div className="flex flex-col gap-2 border border-accent/30 bg-accent-soft px-3 py-3">
+              <MetaText size="xs" className="uppercase tracking-[0.16em]">
                 Quelle
               </MetaText>
-              <p className="text-base font-semibold text-fg">
+              <p className="text-base font-medium text-fg">
                 {sentiment?.attribution ?? FALLBACK_TEXT}
               </p>
-            </Card>
+            </div>
           </div>
         </Stack>
       </DataState>

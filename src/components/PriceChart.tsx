@@ -30,7 +30,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
 
   if (points.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-border-default bg-app/20 p-6 text-sm text-fg-muted">
+      <div className="rounded-md border border-dashed border-border-default bg-surface p-5 text-sm text-fg-muted">
         Keine Chartdaten vorhanden.
       </div>
     );
@@ -70,23 +70,23 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   return (
     <div className="flex flex-col gap-5">
       <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-md border border-border-subtle bg-app/20 px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.04em] text-fg-muted">Tief</p>
-          <p className="mt-2 text-base font-semibold text-fg">{formatCurrency(minPrice, currency)}</p>
+        <div className="border border-border-subtle bg-surface px-3 py-2.5">
+          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">Tief</p>
+          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(minPrice, currency)}</p>
         </div>
-        <div className="rounded-md border border-border-subtle bg-app/20 px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.04em] text-fg-muted">Hoch</p>
-          <p className="mt-2 text-base font-semibold text-fg">{formatCurrency(maxPrice, currency)}</p>
+        <div className="border border-border-subtle bg-surface px-3 py-2.5">
+          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">Hoch</p>
+          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(maxPrice, currency)}</p>
         </div>
-        <div className="rounded-md border border-border-subtle bg-app/20 px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.04em] text-fg-muted">Jetzt</p>
-          <p className="mt-2 text-base font-semibold text-fg">
+        <div className="border border-accent/35 bg-accent-soft px-3 py-2.5">
+          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">Jetzt</p>
+          <p className="mt-2 font-mono text-base text-fg">
             {formatCurrency(points[points.length - 1].price, currency)}
           </p>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-md border border-border-subtle bg-app/20 p-3 sm:p-4">
+      <div className="overflow-hidden border border-border-subtle bg-surface p-3 sm:p-4">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="block h-auto w-full overflow-visible"
@@ -98,16 +98,37 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
             y1={baseY}
             x2={width - padding}
             y2={baseY}
-            stroke="rgb(255 255 255 / 10%)"
+            stroke="rgb(255 245 232 / 0.1)"
             strokeWidth="1"
           />
 
-          <path d={areaPath} fill="rgba(247, 147, 26, 0.12)" />
+          {[0.25, 0.5, 0.75].map((step) => (
+            <line
+              key={step}
+              x1={padding}
+              y1={padding + (height - padding * 2) * step}
+              x2={width - padding}
+              y2={padding + (height - padding * 2) * step}
+              stroke="rgb(255 245 232 / 0.05)"
+              strokeDasharray="6 10"
+              strokeWidth="1"
+            />
+          ))}
+
+          <path d={areaPath} fill="rgba(242, 143, 45, 0.12)" />
           <path
             d={linePath}
             fill="none"
-            stroke="#f7931a"
-            strokeWidth="3"
+            stroke="#f28f2d"
+            strokeWidth="1"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d={linePath}
+            fill="none"
+            stroke="rgba(255, 178, 90, 0.55)"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -115,8 +136,8 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           <text
             x={padding}
             y={height - 2}
-            fill="#93a0b8"
-            fontSize="14"
+            fill="#978f84"
+            fontSize="13"
             textAnchor="start"
           >
             {formatAxisLabel(points[0].timestamp, range)}
@@ -124,8 +145,8 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           <text
             x={width - padding}
             y={height - 2}
-            fill="#93a0b8"
-            fontSize="14"
+            fill="#978f84"
+            fontSize="13"
             textAnchor="end"
           >
             {formatAxisLabel(points[points.length - 1].timestamp, range)}

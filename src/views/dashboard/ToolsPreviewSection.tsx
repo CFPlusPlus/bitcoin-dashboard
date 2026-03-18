@@ -35,7 +35,7 @@ export default function ToolsPreviewSection() {
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(18rem,1.15fr)]">
-        <Card as="article" tone="muted" className="justify-between">
+        <Card as="article" tone="muted" padding="md" className="justify-between">
           <SectionHeader
             eyebrow="Einordnung"
             title="Vom Lesen zum Rechnen"
@@ -50,31 +50,33 @@ export default function ToolsPreviewSection() {
               Der DCA-Rechner ist direkt erreichbar, bleibt auf der Startseite aber bewusst nur
               ein naechster Schritt.
             </MetaText>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href={featuredTool.href}
-                className={cn(
-                  buttonVariants({
-                    intent: "primary",
-                    size: "sm",
-                  }),
-                  "no-underline"
-                )}
-              >
-                DCA-Rechner oeffnen
-              </Link>
-              <Link
-                href="/tools"
-                className={cn(
-                  buttonVariants({
-                    intent: "ghost",
-                    size: "sm",
-                  }),
-                  "no-underline"
-                )}
-              >
-                Zur Tool-Uebersicht
-              </Link>
+            <div className="border-t border-border-subtle pt-4">
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href={featuredTool.href}
+                  className={cn(
+                    buttonVariants({
+                      intent: "primary",
+                      size: "sm",
+                    }),
+                    "no-underline"
+                  )}
+                >
+                  DCA-Rechner oeffnen
+                </Link>
+                <Link
+                  href="/tools"
+                  className={cn(
+                    buttonVariants({
+                      intent: "ghost",
+                      size: "sm",
+                    }),
+                    "no-underline"
+                  )}
+                >
+                  Zur Tool-Uebersicht
+                </Link>
+              </div>
             </div>
           </Stack>
         </Card>

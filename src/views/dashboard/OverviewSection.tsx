@@ -1,6 +1,7 @@
 import type { AsyncDataState } from "../../lib/data-state";
 import { formatCurrency, formatDateTime, formatPercent } from "../../lib/format";
 import type { Currency, Overview } from "../../types/dashboard";
+import { cn } from "../../lib/cn";
 import Card from "../../components/ui/Card";
 import KpiValue from "../../components/ui/content/KpiValue";
 import MetaText from "../../components/ui/content/MetaText";
@@ -34,7 +35,13 @@ export default function OverviewSection({
         : "default";
 
   return (
-    <Card as="section" tone="elevated" padding="lg" gap="lg">
+    <Card
+      as="section"
+      tone="elevated"
+      padding="md"
+      gap="md"
+      className="overflow-hidden"
+    >
       <SectionHeader
         eyebrow="Primarer Ueberblick"
         title="Bitcoin jetzt"
@@ -74,14 +81,8 @@ export default function OverviewSection({
           },
         }}
       >
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.95fr)]">
-          <Card
-            as="article"
-            tone="muted"
-            padding="lg"
-            gap="md"
-            className="justify-between border-border-strong bg-muted-surface/80"
-          >
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(15rem,0.8fr)]">
+          <div className="flex h-full flex-col justify-between gap-4 border border-border-strong bg-muted-surface px-4 py-4">
             <KpiValue
               label={`BTC Preis (${currencyLabel})`}
               value={formatCurrency(price, currency)}
@@ -89,38 +90,48 @@ export default function OverviewSection({
               meta={`24h-Veraenderung in ${currencyLabel}`}
               size="lg"
               tone={changeTone}
-              className="gap-3"
+              className="gap-2"
             />
 
-            <Stack gap="xs" className="max-w-xl">
-              <MetaText tone="strong">
-                Die Preiszone bleibt bewusst ruhig und fokussiert, damit Richtung und Niveau sofort
-                lesbar sind.
-              </MetaText>
-              <MetaText>
-                Marktdaten zuletzt aktualisiert: {formatDateTime(overview?.lastUpdatedAt ?? null)}
-              </MetaText>
-            </Stack>
-          </Card>
+            <div className="grid gap-4 border-t border-border-subtle pt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+              <Stack gap="xs" className="max-w-xl">
+                <MetaText tone="strong">
+                  Die Preiszone bleibt bewusst ruhig und fokussiert, damit Richtung und Niveau
+                  sofort lesbar sind.
+                </MetaText>
+                <MetaText>
+                  Marktdaten zuletzt aktualisiert: {formatDateTime(overview?.lastUpdatedAt ?? null)}
+                </MetaText>
+              </Stack>
+              <div className="border border-accent/40 bg-accent-soft px-3 py-2">
+                <p className="font-serif text-base leading-none tracking-[-0.03em] text-accent">Spot</p>
+              </div>
+            </div>
+          </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Card as="article" tone="muted" padding="sm" gap="sm" className="h-full">
-              <KpiValue
-                label={`24h Hoch (${currencyLabel})`}
-                value={formatCurrency(high24h, currency)}
-                size="md"
-              />
-              <MetaText>Oberes Ende der aktuellen Tagesspanne.</MetaText>
-            </Card>
-
-            <Card as="article" tone="muted" padding="sm" gap="sm" className="h-full">
-              <KpiValue
-                label={`24h Tief (${currencyLabel})`}
-                value={formatCurrency(low24h, currency)}
-                size="md"
-              />
-              <MetaText>Unteres Ende der aktuellen Tagesspanne.</MetaText>
-            </Card>
+          <div className="grid gap-3">
+            {[
+              {
+                label: `24h Hoch (${currencyLabel})`,
+                text: formatCurrency(high24h, currency),
+                meta: "Oberes Ende der aktuellen Tagesspanne.",
+                tone: "border-accent/30 bg-accent-soft",
+              },
+              {
+                label: `24h Tief (${currencyLabel})`,
+                text: formatCurrency(low24h, currency),
+                meta: "Unteres Ende der aktuellen Tagesspanne.",
+                tone: "border-border-subtle bg-surface",
+              },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className={cn("flex h-full flex-col gap-2 border px-3 py-3", item.tone)}
+              >
+                <KpiValue label={item.label} value={item.text} size="md" />
+                <MetaText>{item.meta}</MetaText>
+              </div>
+            ))}
           </div>
         </div>
       </DataState>

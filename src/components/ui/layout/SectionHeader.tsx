@@ -6,7 +6,7 @@ import SectionTitle from "../content/SectionTitle";
 import Cluster from "./Cluster";
 import Stack from "./Stack";
 
-type SectionHeaderProps = HTMLAttributes<HTMLDivElement> & {
+type SectionHeaderProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
   action?: ReactNode;
   description?: ReactNode;
   eyebrow?: ReactNode;
@@ -30,7 +30,7 @@ export default function SectionHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between",
+        "flex flex-col gap-3 border-b border-border-subtle/80 pb-3 sm:flex-row sm:items-start sm:justify-between",
         className
       )}
       {...props}

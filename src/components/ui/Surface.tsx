@@ -3,22 +3,22 @@ import { createElement, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
 export const surfaceVariants = cva(
-  "rounded-lg border border-border-default bg-surface text-fg shadow-surface",
+  "rounded-md border border-border-default/90 bg-surface text-fg shadow-surface",
   {
     variants: {
       padding: {
         none: "",
-        sm: "p-4",
-        md: "p-5 sm:p-6",
-        lg: "p-6 sm:p-7",
+        sm: "p-3",
+        md: "p-4 sm:p-5",
+        lg: "p-5 sm:p-6",
       },
       tone: {
         default: "bg-surface",
         elevated: "bg-elevated shadow-elevated",
         muted: "bg-muted-surface shadow-none",
-        accent: "border-accent/25 bg-accent-soft",
+        accent: "border-accent/30 bg-accent-soft",
         interactive:
-          "bg-elevated shadow-surface transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] motion-safe:hover:border-accent/35 motion-safe:hover:bg-surface",
+          "bg-elevated shadow-surface transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] motion-safe:hover:border-accent/40 motion-safe:hover:bg-surface",
       },
     },
     defaultVariants: {

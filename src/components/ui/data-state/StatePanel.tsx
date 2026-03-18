@@ -81,7 +81,7 @@ export default function StatePanel({
       <div className="flex items-start gap-3">
         <span
           className={cn(
-            "flex shrink-0 items-center justify-center rounded-md",
+            "flex shrink-0 items-center justify-center rounded-sm border border-border-subtle",
             compact ? "mt-0.5 size-8" : "size-10",
             iconWrapClassName
           )}
@@ -90,7 +90,7 @@ export default function StatePanel({
         </span>
 
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="font-semibold text-fg">{title}</p>
+          <p className="font-medium text-fg">{title}</p>
           <p className={cn("text-sm leading-relaxed", messageClassName)}>{description}</p>
         </div>
       </div>

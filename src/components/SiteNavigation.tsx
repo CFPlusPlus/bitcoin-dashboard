@@ -14,7 +14,10 @@ export default function SiteNavigation() {
   const pathname = usePathname() ?? "/";
 
   return (
-    <nav className="flex flex-wrap gap-2" aria-label="Hauptnavigation">
+    <nav
+      className="flex items-center gap-2"
+      aria-label="Hauptnavigation"
+    >
       {navItems.map((item) => {
         const isActive =
           item.href === "/" ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -29,7 +32,7 @@ export default function SiteNavigation() {
                 intent: "secondary",
                 size: "md",
               }),
-              "min-w-[8rem] flex-1 sm:flex-none"
+              "min-w-[6.5rem] justify-center"
             )}
           >
             {item.label}
