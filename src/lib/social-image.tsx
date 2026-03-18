@@ -120,7 +120,7 @@ export function createSocialImageResponse({ eyebrow, summary, title }: SocialIma
             fontSize: "24px",
           }}
         >
-          <div style={{ display: "flex" }}>Markt, Netzwerk, Sentiment und Tools</div>
+          <div style={{ display: "flex" }}>Markt, Netzwerk, Sentiment und Werkzeuge</div>
           <div style={{ display: "flex" }}>bitcoin-dashboard</div>
         </div>
       </div>

@@ -7,7 +7,7 @@ import { buttonVariants } from "./ui/Button";
 
 const navItems = [
   { label: "Dashboard", href: "/" },
-  { label: "Tools", href: "/tools" },
+  { label: "Werkzeuge", href: "/tools" },
 ];
 
 export default function SiteNavigation() {

@@ -48,8 +48,7 @@ export default function HomepageIntro({
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_14rem]">
               <Stack gap="md" className="max-w-2xl">
                 <p className="text-sm leading-7 text-fg-secondary">
-                  Die Startseite ordnet Bitcoin in wenigen Sekunden ein: erst Preis und Richtung,
-                  dann der Verlauf, danach Marktstimmung, Netzwerkdaten und der Weg zu den Tools.
+                  Sieh in Sekunden, wo Bitcoin steht, wie der Markt wirkt und ob sich der nächste Klick lohnt.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Link
@@ -74,7 +73,7 @@ export default function HomepageIntro({
                       "no-underline"
                     )}
                   >
-                    Zu den Tools
+                    Zu den Werkzeugen
                   </Link>
                 </div>
               </Stack>
@@ -84,16 +83,14 @@ export default function HomepageIntro({
                   <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-fg-muted">
                     Im Fokus
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-fg-secondary">
-                    Schnelle Orientierung ohne Trading-Overload.
-                  </p>
+                  <p className="mt-2 text-sm leading-6 text-fg-secondary">Preis zuerst. Kontext direkt danach.</p>
                 </div>
                 <div className="border border-accent/40 bg-accent-soft px-3 py-3">
                   <p className="font-serif text-base leading-none tracking-[-0.03em] text-accent">
                     Datenquellen
                   </p>
                   <p className="mt-2 text-sm leading-6 text-fg-secondary">
-                    CoinGecko fuer Markt und Chart, mempool.space fuer das Netzwerk, Alternative.me fuer Fear & Greed.
+                    CoinGecko, mempool.space und Alternative.me.
                   </p>
                 </div>
               </div>

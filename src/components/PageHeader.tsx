@@ -12,7 +12,7 @@ export default function PageHeader() {
         }
         titleAs="h1"
         titleSize="lg"
-        description="Preis, 24h-Bewegung, Chart, Marktstimmung und wichtige Bitcoin-Signale in einer klaren Startansicht."
+        description="Preis, Stimmung und Netzwerk in einer klaren Bitcoin-Ansicht."
         className="max-w-3xl border-b-0 pb-0"
       />
     </header>

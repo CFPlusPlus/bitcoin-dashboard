@@ -35,7 +35,7 @@ describe("dashboard-state-copy", () => {
         "Fee-Daten nicht verfuegbar: fees request failed: 502 Provider overloaded"
       )
     ).toBe(
-      "Fee-Schaetzungen werden gerade nicht vollstaendig aktualisiert. Vorhandene Werte bleiben sichtbar."
+      "Fee-Schaetzungen werden gerade nicht vollstaendig erneuert. Vorhandene Werte bleiben sichtbar."
     );
   });
 

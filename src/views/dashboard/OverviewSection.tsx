@@ -45,9 +45,9 @@ export default function OverviewSection({
       className="overflow-hidden"
     >
       <SectionHeader
-        eyebrow="Marktueberblick"
+        eyebrow="Marktüberblick"
         title="Bitcoin jetzt"
-        description="Der aktuelle BTC-Preis und die 24h-Bewegung stehen bewusst zuerst, damit Richtung und Niveau sofort klar sind."
+        description="Preis zuerst. Hoch, Tief und 24h-Richtung direkt daneben."
         meta={<DataStateMeta state={overviewState} />}
       />
 
@@ -72,10 +72,10 @@ export default function OverviewSection({
             <div className="grid gap-4 border-t border-border-subtle pt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
               <Stack gap="xs" className="max-w-xl">
                 <MetaText tone="strong">
-                  Die Kernzahlen bleiben knapp gehalten, damit der Blick zuerst bei Preis und Tagesrichtung ankommt.
+                  Preis zuerst. Alles andere nur, wenn es beim Einordnen hilft.
                 </MetaText>
                 <MetaText>
-                  Marktdaten zuletzt aktualisiert: {formatDateTime(overview?.lastUpdatedAt ?? null)}
+                  Letzte Anbieter-Aktualisierung: {formatDateTime(overview?.lastUpdatedAt ?? null)}
                 </MetaText>
               </Stack>
               <div className="border border-accent/40 bg-accent-soft px-3 py-2">
@@ -89,15 +89,15 @@ export default function OverviewSection({
               {
                 label: `24h Tageshoch (${currencyLabel})`,
                 text: formatCurrency(high24h, currency),
-                meta: "Hoechster beobachteter Spotpreis im aktuellen 24h-Fenster.",
-                footnote: "Zeigt, wo die aktuelle Handelsspanne nach oben begrenzt wurde.",
+                meta: "Höchster Preis der letzten 24 Stunden.",
+                footnote: "Zeigt, wie weit BTC heute nach oben gelaufen ist.",
                 tone: "default" as const,
               },
               {
                 label: `24h Tagestief (${currencyLabel})`,
                 text: formatCurrency(low24h, currency),
-                meta: "Niedrigster beobachteter Spotpreis im aktuellen 24h-Fenster.",
-                footnote: "Zeigt, wie weit der Markt innerhalb eines Tages bereits nachgegeben hat.",
+                meta: "Niedrigster Preis der letzten 24 Stunden.",
+                footnote: "Zeigt, wie tief BTC heute schon gefallen ist.",
                 tone: "muted" as const,
               },
             ].map((item) => (

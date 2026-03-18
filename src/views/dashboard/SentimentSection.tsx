@@ -55,7 +55,7 @@ export default function SentimentSection({
       <SectionHeader
         eyebrow="Sentiment"
         title="Marktstimmung"
-        description="Der Fear-&-Greed-Index liefert eine schnelle Stimmungsprobe, nachdem Preis und Verlauf bereits eingeordnet sind."
+        description="Fear & Greed zeigt, ob der Markt gerade eher nervös oder gierig ist."
         meta={<DataStateMeta state={sentimentState} />}
       />
 
@@ -71,7 +71,7 @@ export default function SentimentSection({
               <KpiValue
                 label="Fear & Greed Index"
                 value={sentimentValue}
-                meta="Stimmungsindikator fuer das aktuelle Marktumfeld"
+                meta="Stimmungsindikator für das aktuelle Marktumfeld"
                 size="lg"
                 tone={sentimentUi.tone}
               />
@@ -89,12 +89,12 @@ export default function SentimentSection({
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-2 border border-border-subtle bg-surface px-3 py-3">
               <MetaText size="xs" className="uppercase tracking-[0.16em]">
-                Naechste Aktualisierung
+                Nächste Aktualisierung
               </MetaText>
               <p className="font-mono text-base text-fg">
                 {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null)}
               </p>
-              <MetaText>Zeigt, wann der Stimmungswert voraussichtlich neu berechnet wird.</MetaText>
+              <MetaText>Dann kommt der nächste Stimmungscheck.</MetaText>
             </div>
 
             <div className="flex flex-col gap-2 border border-accent/30 bg-accent-soft px-3 py-3">
@@ -104,7 +104,7 @@ export default function SentimentSection({
               <p className="text-base font-medium text-fg">
                 {sentiment?.attribution ?? FALLBACK_TEXT}
               </p>
-              <MetaText>Die Quelle hilft, Herkunft und Einordnung des Index nachvollziehbar zu machen.</MetaText>
+              <MetaText>Quelle des angezeigten Index.</MetaText>
             </div>
           </div>
         </Stack>

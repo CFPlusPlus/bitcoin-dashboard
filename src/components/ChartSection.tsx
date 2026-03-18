@@ -56,16 +56,14 @@ export default function ChartSection({
       <SectionHeader
         eyebrow="Preisverlauf"
         title={`Bitcoin-Chart in ${currency.toUpperCase()}`}
-        description={`Der Hauptchart zeigt den BTC-Preis fuer ${getRangeDescription(
-          range
-        )}. Zeitangaben folgen deiner lokalen Browserzeit, damit Richtungswechsel schnell einzuordnen sind.`}
-        meta={<DataStateMeta state={chartState} lastUpdatedLabel="Zuletzt aktualisiert" />}
+        description={`So hat sich der BTC-Preis für ${getRangeDescription(range)} bewegt.`}
+        meta={<DataStateMeta state={chartState} lastUpdatedLabel="Zuletzt erneuert" />}
         action={
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
             <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
-              Zeitraum waehlen
+              Zeitraum wählen
             </p>
-            <Cluster aria-label="Chart-Zeitraum waehlen" gap="sm">
+            <Cluster aria-label="Chart-Zeitraum wählen" gap="sm">
               {RANGE_OPTIONS.map((option) => (
                 <Button
                   key={option.value}
@@ -83,8 +81,7 @@ export default function ChartSection({
               ))}
             </Cluster>
             <p className="max-w-[32rem] text-sm text-fg-muted sm:text-right">
-              Beim Wechsel bleibt der letzte nutzbare Verlauf sichtbar, bis der neue Zeitraum
-              geladen ist.
+              Beim Wechsel bleibt der letzte Verlauf sichtbar.
             </p>
           </div>
         }

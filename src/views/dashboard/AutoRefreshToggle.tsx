@@ -16,7 +16,7 @@ export default function AutoRefreshToggle({
       size="sm"
       onClick={() => onChange(!autoRefresh)}
     >
-      {autoRefresh ? "Live an" : "Live aus"}
+      {autoRefresh ? "Live aktiv" : "Live pausiert"}
     </Button>
   );
 }

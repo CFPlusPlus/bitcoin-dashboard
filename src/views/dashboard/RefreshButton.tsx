@@ -13,7 +13,7 @@ export default function RefreshButton({
   return (
     <Button intent="primary" onClick={onRefresh} disabled={refreshing}>
       <RefreshCw className={refreshing ? "size-4 animate-spin" : "size-4"} aria-hidden="true" />
-      {refreshing ? "Wird aktualisiert..." : "Jetzt aktualisieren"}
+      {refreshing ? "Ansicht wird erneuert..." : "Jetzt erneuern"}
     </Button>
   );
 }

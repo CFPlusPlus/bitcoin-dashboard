@@ -53,11 +53,11 @@ export default function MetadataSection({
     <Card as="section" tone="muted" gap="lg">
       <SectionHeader
         eyebrow="Quellen und Zeitstempel"
-        title="Nachvollziehbarkeit"
+        title="Quellen und Aktualisierung"
         titleAs="h3"
         titleSize="md"
-        description={`Aktive Waehrung: ${currency.toUpperCase()}. Diese Angaben staerken Vertrauen in Herkunft und Aktualitaet der Daten, bleiben aber bewusst im Fussbereich der Seite.`}
-        meta={<DataStateMeta lastUpdatedLabel="Zuletzt erfolgreich" state={dashboardState} />}
+        description={`Aktive Währung: ${currency.toUpperCase()}. Kompakt, damit Quelle und letzter Stand schnell sichtbar bleiben.`}
+        meta={<DataStateMeta lastUpdatedLabel="Zuletzt erneuert" state={dashboardState} />}
       />
 
       <DataState
@@ -67,24 +67,24 @@ export default function MetadataSection({
         messages={stateMessages}
       >
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <MetadataItem label="Marktdaten-Quelle" value={getMetadataValue(overview?.source)} />
-          <MetadataItem label="Netzwerk-Quelle" value={getMetadataValue(network?.source)} />
-          <MetadataItem label="Sentiment-Quelle" value={getMetadataValue(sentiment?.source)} />
-          <MetadataItem label="Chart-Quelle" value={getMetadataValue(chart?.source)} />
+          <MetadataItem label="Quelle Marktdaten" value={getMetadataValue(overview?.source)} />
+          <MetadataItem label="Quelle Netzwerk" value={getMetadataValue(network?.source)} />
+          <MetadataItem label="Quelle Sentiment" value={getMetadataValue(sentiment?.source)} />
+          <MetadataItem label="Quelle Chart" value={getMetadataValue(chart?.source)} />
           <MetadataItem
             label="Letzte Anbieter-Aktualisierung Markt"
             value={formatDateTime(overview?.lastUpdatedAt ?? null)}
           />
           <MetadataItem
-            label="Dashboard-Abruf Netzwerk"
+            label="Letzte Aktualisierung Netzwerk"
             value={formatDateTime(network?.fetchedAt ?? null)}
           />
           <MetadataItem
-            label="Dashboard-Abruf Sentiment"
+            label="Letzte Aktualisierung Sentiment"
             value={formatDateTime(sentiment?.fetchedAt ?? null)}
           />
           <MetadataItem
-            label="Dashboard-Abruf Chart"
+            label="Letzte Aktualisierung Chart"
             value={formatDateTime(chart?.fetchedAt ?? null)}
           />
         </div>

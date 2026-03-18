@@ -13,11 +13,11 @@ export default function ToolsPreviewSection() {
   const featuredTool = toolCards[0];
 
   return (
-    <Section as="section" aria-label="Tools Vorschau" space="md">
+    <Section as="section" aria-label="Werkzeugvorschau" space="md">
       <SectionHeader
-        eyebrow="Tools"
-        title="Werkzeuge fuer den naechsten Schritt"
-        description="Wenn der Ueberblick steht, fuehren die Tools von der Beobachtung in praktische Bitcoin-Rechner und Hilfen."
+        eyebrow="Werkzeuge"
+        title="Werkzeuge für den nächsten Schritt"
+        description="Wenn der Blick sitzt, helfen die Werkzeuge beim Rechnen und Einordnen."
         action={
           <Link
             href="/tools"
@@ -29,7 +29,7 @@ export default function ToolsPreviewSection() {
               "no-underline"
             )}
           >
-            Tool-Uebersicht
+            Werkzeugseite
           </Link>
         }
       />
@@ -37,17 +37,17 @@ export default function ToolsPreviewSection() {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(18rem,1.15fr)]">
         <Card as="article" tone="muted" padding="md" className="justify-between">
           <SectionHeader
-            eyebrow="Weiterfuehrend"
-            title="Vom Ueberblick zum Werkzeug"
+            eyebrow="Weiterführend"
+            title="Vom Blick zur Aktion"
             titleAs="h3"
             titleSize="md"
-            description="Die Startseite bleibt bewusst ruhig. Rechnen, Planen und weitere Eingaben liegen im separaten Tools-Bereich."
+            description="Hier wird aus Beobachtung eine konkrete Bitcoin-Entscheidung."
             className="gap-3 sm:flex-col sm:justify-start"
           />
 
           <Stack gap="md">
             <MetaText tone="strong">
-              Der DCA-Rechner ist direkt erreichbar und bleibt zugleich klar nachrangig hinter Preis, Chart und Kontext.
+              Starte mit dem DCA-Rechner, wenn du Käufe sauber einordnen willst.
             </MetaText>
             <div className="border-t border-border-subtle pt-4">
               <div className="flex flex-wrap gap-3">
@@ -73,7 +73,7 @@ export default function ToolsPreviewSection() {
                     "no-underline"
                   )}
                 >
-                  Alle Tools
+                  Alle Werkzeuge
                 </Link>
               </div>
             </div>

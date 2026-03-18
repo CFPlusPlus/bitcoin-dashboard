@@ -123,7 +123,7 @@ export default function DcaCalculatorPage() {
       setOverview(overviewData);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Marktpreis konnte nicht geladen werden.";
+        error instanceof Error ? error.message : "Der Referenzpreis konnte nicht geladen werden.";
       setMarketError(message);
     } finally {
       setMarketLoading(false);
@@ -210,8 +210,8 @@ export default function DcaCalculatorPage() {
   return (
     <section className="tool-detail-page">
       <header className="section-hero">
-        <p className="eyebrow">Tool</p>
-        <h2>DCA-Rechner / Durchschnittskaufpreis</h2>
+        <p className="eyebrow">Werkzeug</p>
+        <h2>DCA-Rechner fuer deinen Durchschnittspreis</h2>
         <p className="subtitle">
           Erfasse deine Bitcoin-Kaeufe, behalte deinen Durchschnittspreis im Blick und
           vergleiche deinen Einstieg mit dem aktuellen Referenzpreis in {currency.toUpperCase()}.
@@ -223,7 +223,7 @@ export default function DcaCalculatorPage() {
           <p className="label">Marktdaten</p>
           <h3>Aktueller Referenzpreis</h3>
           <div className="mt-3 flex flex-col gap-3">
-            <DataStateMeta lastUpdatedLabel="Zuletzt erfolgreich" state={marketState} />
+            <DataStateMeta lastUpdatedLabel="Zuletzt erneuert" state={marketState} />
             <DataState
               state={marketState}
               onRetry={() => void loadMarketOverview()}
@@ -252,7 +252,7 @@ export default function DcaCalculatorPage() {
                 stale: {
                   title: "Letzter Referenzpreis bleibt sichtbar",
                   description:
-                    "Die Aktualisierung ist fehlgeschlagen. Der angezeigte Preis kann inzwischen veraltet sein.",
+                    "Die Aktualisierung ist fehlgeschlagen. Der angezeigte Preis kann inzwischen ueberholt sein.",
                 },
               }}
             >
@@ -262,7 +262,7 @@ export default function DcaCalculatorPage() {
         </div>
 
         <div className="tool-toolbar-actions">
-          <div className="range-switcher" role="tablist" aria-label="Tool-Wahrung">
+          <div className="range-switcher" role="tablist" aria-label="Werkzeugwaehrung">
             {(["usd", "eur"] as const).map((value) => (
               <button
                 key={value}
@@ -276,7 +276,7 @@ export default function DcaCalculatorPage() {
           </div>
 
           <button type="button" className="refresh-btn" onClick={() => void loadMarketOverview()}>
-            Preis aktualisieren
+            Preis erneuern
           </button>
         </div>
       </div>
@@ -325,7 +325,7 @@ export default function DcaCalculatorPage() {
           <p className="muted">So viel waere dein Bestand beim aktuellen Referenzpreis wert.</p>
         </article>
         <article className="card dca-summary-card">
-          <p className="label">Gewinn / Verlust</p>
+          <p className="label">Abweichung zum Einsatz</p>
           <h3 className={pnlValueClassName}>
             {formatCurrency(dcaView.summary.pnlAbsolute, currency)}
           </h3>
@@ -397,7 +397,7 @@ export default function DcaCalculatorPage() {
                 placeholder="z. B. Monatsrate Marz"
               />
               <small className="input-hint">
-                Hilfreich fuer Erinnerungen wie Sparplan, Bonuskauf oder Dip.
+                Hilfreich fuer Erinnerungen wie Sparplan, Sonderkauf oder Ruecksetzer.
               </small>
             </label>
 
@@ -427,14 +427,14 @@ export default function DcaCalculatorPage() {
               </h3>
               <p className="muted dca-history-copy">
                 {hasEntries
-                  ? `Du siehst hier deine lokal gespeicherte ${currency.toUpperCase()}-Reihe.`
+                  ? `Du siehst hier deine lokal gespeicherte ${currency.toUpperCase()}-Kaufreihe.`
                   : `Noch keine lokal gespeicherten Kauefe in ${currency.toUpperCase()}.`}
               </p>
             </div>
 
             <div className="dca-list-actions">
               <Link className="range-btn tool-back-link" href="/tools">
-                Zur Tool-Ubersicht
+                Zur Werkzeugseite
               </Link>
               <button
                 type="button"
@@ -442,7 +442,7 @@ export default function DcaCalculatorPage() {
                 onClick={handleClearEntries}
                 disabled={entries.length === 0}
               >
-                {currency.toUpperCase()}-Liste loeschen
+                {currency.toUpperCase()}-Reihe loeschen
               </button>
             </div>
           </div>
@@ -450,7 +450,7 @@ export default function DcaCalculatorPage() {
           {entries.length === 0 ? (
             <EmptyState
               className="dca-empty-state"
-              title={`Deine ${currency.toUpperCase()}-Liste ist noch leer`}
+              title={`Deine ${currency.toUpperCase()}-Kaufreihe ist noch leer`}
               description={`Sobald du den ersten Kauf eintraegst, zeigt dir der Rechner deinen Durchschnittspreis, deinen BTC-Bestand und den heutigen Vergleichswert.`}
               action={
                 <button
@@ -458,7 +458,7 @@ export default function DcaCalculatorPage() {
                   className="refresh-btn"
                   onClick={() => formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
                 >
-                  Ersten Kauf eintragen
+                  Ersten Kauf erfassen
                 </button>
               }
             />

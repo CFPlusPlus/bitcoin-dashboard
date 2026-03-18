@@ -15,9 +15,9 @@ export default function ToolsPage() {
   return (
     <Section space="lg">
       <SectionHeader
-        eyebrow="Tools"
-        title="Bitcoin-Werkzeuge mit klarem Auftrag"
-        description="Hier beginnt der Teil nach dem Ueberblick: rechnen, Eingaben pruefen und konkrete Bitcoin-Fragen sauber beantworten. Statt eines breiten Katalogs entsteht ein bewusst kleines Set an Werkzeugen, das fuer reale Entscheidungen nuetzlich bleibt."
+        eyebrow="Werkzeuge"
+        title="Werkzeuge, die wirklich helfen"
+        description="Weniger Auswahl, mehr Nutzen. Hier beginnen die Bitcoin-Werkzeuge, die du direkt verwenden kannst."
         action={
           <Link
             href={featuredTool.href}
@@ -29,7 +29,7 @@ export default function ToolsPage() {
               "no-underline"
             )}
           >
-            DCA-Rechner starten
+            DCA-Rechner öffnen
           </Link>
         }
       />
@@ -37,33 +37,33 @@ export default function ToolsPage() {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(19rem,0.8fr)]">
         <Card as="article" tone="muted" padding="lg">
           <SectionHeader
-            eyebrow="Wofuer dieser Bereich da ist"
-            title="Werkzeuge bekommen ihren eigenen Raum"
+            eyebrow="Klarer Fokus"
+            title="Weniger reden, mehr nutzen"
             titleAs="h2"
             titleSize="md"
-            description="Das Dashboard konzentriert sich auf Markt, Chart, Netzwerk und Sentiment. Im Tools-Bereich duerfen Eingaben, Szenarien und Rechenlogik mehr Platz einnehmen, ohne den Ueberblick unruhig zu machen."
+            description="Hier geht es nicht um mehr Inhalt, sondern um bessere Entscheidungen."
             className="gap-3 sm:flex-col sm:justify-start"
           />
 
           <div className="grid gap-3 md:grid-cols-3">
             <Card as="section" tone="default" padding="md" gap="sm">
-              <MetaText tone="strong">Fokussiert statt ueberladen</MetaText>
+              <MetaText tone="strong">Schnell erfassbar</MetaText>
               <MetaText>
-                Jedes Tool soll eine wiederkehrende Bitcoin-Aufgabe schnell und verstaendlich loesen.
+                Jedes Werkzeug löst eine klare Aufgabe ohne Umwege.
               </MetaText>
             </Card>
 
             <Card as="section" tone="default" padding="md" gap="sm">
-              <MetaText tone="strong">Praktisch im Alltag</MetaText>
+              <MetaText tone="strong">Direkt nützlich</MetaText>
               <MetaText>
-                Der Nutzen steht vor Feature-Menge: weniger Spielerei, mehr klare Hilfen fuer echte Entscheidungen.
+                Du sollst nach wenigen Sekunden wissen, was dir die Zahl bringt.
               </MetaText>
             </Card>
 
             <Card as="section" tone="default" padding="md" gap="sm">
-              <MetaText tone="strong">Ruhig erweiterbar</MetaText>
+              <MetaText tone="strong">Bewusst klein</MetaText>
               <MetaText>
-                Neue Werkzeuge kommen nur dazu, wenn sie dauerhaft in diesen engen Bitcoin-Rahmen passen.
+                Neue Tools kommen nur dazu, wenn sie wirklich fehlen.
               </MetaText>
             </Card>
           </div>
@@ -71,30 +71,28 @@ export default function ToolsPage() {
 
         <Card as="article" tone="accent" padding="lg">
           <SectionHeader
-            eyebrow="Erster vollstaendiger Baustein"
-            title="Der DCA-Rechner setzt den Standard"
+            eyebrow="Jetzt ausprobieren"
+            title="Der DCA-Rechner ist der Start"
             titleAs="h2"
             titleSize="md"
-            description="Er ist das erste komplett ausgearbeitete Tool in diesem Bereich: direkt nutzbar, klar erklaert und nah an einer typischen Bitcoin-Frage."
+            description="Trag deine Käufe ein und sieh sofort Einstand, Bestand und Abstand zum Marktpreis."
             className="gap-3 sm:flex-col sm:justify-start"
           />
 
           <Stack gap="sm">
             <MetaText tone="strong">
-              Wenn du wiederkehrende Kaeufe dokumentierst, zeigt dir der Rechner deinen Einstand, deinen Bestand und den Abstand zum aktuellen Marktpreis.
+              Ideal, wenn du regelmäßig sats stackst und wissen willst, wo du gerade stehst.
             </MetaText>
-            <MetaText>
-              Genau so sollen weitere Werkzeuge spaeter funktionieren: spezifisch, leicht verstaendlich und ohne Produktballast.
-            </MetaText>
+            <MetaText>Klar, schnell und ohne Ballast.</MetaText>
           </Stack>
         </Card>
       </div>
 
-      <Section space="md" aria-label="Verfuegbare Tools">
+      <Section space="md" aria-label="Verfügbare Werkzeuge">
         <SectionHeader
           eyebrow="Aktuell live"
-          title="Ein Werkzeug, klar positioniert"
-          description="Der Bereich ist klein, aber nicht vorlaeufig. Jedes vorhandene Tool soll einen echten Platz im Produkt haben und sofort sinnvoll nutzbar sein."
+          title="Ein Werkzeug, das schon jetzt nützt"
+          description="Der Bereich ist klein. Genau deshalb muss jedes Tool sitzen."
         />
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -111,21 +109,19 @@ export default function ToolsPage() {
 
           <Card as="article" tone="muted" padding="md">
             <SectionHeader
-              eyebrow="Naechster Ausbau"
-              title="Wachstum bleibt bewusst ruhig"
+              eyebrow="Nächster Ausbau"
+              title="Mehr kommt später"
               titleAs="h3"
               titleSize="md"
-              description="Die Tools-Seite soll mit der Zeit nuetzlicher werden, nicht nur lauter. Weitere Eintraege kommen nur dann, wenn sie eine klare Bitcoin-Aufgabe besser loesen als das Dashboard allein."
+              description="Neue Werkzeuge kommen erst, wenn sie einen echten Mehrwert bringen."
               className="gap-3 sm:flex-col sm:justify-start"
             />
 
             <Stack gap="sm" className="mt-auto">
               <MetaText tone="strong">
-                Das Ziel ist kein moeglichst grosses Verzeichnis, sondern ein kleines Arsenal verlaesslicher Bitcoin-Hilfen.
+                Kein Katalog. Ein kleines Set guter Bitcoin-Helfer.
               </MetaText>
-              <MetaText>
-                Solange diese Linie klar bleibt, wirkt auch ein frueher Werkzeugbestand absichtlich kuratiert statt unfertig.
-              </MetaText>
+              <MetaText>Lieber ein starkes Werkzeug als zehn halbe.</MetaText>
             </Stack>
           </Card>
         </div>

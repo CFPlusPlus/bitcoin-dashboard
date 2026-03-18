@@ -45,9 +45,7 @@ export default function ToolTeaserCard({
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <MetaText>
-            Eigenstaendiger Workspace fuer Eingaben, Ergebnisse und klare Bitcoin-spezifische Einordnung.
-          </MetaText>
+          <MetaText>Für schnelle Eingaben und klare Ergebnisse.</MetaText>
           <Link
             className={cn(
               buttonVariants({
@@ -58,7 +56,7 @@ export default function ToolTeaserCard({
             )}
             href={href}
           >
-            Rechner ansehen
+            Werkzeug öffnen
           </Link>
         </div>
       </Stack>

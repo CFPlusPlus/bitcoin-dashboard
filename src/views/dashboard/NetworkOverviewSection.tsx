@@ -30,7 +30,7 @@ export default function NetworkOverviewSection({
       <SectionHeader
         eyebrow="Netzwerk"
         title="Bitcoin im Netzwerk"
-        description="Hier folgen die tieferen Betriebsdaten fuer den naechsten Block und die aktuelle Fee-Lage im Netzwerk."
+        description="Block und Fees zeigen, wie entspannt oder voll das Netzwerk gerade ist."
         meta={<DataStateMeta state={networkState} />}
       />
 
@@ -48,27 +48,27 @@ export default function NetworkOverviewSection({
                 ? FALLBACK_TEXT
                 : formatNumber(network.latestBlockHeight)
             }
-            meta="Zuletzt beobachtete Blockhoehe im Bitcoin-Netzwerk."
-            valueFootnote="Eine steigende Blockhoehe bestaetigt, dass neue Bloecke regelmaessig gefunden werden."
+            meta="Zuletzt gesehene Blockhöhe."
+            valueFootnote="Steigt fortlaufend, wenn das Netzwerk sauber weiterläuft."
           />
 
           <MetricCard
-            label="Prioritaets-Fee"
+            label="Prioritäts-Fee"
             value={formatFee(network?.fees.fastestFee ?? null)}
-            meta="Empfohlene Gebuehr fuer die naechsten Bloecke."
-            valueFootnote="Geeignet, wenn eine Transaktion moeglichst schnell bestaetigt werden soll."
+            meta="Fee für schnelle Bestätigung."
+            valueFootnote="Sinnvoll, wenn es möglichst bald durchgehen soll."
           />
           <MetricCard
             label="Fee in ca. 30 Minuten"
             value={formatFee(network?.fees.halfHourFee ?? null)}
-            meta="Richtwert fuer eine mittlere Bestaetigungszeit."
-            valueFootnote="Hilfreich fuer Zahlungen, die zeitnah ankommen sollen, aber nicht maximal dringend sind."
+            meta="Fee mit etwas Zeitpuffer."
+            valueFootnote="Gut für Zahlungen, die bald ankommen sollen."
           />
           <MetricCard
             label="Fee in ca. 60 Minuten"
             value={formatFee(network?.fees.hourFee ?? null)}
-            meta="Niedrigere Gebuehr mit laengerem Zeitpuffer."
-            valueFootnote="Kann sinnvoll sein, wenn Kosten wichtiger sind als die schnellste Bestaetigung."
+            meta="Niedrigere Fee mit mehr Geduld."
+            valueFootnote="Praktisch, wenn Kosten vor Tempo gehen."
           />
         </div>
       </DataState>

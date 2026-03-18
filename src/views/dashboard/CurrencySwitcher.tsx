@@ -11,7 +11,7 @@ export default function CurrencySwitcher({
   onChange,
 }: CurrencySwitcherProps) {
   return (
-    <div className="flex flex-wrap gap-2" role="tablist" aria-label="Währung">
+    <div className="flex flex-wrap gap-2" role="tablist" aria-label="Waehrung waehlen">
       {(["usd", "eur"] as const).map((value) => (
         <Button
           key={value}

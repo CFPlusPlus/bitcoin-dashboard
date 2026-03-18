@@ -30,8 +30,8 @@ export default function MarketContextSection({
     <Card as="section" tone="default" padding="md" className="h-full gap-4 border-border-default/80">
       <SectionHeader
         eyebrow="Marktkontext"
-        title="Marktgroesse im Blick"
-        description="Market Cap und 24h-Volumen geben dem aktuellen Preis mehr Gewicht, ohne den schnellen Ueberblick zu ueberladen."
+        title="Marktgröße im Blick"
+        description="Zwei Zahlen, die zeigen, wie groß und aktiv der Markt gerade ist."
         meta={<DataStateMeta state={overviewState} />}
       />
 
@@ -45,14 +45,14 @@ export default function MarketContextSection({
           <MetricCard
             label={`Marktkapitalisierung (${currencyLabel})`}
             value={formatCurrency(marketCap, currency)}
-            meta="Gesamtwert aller umlaufenden BTC zum aktuellen Marktpreis."
-            valueFootnote="Hilft einzuordnen, wie gross Bitcoin im Vergleich zu anderen Maerkten gerade ist."
+            meta="Wert aller umlaufenden BTC."
+            valueFootnote="Zeigt die Größe des Bitcoin-Markts."
           />
           <MetricCard
             label={`24h Volumen (${currencyLabel})`}
             value={formatCurrency(volume24h, currency)}
-            meta="Geschatztes Handelsvolumen der vergangenen 24 Stunden."
-            valueFootnote="Hoeheres Volumen spricht meist fuer mehr Marktaktivitaet und belastbarere Preisbewegungen."
+            meta="Geschätztes Handelsvolumen der letzten 24 Stunden."
+            valueFootnote="Mehr Volumen heißt meist mehr echte Marktaktivität."
           />
         </div>
       </DataState>

@@ -8,7 +8,7 @@ type RefreshStatusProps = {
 
 function getStatusCopy(state: AsyncDataState<{ lastRefreshAt: string }>) {
   if (!state.hasUsableData && state.isLoading) {
-    return "Der erste Abruf laeuft. Bestehende Bereiche werden befuellt, sobald Daten vorliegen.";
+    return "Der erste Abruf laeuft. Die Bereiche fuellen sich, sobald die ersten Daten vorliegen.";
   }
 
   if (state.isStale) {
@@ -16,14 +16,14 @@ function getStatusCopy(state: AsyncDataState<{ lastRefreshAt: string }>) {
   }
 
   if (state.isPartial) {
-    return "Einzelne Bereiche liefern gerade unvollstaendige Werte. Die restlichen Daten bleiben nutzbar.";
+    return "Einzelne Bereiche liefern gerade unvollstaendige Werte. Der Rest bleibt weiter nutzbar.";
   }
 
   if (state.isRefreshing) {
-    return "Bestehende Inhalte bleiben waehrend der Aktualisierung sichtbar.";
+    return "Die aktuelle Ansicht bleibt waehrend der Aktualisierung sichtbar.";
   }
 
-  return "Einstellungen werden lokal gespeichert.";
+  return "Deine Einstellungen bleiben auf diesem Geraet gespeichert.";
 }
 
 export default function RefreshStatus({
@@ -33,10 +33,10 @@ export default function RefreshStatus({
   return (
     <div className="flex flex-col items-start gap-2">
       <div className="flex flex-wrap items-center gap-2 text-sm text-fg-secondary">
-        <span className="font-medium text-fg-muted">Auto-Aktualisierung:</span>
+        <span className="font-medium text-fg-muted">Aktualisierung:</span>
         <span>{autoRefresh ? "alle 60 Sekunden" : "pausiert"}</span>
       </div>
-      <DataStateMeta lastUpdatedLabel="Zuletzt erfolgreich" state={dashboardState} />
+      <DataStateMeta lastUpdatedLabel="Zuletzt erneuert" state={dashboardState} />
       <p className="text-sm text-fg-muted">{getStatusCopy(dashboardState)}</p>
     </div>
   );

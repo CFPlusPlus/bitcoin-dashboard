@@ -79,7 +79,7 @@ export default function MarketOverviewSection({
           stale: {
             title: "Letzte Marktdaten bleiben sichtbar",
             description:
-              "Die letzte Aktualisierung ist fehlgeschlagen. Die angezeigten Werte koennen inzwischen veraltet sein.",
+              "Die letzte Aktualisierung ist fehlgeschlagen. Die angezeigten Werte koennen inzwischen ueberholt sein.",
           },
         }}
       >

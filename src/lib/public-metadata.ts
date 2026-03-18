@@ -12,14 +12,14 @@ export const homePageMetadata = {
 
 export const toolsPageMetadata = {
   path: "/tools",
-  title: "Bitcoin-Tools fuer DCA, Einstand und Entscheidungen",
+  title: "Bitcoin-Werkzeuge fuer DCA, Einstand und Entscheidungen",
   description:
-    "Bitcoin-Tools fuer konkrete Entscheidungen. Den Anfang macht ein DCA-Rechner, der Einstand, Bestand und den Abstand zum aktuellen Marktpreis verstaendlich zeigt.",
-  schemaName: "Bitcoin-Tools",
-  socialEyebrow: "Tools",
-  socialTitle: "Bitcoin-Tools",
+    "Bitcoin-Werkzeuge fuer konkrete Entscheidungen. Den Anfang macht ein DCA-Rechner, der Einstand, Bestand und den Abstand zum aktuellen Marktpreis verstaendlich zeigt.",
+  schemaName: "Bitcoin-Werkzeuge",
+  socialEyebrow: "Werkzeuge",
+  socialTitle: "Bitcoin-Werkzeuge",
   socialSummary:
-    "Fokussierte Bitcoin-Werkzeuge fuer Einstand, Bestand und klare Entscheidungen statt ueberladener Tool-Sammlungen.",
+    "Fokussierte Bitcoin-Werkzeuge fuer Einstand, Bestand und klare Entscheidungen statt ueberladener Werkzeug-Sammlungen.",
 } as const;
 
 export const dcaCalculatorMetadata = {
@@ -28,7 +28,7 @@ export const dcaCalculatorMetadata = {
   description:
     "Bitcoin DCA-Rechner zum Erfassen einzelner Kaeufe. Berechne Durchschnittskaufpreis, Bestand und den Vergleich zum aktuellen BTC-Marktpreis.",
   schemaName: "Bitcoin DCA-Rechner",
-  socialEyebrow: "Tool",
+  socialEyebrow: "Werkzeug",
   socialTitle: "Bitcoin DCA-Rechner",
   socialSummary:
     "Bitcoin-Kaeufe erfassen, Durchschnittskaufpreis berechnen und den eigenen Einstand mit dem aktuellen Marktpreis vergleichen.",

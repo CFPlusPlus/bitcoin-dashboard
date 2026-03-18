@@ -33,7 +33,7 @@ const SECTION_STATE_COPY: Record<DashboardSectionKey, SectionStateCopy> = {
   overview: {
     loading: {
       title: "Marktdaten werden geladen",
-      description: "Preis, 24h-Veraenderung und Handelsspanne werden vorbereitet.",
+      description: "Preis, 24h-Bewegung und Handelsspanne werden vorbereitet.",
     },
     empty: {
       title: "Keine Marktdaten verfuegbar",
@@ -52,7 +52,7 @@ const SECTION_STATE_COPY: Record<DashboardSectionKey, SectionStateCopy> = {
     stale: {
       title: "Letzte Marktdaten bleiben sichtbar",
       description:
-        "Die letzte Aktualisierung ist fehlgeschlagen. Die angezeigten Werte koennen inzwischen veraltet sein.",
+        "Die letzte Aktualisierung ist fehlgeschlagen. Die angezeigten Werte koennen inzwischen ueberholt sein.",
     },
   },
   chart: {
@@ -78,7 +78,7 @@ const SECTION_STATE_COPY: Record<DashboardSectionKey, SectionStateCopy> = {
     stale: {
       title: "Letzter Chart bleibt sichtbar",
       description:
-        "Der Chart konnte nicht neu geladen werden. Der letzte nutzbare Verlauf bleibt sichtbar, bis wieder frische Kursdaten verfuegbar sind.",
+        "Der Chart konnte nicht neu geladen werden. Der letzte nutzbare Verlauf bleibt sichtbar, bis wieder neue Kursdaten vorliegen.",
     },
   },
   marketContext: {
@@ -102,7 +102,7 @@ const SECTION_STATE_COPY: Record<DashboardSectionKey, SectionStateCopy> = {
     stale: {
       title: "Letzter Marktkontext bleibt sichtbar",
       description:
-        "Die Aktualisierung ist fehlgeschlagen. Die angezeigten Kennzahlen koennen inzwischen veraltet sein.",
+        "Die Aktualisierung ist fehlgeschlagen. Die angezeigten Kennzahlen koennen inzwischen ueberholt sein.",
     },
   },
   network: {
@@ -127,7 +127,7 @@ const SECTION_STATE_COPY: Record<DashboardSectionKey, SectionStateCopy> = {
     stale: {
       title: "Letzte Netzwerkdaten bleiben sichtbar",
       description:
-        "Die Aktualisierung hat nicht alle Werte erneuert. Die angezeigten Angaben koennen inzwischen veraltet sein.",
+        "Die Aktualisierung hat nicht alle Werte erneuert. Die angezeigten Angaben koennen inzwischen ueberholt sein.",
     },
   },
   sentiment: {
@@ -150,7 +150,7 @@ const SECTION_STATE_COPY: Record<DashboardSectionKey, SectionStateCopy> = {
     stale: {
       title: "Letztes Sentiment bleibt sichtbar",
       description:
-        "Es konnte kein neuer Indexstand geladen werden. Die Anzeige kann inzwischen veraltet sein.",
+        "Es konnte kein neuer Indexstand geladen werden. Die Anzeige kann inzwischen ueberholt sein.",
     },
   },
   metadata: {
@@ -172,7 +172,7 @@ const SECTION_STATE_COPY: Record<DashboardSectionKey, SectionStateCopy> = {
     },
     stale: {
       title: "Letzte Quellenhinweise bleiben sichtbar",
-      description: "Die angezeigten Zeitstempel und Quellen koennen inzwischen veraltet sein.",
+      description: "Die angezeigten Zeitstempel und Quellen koennen inzwischen ueberholt sein.",
     },
   },
 };
@@ -204,7 +204,7 @@ export function sanitizeDashboardErrorMessage(
   const normalized = toLowerText(trimmed);
 
   if (normalized.includes("netzwerkfehler")) {
-    return "Die Verbindung zum Datendienst ist gerade instabil. Bitte in einem Moment erneut laden.";
+    return "Die Verbindung zum Datendienst ist gerade instabil. Bitte gleich erneut laden.";
   }
 
   if (normalized.includes("timeout")) {
@@ -212,7 +212,7 @@ export function sanitizeDashboardErrorMessage(
   }
 
   if (normalized.includes("leere antwort")) {
-    return "Der Datendienst liefert im Moment noch keine neuen Angaben.";
+    return "Der Datendienst liefert im Moment noch keine verwertbaren Angaben.";
   }
 
   if (
@@ -258,15 +258,15 @@ export function normalizeDashboardWarningMessage(warning: string) {
   }
 
   if (normalized.includes("usd-marktdaten")) {
-    return "USD-Marktdaten sind gerade verzoegert. Verfuegbare Werte bleiben sichtbar.";
+    return "USD-Marktdaten kommen gerade verzoegert an. Vorhandene Werte bleiben sichtbar.";
   }
 
   if (normalized.includes("eur-marktdaten")) {
-    return "EUR-Marktdaten sind gerade verzoegert. Verfuegbare Werte bleiben sichtbar.";
+    return "EUR-Marktdaten kommen gerade verzoegert an. Vorhandene Werte bleiben sichtbar.";
   }
 
   if (normalized.includes("fee-daten")) {
-    return "Fee-Schaetzungen werden gerade nicht vollstaendig aktualisiert. Vorhandene Werte bleiben sichtbar.";
+    return "Fee-Schaetzungen werden gerade nicht vollstaendig erneuert. Vorhandene Werte bleiben sichtbar.";
   }
 
   if (normalized.includes("blockh")) {
@@ -278,7 +278,7 @@ export function normalizeDashboardWarningMessage(warning: string) {
   }
 
   if (normalized.includes("sentiment-update")) {
-    return "Die Zeit bis zum naechsten Sentiment-Update ist gerade nicht verfuegbar.";
+    return "Die Zeit bis zur naechsten Sentiment-Aktualisierung ist gerade nicht verfuegbar.";
   }
 
   const prefix = trimmed.split(":")[0]?.trim();
