@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
+import SiteFooter from "../../components/SiteFooter";
 import SiteNavigation from "../../components/SiteNavigation";
 import StructuredData from "../../components/StructuredData";
 import PageContainer from "../../components/ui/layout/PageContainer";
@@ -53,7 +54,7 @@ export default async function LocaleLayout({
       <StructuredData
         data={serializeJsonLd(createWebsiteSchema({ locale, description: messages.metadata.defaultDescription }))}
       />
-      <main className="min-h-screen py-0">
+      <main className="flex min-h-screen flex-col py-0">
         <header className="w-full border-b border-border-default/80 bg-surface">
           <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
             <div className="flex min-w-0 items-center gap-3">
@@ -69,9 +70,11 @@ export default async function LocaleLayout({
           </div>
         </header>
 
-        <PageContainer className="flex flex-col gap-5 py-4 sm:py-5">
+        <PageContainer className="flex flex-1 flex-col gap-5 py-4 sm:py-5">
           {children}
         </PageContainer>
+
+        <SiteFooter locale={locale} messages={messages.site} />
       </main>
     </I18nProvider>
   );

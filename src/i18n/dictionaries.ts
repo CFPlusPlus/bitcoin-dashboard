@@ -6,6 +6,17 @@ export const dictionaries = {
       name: "Bitcoin Dashboard",
       tagline: "Bitcoin in ruhigerem Fokus",
       languageSwitchLabel: "Sprache wechseln",
+      footer: {
+        description:
+          "Ein ruhiger Bitcoin-Blick auf Markt, Netzwerk, Sentiment und fokussierte Werkzeuge.",
+        navigation: "Navigation",
+        legal: "Rechtliches",
+        dashboard: "Zum Dashboard",
+        tools: "Zu den Werkzeugen",
+        imprint: "Impressum",
+        privacy: "Datenschutz",
+        version: "Version",
+      },
     },
     nav: {
       ariaLabel: "Hauptnavigation",
@@ -66,6 +77,18 @@ export const dictionaries = {
         socialTitle: "Bitcoin DCA-Rechner",
         socialSummary:
           "Bitcoin-Käufe erfassen, Durchschnittskaufpreis berechnen und den eigenen Einstand mit dem aktuellen Marktpreis vergleichen.",
+      },
+      imprint: {
+        path: "/impressum",
+        title: "Impressum",
+        description: "Vorbereitete Platzhalterseite fuer das Impressum des Bitcoin Dashboards.",
+        schemaName: "Impressum",
+      },
+      privacy: {
+        path: "/datenschutz",
+        title: "Datenschutz",
+        description: "Vorbereitete Platzhalterseite fuer die Datenschutzhinweise des Bitcoin Dashboards.",
+        schemaName: "Datenschutz",
       },
     },
     tools: {
@@ -454,12 +477,43 @@ export const dictionaries = {
       networkError: "Netzwerkfehler. Bitte später erneut versuchen.",
       emptyResponse: "Leere Antwort vom Server erhalten.",
     },
+    legal: {
+      imprint: {
+        eyebrow: "Rechtliches",
+        title: "Impressum",
+        description:
+          "Diese Seite ist als Platzhalter vorbereitet. Die finalen Anbieterangaben und Kontaktdaten werden hier ergaenzt.",
+        bodyTitle: "In Vorbereitung",
+        body:
+          "Hier entsteht das vollstaendige Impressum fuer das Bitcoin Dashboard. Bis zur finalen Veroeffentlichung dient diese Seite als strukturierter Platzhalter.",
+      },
+      privacy: {
+        eyebrow: "Rechtliches",
+        title: "Datenschutz",
+        description:
+          "Diese Seite ist als Platzhalter vorbereitet. Die finalen Datenschutzhinweise und Informationen zur Datenverarbeitung werden hier ergaenzt.",
+        bodyTitle: "In Vorbereitung",
+        body:
+          "Hier entstehen die Datenschutzhinweise fuer das Bitcoin Dashboard. Bis zur finalen Ausarbeitung dient diese Seite als strukturierter Platzhalter.",
+      },
+    },
   },
   en: {
     site: {
       name: "Bitcoin Dashboard",
       tagline: "Bitcoin with calmer focus",
       languageSwitchLabel: "Switch language",
+      footer: {
+        description:
+          "A calmer Bitcoin view of market, network, sentiment, and focused tools.",
+        navigation: "Navigation",
+        legal: "Legal",
+        dashboard: "Go to dashboard",
+        tools: "Go to tools",
+        imprint: "Imprint",
+        privacy: "Privacy",
+        version: "Version",
+      },
     },
     nav: {
       ariaLabel: "Main navigation",
@@ -520,6 +574,18 @@ export const dictionaries = {
         socialTitle: "Bitcoin DCA Calculator",
         socialSummary:
           "Track Bitcoin buys, calculate average buy price, and compare your entry with the current market price.",
+      },
+      imprint: {
+        path: "/impressum",
+        title: "Imprint",
+        description: "Prepared placeholder page for the Bitcoin Dashboard imprint.",
+        schemaName: "Imprint",
+      },
+      privacy: {
+        path: "/datenschutz",
+        title: "Privacy",
+        description: "Prepared placeholder page for the Bitcoin Dashboard privacy notice.",
+        schemaName: "Privacy",
       },
     },
     tools: {
@@ -900,6 +966,26 @@ export const dictionaries = {
       requestFailed: "Request failed ({status}).",
       networkError: "Network error. Please try again later.",
       emptyResponse: "Received an empty response from the server.",
+    },
+    legal: {
+      imprint: {
+        eyebrow: "Legal",
+        title: "Imprint",
+        description:
+          "This page is prepared as a placeholder. Final provider details and contact information will be added here.",
+        bodyTitle: "In progress",
+        body:
+          "The full imprint for Bitcoin Dashboard will live here. Until the final version is published, this page serves as a structured placeholder.",
+      },
+      privacy: {
+        eyebrow: "Legal",
+        title: "Privacy",
+        description:
+          "This page is prepared as a placeholder. Final privacy details and information about data processing will be added here.",
+        bodyTitle: "In progress",
+        body:
+          "The privacy notice for Bitcoin Dashboard will live here. Until the final version is published, this page serves as a structured placeholder.",
+      },
     },
   },
 } as const;
