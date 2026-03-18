@@ -30,8 +30,8 @@ export default function MarketContextSection({
     <Card as="section" tone="default" padding="md" className="h-full gap-4 border-border-default/80">
       <SectionHeader
         eyebrow="Marktkontext"
-        title="Groessere Marktgroesse"
-        description="Market Cap und 24h-Volumen ordnen den aktuellen Preis ein, bleiben aber klar nach dem Ueberblick und dem Chart."
+        title="Marktgroesse im Blick"
+        description="Market Cap und 24h-Volumen geben dem aktuellen Preis mehr Gewicht, ohne den schnellen Ueberblick zu ueberladen."
         meta={<DataStateMeta state={overviewState} />}
       />
 

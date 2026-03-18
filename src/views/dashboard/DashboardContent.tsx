@@ -76,9 +76,9 @@ export default function DashboardContent({
 
       <Section as="section" aria-label="Marktkontext und Sentiment" space="md">
         <SectionHeader
-          eyebrow="Sekundaerer Kontext"
-          title="Stimmung und Marktgroesse"
-          description="Nach Preis und Chart folgen die kompakten Signale, die das Marktbild schneller einordnen helfen."
+          eyebrow="Marktumfeld"
+          title="Was den Preis gerade einordnet"
+          description="Nach dem Chart folgen die kompakten Signale fuer Marktgroesse und Stimmung, bevor es in die tieferen Netzwerkdaten geht."
         />
 
         <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">

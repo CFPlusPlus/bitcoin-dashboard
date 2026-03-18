@@ -45,9 +45,9 @@ export default function OverviewSection({
       className="overflow-hidden"
     >
       <SectionHeader
-        eyebrow="Primarer Ueberblick"
+        eyebrow="Marktueberblick"
         title="Bitcoin jetzt"
-        description="Die Startseite beginnt mit dem aktuellen BTC-Preis, der Richtung der letzten 24 Stunden und nur so viel Zusatzkontext wie fuer eine schnelle Einordnung noetig ist."
+        description="Der aktuelle BTC-Preis und die 24h-Bewegung stehen bewusst zuerst, damit Richtung und Niveau sofort klar sind."
         meta={<DataStateMeta state={overviewState} />}
       />
 
@@ -72,15 +72,14 @@ export default function OverviewSection({
             <div className="grid gap-4 border-t border-border-subtle pt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
               <Stack gap="xs" className="max-w-xl">
                 <MetaText tone="strong">
-                  Die Preiszone bleibt bewusst ruhig und fokussiert, damit Richtung und Niveau
-                  sofort lesbar sind.
+                  Die Kernzahlen bleiben knapp gehalten, damit der Blick zuerst bei Preis und Tagesrichtung ankommt.
                 </MetaText>
                 <MetaText>
                   Marktdaten zuletzt aktualisiert: {formatDateTime(overview?.lastUpdatedAt ?? null)}
                 </MetaText>
               </Stack>
               <div className="border border-accent/40 bg-accent-soft px-3 py-2">
-                <p className="font-serif text-base leading-none tracking-[-0.03em] text-accent">Spot</p>
+                <p className="font-serif text-base leading-none tracking-[-0.03em] text-accent">BTC Spot</p>
               </div>
             </div>
           </div>
@@ -90,13 +89,13 @@ export default function OverviewSection({
               {
                 label: `24h Hoch (${currencyLabel})`,
                 text: formatCurrency(high24h, currency),
-                meta: "Oberes Ende der aktuellen Tagesspanne.",
+                meta: "Das bisherige Hoch der laufenden 24 Stunden.",
                 tone: "border-accent/30 bg-accent-soft",
               },
               {
                 label: `24h Tief (${currencyLabel})`,
                 text: formatCurrency(low24h, currency),
-                meta: "Unteres Ende der aktuellen Tagesspanne.",
+                meta: "Das bisherige Tief der laufenden 24 Stunden.",
                 tone: "border-border-subtle bg-surface",
               },
             ].map((item) => (

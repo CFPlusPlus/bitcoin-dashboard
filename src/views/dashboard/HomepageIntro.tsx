@@ -48,9 +48,8 @@ export default function HomepageIntro({
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_14rem]">
               <Stack gap="md" className="max-w-2xl">
                 <p className="text-sm leading-7 text-fg-secondary">
-                  Preis, Verlauf, Sentiment und Netzwerkdaten folgen weiterhin eurer V1-Prioritaet:
-                  zuerst Orientierung, dann Exploration, dann tieferer Kontext. Der neue Look
-                  macht diese Reihenfolge sichtbarer.
+                  Die Startseite ordnet Bitcoin in wenigen Sekunden ein: erst Preis und Richtung,
+                  dann der Verlauf, danach Marktstimmung, Netzwerkdaten und der Weg zu den Tools.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Link
@@ -63,7 +62,7 @@ export default function HomepageIntro({
                       "no-underline"
                     )}
                   >
-                    Zum Hauptchart
+                    Zum Chart
                   </Link>
                   <Link
                     href="/tools"
@@ -75,7 +74,7 @@ export default function HomepageIntro({
                       "no-underline"
                     )}
                   >
-                    Tools ansehen
+                    Zu den Tools
                   </Link>
                 </div>
               </Stack>
@@ -83,18 +82,18 @@ export default function HomepageIntro({
               <div className="grid gap-2 xl:border-l xl:border-border-subtle xl:pl-4">
                 <div className="border border-border-subtle bg-muted-surface px-3 py-3">
                   <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-fg-muted">
-                    Fokus
+                    Im Fokus
                   </p>
                   <p className="mt-2 text-sm leading-6 text-fg-secondary">
-                    Schnell lesbar, ernsthaft, weniger Template-Charakter.
+                    Schnelle Orientierung ohne Trading-Overload.
                   </p>
                 </div>
                 <div className="border border-accent/40 bg-accent-soft px-3 py-3">
                   <p className="font-serif text-base leading-none tracking-[-0.03em] text-accent">
-                    Quellen
+                    Datenquellen
                   </p>
                   <p className="mt-2 text-sm leading-6 text-fg-secondary">
-                    CoinGecko, mempool.space und Alternative.me.
+                    CoinGecko fuer Markt und Chart, mempool.space fuer das Netzwerk, Alternative.me fuer Fear & Greed.
                   </p>
                 </div>
               </div>

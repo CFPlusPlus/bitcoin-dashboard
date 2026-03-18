@@ -54,8 +54,8 @@ export default function SentimentSection({
     <Card as="section" tone="muted" padding="md" className="h-full gap-4 border-border-default/80">
       <SectionHeader
         eyebrow="Sentiment"
-        title="Fear &amp; Greed"
-        description="Ein kompakter Signalblock fuer Marktstimmung, der schnell erfassbar bleibt und sich klar hinter Preis und Chart einordnet."
+        title="Marktstimmung"
+        description="Der Fear-&-Greed-Index liefert eine schnelle Stimmungsprobe, nachdem Preis und Verlauf bereits eingeordnet sind."
         meta={<DataStateMeta state={sentimentState} />}
       />
 
@@ -69,9 +69,9 @@ export default function SentimentSection({
           <div className="flex flex-col gap-4 border border-border-subtle bg-surface px-3 py-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <KpiValue
-                label="Indexstand"
+                label="Fear & Greed Index"
                 value={sentimentValue}
-                meta="Fear & Greed Index"
+                meta="Stimmungswert fuer den Gesamtmarkt"
                 size="lg"
                 tone={sentimentUi.tone}
               />

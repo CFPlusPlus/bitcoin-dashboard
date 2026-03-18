@@ -16,8 +16,8 @@ export default function ToolsPreviewSection() {
     <Section as="section" aria-label="Tools Vorschau" space="md">
       <SectionHeader
         eyebrow="Tools"
-        title="Hilfswerkzeuge in Reichweite"
-        description="Die Homepage bleibt eine Informationsflaeche. Werkzeuge sind erreichbar, ohne den Bitcoin-Ueberblick zu uebernehmen."
+        title="Werkzeuge fuer den naechsten Schritt"
+        description="Wenn der Ueberblick steht, fuehren die Tools von der Beobachtung in praktische Bitcoin-Rechner und Hilfen."
         action={
           <Link
             href="/tools"
@@ -29,7 +29,7 @@ export default function ToolsPreviewSection() {
               "no-underline"
             )}
           >
-            Alle Tools
+            Tool-Uebersicht
           </Link>
         }
       />
@@ -37,18 +37,17 @@ export default function ToolsPreviewSection() {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(18rem,1.15fr)]">
         <Card as="article" tone="muted" padding="md" className="justify-between">
           <SectionHeader
-            eyebrow="Einordnung"
-            title="Vom Lesen zum Rechnen"
+            eyebrow="Weiterfuehrend"
+            title="Vom Ueberblick zum Werkzeug"
             titleAs="h3"
             titleSize="md"
-            description="Wenn der Marktueberblick steht, fuehren die Tools in einen eigenen Bereich mit mehr Raum fuer Interaktion und Eingaben."
+            description="Die Startseite bleibt bewusst ruhig. Rechnen, Planen und weitere Eingaben liegen im separaten Tools-Bereich."
             className="gap-3 sm:flex-col sm:justify-start"
           />
 
           <Stack gap="md">
             <MetaText tone="strong">
-              Der DCA-Rechner ist direkt erreichbar, bleibt auf der Startseite aber bewusst nur
-              ein naechster Schritt.
+              Der DCA-Rechner ist direkt erreichbar und bleibt zugleich klar nachrangig hinter Preis, Chart und Kontext.
             </MetaText>
             <div className="border-t border-border-subtle pt-4">
               <div className="flex flex-wrap gap-3">
@@ -62,7 +61,7 @@ export default function ToolsPreviewSection() {
                     "no-underline"
                   )}
                 >
-                  DCA-Rechner oeffnen
+                  DCA-Rechner
                 </Link>
                 <Link
                   href="/tools"
@@ -74,7 +73,7 @@ export default function ToolsPreviewSection() {
                     "no-underline"
                   )}
                 >
-                  Zur Tool-Uebersicht
+                  Alle Tools
                 </Link>
               </div>
             </div>

@@ -40,7 +40,7 @@ export default function ChartSection({
       <SectionHeader
         eyebrow="Preisverlauf"
         title={`BTC Preisverlauf (${currency.toUpperCase()})`}
-        description="Der Chart ist die primaere Explorationsflaeche direkt nach dem Ueberblick und bleibt auch mobil ruhig und gut lesbar."
+        description="Direkt nach dem Ueberblick zeigt der Chart, wie sich Bitcoin ueber den gewaehlten Zeitraum bewegt hat."
         meta={<DataStateMeta state={chartState} />}
         action={
           <Cluster role="tablist" aria-label="Zeitraum" gap="sm">

@@ -28,9 +28,9 @@ export default function NetworkOverviewSection({
   return (
     <Card as="section" tone="muted" padding="md" className="gap-4 border-border-default/80">
       <SectionHeader
-        eyebrow="Netzwerk und Blockchain"
-        title="Tieferer technischer Kontext"
-        description="Blockhoehe und aktuelle Fee-Schaetzungen bleiben erreichbar, treten aber bewusst hinter Marktueberblick, Chart und Stimmung zurueck."
+        eyebrow="Netzwerk"
+        title="Bitcoin im Netzwerk"
+        description="Hier folgen die tieferen Betriebsdaten fuer den naechsten Block und die aktuelle Fee-Lage im Netzwerk."
         meta={<DataStateMeta state={networkState} />}
       />
 
@@ -42,7 +42,7 @@ export default function NetworkOverviewSection({
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <MetricCard
-            label="Letzte Blockhohe"
+            label="Neuester Block"
             value={
               network?.latestBlockHeight === null || network?.latestBlockHeight === undefined
                 ? FALLBACK_TEXT
@@ -50,9 +50,18 @@ export default function NetworkOverviewSection({
             }
           />
 
-          <MetricCard label="Fastest Fee" value={formatFee(network?.fees.fastestFee ?? null)} />
-          <MetricCard label="Half Hour Fee" value={formatFee(network?.fees.halfHourFee ?? null)} />
-          <MetricCard label="Hour Fee" value={formatFee(network?.fees.hourFee ?? null)} />
+          <MetricCard
+            label="Schnelle Bestaetigung"
+            value={formatFee(network?.fees.fastestFee ?? null)}
+          />
+          <MetricCard
+            label="Etwa 30 Minuten"
+            value={formatFee(network?.fees.halfHourFee ?? null)}
+          />
+          <MetricCard
+            label="Etwa 60 Minuten"
+            value={formatFee(network?.fees.hourFee ?? null)}
+          />
         </div>
       </DataState>
     </Card>
