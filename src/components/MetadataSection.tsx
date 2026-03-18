@@ -1,11 +1,15 @@
+"use client";
+
 import type { AsyncDataState } from "../lib/data-state";
-import { getDashboardSectionStateMessages } from "../lib/dashboard-state-copy";
-import { FALLBACK_TEXT, formatDateTime } from "../lib/format";
 import type { ChartData, Currency, Network, Overview, Sentiment } from "../types/dashboard";
+import { getDashboardSectionStateMessages } from "../lib/dashboard-state-copy";
+import { formatDateTime } from "../lib/format";
+import { formatMessage } from "../i18n/template";
+import { useI18n } from "../i18n/context";
 import Card from "./ui/Card";
+import MetaText from "./ui/content/MetaText";
 import DataState from "./ui/data-state/DataState";
 import DataStateMeta from "./ui/data-state/DataStateMeta";
-import MetaText from "./ui/content/MetaText";
 import SectionHeader from "./ui/layout/SectionHeader";
 import Stack from "./ui/layout/Stack";
 
@@ -19,23 +23,13 @@ type MetadataSectionProps = {
   sentiment: Sentiment | null;
 };
 
-type MetadataItemProps = {
-  label: string;
-  value: string;
-};
-
-function MetadataItem({ label, value }: MetadataItemProps) {
+function MetadataItem({ label, value }: { label: string; value: string }) {
   return (
     <Stack gap="xs">
       <MetaText size="xs">{label}</MetaText>
       <p className="text-sm text-fg-secondary">{value}</p>
     </Stack>
   );
-}
-
-function getMetadataValue(value: string | null | undefined) {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed : FALLBACK_TEXT;
 }
 
 export default function MetadataSection({
@@ -47,17 +41,21 @@ export default function MetadataSection({
   overview,
   sentiment,
 }: MetadataSectionProps) {
-  const stateMessages = getDashboardSectionStateMessages("metadata", dashboardState.error);
+  const { locale, messages } = useI18n();
+  const copy = messages.dashboard.metadata;
+  const stateMessages = getDashboardSectionStateMessages("metadata", dashboardState.error, locale);
+  const fallback = messages.common.unavailable;
+  const getMetadataValue = (value: string | null | undefined) => value?.trim() || fallback;
 
   return (
     <Card as="section" tone="muted" gap="lg">
       <SectionHeader
-        eyebrow="Quellen und Zeitstempel"
-        title="Quellen und Aktualisierung"
+        eyebrow={copy.eyebrow}
+        title={copy.title}
         titleAs="h3"
         titleSize="md"
-        description={`Aktive Währung: ${currency.toUpperCase()}. Kompakt, damit Quelle und letzter Stand schnell sichtbar bleiben.`}
-        meta={<DataStateMeta lastUpdatedLabel="Zuletzt erneuert" state={dashboardState} />}
+        description={formatMessage(copy.description, { currency: currency.toUpperCase() })}
+        meta={<DataStateMeta lastUpdatedLabel={messages.common.lastUpdated} state={dashboardState} />}
       />
 
       <DataState
@@ -67,26 +65,14 @@ export default function MetadataSection({
         messages={stateMessages}
       >
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <MetadataItem label="Quelle Marktdaten" value={getMetadataValue(overview?.source)} />
-          <MetadataItem label="Quelle Netzwerk" value={getMetadataValue(network?.source)} />
-          <MetadataItem label="Quelle Sentiment" value={getMetadataValue(sentiment?.source)} />
-          <MetadataItem label="Quelle Chart" value={getMetadataValue(chart?.source)} />
-          <MetadataItem
-            label="Letzte Anbieter-Aktualisierung Markt"
-            value={formatDateTime(overview?.lastUpdatedAt ?? null)}
-          />
-          <MetadataItem
-            label="Letzte Aktualisierung Netzwerk"
-            value={formatDateTime(network?.fetchedAt ?? null)}
-          />
-          <MetadataItem
-            label="Letzte Aktualisierung Sentiment"
-            value={formatDateTime(sentiment?.fetchedAt ?? null)}
-          />
-          <MetadataItem
-            label="Letzte Aktualisierung Chart"
-            value={formatDateTime(chart?.fetchedAt ?? null)}
-          />
+          <MetadataItem label={copy.marketSource} value={getMetadataValue(overview?.source)} />
+          <MetadataItem label={copy.networkSource} value={getMetadataValue(network?.source)} />
+          <MetadataItem label={copy.sentimentSource} value={getMetadataValue(sentiment?.source)} />
+          <MetadataItem label={copy.chartSource} value={getMetadataValue(chart?.source)} />
+          <MetadataItem label={copy.marketUpdated} value={formatDateTime(overview?.lastUpdatedAt ?? null, locale)} />
+          <MetadataItem label={copy.networkUpdated} value={formatDateTime(network?.fetchedAt ?? null, locale)} />
+          <MetadataItem label={copy.sentimentUpdated} value={formatDateTime(sentiment?.fetchedAt ?? null, locale)} />
+          <MetadataItem label={copy.chartUpdated} value={formatDateTime(chart?.fetchedAt ?? null, locale)} />
         </div>
       </DataState>
     </Card>

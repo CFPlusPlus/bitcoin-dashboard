@@ -1,7 +1,11 @@
+"use client";
+
 import type { AsyncDataState } from "../../lib/data-state";
+import type { Currency, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import { formatCurrency, formatDateTime, formatPercent } from "../../lib/format";
-import type { Currency, Overview } from "../../types/dashboard";
+import { formatMessage } from "../../i18n/template";
+import { useI18n } from "../../i18n/context";
 import MetricCard from "../../components/MetricCard";
 import Card from "../../components/ui/Card";
 import KpiValue from "../../components/ui/content/KpiValue";
@@ -25,9 +29,11 @@ export default function OverviewSection({
   overview,
   overviewState,
 }: OverviewSectionProps) {
+  const { locale, messages } = useI18n();
+  const copy = messages.dashboard.overview;
   const currencyLabel = currency.toUpperCase();
   const { change24h, high24h, low24h, price } = getOverviewValues(overview, currency);
-  const stateMessages = getDashboardSectionStateMessages("overview", overviewState.error);
+  const stateMessages = getDashboardSectionStateMessages("overview", overviewState.error, locale);
 
   const changeTone =
     typeof change24h === "number" && change24h > 0
@@ -37,17 +43,11 @@ export default function OverviewSection({
         : "default";
 
   return (
-    <Card
-      as="section"
-      tone="elevated"
-      padding="md"
-      gap="md"
-      className="overflow-hidden"
-    >
+    <Card as="section" tone="elevated" padding="md" gap="md" className="overflow-hidden">
       <SectionHeader
-        eyebrow="Marktüberblick"
-        title="Bitcoin jetzt"
-        description="Preis zuerst. Hoch, Tief und 24h-Richtung direkt daneben."
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        description={copy.description}
         meta={<DataStateMeta state={overviewState} />}
       />
 
@@ -60,10 +60,10 @@ export default function OverviewSection({
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(15rem,0.8fr)]">
           <div className="flex h-full flex-col justify-between gap-4 border border-border-strong bg-muted-surface px-4 py-4">
             <KpiValue
-              label={`BTC Spotpreis (${currencyLabel})`}
-              value={formatCurrency(price, currency)}
-              delta={formatPercent(change24h)}
-              meta={`24h-Entwicklung zum aktuellen Spotpreis in ${currencyLabel}`}
+              label={formatMessage(copy.spotLabel, { currency: currencyLabel })}
+              value={formatCurrency(price, currency, locale)}
+              delta={formatPercent(change24h, locale)}
+              meta={formatMessage(copy.spotMeta, { currency: currencyLabel })}
               size="lg"
               tone={changeTone}
               className="gap-2"
@@ -71,15 +71,17 @@ export default function OverviewSection({
 
             <div className="grid gap-4 border-t border-border-subtle pt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
               <Stack gap="xs" className="max-w-xl">
-                <MetaText tone="strong">
-                  Preis zuerst. Alles andere nur, wenn es beim Einordnen hilft.
-                </MetaText>
+                <MetaText tone="strong">{copy.lead}</MetaText>
                 <MetaText>
-                  Letzte Anbieter-Aktualisierung: {formatDateTime(overview?.lastUpdatedAt ?? null)}
+                  {formatMessage(copy.providerUpdated, {
+                    value: formatDateTime(overview?.lastUpdatedAt ?? null, locale),
+                  })}
                 </MetaText>
               </Stack>
               <div className="border border-accent/40 bg-accent-soft px-3 py-2">
-                <p className="font-serif text-base leading-none tracking-[-0.03em] text-accent">BTC Spot</p>
+                <p className="font-serif text-base leading-none tracking-[-0.03em] text-accent">
+                  {copy.spotBadge}
+                </p>
               </div>
             </div>
           </div>
@@ -87,17 +89,17 @@ export default function OverviewSection({
           <div className="grid gap-3">
             {[
               {
-                label: `24h Tageshoch (${currencyLabel})`,
-                text: formatCurrency(high24h, currency),
-                meta: "Höchster Preis der letzten 24 Stunden.",
-                footnote: "Zeigt, wie weit BTC heute nach oben gelaufen ist.",
+                label: formatMessage(copy.highLabel, { currency: currencyLabel }),
+                text: formatCurrency(high24h, currency, locale),
+                meta: copy.highMeta,
+                footnote: copy.highFootnote,
                 tone: "default" as const,
               },
               {
-                label: `24h Tagestief (${currencyLabel})`,
-                text: formatCurrency(low24h, currency),
-                meta: "Niedrigster Preis der letzten 24 Stunden.",
-                footnote: "Zeigt, wie tief BTC heute schon gefallen ist.",
+                label: formatMessage(copy.lowLabel, { currency: currencyLabel }),
+                text: formatCurrency(low24h, currency, locale),
+                meta: copy.lowMeta,
+                footnote: copy.lowFootnote,
                 tone: "muted" as const,
               },
             ].map((item) => (

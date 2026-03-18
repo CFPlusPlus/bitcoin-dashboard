@@ -1,6 +1,10 @@
+"use client";
+
 import type { AsyncDataState } from "../lib/data-state";
-import { getDashboardSectionStateMessages } from "../lib/dashboard-state-copy";
 import type { ChartData, ChartRange, Currency } from "../types/dashboard";
+import { getDashboardSectionStateMessages } from "../lib/dashboard-state-copy";
+import { formatMessage } from "../i18n/template";
+import { useI18n } from "../i18n/context";
 import PriceChart from "./PriceChart";
 import Button from "./ui/Button";
 import Card from "./ui/Card";
@@ -18,22 +22,6 @@ type ChartSectionProps = {
   range: ChartRange;
 };
 
-const RANGE_OPTIONS: Array<{
-  helper: string;
-  label: string;
-  value: ChartRange;
-}> = [
-  { value: 1, label: "24H", helper: "Intraday" },
-  { value: 7, label: "7T", helper: "Woche" },
-  { value: 30, label: "30T", helper: "Monat" },
-];
-
-function getRangeDescription(range: ChartRange) {
-  if (range === 1) return "die letzten 24 Stunden";
-  if (range === 7) return "die letzten 7 Tage";
-  return "die letzten 30 Tage";
-}
-
 export default function ChartSection({
   chart,
   chartState,
@@ -42,7 +30,18 @@ export default function ChartSection({
   onRetry,
   range,
 }: ChartSectionProps) {
-  const stateMessages = getDashboardSectionStateMessages("chart", chartState.error);
+  const { locale, messages } = useI18n();
+  const copy = messages.dashboard.chart;
+  const stateMessages = getDashboardSectionStateMessages("chart", chartState.error, locale);
+
+  const rangeOptions: Array<{ helper: string; label: string; value: ChartRange }> = [
+    { value: 1, label: "24H", helper: copy.option1Helper },
+    { value: 7, label: locale === "de" ? "7T" : "7D", helper: copy.option7Helper },
+    { value: 30, label: locale === "de" ? "30T" : "30D", helper: copy.option30Helper },
+  ];
+
+  const rangeDescription =
+    range === 1 ? copy.rangeLabel24h : range === 7 ? copy.rangeLabel7d : copy.rangeLabel30d;
 
   return (
     <Card
@@ -54,17 +53,17 @@ export default function ChartSection({
       className="overflow-hidden border-border-default/80"
     >
       <SectionHeader
-        eyebrow="Preisverlauf"
-        title={`Bitcoin-Chart in ${currency.toUpperCase()}`}
-        description={`So hat sich der BTC-Preis für ${getRangeDescription(range)} bewegt.`}
-        meta={<DataStateMeta state={chartState} lastUpdatedLabel="Zuletzt erneuert" />}
+        eyebrow={copy.eyebrow}
+        title={formatMessage(copy.title, { currency: currency.toUpperCase() })}
+        description={formatMessage(copy.description, { range: rangeDescription })}
+        meta={<DataStateMeta state={chartState} lastUpdatedLabel={messages.common.lastUpdated} />}
         action={
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
             <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
-              Zeitraum wählen
+              {copy.chooseRange}
             </p>
-            <Cluster aria-label="Chart-Zeitraum wählen" gap="sm">
-              {RANGE_OPTIONS.map((option) => (
+            <Cluster aria-label={copy.chooseRangeAriaLabel} gap="sm">
+              {rangeOptions.map((option) => (
                 <Button
                   key={option.value}
                   type="button"
@@ -72,7 +71,7 @@ export default function ChartSection({
                   intent="secondary"
                   size="sm"
                   aria-pressed={range === option.value}
-                  title={`${option.label} anzeigen: ${option.helper}`}
+                  title={`${option.label}: ${option.helper}`}
                   className="min-w-[4.5rem]"
                   onClick={() => onRangeChange(option.value)}
                 >
@@ -81,7 +80,7 @@ export default function ChartSection({
               ))}
             </Cluster>
             <p className="max-w-[32rem] text-sm text-fg-muted sm:text-right">
-              Beim Wechsel bleibt der letzte Verlauf sichtbar.
+              {copy.preserveHint}
             </p>
           </div>
         }
@@ -91,7 +90,7 @@ export default function ChartSection({
         state={chartState}
         onRetry={onRetry}
         retryBusy={chartState.isLoading}
-        retryLabel="Chart neu laden"
+        retryLabel={copy.retryLabel}
         messages={stateMessages}
       >
         <div className="border border-border-subtle bg-muted-surface p-3 sm:p-4">

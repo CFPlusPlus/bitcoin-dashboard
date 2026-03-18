@@ -1,7 +1,10 @@
+"use client";
+
 import type { AsyncDataState } from "../../lib/data-state";
-import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import { FALLBACK_TEXT, formatNumber } from "../../lib/format";
 import type { Network } from "../../types/dashboard";
+import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
+import { formatNumber } from "../../lib/format";
+import { useI18n } from "../../i18n/context";
 import MetricCard from "../../components/MetricCard";
 import Card from "../../components/ui/Card";
 import DataState from "../../components/ui/data-state/DataState";
@@ -14,23 +17,23 @@ type NetworkOverviewSectionProps = {
   onRetry: () => void;
 };
 
-function formatFee(value: number | null) {
-  return `${formatNumber(value)} sat/vB`;
-}
-
 export default function NetworkOverviewSection({
   network,
   networkState,
   onRetry,
 }: NetworkOverviewSectionProps) {
-  const stateMessages = getDashboardSectionStateMessages("network", networkState.error);
+  const { locale, messages } = useI18n();
+  const copy = messages.dashboard.network;
+  const fallback = messages.common.unavailable;
+  const stateMessages = getDashboardSectionStateMessages("network", networkState.error, locale);
+  const formatFee = (value: number | null) => `${formatNumber(value, locale)} sat/vB`;
 
   return (
     <Card as="section" tone="muted" padding="md" className="gap-4 border-border-default/80">
       <SectionHeader
-        eyebrow="Netzwerk"
-        title="Bitcoin im Netzwerk"
-        description="Block und Fees zeigen, wie entspannt oder voll das Netzwerk gerade ist."
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        description={copy.description}
         meta={<DataStateMeta state={networkState} />}
       />
 
@@ -42,33 +45,32 @@ export default function NetworkOverviewSection({
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <MetricCard
-            label="Letzter Block"
+            label={copy.latestBlock}
             value={
               network?.latestBlockHeight === null || network?.latestBlockHeight === undefined
-                ? FALLBACK_TEXT
-                : formatNumber(network.latestBlockHeight)
+                ? fallback
+                : formatNumber(network.latestBlockHeight, locale)
             }
-            meta="Zuletzt gesehene Blockhöhe."
-            valueFootnote="Steigt fortlaufend, wenn das Netzwerk sauber weiterläuft."
+            meta={copy.latestBlockMeta}
+            valueFootnote={copy.latestBlockFootnote}
           />
-
           <MetricCard
-            label="Prioritäts-Fee"
+            label={copy.fastestFee}
             value={formatFee(network?.fees.fastestFee ?? null)}
-            meta="Fee für schnelle Bestätigung."
-            valueFootnote="Sinnvoll, wenn es möglichst bald durchgehen soll."
+            meta={copy.fastestFeeMeta}
+            valueFootnote={copy.fastestFeeFootnote}
           />
           <MetricCard
-            label="Fee in ca. 30 Minuten"
+            label={copy.halfHourFee}
             value={formatFee(network?.fees.halfHourFee ?? null)}
-            meta="Fee mit etwas Zeitpuffer."
-            valueFootnote="Gut für Zahlungen, die bald ankommen sollen."
+            meta={copy.halfHourFeeMeta}
+            valueFootnote={copy.halfHourFeeFootnote}
           />
           <MetricCard
-            label="Fee in ca. 60 Minuten"
+            label={copy.hourFee}
             value={formatFee(network?.fees.hourFee ?? null)}
-            meta="Niedrigere Fee mit mehr Geduld."
-            valueFootnote="Praktisch, wenn Kosten vor Tempo gehen."
+            meta={copy.hourFeeMeta}
+            valueFootnote={copy.hourFeeFootnote}
           />
         </div>
       </DataState>

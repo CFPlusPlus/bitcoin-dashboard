@@ -69,7 +69,9 @@ export function createPageMetadata({
   const canonicalPath = normalizePath(path);
   const socialImageUrl = buildSocialImageUrl(
     socialImagePath ??
-      (path === "/" ? DEFAULT_SOCIAL_IMAGE_PATH : `${canonicalPath}/opengraph-image`)
+      (path === "/"
+        ? getAlternateLocalePath("/opengraph-image", locale)
+        : getAlternateLocalePath(`${canonicalPath}/opengraph-image`, locale))
   );
 
   return {
@@ -136,7 +138,7 @@ export function createLayoutMetadata({
       type: "website",
       images: [
         {
-          url: getAbsoluteUrl(DEFAULT_SOCIAL_IMAGE_PATH),
+          url: getAbsoluteUrl(getAlternateLocalePath("/opengraph-image", locale)),
           width: 1200,
           height: 630,
           alt: title,
@@ -147,7 +149,7 @@ export function createLayoutMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: [getAbsoluteUrl(DEFAULT_SOCIAL_IMAGE_PATH)],
+      images: [getAbsoluteUrl(getAlternateLocalePath("/opengraph-image", locale))],
     },
   };
 }

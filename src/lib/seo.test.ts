@@ -19,13 +19,13 @@ describe("seo helpers", () => {
     expect(metadata.alternates?.canonical).toBe("/en/tools");
     expect(metadata.openGraph?.images).toEqual([
       expect.objectContaining({
-        url: "http://localhost:3000/tools/opengraph-image",
+        url: "http://localhost:3000/en/tools/opengraph-image",
       }),
     ]);
     expect(metadata.twitter).toEqual(
       expect.objectContaining({
         card: "summary_large_image",
-        images: ["http://localhost:3000/tools/opengraph-image"],
+        images: ["http://localhost:3000/en/tools/opengraph-image"],
       })
     );
   });

@@ -1,7 +1,10 @@
+"use client";
+
 import type { AsyncDataState } from "../../lib/data-state";
-import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import { FALLBACK_TEXT, formatCountdown } from "../../lib/format";
 import type { Sentiment } from "../../types/dashboard";
+import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
+import { formatCountdown } from "../../lib/format";
+import { useI18n } from "../../i18n/context";
 import { cn } from "../../lib/cn";
 import Card from "../../components/ui/Card";
 import DataState from "../../components/ui/data-state/DataState";
@@ -45,17 +48,20 @@ export default function SentimentSection({
   sentiment,
   sentimentState,
 }: SentimentSectionProps) {
+  const { locale, messages } = useI18n();
+  const copy = messages.dashboard.sentiment;
+  const fallback = messages.common.unavailable;
   const sentimentUi = getSentimentTone(sentiment?.classification ?? null);
-  const stateMessages = getDashboardSectionStateMessages("sentiment", sentimentState.error);
+  const stateMessages = getDashboardSectionStateMessages("sentiment", sentimentState.error, locale);
   const sentimentValue =
-    typeof sentiment?.value === "number" ? `${sentiment.value} / 100` : FALLBACK_TEXT;
+    typeof sentiment?.value === "number" ? `${sentiment.value} / 100` : fallback;
 
   return (
     <Card as="section" tone="muted" padding="md" className="h-full gap-4 border-border-default/80">
       <SectionHeader
-        eyebrow="Sentiment"
-        title="Marktstimmung"
-        description="Fear & Greed zeigt, ob der Markt gerade eher nervös oder gierig ist."
+        eyebrow={copy.eyebrow}
+        title={copy.title}
+        description={copy.description}
         meta={<DataStateMeta state={sentimentState} />}
       />
 
@@ -69,9 +75,9 @@ export default function SentimentSection({
           <div className="flex flex-col gap-4 border border-border-subtle bg-surface px-3 py-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <KpiValue
-                label="Fear & Greed Index"
+                label={copy.indexLabel}
                 value={sentimentValue}
-                meta="Stimmungsindikator für das aktuelle Marktumfeld"
+                meta={copy.indexMeta}
                 size="lg"
                 tone={sentimentUi.tone}
               />
@@ -81,7 +87,7 @@ export default function SentimentSection({
                   sentimentUi.badgeClassName
                 )}
               >
-                {sentiment?.classification ?? FALLBACK_TEXT}
+                {sentiment?.classification ?? fallback}
               </span>
             </div>
           </div>
@@ -89,22 +95,22 @@ export default function SentimentSection({
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-2 border border-border-subtle bg-surface px-3 py-3">
               <MetaText size="xs" className="uppercase tracking-[0.16em]">
-                Nächste Aktualisierung
+                {copy.nextUpdate}
               </MetaText>
               <p className="font-mono text-base text-fg">
-                {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null)}
+                {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null, locale)}
               </p>
-              <MetaText>Dann kommt der nächste Stimmungscheck.</MetaText>
+              <MetaText>{copy.nextUpdateHint}</MetaText>
             </div>
 
             <div className="flex flex-col gap-2 border border-accent/30 bg-accent-soft px-3 py-3">
               <MetaText size="xs" className="uppercase tracking-[0.16em]">
-                Datenquelle
+                {copy.sourceLabel}
               </MetaText>
               <p className="text-base font-medium text-fg">
-                {sentiment?.attribution ?? FALLBACK_TEXT}
+                {sentiment?.attribution ?? fallback}
               </p>
-              <MetaText>Quelle des angezeigten Index.</MetaText>
+              <MetaText>{copy.sourceHint}</MetaText>
             </div>
           </div>
         </Stack>

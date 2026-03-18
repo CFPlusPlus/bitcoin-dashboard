@@ -3,6 +3,7 @@ import { SITE_NAME } from "./seo";
 
 type SocialImageContent = {
   eyebrow: string;
+  footer?: string;
   summary: string;
   title: string;
 };
@@ -14,7 +15,7 @@ export const socialImageSize = {
 } as const;
 export const socialImageContentType = "image/png";
 
-export function createSocialImageResponse({ eyebrow, summary, title }: SocialImageContent) {
+export function createSocialImageResponse({ eyebrow, footer, summary, title }: SocialImageContent) {
   return new ImageResponse(
     (
       <div
@@ -120,7 +121,7 @@ export function createSocialImageResponse({ eyebrow, summary, title }: SocialIma
             fontSize: "24px",
           }}
         >
-          <div style={{ display: "flex" }}>Markt, Netzwerk, Sentiment und Werkzeuge</div>
+          <div style={{ display: "flex" }}>{footer ?? "Bitcoin Dashboard"}</div>
           <div style={{ display: "flex" }}>bitcoin-dashboard</div>
         </div>
       </div>

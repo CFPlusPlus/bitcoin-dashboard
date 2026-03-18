@@ -3,15 +3,22 @@ import {
   socialImageAlt,
   socialImageContentType,
   socialImageSize,
-} from "../../../lib/social-image";
-import { getDictionary } from "../../../i18n/dictionaries";
+} from "../../../../lib/social-image";
+import { getDictionary } from "../../../../i18n/dictionaries";
+import { isValidLocale } from "../../../../i18n/config";
 
 export const alt = socialImageAlt;
 export const size = socialImageSize;
 export const contentType = socialImageContentType;
 
-export default function OpenGraphImage() {
-  const metadata = getDictionary("de").metadata;
+export default async function OpenGraphImage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const safeLocale = isValidLocale(locale) ? locale : "de";
+  const metadata = getDictionary(safeLocale).metadata;
 
   return createSocialImageResponse({
     eyebrow: metadata.dca.socialEyebrow,

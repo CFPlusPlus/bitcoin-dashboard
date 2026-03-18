@@ -1,3 +1,7 @@
+"use client";
+
+import { useI18n } from "../i18n/context";
+import { formatMessage } from "../i18n/template";
 import { formatCurrency, formatPercent } from "../lib/format";
 import type { ChartPoint, ChartRange, Currency } from "../types/dashboard";
 
@@ -7,27 +11,35 @@ type PriceChartProps = {
   range: ChartRange;
 };
 
-function formatAxisLabel(timestamp: number, range: ChartRange) {
+function getRangeLabel(range: ChartRange, locale: "de" | "en", copy: ReturnType<typeof useI18n>["messages"]["dashboard"]["chart"]) {
+  if (range === 1) return copy.rangeLabel24h;
+  if (range === 7) return copy.rangeLabel7d;
+  return copy.rangeLabel30d;
+}
+
+function formatAxisLabel(timestamp: number, range: ChartRange, locale: "de" | "en") {
   const date = new Date(timestamp);
+  const code = locale === "de" ? "de-DE" : "en-US";
 
   if (range === 1) {
-    return new Intl.DateTimeFormat("de-DE", {
+    return new Intl.DateTimeFormat(code, {
       hour: "2-digit",
       minute: "2-digit",
     }).format(date);
   }
 
-  return new Intl.DateTimeFormat("de-DE", {
+  return new Intl.DateTimeFormat(code, {
     day: "2-digit",
     month: "2-digit",
   }).format(date);
 }
 
-function formatCoverageLabel(timestamp: number, range: ChartRange) {
+function formatCoverageLabel(timestamp: number, range: ChartRange, locale: "de" | "en") {
   const date = new Date(timestamp);
+  const code = locale === "de" ? "de-DE" : "en-US";
 
   return new Intl.DateTimeFormat(
-    "de-DE",
+    code,
     range === 1
       ? {
           day: "2-digit",
@@ -43,13 +55,9 @@ function formatCoverageLabel(timestamp: number, range: ChartRange) {
   ).format(date);
 }
 
-function getRangeLabel(range: ChartRange) {
-  if (range === 1) return "letzten 24 Stunden";
-  if (range === 7) return "letzten 7 Tage";
-  return "letzten 30 Tage";
-}
-
 export default function PriceChart({ currency, points, range }: PriceChartProps) {
+  const { locale, messages } = useI18n();
+  const copy = messages.dashboard.chart;
   const width = 900;
   const height = 300;
   const paddingX = 52;
@@ -58,7 +66,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   if (points.length === 0) {
     return (
       <div className="rounded-md border border-dashed border-border-default bg-surface p-5 text-sm text-fg-muted">
-        Keine Chartdaten vorhanden.
+        {copy.emptyChart}
       </div>
     );
   }
@@ -77,10 +85,8 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   const changeTone =
     absoluteChange > 0 ? "text-success" : absoluteChange < 0 ? "text-danger" : "text-fg";
 
-  const getX = (index: number) => {
-    if (points.length === 1) return width / 2;
-    return paddingX + (index / (points.length - 1)) * (width - paddingX * 2);
-  };
+  const getX = (index: number) =>
+    points.length === 1 ? width / 2 : paddingX + (index / (points.length - 1)) * (width - paddingX * 2);
 
   const getY = (price: number) => {
     const normalized = (price - minPrice) / priceDelta;
@@ -88,70 +94,59 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   };
 
   const linePath = points
-    .map((point, index) => {
-      const x = getX(index);
-      const y = getY(point.price);
-      return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
-    })
+    .map((point, index) => `${index === 0 ? "M" : "L"} ${getX(index).toFixed(2)} ${getY(point.price).toFixed(2)}`)
     .join(" ");
 
   const firstX = getX(0);
   const lastX = getX(points.length - 1);
   const lastY = getY(latestPoint.price);
   const baseY = height - paddingY;
-
-  const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(
-    2
-  )} ${baseY.toFixed(2)} Z`;
+  const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(2)} ${baseY.toFixed(2)} Z`;
+  const rangeLabel = getRangeLabel(range, locale, copy);
 
   return (
     <div className="flex flex-col gap-5">
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
         <div className="border border-accent/30 bg-accent-soft px-3 py-3">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
-            Chart-Kontext
-          </p>
+          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.contextLabel}</p>
           <p className="mt-2 text-sm font-medium text-fg">
-            Bitcoin in {currency.toUpperCase()} ueber die {getRangeLabel(range)}
+            {formatMessage(copy.contextLine, { currency: currency.toUpperCase(), range: rangeLabel })}
           </p>
           <p className="mt-2 text-sm leading-6 text-fg-muted">
-            Die Linie zeigt den Preisverlauf von {formatCoverageLabel(firstPoint.timestamp, range)}{" "}
-            bis {formatCoverageLabel(latestPoint.timestamp, range)}.
+            {formatMessage(copy.contextCoverage, {
+              start: formatCoverageLabel(firstPoint.timestamp, range, locale),
+              end: formatCoverageLabel(latestPoint.timestamp, range, locale),
+            })}
           </p>
         </div>
 
         <div className="border border-border-subtle bg-surface px-3 py-2.5">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
-            Tief im Fenster
-          </p>
-          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(minPrice, currency)}</p>
+          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.lowInWindow}</p>
+          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(minPrice, currency, locale)}</p>
         </div>
 
         <div className="border border-border-subtle bg-surface px-3 py-2.5">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
-            Hoch im Fenster
-          </p>
-          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(maxPrice, currency)}</p>
+          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.highInWindow}</p>
+          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(maxPrice, currency, locale)}</p>
         </div>
 
         <div className="border border-accent/35 bg-accent-soft px-3 py-2.5">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">Zuletzt</p>
-          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(currentPrice, currency)}</p>
+          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.latest}</p>
+          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(currentPrice, currency, locale)}</p>
           <p className={`mt-2 text-sm font-medium ${changeTone}`}>
-            {formatCurrency(absoluteChange, currency)} ({formatPercent(relativeChange)})
+            {formatCurrency(absoluteChange, currency, locale)} ({formatPercent(relativeChange, locale)})
           </p>
         </div>
       </div>
 
       <div className="overflow-hidden border border-border-subtle bg-surface p-3 sm:p-4">
         <div className="mb-3 flex flex-col gap-2 border-b border-border-subtle/80 pb-3 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            Leserichtung: links aelter, rechts aktueller. Der markierte Punkt zeigt den letzten
-            Kurs im gewaelten Bereich.
-          </p>
+          <p>{copy.direction}</p>
           <p className="font-medium text-fg-secondary">
-            Zeitfenster: {formatAxisLabel(firstPoint.timestamp, range)} bis{" "}
-            {formatAxisLabel(latestPoint.timestamp, range)}
+            {formatMessage(copy.timeWindow, {
+              start: formatAxisLabel(firstPoint.timestamp, range, locale),
+              end: formatAxisLabel(latestPoint.timestamp, range, locale),
+            })}
           </p>
         </div>
 
@@ -159,21 +154,17 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           viewBox={`0 0 ${width} ${height}`}
           className="block h-auto w-full overflow-visible"
           role="img"
-          aria-label={`Bitcoin-Preischart fuer ${range} Tage in ${currency.toUpperCase()}`}
+          aria-label={formatMessage(copy.ariaLabel, {
+            days: range,
+            currency: currency.toUpperCase(),
+          })}
         >
-          <line
-            x1={paddingX}
-            y1={baseY}
-            x2={width - paddingX}
-            y2={baseY}
-            stroke="rgb(255 245 232 / 0.1)"
-            strokeWidth="1"
-          />
+          <line x1={paddingX} y1={baseY} x2={width - paddingX} y2={baseY} stroke="rgb(255 245 232 / 0.1)" strokeWidth="1" />
 
           {[
-            { label: formatCurrency(maxPrice, currency), value: maxPrice, dashed: true },
-            { label: formatCurrency(midpointPrice, currency), value: midpointPrice, dashed: true },
-            { label: formatCurrency(minPrice, currency), value: minPrice, dashed: false },
+            { label: formatCurrency(maxPrice, currency, locale), value: maxPrice, dashed: true },
+            { label: formatCurrency(midpointPrice, currency, locale), value: midpointPrice, dashed: true },
+            { label: formatCurrency(minPrice, currency, locale), value: minPrice, dashed: false },
           ].map((item) => {
             const y = getY(item.value);
 
@@ -196,48 +187,29 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           })}
 
           <path d={areaPath} fill="rgba(242, 143, 45, 0.12)" />
-          <path
-            d={linePath}
-            fill="none"
-            stroke="#f28f2d"
-            strokeWidth="1"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d={linePath}
-            fill="none"
-            stroke="rgba(255, 178, 90, 0.55)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <path d={linePath} fill="none" stroke="#f28f2d" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={linePath} fill="none" stroke="rgba(255, 178, 90, 0.55)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           <circle cx={lastX} cy={lastY} r="5" fill="#17120d" stroke="#f28f2d" strokeWidth="2" />
           <circle cx={lastX} cy={lastY} r="2.5" fill="#f28f2d" />
 
           <text x={paddingX} y={height - 2} fill="#978f84" fontSize="13" textAnchor="start">
-            {formatAxisLabel(firstPoint.timestamp, range)}
+            {formatAxisLabel(firstPoint.timestamp, range, locale)}
           </text>
           <text x={width / 2} y={height - 2} fill="#978f84" fontSize="13" textAnchor="middle">
-            {formatAxisLabel(middlePoint.timestamp, range)}
+            {formatAxisLabel(middlePoint.timestamp, range, locale)}
           </text>
-          <text
-            x={width - paddingX}
-            y={height - 2}
-            fill="#978f84"
-            fontSize="13"
-            textAnchor="end"
-          >
-            {formatAxisLabel(latestPoint.timestamp, range)}
+          <text x={width - paddingX} y={height - 2} fill="#978f84" fontSize="13" textAnchor="end">
+            {formatAxisLabel(latestPoint.timestamp, range, locale)}
           </text>
         </svg>
 
         <div className="mt-3 flex flex-col gap-2 border-t border-border-subtle/80 pt-3 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>{copy.axisContext}</p>
           <p>
-            Achsenkontext: unten Zeit, links Preisniveau. Die Skala passt sich automatisch an den
-            gewaelten Zeitraum an.
+            {formatMessage(copy.lastVisiblePoint, {
+              value: formatCoverageLabel(latestPoint.timestamp, range, locale),
+            })}
           </p>
-          <p>Letzter sichtbarer Punkt: {formatCoverageLabel(latestPoint.timestamp, range)}</p>
         </div>
       </div>
     </div>
