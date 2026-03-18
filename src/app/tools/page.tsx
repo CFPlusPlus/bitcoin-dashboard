@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 import StructuredData from "../../components/StructuredData";
 import { toolCards } from "../../data/tools";
+import { toolsPageMetadata } from "../../lib/public-metadata";
 import { createCollectionPageSchema, createPageMetadata, serializeJsonLd } from "../../lib/seo";
 import ToolsPage from "../../views/ToolsPage";
 
-const description =
-  "Bitcoin-Tools fuer konkrete Entscheidungen: ein bewusst fokussierter Bereich fuer Rechner und Hilfen, aktuell mit dem DCA-Rechner als erstem vollstaendigen Werkzeug.";
-
 export const metadata: Metadata = createPageMetadata({
-  title: "Tools",
-  description,
-  path: "/tools",
+  title: toolsPageMetadata.title,
+  description: toolsPageMetadata.description,
+  path: toolsPageMetadata.path,
 });
 
 export default function ToolsRoute() {
@@ -19,9 +17,9 @@ export default function ToolsRoute() {
       <StructuredData
         data={serializeJsonLd(
           createCollectionPageSchema({
-            name: "Bitcoin-Tools",
-            description,
-            path: "/tools",
+            name: toolsPageMetadata.schemaName,
+            description: toolsPageMetadata.description,
+            path: toolsPageMetadata.path,
             items: toolCards.map((tool) => ({
               name: tool.title,
               path: tool.href,

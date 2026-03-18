@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import StructuredData from "../../../components/StructuredData";
+import { dcaCalculatorMetadata } from "../../../lib/public-metadata";
 import {
   createPageMetadata,
   createSoftwareApplicationSchema,
@@ -7,13 +8,10 @@ import {
 } from "../../../lib/seo";
 import DcaCalculatorPage from "../../../views/DcaCalculatorPage";
 
-const description =
-  "DCA-Rechner fuer Bitcoin: Kaeufe erfassen, Durchschnittskaufpreis berechnen und den Einstieg mit dem aktuellen Marktpreis vergleichen.";
-
 export const metadata: Metadata = createPageMetadata({
-  title: "DCA-Rechner",
-  description,
-  path: "/tools/dca-rechner",
+  title: dcaCalculatorMetadata.title,
+  description: dcaCalculatorMetadata.description,
+  path: dcaCalculatorMetadata.path,
 });
 
 export default function DcaCalculatorRoute() {
@@ -22,9 +20,9 @@ export default function DcaCalculatorRoute() {
       <StructuredData
         data={serializeJsonLd(
           createSoftwareApplicationSchema({
-            name: "Bitcoin DCA-Rechner",
-            description,
-            path: "/tools/dca-rechner",
+            name: dcaCalculatorMetadata.schemaName,
+            description: dcaCalculatorMetadata.description,
+            path: dcaCalculatorMetadata.path,
           })
         )}
       />

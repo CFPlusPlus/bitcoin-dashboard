@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const SITE_NAME = "Bitcoin Dashboard";
 export const DEFAULT_DESCRIPTION =
-  "Bitcoin Dashboard mit Marktueberblick, Netzwerkdaten, Sentiment und praktischen Bitcoin-Tools.";
+  "Bitcoin-Dashboard mit Preis, Marktstruktur, Netzwerkdaten, Sentiment und fokussierten Bitcoin-Tools.";
 export const DEFAULT_SOCIAL_IMAGE_PATH = "/opengraph-image";
 
 const DEFAULT_LOCALE = "de_DE";

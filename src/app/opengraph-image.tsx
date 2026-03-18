@@ -4,6 +4,7 @@ import {
   socialImageContentType,
   socialImageSize,
 } from "../lib/social-image";
+import { homePageMetadata } from "../lib/public-metadata";
 
 export const alt = socialImageAlt;
 export const size = socialImageSize;
@@ -11,8 +12,8 @@ export const contentType = socialImageContentType;
 
 export default function OpenGraphImage() {
   return createSocialImageResponse({
-    eyebrow: "Dashboard",
-    title: "Bitcoin Dashboard",
-    summary: "Marktueberblick, Netzwerkdaten, Sentiment und praktische Bitcoin-Tools in einer klaren Struktur.",
+    eyebrow: homePageMetadata.socialEyebrow,
+    title: homePageMetadata.socialTitle,
+    summary: homePageMetadata.socialSummary,
   });
 }
