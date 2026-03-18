@@ -8,34 +8,34 @@ import {
 
 describe("dashboard-state-copy", () => {
   it("returns calm fallback text for unavailable values", () => {
-    expect(getUnavailableText()).toBe("Nicht verfuegbar");
+    expect(getUnavailableText()).toBe("Nicht verfügbar");
   });
 
   it("replaces technical provider errors with calmer dashboard copy", () => {
     expect(
       sanitizeDashboardErrorMessage(
         "Fehler beim Laden der Chartdaten von CoinGecko. market_chart request failed: 502 Provider overloaded",
-        "Es konnten noch keine verlaesslichen Chartdaten geladen werden."
+        "Es konnten noch keine verlässlichen Chartdaten geladen werden."
       )
-    ).toBe("Es konnten noch keine verlaesslichen Chartdaten geladen werden.");
+    ).toBe("Es konnten noch keine verlässlichen Chartdaten geladen werden.");
   });
 
   it("keeps friendly non-technical error messages", () => {
     expect(
       sanitizeDashboardErrorMessage(
-        "Der Datendienst meldet voruebergehend keine neuen Werte.",
+        "Der Datendienst meldet vorübergehend keine neuen Werte.",
         "Fallback"
       )
-    ).toBe("Der Datendienst meldet voruebergehend keine neuen Werte.");
+    ).toBe("Der Datendienst meldet vorübergehend keine neuen Werte.");
   });
 
   it("normalizes provider warnings into user-facing microcopy", () => {
     expect(
       normalizeDashboardWarningMessage(
-        "Fee-Daten nicht verfuegbar: fees request failed: 502 Provider overloaded"
+        "Fee-Daten nicht verfügbar: fees request failed: 502 Provider overloaded"
       )
     ).toBe(
-      "Fee-Schaetzungen werden gerade nicht vollstaendig erneuert. Vorhandene Werte bleiben sichtbar."
+      "Fee-Schätzungen werden gerade nicht vollständig erneuert. Vorhandene Werte bleiben sichtbar."
     );
   });
 

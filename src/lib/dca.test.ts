@@ -141,7 +141,7 @@ describe("dca validation and persistence helpers", () => {
         note: "",
       })
     ).toEqual({
-      error: "Der BTC-Preis muss groesser als 0 sein.",
+      error: "Der BTC-Preis muss größer als 0 sein.",
       field: "bitcoinPrice",
       success: false,
     });
@@ -154,7 +154,7 @@ describe("dca validation and persistence helpers", () => {
         note: "",
       })
     ).toEqual({
-      error: "Bitte gib ein gueltiges Kaufdatum an.",
+      error: "Bitte gib ein gültiges Kaufdatum an.",
       field: "date",
       success: false,
     });
