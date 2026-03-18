@@ -1,4 +1,7 @@
-﻿type ApiErrorPayload = {
+import type { AppLocale } from "../i18n/config";
+import { getDictionary } from "../i18n/dictionaries";
+
+type ApiErrorPayload = {
   error?: string;
   details?: string;
 };
@@ -17,15 +20,21 @@ function trimText(value: string) {
   return value.replace(/\s+/g, " ").trim().slice(0, 220);
 }
 
-function getErrorMessage(status: number, payload: ApiErrorPayload | Record<string, unknown> | null, rawText: string) {
+function getErrorMessage(
+  status: number,
+  payload: ApiErrorPayload | Record<string, unknown> | null,
+  rawText: string,
+  locale: AppLocale
+) {
   const apiPayload = payload as ApiErrorPayload | null;
-  const message = apiPayload?.error ?? `Anfrage fehlgeschlagen (${status}).`;
+  const copy = getDictionary(locale).api;
+  const message = apiPayload?.error ?? copy.requestFailed.replace("{status}", String(status));
   const details = apiPayload?.details ?? (!payload && rawText ? trimText(rawText) : "");
 
   return [message, details].filter(Boolean).join(" ");
 }
 
-export async function fetchJson<T>(input: string): Promise<T> {
+export async function fetchJson<T>(input: string, locale: AppLocale = "de"): Promise<T> {
   let response: Response;
 
   try {
@@ -35,18 +44,18 @@ export async function fetchJson<T>(input: string): Promise<T> {
       },
     });
   } catch {
-    throw new Error("Netzwerkfehler. Bitte später erneut versuchen.");
+    throw new Error(getDictionary(locale).api.networkError);
   }
 
   const rawText = await response.text();
   const payload = parsePayload(rawText);
 
   if (!response.ok) {
-    throw new Error(getErrorMessage(response.status, payload, rawText));
+    throw new Error(getErrorMessage(response.status, payload, rawText, locale));
   }
 
   if (!payload) {
-    throw new Error("Leere Antwort vom Server erhalten.");
+    throw new Error(getDictionary(locale).api.emptyResponse);
   }
 
   return payload as T;

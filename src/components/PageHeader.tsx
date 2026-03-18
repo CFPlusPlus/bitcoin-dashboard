@@ -1,18 +1,24 @@
+"use client";
+
+import { useI18n } from "../i18n/context";
 import SectionHeader from "./ui/layout/SectionHeader";
 
 export default function PageHeader() {
+  const { messages } = useI18n();
+
   return (
     <header>
       <SectionHeader
-        eyebrow="Bitcoin Dashboard"
+        eyebrow={messages.home.headerEyebrow}
         title={
           <>
-            Bitcoin auf einen <span className="text-accent">ruhigen Blick</span>.
+            {messages.home.headerTitlePrefix}{" "}
+            <span className="text-accent">{messages.home.headerTitleAccent}</span>.
           </>
         }
         titleAs="h1"
         titleSize="lg"
-        description="Preis, Stimmung und Netzwerk in einer klaren Bitcoin-Ansicht."
+        description={messages.home.headerDescription}
         className="max-w-3xl border-b-0 pb-0"
       />
     </header>

@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { getLocalizedPathname } from "../../../i18n/config";
+import { useI18n } from "../../../i18n/context";
 import { cn } from "../../../lib/cn";
 import { buttonVariants } from "../Button";
 import Card from "../Card";
@@ -21,6 +25,8 @@ export default function ToolTeaserCard({
   tags,
   title,
 }: ToolTeaserCardProps) {
+  const { locale, messages } = useI18n();
+
   return (
     <Card as="article" tone="interactive" padding="md" className="h-full overflow-hidden">
       <SectionHeader
@@ -45,7 +51,7 @@ export default function ToolTeaserCard({
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <MetaText>Für schnelle Eingaben und klare Ergebnisse.</MetaText>
+          <MetaText>{messages.tools.teaser.meta}</MetaText>
           <Link
             className={cn(
               buttonVariants({
@@ -54,9 +60,9 @@ export default function ToolTeaserCard({
               }),
               "w-fit shrink-0 no-underline"
             )}
-            href={href}
+            href={getLocalizedPathname(locale, href)}
           >
-            Werkzeug öffnen
+            {messages.tools.teaser.open}
           </Link>
         </div>
       </Stack>

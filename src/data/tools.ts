@@ -1,10 +1,8 @@
-export const toolCards = [
-  {
-    slug: "dca-rechner",
-    title: "DCA-Rechner",
-    category: "Direkt nutzbar",
-    description: "Trag Käufe ein und sieh sofort Durchschnittspreis, Bestand und Marktvergleich.",
-    href: "/tools/dca-rechner",
-    tags: ["DCA", "Einstand", "Bestand"],
-  },
-] as const;
+import type { AppLocale } from "../i18n/config";
+import { getDictionary } from "../i18n/dictionaries";
+
+export function getToolCards(locale: AppLocale) {
+  const dictionary = getDictionary(locale);
+
+  return [dictionary.tools.dca] as const;
+}

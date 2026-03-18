@@ -50,7 +50,7 @@ describe("fetchJson", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("fetch failed")));
 
     await expect(fetchJson("/api/test")).rejects.toThrow(
-      "Netzwerkfehler. Bitte später erneut versuchen."
+      "Netzwerkfehler. Bitte spaeter erneut versuchen."
     );
   });
 });

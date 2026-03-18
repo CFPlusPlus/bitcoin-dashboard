@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { AppLocale } from "../i18n/config";
+import { getDictionary } from "../i18n/dictionaries";
 import { fetchJson } from "../lib/api";
 import { normalizeDashboardWarningMessage, sanitizeDashboardErrorMessage } from "../lib/dashboard-state-copy";
 import { getLatestSuccessfulUpdate, resolveAsyncDataState } from "../lib/data-state";
@@ -23,34 +25,36 @@ function isBoolean(value: unknown): value is boolean {
   return typeof value === "boolean";
 }
 
-async function fetchOverview() {
-  return fetchJson<Overview>("/api/overview");
+async function fetchOverview(locale: AppLocale) {
+  return fetchJson<Overview>("/api/overview", locale);
 }
 
-async function fetchNetwork() {
-  return fetchJson<Network>("/api/network");
+async function fetchNetwork(locale: AppLocale) {
+  return fetchJson<Network>("/api/network", locale);
 }
 
-async function fetchSentiment() {
-  return fetchJson<Sentiment>("/api/sentiment");
+async function fetchSentiment(locale: AppLocale) {
+  return fetchJson<Sentiment>("/api/sentiment", locale);
 }
 
-async function fetchChart(range: ChartRange, currency: Currency) {
-  return fetchJson<ChartData>(`/api/chart?days=${range}&currency=${currency}`);
+async function fetchChart(range: ChartRange, currency: Currency, locale: AppLocale) {
+  return fetchJson<ChartData>(`/api/chart?days=${range}&currency=${currency}`, locale);
 }
 
 function getSectionErrorMessage(
   fallback: string,
-  error: unknown
+  error: unknown,
+  locale: AppLocale
 ) {
   if (!(error instanceof Error)) {
     return fallback;
   }
 
-  return sanitizeDashboardErrorMessage(error.message, fallback);
+  return sanitizeDashboardErrorMessage(error.message, fallback, locale);
 }
 
-export function useDashboardData() {
+export function useDashboardData(locale: AppLocale) {
+  const copy = getDictionary(locale).dashboard;
   const chartRangeStateOptions = useMemo(() => ({ validator: isChartRange }), []);
   const currencyStateOptions = useMemo(() => ({ validator: isCurrency }), []);
   const autoRefreshStateOptions = useMemo(() => ({ validator: isBoolean }), []);
@@ -95,84 +99,88 @@ export function useDashboardData() {
     setOverviewLoading(true);
 
     try {
-      const overviewData = await fetchOverview();
+      const overviewData = await fetchOverview(locale);
       setOverview(overviewData);
       return overviewData.fetchedAt;
     } catch (error) {
       setOverviewError(
         getSectionErrorMessage(
-          "Marktdaten sind gerade nicht verfuegbar. Bitte spaeter erneut laden.",
-          error
+          copy.stateCopy.fallbacks.overviewUnavailable,
+          error,
+          locale
         )
       );
       return null;
     } finally {
       setOverviewLoading(false);
     }
-  }, []);
+  }, [copy.stateCopy.fallbacks.overviewUnavailable, locale]);
 
   const loadNetworkData = useCallback(async () => {
     setNetworkError("");
     setNetworkLoading(true);
 
     try {
-      const networkData = await fetchNetwork();
+      const networkData = await fetchNetwork(locale);
       setNetwork(networkData);
       return networkData.fetchedAt;
     } catch (error) {
       setNetworkError(
         getSectionErrorMessage(
-          "Netzwerkdaten sind gerade nicht verfuegbar. Bitte spaeter erneut laden.",
-          error
+          copy.stateCopy.fallbacks.networkUnavailable,
+          error,
+          locale
         )
       );
       return null;
     } finally {
       setNetworkLoading(false);
     }
-  }, []);
+  }, [copy.stateCopy.fallbacks.networkUnavailable, locale]);
 
   const loadSentimentData = useCallback(async () => {
     setSentimentError("");
     setSentimentLoading(true);
 
     try {
-      const sentimentData = await fetchSentiment();
+      const sentimentData = await fetchSentiment(locale);
       setSentiment(sentimentData);
       return sentimentData.fetchedAt;
     } catch (error) {
       setSentimentError(
         getSectionErrorMessage(
-          "Sentimentdaten sind gerade nicht verfuegbar. Bitte spaeter erneut laden.",
-          error
+          copy.stateCopy.fallbacks.sentimentUnavailable,
+          error,
+          locale
         )
       );
       return null;
     } finally {
       setSentimentLoading(false);
     }
-  }, []);
+  }, [copy.stateCopy.fallbacks.sentimentUnavailable, locale]);
 
   const loadChartData = useCallback(async (selectedRange: ChartRange, selectedCurrency: Currency) => {
     setChartError("");
     setChartLoading(true);
 
     try {
-      const chartData = await fetchChart(selectedRange, selectedCurrency);
+      const chartData = await fetchChart(selectedRange, selectedCurrency, locale);
       setChart(chartData);
       return chartData.fetchedAt;
     } catch (error) {
       setChartError(
         getSectionErrorMessage(
-          "Chartdaten sind gerade nicht verfuegbar. Bitte spaeter erneut laden.",
-          error
+          copy.stateCopy.fallbacks.chartUnavailable,
+          error,
+          locale
         )
       );
       return null;
     } finally {
       setChartLoading(false);
     }
-  }, []);
+  }, [copy.stateCopy.fallbacks.chartUnavailable, locale]);
 
   const refreshAll = useCallback(
     async (selectedRange: ChartRange, selectedCurrency: Currency) => {
@@ -222,11 +230,11 @@ export function useDashboardData() {
       ...(sentiment?.warnings ?? []),
       ...(chart?.warnings ?? []),
     ]
-      .map((warning) => normalizeDashboardWarningMessage(warning))
+      .map((warning) => normalizeDashboardWarningMessage(warning, locale))
       .filter(Boolean);
 
     return [...new Set(items)];
-  }, [chart, network, overview, sentiment]);
+  }, [chart, locale, network, overview, sentiment]);
 
   const overviewMetrics = useMemo(
     () =>

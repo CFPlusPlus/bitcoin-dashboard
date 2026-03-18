@@ -9,6 +9,9 @@ import DataState from "../components/ui/data-state/DataState";
 import DataStateMeta from "../components/ui/data-state/DataStateMeta";
 import EmptyState from "../components/ui/data-state/EmptyState";
 import { usePersistentState } from "../hooks/usePersistentState";
+import { getLocalizedPathname } from "../i18n/config";
+import { useI18n } from "../i18n/context";
+import { formatMessage } from "../i18n/template";
 import { cn } from "../lib/cn";
 import { fetchJson } from "../lib/api";
 import { resolveAsyncDataState } from "../lib/data-state";
@@ -26,7 +29,6 @@ import {
   removeDcaEntry,
 } from "../lib/dca";
 import {
-  FALLBACK_TEXT,
   formatBtc,
   formatCurrency,
   formatDate,
@@ -44,20 +46,22 @@ type DcaFormField = "amountInvested" | "bitcoinPrice" | "date";
 function getPrimaryResultCopy(
   totalEntries: number,
   averageBuyPrice: number | null,
-  currency: Currency
+  currency: Currency,
+  locale: "de" | "en",
+  copy: ReturnType<typeof useI18n>["messages"]["dca"]
 ) {
   if (totalEntries === 0 || averageBuyPrice === null) {
     return {
-      description:
-        "Trage deinen ersten Kauf ein. Danach zeigt dir der Rechner automatisch deinen Durchschnittspreis, deinen BTC-Bestand und den Vergleich zum aktuellen Marktpreis.",
-      title: "Noch keine Kauefe erfasst",
+      description: copy.primaryEmptyDescription,
+      title: copy.primaryEmptyTitle,
     };
   }
 
   return {
-    description:
-      "Das ist dein durchschnittlicher Einstieg pro Bitcoin auf Basis aller erfassten Kauefe in der aktiven Waehrung.",
-    title: `Dein durchschnittlicher Kaufpreis liegt bei ${formatCurrency(averageBuyPrice, currency)} / BTC`,
+    description: copy.primarySummaryDescription,
+    title: formatMessage(copy.primarySummaryTitle, {
+      value: formatCurrency(averageBuyPrice, currency, locale),
+    }),
   };
 }
 
@@ -66,28 +70,43 @@ function getPerformanceCopy(
   pnlAbsolute: number | null,
   pnlPercent: number | null,
   currentValue: number | null,
-  currency: Currency
+  currency: Currency,
+  locale: "de" | "en",
+  copy: ReturnType<typeof useI18n>["messages"]["dca"]
 ) {
   if (totalEntries === 0) {
-    return "Sobald du Kaeufe erfasst hast, erscheint hier eine ruhige Einordnung statt nur einzelner Zahlen.";
+    return copy.performanceEmpty;
   }
 
   if (currentValue === null || pnlAbsolute === null || pnlPercent === null) {
-    return "Deine Kaufhistorie ist gespeichert. Fuer den heutigen Vergleich fehlt gerade nur ein aktueller Referenzpreis.";
+    return copy.performanceMissingPrice;
   }
 
   if (pnlAbsolute > 0) {
-    return `Beim aktuellen Referenzpreis liegt dein Bestand rund ${formatCurrency(currentValue, currency)} wert und etwa ${formatCurrency(pnlAbsolute, currency)} bzw. ${formatPercent(pnlPercent)} ueber deinem eingesetzten Kapital.`;
+    return formatMessage(copy.performancePositive, {
+      currentValue: formatCurrency(currentValue, currency, locale),
+      deltaValue: formatCurrency(pnlAbsolute, currency, locale),
+      deltaPercent: formatPercent(pnlPercent, locale),
+    });
   }
 
   if (pnlAbsolute < 0) {
-    return `Beim aktuellen Referenzpreis liegt dein Bestand rund ${formatCurrency(currentValue, currency)} wert und etwa ${formatCurrency(Math.abs(pnlAbsolute), currency)} bzw. ${formatPercent(Math.abs(pnlPercent) * -1)} unter deinem eingesetzten Kapital.`;
+    return formatMessage(copy.performanceNegative, {
+      currentValue: formatCurrency(currentValue, currency, locale),
+      deltaValue: formatCurrency(Math.abs(pnlAbsolute), currency, locale),
+      deltaPercent: formatPercent(Math.abs(pnlPercent) * -1, locale),
+    });
   }
 
-  return `Beim aktuellen Referenzpreis entspricht dein Bestand mit rund ${formatCurrency(currentValue, currency)} nahezu deinem eingesetzten Kapital.`;
+  return formatMessage(copy.performanceNeutral, {
+    currentValue: formatCurrency(currentValue, currency, locale),
+  });
 }
 
 export default function DcaCalculatorPage() {
+  const { locale, messages } = useI18n();
+  const copy = messages.dca;
+  const unavailableText = messages.common.unavailable;
   const currencyStateOptions = useMemo(() => ({ validator: isCurrency }), []);
   const entryStoreStateOptions = useMemo(
     () => ({ normalize: normalizeDcaEntryStore }),
@@ -122,16 +141,16 @@ export default function DcaCalculatorPage() {
     setMarketError("");
 
     try {
-      const overviewData = await fetchJson<Overview>("/api/overview");
+      const overviewData = await fetchJson<Overview>("/api/overview", locale);
       setOverview(overviewData);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Der Referenzpreis konnte nicht geladen werden.";
+        error instanceof Error ? error.message : copy.marketState.loadError;
       setMarketError(message);
     } finally {
       setMarketLoading(false);
     }
-  }, []);
+  }, [copy.marketState.loadError, locale]);
 
   useEffect(() => {
     void loadMarketOverview();
@@ -175,7 +194,7 @@ export default function DcaCalculatorPage() {
       bitcoinPrice,
       date,
       note,
-    });
+    }, locale);
 
     if (!result.success) {
       setFormError(result.error);
@@ -201,14 +220,18 @@ export default function DcaCalculatorPage() {
   const primaryResult = getPrimaryResultCopy(
     dcaView.summary.totalEntries,
     dcaView.summary.averageBuyPrice,
-    currency
+    currency,
+    locale,
+    copy
   );
   const performanceCopy = getPerformanceCopy(
     dcaView.summary.totalEntries,
     dcaView.summary.pnlAbsolute,
     dcaView.summary.pnlPercent,
     dcaView.summary.currentValue,
-    currency
+    currency,
+    locale,
+    copy
   );
   const hasEntries = entries.length > 0;
 
@@ -216,62 +239,58 @@ export default function DcaCalculatorPage() {
     <section className="dca-page">
       <header className="dca-page__hero">
         <p className="text-[0.78rem] font-semibold uppercase tracking-[0.08em] text-accent">
-          Werkzeug
+          {copy.heroEyebrow}
         </p>
-        <h2>DCA-Rechner fuer deinen Durchschnittspreis</h2>
+        <h2>{copy.heroTitle}</h2>
         <p className="dca-page__intro">
-          Erfasse deine Bitcoin-Kaeufe, behalte deinen Durchschnittspreis im Blick und
-          vergleiche deinen Einstieg mit dem aktuellen Referenzpreis in {currency.toUpperCase()}.
+          {formatMessage(copy.heroDescription, { currency: currency.toUpperCase() })}
         </p>
       </header>
 
       <Card as="section" padding="lg" gap="md" className="dca-toolbar">
         <div className="dca-toolbar__copy">
-          <p className="text-sm text-fg-secondary">Marktdaten</p>
-          <h3>Aktueller Referenzpreis</h3>
+          <p className="text-sm text-fg-secondary">{copy.marketDataEyebrow}</p>
+          <h3>{copy.marketDataTitle}</h3>
           <div className="mt-3 flex flex-col gap-3">
-            <DataStateMeta lastUpdatedLabel="Zuletzt erneuert" state={marketState} />
+            <DataStateMeta lastUpdatedLabel={messages.common.lastUpdated} state={marketState} />
             <DataState
               state={marketState}
               onRetry={() => void loadMarketOverview()}
               retryBusy={marketState.isLoading}
               messages={{
                 loading: {
-                  title: "Referenzpreis wird geladen",
-                  description: "Der aktuelle BTC-Preis fuer den Rechner wird vorbereitet.",
+                  title: copy.marketState.loadingTitle,
+                  description: copy.marketState.loadingDescription,
                 },
                 empty: {
-                  title: "Kein Referenzpreis verfuegbar",
-                  description:
-                    "Der Abruf war erfolgreich, liefert fuer die aktive Waehrung aber keinen verwendbaren Preis.",
+                  title: copy.marketState.emptyTitle,
+                  description: copy.marketState.emptyDescription,
                 },
                 error: {
-                  title: "Referenzpreis ist gerade nicht verfuegbar",
-                  description:
-                    marketState.error ??
-                    "Es konnte noch kein verlaesslicher Marktpreis fuer den Rechner geladen werden.",
+                  title: copy.marketState.errorTitle,
+                  description: marketState.error ?? copy.marketState.errorFallback,
                 },
                 partial: {
-                  title: "Referenzpreis ist teilweise verfuegbar",
-                  description:
-                    "Der aktuelle Marktabruf ist unvollstaendig. Vorhandene Werte bleiben fuer den Rechner sichtbar.",
+                  title: copy.marketState.partialTitle,
+                  description: copy.marketState.partialDescription,
                 },
                 stale: {
-                  title: "Letzter Referenzpreis bleibt sichtbar",
-                  description:
-                    "Die Aktualisierung ist fehlgeschlagen. Der angezeigte Preis kann inzwischen ueberholt sein.",
+                  title: copy.marketState.staleTitle,
+                  description: copy.marketState.staleDescription,
                 },
               }}
             >
               <p className="text-sm leading-6 text-fg-muted">
-                {`Marktpreis: ${formatCurrency(currentPrice, currency)} / BTC`}
+                {formatMessage(copy.marketPriceLine, {
+                  value: formatCurrency(currentPrice, currency, locale),
+                })}
               </p>
             </DataState>
           </div>
         </div>
 
         <div className="dca-toolbar__actions">
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label="Werkzeugwaehrung">
+          <div className="flex flex-wrap gap-2" role="tablist" aria-label={copy.currencyAriaLabel}>
             {(["usd", "eur"] as const).map((value) => (
               <Button
                 key={value}
@@ -288,14 +307,14 @@ export default function DcaCalculatorPage() {
           </div>
 
           <Button type="button" intent="primary" size="sm" onClick={() => void loadMarketOverview()}>
-            Preis erneuern
+            {copy.refreshPrice}
           </Button>
         </div>
       </Card>
 
       <Card as="article" padding="lg" gap="md" className="dca-insight-card">
         <div>
-          <p className="text-sm text-fg-secondary">Einordnung</p>
+          <p className="text-sm text-fg-secondary">{copy.insightEyebrow}</p>
           <h3>{primaryResult.title}</h3>
         </div>
         <p className="dca-insight-copy">{primaryResult.description}</p>
@@ -304,55 +323,55 @@ export default function DcaCalculatorPage() {
 
       <div className="dca-summary-grid">
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
-          <p className="text-sm text-fg-secondary">Bisher investiert</p>
-          <h3>{formatCurrency(dcaView.summary.totalInvested, currency)}</h3>
+          <p className="text-sm text-fg-secondary">{copy.investedLabel}</p>
+          <h3>{formatCurrency(dcaView.summary.totalInvested, currency, locale)}</h3>
           <p className="text-sm leading-6 text-fg-muted">
-            Summe aller erfassten Kauefe in {currency.toUpperCase()}.
+            {formatMessage(copy.investedDescription, { currency: currency.toUpperCase() })}
           </p>
         </Card>
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
-          <p className="text-sm text-fg-secondary">Erhaltenes BTC</p>
-          <h3>{formatBtc(dcaView.summary.totalBitcoin)}</h3>
+          <p className="text-sm text-fg-secondary">{copy.bitcoinLabel}</p>
+          <h3>{formatBtc(dcaView.summary.totalBitcoin, locale)}</h3>
           <p className="text-sm leading-6 text-fg-muted">
-            Berechnet aus Betrag und BTC-Preis jedes Kaufs.
+            {copy.bitcoinDescription}
           </p>
         </Card>
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
-          <p className="text-sm text-fg-secondary">Durchschnittlicher Kaufpreis</p>
+          <p className="text-sm text-fg-secondary">{copy.averageLabel}</p>
           <h3>
             {dcaView.summary.averageBuyPrice === null
-              ? FALLBACK_TEXT
-              : `${formatCurrency(dcaView.summary.averageBuyPrice, currency)} / BTC`}
+              ? unavailableText
+              : `${formatCurrency(dcaView.summary.averageBuyPrice, currency, locale)} / BTC`}
           </h3>
           <p className="text-sm leading-6 text-fg-muted">
-            Dein rechnerischer Einstieg ueber alle Eintraege hinweg.
+            {copy.averageDescription}
           </p>
         </Card>
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
-          <p className="text-sm text-fg-secondary">Aktueller Vergleichspreis</p>
+          <p className="text-sm text-fg-secondary">{copy.currentPriceLabel}</p>
           <h3>
             {dcaView.summary.currentPrice === null
-              ? FALLBACK_TEXT
-              : `${formatCurrency(dcaView.summary.currentPrice, currency)} / BTC`}
+              ? unavailableText
+              : `${formatCurrency(dcaView.summary.currentPrice, currency, locale)} / BTC`}
           </h3>
           <p className="text-sm leading-6 text-fg-muted">
-            Der zuletzt geladene BTC-Referenzpreis fuer diese Waehrung.
+            {copy.currentPriceDescription}
           </p>
         </Card>
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
-          <p className="text-sm text-fg-secondary">Geschaetzter Wert heute</p>
-          <h3>{formatCurrency(dcaView.summary.currentValue, currency)}</h3>
+          <p className="text-sm text-fg-secondary">{copy.currentValueLabel}</p>
+          <h3>{formatCurrency(dcaView.summary.currentValue, currency, locale)}</h3>
           <p className="text-sm leading-6 text-fg-muted">
-            So viel waere dein Bestand beim aktuellen Referenzpreis wert.
+            {copy.currentValueDescription}
           </p>
         </Card>
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
-          <p className="text-sm text-fg-secondary">Abweichung zum Einsatz</p>
+          <p className="text-sm text-fg-secondary">{copy.pnlLabel}</p>
           <h3 className={summaryTone === "default" ? undefined : summaryToneClassName}>
-            {formatCurrency(dcaView.summary.pnlAbsolute, currency)}
+            {formatCurrency(dcaView.summary.pnlAbsolute, currency, locale)}
           </h3>
           <p className={cn("text-sm leading-6", summaryToneClassName)}>
-            {formatPercent(dcaView.summary.pnlPercent)}
+            {formatPercent(dcaView.summary.pnlPercent, locale)}
           </p>
         </Card>
       </div>
@@ -360,16 +379,15 @@ export default function DcaCalculatorPage() {
       <div className="dca-layout">
         <div ref={formCardRef}>
           <Card as="article" padding="lg" gap="md" className="dca-form-card">
-            <p className="text-sm text-fg-secondary">Neuer Kauf</p>
-            <h3>Kauf eintragen</h3>
+            <p className="text-sm text-fg-secondary">{copy.formEyebrow}</p>
+            <h3>{copy.formTitle}</h3>
             <p className="text-sm leading-6 text-fg-muted">
-              Eintraege werden automatisch nur in diesem Browser gespeichert. USD und EUR
-              bleiben bewusst getrennt, damit deine Reihen sauber vergleichbar bleiben.
+              {copy.formDescription}
             </p>
 
             <form className="dca-form" onSubmit={handleAddEntry}>
               <label className="dca-input-group">
-                <span>Kaufdatum</span>
+                <span>{copy.fields.date}</span>
                 <input
                   aria-invalid={formErrorField === "date"}
                   type="date"
@@ -377,12 +395,12 @@ export default function DcaCalculatorPage() {
                   onChange={(event) => setDate(event.target.value)}
                 />
                 <small className="dca-input-hint">
-                  Nutze das Datum, an dem der Kauf ausgefuehrt wurde.
+                  {copy.fields.dateHint}
                 </small>
               </label>
 
               <label className="dca-input-group">
-                <span>Wie viel hast du investiert? ({currency.toUpperCase()})</span>
+                <span>{formatMessage(copy.fields.amount, { currency: currency.toUpperCase() })}</span>
                 <input
                   aria-invalid={formErrorField === "amountInvested"}
                   type="number"
@@ -394,12 +412,12 @@ export default function DcaCalculatorPage() {
                   placeholder={currency === "usd" ? "250" : "200"}
                 />
                 <small className="dca-input-hint">
-                  Gib den Gesamtbetrag des Kaufs ein. Komma und Punkt werden akzeptiert.
+                  {copy.fields.amountHint}
                 </small>
               </label>
 
               <label className="dca-input-group">
-                <span>Welcher BTC-Preis galt beim Kauf? ({currency.toUpperCase()})</span>
+                <span>{formatMessage(copy.fields.bitcoinPrice, { currency: currency.toUpperCase() })}</span>
                 <input
                   aria-invalid={formErrorField === "bitcoinPrice"}
                   type="number"
@@ -411,20 +429,20 @@ export default function DcaCalculatorPage() {
                   placeholder={currency === "usd" ? "50000" : "46000"}
                 />
                 <small className="dca-input-hint">
-                  Das ist der Preis pro 1 BTC zum Kaufzeitpunkt, nicht dein investierter Gesamtbetrag.
+                  {copy.fields.bitcoinPriceHint}
                 </small>
               </label>
 
               <label className="dca-input-group">
-                <span>Kurze Notiz (optional)</span>
+                <span>{copy.fields.note}</span>
                 <input
                   type="text"
                   value={note}
                   onChange={(event) => setNote(event.target.value)}
-                  placeholder="z. B. Monatsrate Marz"
+                  placeholder={copy.fields.notePlaceholder}
                 />
                 <small className="dca-input-hint">
-                  Hilfreich fuer Erinnerungen wie Sparplan, Sonderkauf oder Ruecksetzer.
+                  {copy.fields.noteHint}
                 </small>
               </label>
 
@@ -436,10 +454,10 @@ export default function DcaCalculatorPage() {
 
               <div className="dca-form-actions">
                 <Button type="submit" intent="primary" size="sm">
-                  Kauf speichern
+                  {copy.savePurchase}
                 </Button>
                 <p className="dca-persistence-note">
-                  Deine Liste bleibt auf diesem Geraet erhalten, bis du sie selbst loeschst.
+                  {copy.persistenceNote}
                 </p>
               </div>
             </form>
@@ -449,23 +467,26 @@ export default function DcaCalculatorPage() {
         <Card as="article" padding="lg" gap="md" className="dca-list-card">
           <div className="dca-list-header">
             <div>
-              <p className="text-sm text-fg-secondary">Kaufhistorie</p>
+              <p className="text-sm text-fg-secondary">{copy.historyEyebrow}</p>
               <h3>
-                {dcaView.summary.totalEntries} {dcaView.summary.totalEntries === 1 ? "Eintrag" : "Eintraege"}
+                {formatMessage(
+                  dcaView.summary.totalEntries === 1 ? copy.historySingular : copy.historyPlural,
+                  { count: dcaView.summary.totalEntries }
+                )}
               </h3>
               <p className="text-sm leading-6 text-fg-muted">
                 {hasEntries
-                  ? `Du siehst hier deine lokal gespeicherte ${currency.toUpperCase()}-Kaufreihe.`
-                  : `Noch keine lokal gespeicherten Kauefe in ${currency.toUpperCase()}.`}
+                  ? formatMessage(copy.historyFilled, { currency: currency.toUpperCase() })
+                  : formatMessage(copy.historyEmpty, { currency: currency.toUpperCase() })}
               </p>
             </div>
 
             <div className="dca-list-actions">
               <Link
                 className={cn(buttonVariants({ intent: "secondary", size: "sm" }), "min-w-[11rem] no-underline")}
-                href="/tools"
+                href={getLocalizedPathname(locale, "/tools")}
               >
-                Zur Werkzeugseite
+                {copy.backToTools}
               </Link>
               <Button
                 type="button"
@@ -474,7 +495,7 @@ export default function DcaCalculatorPage() {
                 onClick={handleClearEntries}
                 disabled={entries.length === 0}
               >
-                {currency.toUpperCase()}-Reihe loeschen
+                {formatMessage(copy.clearSeries, { currency: currency.toUpperCase() })}
               </Button>
             </div>
           </div>
@@ -482,8 +503,8 @@ export default function DcaCalculatorPage() {
           {entries.length === 0 ? (
             <EmptyState
               className="dca-empty-state"
-              title={`Deine ${currency.toUpperCase()}-Kaufreihe ist noch leer`}
-              description={`Sobald du den ersten Kauf eintraegst, zeigt dir der Rechner deinen Durchschnittspreis, deinen BTC-Bestand und den heutigen Vergleichswert.`}
+              title={formatMessage(copy.emptyStateTitle, { currency: currency.toUpperCase() })}
+              description={copy.emptyStateDescription}
               action={
                 <Button
                   type="button"
@@ -491,7 +512,7 @@ export default function DcaCalculatorPage() {
                   size="sm"
                   onClick={() => formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
                 >
-                  Ersten Kauf erfassen
+                  {copy.firstPurchase}
                 </Button>
               }
             />
@@ -501,15 +522,25 @@ export default function DcaCalculatorPage() {
                 <li key={entry.id} className="dca-entry-row">
                   <div className="dca-entry-main">
                     <div className="dca-entry-topline">
-                      <strong>{formatDate(entry.date)}</strong>
+                      <strong>{formatDate(entry.date, locale)}</strong>
                       {entry.note ? <span className="dca-entry-note">{entry.note}</span> : null}
                     </div>
                     <div className="dca-entry-metrics">
-                      <span>Investiert: {formatCurrency(entry.amountInvested, currency)}</span>
                       <span>
-                        Kaufpreis: {formatCurrency(entry.bitcoinPrice, currency)} / BTC
+                        {formatMessage(copy.rowInvested, {
+                          value: formatCurrency(entry.amountInvested, currency, locale),
+                        })}
                       </span>
-                      <span>BTC erhalten: {formatBtc(entry.bitcoinAmount)}</span>
+                      <span>
+                        {formatMessage(copy.rowBuyPrice, {
+                          value: formatCurrency(entry.bitcoinPrice, currency, locale),
+                        })}
+                      </span>
+                      <span>
+                        {formatMessage(copy.rowBitcoinReceived, {
+                          value: formatBtc(entry.bitcoinAmount, locale),
+                        })}
+                      </span>
                     </div>
                   </div>
                   <Button
@@ -518,7 +549,7 @@ export default function DcaCalculatorPage() {
                     size="sm"
                     onClick={() => handleRemoveEntry(entry.id)}
                   >
-                    Entfernen
+                    {copy.rowRemove}
                   </Button>
                 </li>
               ))}

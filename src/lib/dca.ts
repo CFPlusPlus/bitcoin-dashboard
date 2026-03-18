@@ -6,6 +6,8 @@ import type {
   DcaSummary,
   Overview,
 } from "../types/dashboard";
+import type { AppLocale } from "../i18n/config";
+import { getDictionary } from "../i18n/dictionaries";
 
 export type DcaFormInput = {
   amountInvested: string;
@@ -137,10 +139,12 @@ export function getDcaTone(value: number | null) {
   return value > 0 ? "positive" : "negative";
 }
 
-export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
+export function validateDcaFormInput(input: DcaFormInput, locale: AppLocale = "de"): DcaValidationResult {
+  const copy = getDictionary(locale).dca.validation;
+
   if (input.date.trim().length === 0) {
     return {
-      error: "Bitte waehle das Kaufdatum aus.",
+      error: copy.missingDate,
       field: "date",
       success: false,
     };
@@ -148,7 +152,7 @@ export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
 
   if (!isValidDateString(input.date)) {
     return {
-      error: "Bitte gib ein gueltiges Kaufdatum an.",
+      error: copy.invalidDate,
       field: "date",
       success: false,
     };
@@ -156,7 +160,7 @@ export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
 
   if (input.date > getDefaultDcaDate()) {
     return {
-      error: "Das Kaufdatum darf nicht in der Zukunft liegen.",
+      error: copy.futureDate,
       field: "date",
       success: false,
     };
@@ -164,7 +168,7 @@ export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
 
   if (input.amountInvested.trim().length === 0) {
     return {
-      error: "Bitte gib ein, wie viel du investiert hast.",
+      error: copy.missingAmount,
       field: "amountInvested",
       success: false,
     };
@@ -174,7 +178,7 @@ export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
 
   if (!isPositiveNumber(amountInvested)) {
     return {
-      error: "Der investierte Betrag muss groesser als 0 sein.",
+      error: copy.invalidAmount,
       field: "amountInvested",
       success: false,
     };
@@ -182,7 +186,7 @@ export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
 
   if (input.bitcoinPrice.trim().length === 0) {
     return {
-      error: "Bitte gib den BTC-Preis zum Kaufzeitpunkt ein.",
+      error: copy.missingBitcoinPrice,
       field: "bitcoinPrice",
       success: false,
     };
@@ -192,7 +196,7 @@ export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
 
   if (!isPositiveNumber(bitcoinPrice)) {
     return {
-      error: "Der BTC-Preis muss groesser als 0 sein.",
+      error: copy.invalidBitcoinPrice,
       field: "bitcoinPrice",
       success: false,
     };
@@ -209,8 +213,12 @@ export function validateDcaFormInput(input: DcaFormInput): DcaValidationResult {
   };
 }
 
-export function createDcaEntry(input: DcaFormInput, entryId = createDcaEntryId()) {
-  const validation = validateDcaFormInput(input);
+export function createDcaEntry(
+  input: DcaFormInput,
+  locale: AppLocale = "de",
+  entryId = createDcaEntryId()
+) {
+  const validation = validateDcaFormInput(input, locale);
 
   if (!validation.success) {
     return validation;

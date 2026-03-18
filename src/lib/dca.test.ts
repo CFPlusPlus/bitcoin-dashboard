@@ -183,6 +183,7 @@ describe("dca validation and persistence helpers", () => {
         date: "2026-03-17",
         note: "Test",
       },
+      "de",
       "entry-1"
     );
 

@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
+import { DEFAULT_LOCALE, LOCALES, getAlternateLocalePath, localeMeta, type AppLocale } from "../i18n/config";
 
 export const SITE_NAME = "Bitcoin Dashboard";
-export const DEFAULT_DESCRIPTION =
-  "Bitcoin-Dashboard mit Preis, Marktstruktur, Netzwerkdaten, Sentiment und fokussierten Bitcoin-Werkzeugen.";
 export const DEFAULT_SOCIAL_IMAGE_PATH = "/opengraph-image";
-
-const DEFAULT_LOCALE = "de_DE";
 const LOCAL_DEVELOPMENT_URL = "http://localhost:3000";
 
 function normalizeSiteUrl(value: string) {
@@ -31,6 +28,7 @@ export const metadataBase = new URL(resolveSiteUrl());
 
 type PageMetadataInput = {
   description: string;
+  locale: AppLocale;
   path: string;
   socialImagePath?: string;
   title: string;
@@ -63,6 +61,7 @@ function buildSocialImageUrl(path?: string) {
 
 export function createPageMetadata({
   description,
+  locale,
   path,
   socialImagePath,
   title,
@@ -77,14 +76,17 @@ export function createPageMetadata({
     title,
     description,
     alternates: {
-      canonical: canonicalPath,
+      canonical: getAlternateLocalePath(canonicalPath, locale),
+      languages: Object.fromEntries(
+        LOCALES.map((entry) => [localeMeta[entry].bcp47, getAlternateLocalePath(canonicalPath, entry)])
+      ),
     },
     openGraph: {
       title,
       description,
-      url: canonicalPath,
+      url: getAlternateLocalePath(canonicalPath, locale),
       siteName: SITE_NAME,
-      locale: DEFAULT_LOCALE,
+      locale: localeMeta[locale].og,
       type: "website",
       images: [
         {
@@ -104,69 +106,129 @@ export function createPageMetadata({
   };
 }
 
-export function createWebsiteSchema() {
+export function createLayoutMetadata({
+  description,
+  locale,
+  title,
+}: {
+  description: string;
+  locale: AppLocale;
+  title: string;
+}): Metadata {
+  return {
+    metadataBase,
+    title: {
+      default: title,
+      template: `%s | ${title}`,
+    },
+    description,
+    applicationName: title,
+    alternates: {
+      canonical: `/${locale}`,
+      languages: Object.fromEntries(LOCALES.map((entry) => [localeMeta[entry].bcp47, `/${entry}`])),
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/${locale}`,
+      siteName: title,
+      locale: localeMeta[locale].og,
+      type: "website",
+      images: [
+        {
+          url: getAbsoluteUrl(DEFAULT_SOCIAL_IMAGE_PATH),
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [getAbsoluteUrl(DEFAULT_SOCIAL_IMAGE_PATH)],
+    },
+  };
+}
+
+export function createWebsiteSchema({
+  description,
+  locale,
+}: {
+  description: string;
+  locale: AppLocale;
+}) {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_NAME,
-    description: DEFAULT_DESCRIPTION,
-    url: getAbsoluteUrl("/"),
-    inLanguage: "de-DE",
+    description,
+    url: getAbsoluteUrl(`/${locale}`),
+    inLanguage: localeMeta[locale].bcp47,
   } as const;
 }
 
 export function createWebPageSchema({
   description,
+  locale,
   name,
   path,
 }: {
   description: string;
+  locale: AppLocale;
   name: string;
   path: string;
 }) {
+  const localizedPath = getAlternateLocalePath(path, locale);
+
   return {
     "@context": "https://schema.org",
     "@type": "WebPage",
     name,
     description,
-    url: getAbsoluteUrl(path),
+    url: getAbsoluteUrl(localizedPath),
     isPartOf: {
       "@type": "WebSite",
       name: SITE_NAME,
-      url: getAbsoluteUrl("/"),
+      url: getAbsoluteUrl(`/${locale}`),
     },
-    inLanguage: "de-DE",
+    inLanguage: localeMeta[locale].bcp47,
   } as const;
 }
 
 export function createCollectionPageSchema({
   description,
   items,
+  locale,
   name,
   path,
 }: {
   description: string;
   items: Array<{ name: string; path: string }>;
+  locale: AppLocale;
   name: string;
   path: string;
 }) {
   return {
-    ...createWebPageSchema({ description, name, path }),
+    ...createWebPageSchema({ description, locale, name, path }),
     "@type": "CollectionPage",
     hasPart: items.map((item) => ({
       "@type": "WebPage",
       name: item.name,
-      url: getAbsoluteUrl(item.path),
+      url: getAbsoluteUrl(getAlternateLocalePath(item.path, locale)),
     })),
   } as const;
 }
 
 export function createSoftwareApplicationSchema({
   description,
+  locale,
   name,
   path,
 }: {
   description: string;
+  locale: AppLocale;
   name: string;
   path: string;
 }) {
@@ -183,8 +245,8 @@ export function createSoftwareApplicationSchema({
       price: "0",
       priceCurrency: "USD",
     },
-    url: getAbsoluteUrl(path),
-    inLanguage: "de-DE",
+    url: getAbsoluteUrl(getAlternateLocalePath(path, locale)),
+    inLanguage: localeMeta[locale].bcp47,
   } as const;
 }
 

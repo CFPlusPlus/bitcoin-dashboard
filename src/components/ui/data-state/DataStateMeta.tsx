@@ -1,4 +1,7 @@
+"use client";
+
 import type { AsyncDataState } from "../../../lib/data-state";
+import { useI18n } from "../../../i18n/context";
 import Cluster from "../layout/Cluster";
 import LastUpdated from "./LastUpdated";
 import StateBadge from "./StateBadge";
@@ -13,11 +16,8 @@ type DataStateMetaProps = {
   >;
 };
 
-export default function DataStateMeta({
-  className,
-  lastUpdatedLabel,
-  state,
-}: DataStateMetaProps) {
+export default function DataStateMeta({ className, lastUpdatedLabel, state }: DataStateMetaProps) {
+  const { messages } = useI18n();
   const showMeta =
     state.isRefreshing || state.isPartial || state.isStale || state.hasUsableData;
 
@@ -29,10 +29,10 @@ export default function DataStateMeta({
     <Cluster gap="sm" justify="end" className={className}>
       {state.isRefreshing ? (
         <StateBadge tone="loading" spinning>
-          Aktualisierung laeuft
+          {messages.common.refreshing}
         </StateBadge>
       ) : null}
-      {state.isPartial ? <StateBadge tone="partial">Teilweise</StateBadge> : null}
+      {state.isPartial ? <StateBadge tone="partial">{messages.common.partially}</StateBadge> : null}
       {state.isStale ? <StaleBadge /> : null}
       <LastUpdated label={lastUpdatedLabel} value={state.lastUpdatedAt} />
     </Cluster>

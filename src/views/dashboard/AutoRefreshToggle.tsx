@@ -1,3 +1,6 @@
+"use client";
+
+import { useI18n } from "../../i18n/context";
 import Button from "../../components/ui/Button";
 
 type AutoRefreshToggleProps = {
@@ -5,10 +8,9 @@ type AutoRefreshToggleProps = {
   onChange: (value: boolean) => void;
 };
 
-export default function AutoRefreshToggle({
-  autoRefresh,
-  onChange,
-}: AutoRefreshToggleProps) {
+export default function AutoRefreshToggle({ autoRefresh, onChange }: AutoRefreshToggleProps) {
+  const { messages } = useI18n();
+
   return (
     <Button
       active={autoRefresh}
@@ -16,7 +18,9 @@ export default function AutoRefreshToggle({
       size="sm"
       onClick={() => onChange(!autoRefresh)}
     >
-      {autoRefresh ? "Live aktiv" : "Live pausiert"}
+      {autoRefresh
+        ? messages.dashboard.controls.autoRefreshOn
+        : messages.dashboard.controls.autoRefreshOff}
     </Button>
   );
 }

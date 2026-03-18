@@ -1,11 +1,13 @@
 "use client";
 
+import { useI18n } from "../i18n/context";
 import Stack from "../components/ui/layout/Stack";
 import { useDashboardData } from "../hooks/useDashboardData";
 import DashboardContent from "./dashboard/DashboardContent";
 import HomepageIntro from "./dashboard/HomepageIntro";
 
 export default function HomePage() {
+  const { locale } = useI18n();
   const {
     autoRefresh,
     chart,
@@ -29,7 +31,7 @@ export default function HomePage() {
     setAutoRefresh,
     setCurrency,
     setRange,
-  } = useDashboardData();
+  } = useDashboardData(locale);
 
   return (
     <Stack gap="xl">

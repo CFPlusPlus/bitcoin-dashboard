@@ -1,4 +1,7 @@
+"use client";
+
 import { Clock3 } from "lucide-react";
+import { useI18n } from "../../../i18n/context";
 import { formatDateTime, formatRelativeTime } from "../../../lib/format";
 import { cn } from "../../../lib/cn";
 
@@ -11,12 +14,15 @@ type LastUpdatedProps = {
 
 export default function LastUpdated({
   className,
-  emptyLabel = "Noch kein erfolgreicher Abruf",
-  label = "Stand",
+  emptyLabel,
+  label,
   value,
 }: LastUpdatedProps) {
-  const exactTime = formatDateTime(value);
-  const relativeTime = formatRelativeTime(value);
+  const { locale, messages } = useI18n();
+  const exactTime = formatDateTime(value, locale);
+  const relativeTime = formatRelativeTime(value, locale);
+  const resolvedEmptyLabel = emptyLabel ?? messages.common.noSuccessfulFetch;
+  const resolvedLabel = label ?? messages.common.status;
 
   return (
     <p
@@ -24,7 +30,7 @@ export default function LastUpdated({
       title={value ? exactTime : undefined}
     >
       <Clock3 className="size-3.5 text-fg-muted" aria-hidden="true" />
-      {value ? `${label} ${relativeTime}` : emptyLabel}
+      {value ? `${resolvedLabel} ${relativeTime}` : resolvedEmptyLabel}
     </p>
   );
 }

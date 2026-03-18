@@ -10,12 +10,13 @@ import {
 describe("seo helpers", () => {
   it("adds social preview metadata for public pages", () => {
     const metadata = createPageMetadata({
+      locale: "en",
       title: "Tools",
       description: "Bitcoin tools overview",
       path: "/tools",
     });
 
-    expect(metadata.alternates?.canonical).toBe("/tools");
+    expect(metadata.alternates?.canonical).toBe("/en/tools");
     expect(metadata.openGraph?.images).toEqual([
       expect.objectContaining({
         url: "http://localhost:3000/tools/opengraph-image",
@@ -30,15 +31,16 @@ describe("seo helpers", () => {
   });
 
   it("creates focused structured data for site and pages", () => {
-    expect(createWebsiteSchema()).toEqual(
+    expect(createWebsiteSchema({ locale: "de", description: "Bitcoin dashboard" })).toEqual(
       expect.objectContaining({
         "@type": "WebSite",
-        url: "http://localhost:3000/",
+        url: "http://localhost:3000/de",
       })
     );
 
     expect(
       createCollectionPageSchema({
+        locale: "en",
         name: "Bitcoin-Tools",
         description: "Interactive tools",
         path: "/tools",
@@ -50,7 +52,7 @@ describe("seo helpers", () => {
         hasPart: [
           expect.objectContaining({
             name: "DCA-Rechner",
-            url: "http://localhost:3000/tools/dca-rechner",
+            url: "http://localhost:3000/en/tools/dca-rechner",
           }),
         ],
       })
@@ -58,6 +60,7 @@ describe("seo helpers", () => {
 
     expect(
       createSoftwareApplicationSchema({
+        locale: "en",
         name: "Bitcoin DCA-Rechner",
         description: "Track average buy price",
         path: "/tools/dca-rechner",
