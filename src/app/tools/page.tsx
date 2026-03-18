@@ -5,7 +5,7 @@ import { createCollectionPageSchema, createPageMetadata, serializeJsonLd } from 
 import ToolsPage from "../../views/ToolsPage";
 
 const description =
-  "Bitcoin-Tools mit interaktiven Rechnern und Experimenten. Aktuell inklusive DCA-Rechner fuer Durchschnittskaufpreis und Performance.";
+  "Bitcoin-Tools fuer konkrete Entscheidungen: ein bewusst fokussierter Bereich fuer Rechner und Hilfen, aktuell mit dem DCA-Rechner als erstem vollstaendigen Werkzeug.";
 
 export const metadata: Metadata = createPageMetadata({
   title: "Tools",

@@ -1,11 +1,11 @@
-﻿export const toolCards = [
+export const toolCards = [
   {
     slug: "dca-rechner",
     title: "DCA-Rechner",
-    category: "Live Tool",
+    category: "Jetzt verfuegbar",
     description:
-      "Erfasse Käufe, berechne Durchschnittskaufpreis, Bestand und vergleiche deinen Einstieg mit dem aktuellen Marktpreis.",
+      "Trage einzelne Bitcoin-Kaeufe ein, berechne Durchschnittskaufpreis und Bestand und setze deinen Einstieg direkt in Beziehung zum aktuellen Markt.",
     href: "/tools/dca-rechner",
-    tags: ["DCA", "Durchschnitt", "Performance"],
+    tags: ["DCA", "Einstand", "Bestand"],
   },
 ] as const;
