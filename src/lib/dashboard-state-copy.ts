@@ -57,26 +57,28 @@ const SECTION_STATE_COPY: Record<DashboardSectionKey, SectionStateCopy> = {
   },
   chart: {
     loading: {
-      title: "Chart wird geladen",
-      description: "Chartpunkte fuer den gewaehlten Zeitraum werden vorbereitet.",
+      title: "Chart wird vorbereitet",
+      description: "Der Preisverlauf fuer den gewaehlten Zeitraum wird geladen und aufbereitet.",
     },
     empty: {
       title: "Keine Chartdaten verfuegbar",
       description:
-        "Fuer den ausgewaehlten Zeitraum liegen aktuell keine auswertbaren Kursdaten vor.",
+        "Fuer den ausgewaehlten Zeitraum liegen aktuell keine auswertbaren Kursdaten vor. Bitte waehle spaeter erneut oder wechsle kurz den Zeitraum.",
     },
     error: {
       title: "Chart ist gerade nicht verfuegbar",
-      fallbackDescription: "Es konnten noch keine verlaesslichen Chartdaten geladen werden.",
+      fallbackDescription:
+        "Es konnten gerade keine verlaesslichen Chartdaten geladen werden. Ein erneuter Abruf versucht denselben Zeitraum noch einmal.",
     },
     partial: {
       title: "Chart ist teilweise verfuegbar",
-      description: "Ein Teil der Kursdaten fehlt im aktuellen Abruf. Der Verlauf bleibt sichtbar.",
+      description:
+        "Ein Teil der Kursdaten fehlt im aktuellen Abruf. Der Verlauf bleibt sichtbar, kann im Detail aber Luecken enthalten.",
     },
     stale: {
       title: "Letzter Chart bleibt sichtbar",
       description:
-        "Der Chart konnte nicht neu geladen werden. Die dargestellten Kurse koennen inzwischen veraltet sein.",
+        "Der Chart konnte nicht neu geladen werden. Der letzte nutzbare Verlauf bleibt sichtbar, bis wieder frische Kursdaten verfuegbar sind.",
     },
   },
   marketContext: {

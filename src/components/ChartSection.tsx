@@ -18,6 +18,22 @@ type ChartSectionProps = {
   range: ChartRange;
 };
 
+const RANGE_OPTIONS: Array<{
+  helper: string;
+  label: string;
+  value: ChartRange;
+}> = [
+  { value: 1, label: "24H", helper: "Intraday" },
+  { value: 7, label: "7T", helper: "Woche" },
+  { value: 30, label: "30T", helper: "Monat" },
+];
+
+function getRangeDescription(range: ChartRange) {
+  if (range === 1) return "die letzten 24 Stunden";
+  if (range === 7) return "die letzten 7 Tage";
+  return "die letzten 30 Tage";
+}
+
 export default function ChartSection({
   chart,
   chartState,
@@ -39,24 +55,38 @@ export default function ChartSection({
     >
       <SectionHeader
         eyebrow="Preisverlauf"
-        title={`BTC Preisverlauf (${currency.toUpperCase()})`}
-        description="Direkt nach dem Ueberblick zeigt der Chart, wie sich Bitcoin ueber den gewaehlten Zeitraum bewegt hat."
-        meta={<DataStateMeta state={chartState} />}
+        title={`Bitcoin-Chart in ${currency.toUpperCase()}`}
+        description={`Der Hauptchart zeigt den BTC-Preis fuer ${getRangeDescription(
+          range
+        )}. Zeitangaben folgen deiner lokalen Browserzeit, damit Richtungswechsel schnell einzuordnen sind.`}
+        meta={<DataStateMeta state={chartState} lastUpdatedLabel="Zuletzt aktualisiert" />}
         action={
-          <Cluster role="tablist" aria-label="Zeitraum" gap="sm">
-            {[1, 7, 30].map((value) => (
-              <Button
-                key={value}
-                type="button"
-                active={range === value}
-                intent="secondary"
-                size="sm"
-                onClick={() => onRangeChange(value as ChartRange)}
-              >
-                {value === 1 ? "1D" : `${value}D`}
-              </Button>
-            ))}
-          </Cluster>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
+            <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
+              Zeitraum waehlen
+            </p>
+            <Cluster aria-label="Chart-Zeitraum waehlen" gap="sm">
+              {RANGE_OPTIONS.map((option) => (
+                <Button
+                  key={option.value}
+                  type="button"
+                  active={range === option.value}
+                  intent="secondary"
+                  size="sm"
+                  aria-pressed={range === option.value}
+                  title={`${option.label} anzeigen: ${option.helper}`}
+                  className="min-w-[4.5rem]"
+                  onClick={() => onRangeChange(option.value)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </Cluster>
+            <p className="max-w-[32rem] text-sm text-fg-muted sm:text-right">
+              Beim Wechsel bleibt der letzte nutzbare Verlauf sichtbar, bis der neue Zeitraum
+              geladen ist.
+            </p>
+          </div>
         }
       />
 
@@ -64,6 +94,7 @@ export default function ChartSection({
         state={chartState}
         onRetry={onRetry}
         retryBusy={chartState.isLoading}
+        retryLabel="Chart neu laden"
         messages={stateMessages}
       >
         <div className="border border-border-subtle bg-muted-surface p-3 sm:p-4">
