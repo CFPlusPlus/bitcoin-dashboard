@@ -1,4 +1,5 @@
 import type { AsyncDataState } from "../../lib/data-state";
+import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import { formatCurrency, formatDateTime, formatPercent } from "../../lib/format";
 import type { Currency, Overview } from "../../types/dashboard";
 import { cn } from "../../lib/cn";
@@ -26,6 +27,7 @@ export default function OverviewSection({
 }: OverviewSectionProps) {
   const currencyLabel = currency.toUpperCase();
   const { change24h, high24h, low24h, price } = getOverviewValues(overview, currency);
+  const stateMessages = getDashboardSectionStateMessages("overview", overviewState.error);
 
   const changeTone =
     typeof change24h === "number" && change24h > 0
@@ -53,33 +55,7 @@ export default function OverviewSection({
         state={overviewState}
         onRetry={onRetry}
         retryBusy={overviewState.isLoading}
-        messages={{
-          loading: {
-            title: "Marktdaten werden geladen",
-            description: "Preis, 24h-Veraenderung und Handelsspanne werden vorbereitet.",
-          },
-          empty: {
-            title: "Keine Marktdaten verfuegbar",
-            description:
-              "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren Marktdaten.",
-          },
-          error: {
-            title: "Marktdaten sind gerade nicht verfuegbar",
-            description:
-              overviewState.error ??
-              "Es konnten noch keine verlaesslichen Marktdaten geladen werden.",
-          },
-          partial: {
-            title: "Marktdaten sind teilweise verfuegbar",
-            description:
-              "Einzelne Kennzahlen fehlen im aktuellen Abruf. Verfuegbare Werte bleiben sichtbar.",
-          },
-          stale: {
-            title: "Letzte Marktdaten bleiben sichtbar",
-            description:
-              "Die letzte Aktualisierung ist fehlgeschlagen. Die angezeigten Werte koennen inzwischen veraltet sein.",
-          },
-        }}
+        messages={stateMessages}
       >
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(15rem,0.8fr)]">
           <div className="flex h-full flex-col justify-between gap-4 border border-border-strong bg-muted-surface px-4 py-4">

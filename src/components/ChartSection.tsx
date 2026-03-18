@@ -1,4 +1,5 @@
 import type { AsyncDataState } from "../lib/data-state";
+import { getDashboardSectionStateMessages } from "../lib/dashboard-state-copy";
 import type { ChartData, ChartRange, Currency } from "../types/dashboard";
 import PriceChart from "./PriceChart";
 import Button from "./ui/Button";
@@ -25,6 +26,8 @@ export default function ChartSection({
   onRetry,
   range,
 }: ChartSectionProps) {
+  const stateMessages = getDashboardSectionStateMessages("chart", chartState.error);
+
   return (
     <Card
       as="section"
@@ -61,33 +64,7 @@ export default function ChartSection({
         state={chartState}
         onRetry={onRetry}
         retryBusy={chartState.isLoading}
-        messages={{
-          loading: {
-            title: "Chart wird geladen",
-            description: "Chartpunkte fuer den gewaehlten Zeitraum werden vorbereitet.",
-          },
-          empty: {
-            title: "Keine Chartdaten",
-            description:
-              "Fuer den ausgewaehlten Zeitraum sind aktuell keine auswertbaren Chartpunkte verfuegbar.",
-          },
-          error: {
-            title: "Chart ist gerade nicht verfuegbar",
-            description:
-              chartState.error ??
-              "Es konnten noch keine verlaesslichen Chartdaten geladen werden.",
-          },
-          partial: {
-            title: "Chart ist teilweise verfuegbar",
-            description:
-              "Der aktuelle Abruf ist unvollstaendig. Vorhandene Kursdaten bleiben sichtbar.",
-          },
-          stale: {
-            title: "Letzter Chart bleibt sichtbar",
-            description:
-              "Der Chart konnte nicht neu geladen werden. Die dargestellten Kurse koennen inzwischen veraltet sein.",
-          },
-        }}
+        messages={stateMessages}
       >
         <div className="border border-border-subtle bg-muted-surface p-3 sm:p-4">
           <PriceChart

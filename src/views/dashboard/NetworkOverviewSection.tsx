@@ -1,4 +1,5 @@
 import type { AsyncDataState } from "../../lib/data-state";
+import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import { FALLBACK_TEXT, formatNumber } from "../../lib/format";
 import type { Network } from "../../types/dashboard";
 import MetricCard from "../../components/MetricCard";
@@ -22,6 +23,8 @@ export default function NetworkOverviewSection({
   networkState,
   onRetry,
 }: NetworkOverviewSectionProps) {
+  const stateMessages = getDashboardSectionStateMessages("network", networkState.error);
+
   return (
     <Card as="section" tone="muted" padding="md" className="gap-4 border-border-default/80">
       <SectionHeader
@@ -35,33 +38,7 @@ export default function NetworkOverviewSection({
         state={networkState}
         onRetry={onRetry}
         retryBusy={networkState.isLoading}
-        messages={{
-          loading: {
-            title: "Netzwerkdaten werden geladen",
-            description: "Blockhoehe und Fee-Schaetzungen werden vorbereitet.",
-          },
-          empty: {
-            title: "Keine Netzwerkdaten verfuegbar",
-            description:
-              "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren On-Chain Werte.",
-          },
-          error: {
-            title: "Netzwerkdaten sind gerade nicht verfuegbar",
-            description:
-              networkState.error ??
-              "Es konnten noch keine verlaesslichen Netzwerkdaten geladen werden.",
-          },
-          partial: {
-            title: "Netzwerkdaten sind teilweise verfuegbar",
-            description:
-              "Einzelne On-Chain Werte fehlen im aktuellen Abruf. Verfuegbare Kennzahlen bleiben sichtbar.",
-          },
-          stale: {
-            title: "Letzte Netzwerkdaten bleiben sichtbar",
-            description:
-              "Die Aktualisierung hat nicht alle Werte erneuert. Die angezeigten Angaben koennen inzwischen veraltet sein.",
-          },
-        }}
+        messages={stateMessages}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <MetricCard

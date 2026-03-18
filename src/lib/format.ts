@@ -1,6 +1,7 @@
-﻿import type { Currency } from "../types/dashboard";
+import { getUnavailableText } from "./dashboard-state-copy";
+import type { Currency } from "../types/dashboard";
 
-export const FALLBACK_TEXT = "--";
+export const FALLBACK_TEXT = getUnavailableText();
 
 function isFiniteNumber(value: number | null): value is number {
   return typeof value === "number" && Number.isFinite(value);

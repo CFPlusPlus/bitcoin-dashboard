@@ -48,6 +48,7 @@ export default function HomePage() {
         chart={chart}
         chartState={chartState}
         currency={currency}
+        dashboardState={dashboardState}
         network={network}
         networkState={networkState}
         overview={overview}
@@ -56,6 +57,7 @@ export default function HomePage() {
         sentiment={sentiment}
         sentimentState={sentimentState}
         onChartRetry={() => void loadChartData(range, currency)}
+        onDashboardRetry={() => void refreshAll(range, currency)}
         onNetworkRetry={() => void loadNetworkData()}
         onOverviewRetry={() => void loadOverviewData()}
         onSentimentRetry={() => void loadSentimentData()}

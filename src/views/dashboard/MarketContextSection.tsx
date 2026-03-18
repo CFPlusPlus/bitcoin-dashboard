@@ -1,4 +1,5 @@
 import type { AsyncDataState } from "../../lib/data-state";
+import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import { formatCurrency } from "../../lib/format";
 import type { Currency, Overview } from "../../types/dashboard";
 import MetricCard from "../../components/MetricCard";
@@ -23,6 +24,7 @@ export default function MarketContextSection({
 }: MarketContextSectionProps) {
   const currencyLabel = currency.toUpperCase();
   const { marketCap, volume24h } = getOverviewValues(overview, currency);
+  const stateMessages = getDashboardSectionStateMessages("marketContext", overviewState.error);
 
   return (
     <Card as="section" tone="default" padding="md" className="h-full gap-4 border-border-default/80">
@@ -37,33 +39,7 @@ export default function MarketContextSection({
         state={overviewState}
         onRetry={onRetry}
         retryBusy={overviewState.isLoading}
-        messages={{
-          loading: {
-            title: "Marktkontext wird geladen",
-            description: "Market Cap und Handelsvolumen werden vorbereitet.",
-          },
-          empty: {
-            title: "Kein Marktkontext verfuegbar",
-            description:
-              "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren Marktmetriken.",
-          },
-          error: {
-            title: "Marktkontext ist gerade nicht verfuegbar",
-            description:
-              overviewState.error ??
-              "Es konnten noch keine verlaesslichen Marktmetriken geladen werden.",
-          },
-          partial: {
-            title: "Marktkontext ist teilweise verfuegbar",
-            description:
-              "Einzelne Metriken fehlen im aktuellen Abruf. Verfuegbare Werte bleiben sichtbar.",
-          },
-          stale: {
-            title: "Letzter Marktkontext bleibt sichtbar",
-            description:
-              "Die Aktualisierung ist fehlgeschlagen. Die angezeigten Kennzahlen koennen inzwischen veraltet sein.",
-          },
-        }}
+        messages={stateMessages}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <MetricCard

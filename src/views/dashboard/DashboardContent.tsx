@@ -21,9 +21,11 @@ type DashboardContentProps = {
   chart: ChartData | null;
   chartState: AsyncDataState<ChartData>;
   currency: Currency;
+  dashboardState: AsyncDataState<{ lastRefreshAt: string }>;
   network: Network | null;
   networkState: AsyncDataState<Network>;
   onChartRetry: () => void;
+  onDashboardRetry: () => void;
   onNetworkRetry: () => void;
   onOverviewRetry: () => void;
   onRangeChange: (value: ChartRange) => void;
@@ -39,9 +41,11 @@ export default function DashboardContent({
   chart,
   chartState,
   currency,
+  dashboardState,
   network,
   networkState,
   onChartRetry,
+  onDashboardRetry,
   onNetworkRetry,
   onOverviewRetry,
   onRangeChange,
@@ -100,7 +104,9 @@ export default function DashboardContent({
       <MetadataSection
         chart={chart}
         currency={currency}
+        dashboardState={dashboardState}
         network={network}
+        onRetry={onDashboardRetry}
         overview={overview}
         sentiment={sentiment}
       />

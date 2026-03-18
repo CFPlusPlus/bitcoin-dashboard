@@ -1,4 +1,5 @@
 import type { AsyncDataState } from "../../lib/data-state";
+import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import { FALLBACK_TEXT, formatCountdown } from "../../lib/format";
 import type { Sentiment } from "../../types/dashboard";
 import { cn } from "../../lib/cn";
@@ -45,6 +46,9 @@ export default function SentimentSection({
   sentimentState,
 }: SentimentSectionProps) {
   const sentimentUi = getSentimentTone(sentiment?.classification ?? null);
+  const stateMessages = getDashboardSectionStateMessages("sentiment", sentimentState.error);
+  const sentimentValue =
+    typeof sentiment?.value === "number" ? `${sentiment.value} / 100` : FALLBACK_TEXT;
 
   return (
     <Card as="section" tone="muted" padding="md" className="h-full gap-4 border-border-default/80">
@@ -59,40 +63,14 @@ export default function SentimentSection({
         state={sentimentState}
         onRetry={onRetry}
         retryBusy={sentimentState.isLoading}
-        messages={{
-          loading: {
-            title: "Sentiment wird geladen",
-            description: "Der Fear-and-Greed-Index wird vorbereitet.",
-          },
-          empty: {
-            title: "Kein Sentiment verfuegbar",
-            description:
-              "Der Anbieter hat aktuell keine verwertbaren Werte fuer diesen Index geliefert.",
-          },
-          error: {
-            title: "Sentiment ist gerade nicht verfuegbar",
-            description:
-              sentimentState.error ??
-              "Es konnten noch keine verlaesslichen Sentimentdaten geladen werden.",
-          },
-          partial: {
-            title: "Sentiment ist teilweise verfuegbar",
-            description:
-              "Der aktuelle Abruf ist unvollstaendig. Vorhandene Hinweise bleiben sichtbar.",
-          },
-          stale: {
-            title: "Letztes Sentiment bleibt sichtbar",
-            description:
-              "Es konnte kein neuer Indexstand geladen werden. Die Anzeige kann inzwischen veraltet sein.",
-          },
-        }}
+        messages={stateMessages}
       >
         <Stack gap="md">
           <div className="flex flex-col gap-4 border border-border-subtle bg-surface px-3 py-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <KpiValue
                 label="Indexstand"
-                value={`${sentiment?.value ?? FALLBACK_TEXT} / 100`}
+                value={sentimentValue}
                 meta="Fear & Greed Index"
                 size="lg"
                 tone={sentimentUi.tone}

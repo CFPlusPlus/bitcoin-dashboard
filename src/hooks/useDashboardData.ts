@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchJson } from "../lib/api";
+import { normalizeDashboardWarningMessage, sanitizeDashboardErrorMessage } from "../lib/dashboard-state-copy";
 import { getLatestSuccessfulUpdate, resolveAsyncDataState } from "../lib/data-state";
 import type { ChartData, ChartRange, Currency, Network, Overview, Sentiment } from "../types/dashboard";
 import { usePersistentState } from "./usePersistentState";
@@ -36,6 +37,17 @@ async function fetchSentiment() {
 
 async function fetchChart(range: ChartRange, currency: Currency) {
   return fetchJson<ChartData>(`/api/chart?days=${range}&currency=${currency}`);
+}
+
+function getSectionErrorMessage(
+  fallback: string,
+  error: unknown
+) {
+  if (!(error instanceof Error)) {
+    return fallback;
+  }
+
+  return sanitizeDashboardErrorMessage(error.message, fallback);
 }
 
 export function useDashboardData() {
@@ -87,9 +99,12 @@ export function useDashboardData() {
       setOverview(overviewData);
       return overviewData.fetchedAt;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Marktdaten konnten nicht geladen werden.";
-      setOverviewError(message);
+      setOverviewError(
+        getSectionErrorMessage(
+          "Marktdaten sind gerade nicht verfuegbar. Bitte spaeter erneut laden.",
+          error
+        )
+      );
       return null;
     } finally {
       setOverviewLoading(false);
@@ -105,9 +120,12 @@ export function useDashboardData() {
       setNetwork(networkData);
       return networkData.fetchedAt;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Netzwerkdaten konnten nicht geladen werden.";
-      setNetworkError(message);
+      setNetworkError(
+        getSectionErrorMessage(
+          "Netzwerkdaten sind gerade nicht verfuegbar. Bitte spaeter erneut laden.",
+          error
+        )
+      );
       return null;
     } finally {
       setNetworkLoading(false);
@@ -123,9 +141,12 @@ export function useDashboardData() {
       setSentiment(sentimentData);
       return sentimentData.fetchedAt;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Sentiment konnte nicht geladen werden.";
-      setSentimentError(message);
+      setSentimentError(
+        getSectionErrorMessage(
+          "Sentimentdaten sind gerade nicht verfuegbar. Bitte spaeter erneut laden.",
+          error
+        )
+      );
       return null;
     } finally {
       setSentimentLoading(false);
@@ -141,9 +162,12 @@ export function useDashboardData() {
       setChart(chartData);
       return chartData.fetchedAt;
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Chartdaten konnten nicht geladen werden.";
-      setChartError(message);
+      setChartError(
+        getSectionErrorMessage(
+          "Chartdaten sind gerade nicht verfuegbar. Bitte spaeter erneut laden.",
+          error
+        )
+      );
       return null;
     } finally {
       setChartLoading(false);
@@ -197,7 +221,9 @@ export function useDashboardData() {
       ...(network?.warnings ?? []),
       ...(sentiment?.warnings ?? []),
       ...(chart?.warnings ?? []),
-    ];
+    ]
+      .map((warning) => normalizeDashboardWarningMessage(warning))
+      .filter(Boolean);
 
     return [...new Set(items)];
   }, [chart, network, overview, sentiment]);

@@ -33,7 +33,7 @@ export default function RefreshStatus({
   return (
     <div className="flex flex-col items-start gap-2">
       <div className="flex flex-wrap items-center gap-2 text-sm text-fg-secondary">
-        <span className="font-medium text-fg-muted">Auto-Refresh:</span>
+        <span className="font-medium text-fg-muted">Auto-Aktualisierung:</span>
         <span>{autoRefresh ? "alle 60 Sekunden" : "pausiert"}</span>
       </div>
       <DataStateMeta lastUpdatedLabel="Zuletzt erfolgreich" state={dashboardState} />
