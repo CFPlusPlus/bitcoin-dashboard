@@ -43,12 +43,16 @@ export default function MarketContextSection({
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <MetricCard
-            label={`Market Cap (${currencyLabel})`}
+            label={`Marktkapitalisierung (${currencyLabel})`}
             value={formatCurrency(marketCap, currency)}
+            meta="Gesamtwert aller umlaufenden BTC zum aktuellen Marktpreis."
+            valueFootnote="Hilft einzuordnen, wie gross Bitcoin im Vergleich zu anderen Maerkten gerade ist."
           />
           <MetricCard
             label={`24h Volumen (${currencyLabel})`}
             value={formatCurrency(volume24h, currency)}
+            meta="Geschatztes Handelsvolumen der vergangenen 24 Stunden."
+            valueFootnote="Hoeheres Volumen spricht meist fuer mehr Marktaktivitaet und belastbarere Preisbewegungen."
           />
         </div>
       </DataState>

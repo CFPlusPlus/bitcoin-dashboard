@@ -42,25 +42,33 @@ export default function NetworkOverviewSection({
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <MetricCard
-            label="Neuester Block"
+            label="Letzter Block"
             value={
               network?.latestBlockHeight === null || network?.latestBlockHeight === undefined
                 ? FALLBACK_TEXT
                 : formatNumber(network.latestBlockHeight)
             }
+            meta="Zuletzt beobachtete Blockhoehe im Bitcoin-Netzwerk."
+            valueFootnote="Eine steigende Blockhoehe bestaetigt, dass neue Bloecke regelmaessig gefunden werden."
           />
 
           <MetricCard
-            label="Schnelle Bestaetigung"
+            label="Prioritaets-Fee"
             value={formatFee(network?.fees.fastestFee ?? null)}
+            meta="Empfohlene Gebuehr fuer die naechsten Bloecke."
+            valueFootnote="Geeignet, wenn eine Transaktion moeglichst schnell bestaetigt werden soll."
           />
           <MetricCard
-            label="Etwa 30 Minuten"
+            label="Fee in ca. 30 Minuten"
             value={formatFee(network?.fees.halfHourFee ?? null)}
+            meta="Richtwert fuer eine mittlere Bestaetigungszeit."
+            valueFootnote="Hilfreich fuer Zahlungen, die zeitnah ankommen sollen, aber nicht maximal dringend sind."
           />
           <MetricCard
-            label="Etwa 60 Minuten"
+            label="Fee in ca. 60 Minuten"
             value={formatFee(network?.fees.hourFee ?? null)}
+            meta="Niedrigere Gebuehr mit laengerem Zeitpuffer."
+            valueFootnote="Kann sinnvoll sein, wenn Kosten wichtiger sind als die schnellste Bestaetigung."
           />
         </div>
       </DataState>

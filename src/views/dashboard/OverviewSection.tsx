@@ -2,7 +2,7 @@ import type { AsyncDataState } from "../../lib/data-state";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import { formatCurrency, formatDateTime, formatPercent } from "../../lib/format";
 import type { Currency, Overview } from "../../types/dashboard";
-import { cn } from "../../lib/cn";
+import MetricCard from "../../components/MetricCard";
 import Card from "../../components/ui/Card";
 import KpiValue from "../../components/ui/content/KpiValue";
 import MetaText from "../../components/ui/content/MetaText";
@@ -60,10 +60,10 @@ export default function OverviewSection({
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(15rem,0.8fr)]">
           <div className="flex h-full flex-col justify-between gap-4 border border-border-strong bg-muted-surface px-4 py-4">
             <KpiValue
-              label={`BTC Preis (${currencyLabel})`}
+              label={`BTC Spotpreis (${currencyLabel})`}
               value={formatCurrency(price, currency)}
               delta={formatPercent(change24h)}
-              meta={`24h-Veraenderung in ${currencyLabel}`}
+              meta={`24h-Entwicklung zum aktuellen Spotpreis in ${currencyLabel}`}
               size="lg"
               tone={changeTone}
               className="gap-2"
@@ -87,25 +87,28 @@ export default function OverviewSection({
           <div className="grid gap-3">
             {[
               {
-                label: `24h Hoch (${currencyLabel})`,
+                label: `24h Tageshoch (${currencyLabel})`,
                 text: formatCurrency(high24h, currency),
-                meta: "Das bisherige Hoch der laufenden 24 Stunden.",
-                tone: "border-accent/30 bg-accent-soft",
+                meta: "Hoechster beobachteter Spotpreis im aktuellen 24h-Fenster.",
+                footnote: "Zeigt, wo die aktuelle Handelsspanne nach oben begrenzt wurde.",
+                tone: "default" as const,
               },
               {
-                label: `24h Tief (${currencyLabel})`,
+                label: `24h Tagestief (${currencyLabel})`,
                 text: formatCurrency(low24h, currency),
-                meta: "Das bisherige Tief der laufenden 24 Stunden.",
-                tone: "border-border-subtle bg-surface",
+                meta: "Niedrigster beobachteter Spotpreis im aktuellen 24h-Fenster.",
+                footnote: "Zeigt, wie weit der Markt innerhalb eines Tages bereits nachgegeben hat.",
+                tone: "muted" as const,
               },
             ].map((item) => (
-              <div
+              <MetricCard
                 key={item.label}
-                className={cn("flex h-full flex-col gap-2 border px-3 py-3", item.tone)}
-              >
-                <KpiValue label={item.label} value={item.text} size="md" />
-                <MetaText>{item.meta}</MetaText>
-              </div>
+                label={item.label}
+                value={item.text}
+                meta={item.meta}
+                valueFootnote={item.footnote}
+                tone={item.tone}
+              />
             ))}
           </div>
         </div>

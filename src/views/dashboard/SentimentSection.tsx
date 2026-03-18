@@ -71,7 +71,7 @@ export default function SentimentSection({
               <KpiValue
                 label="Fear & Greed Index"
                 value={sentimentValue}
-                meta="Stimmungswert fuer den Gesamtmarkt"
+                meta="Stimmungsindikator fuer das aktuelle Marktumfeld"
                 size="lg"
                 tone={sentimentUi.tone}
               />
@@ -89,20 +89,22 @@ export default function SentimentSection({
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-2 border border-border-subtle bg-surface px-3 py-3">
               <MetaText size="xs" className="uppercase tracking-[0.16em]">
-                Naechstes Update
+                Naechste Aktualisierung
               </MetaText>
               <p className="font-mono text-base text-fg">
                 {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null)}
               </p>
+              <MetaText>Zeigt, wann der Stimmungswert voraussichtlich neu berechnet wird.</MetaText>
             </div>
 
             <div className="flex flex-col gap-2 border border-accent/30 bg-accent-soft px-3 py-3">
               <MetaText size="xs" className="uppercase tracking-[0.16em]">
-                Quelle
+                Datenquelle
               </MetaText>
               <p className="text-base font-medium text-fg">
                 {sentiment?.attribution ?? FALLBACK_TEXT}
               </p>
+              <MetaText>Die Quelle hilft, Herkunft und Einordnung des Index nachvollziehbar zu machen.</MetaText>
             </div>
           </div>
         </Stack>
