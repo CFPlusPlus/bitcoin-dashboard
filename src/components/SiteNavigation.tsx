@@ -17,8 +17,8 @@ export default function SiteNavigation() {
   ];
 
   return (
-    <div className="flex items-center gap-2">
-      <nav className="flex items-center gap-2" aria-label={messages.nav.ariaLabel}>
+    <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+      <nav className="flex flex-wrap items-center gap-2" aria-label={messages.nav.ariaLabel}>
         {navItems.map((item) => {
           const localizedHref = getLocalizedPathname(locale, item.href);
           const isActive =

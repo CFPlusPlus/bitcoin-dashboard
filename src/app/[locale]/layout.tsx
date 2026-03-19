@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteFooter from "../../components/SiteFooter";
 import SiteNavigation from "../../components/SiteNavigation";
@@ -56,15 +57,19 @@ export default async function LocaleLayout({
       />
       <main className="flex min-h-screen flex-col py-0">
         <header className="w-full border-b border-border-default/80 bg-surface">
-          <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-            <div className="flex min-w-0 items-center gap-3">
-              <p className="shrink-0 border-r border-border-subtle pr-3 font-mono text-[0.68rem] uppercase tracking-[0.26em] text-accent">
-                {messages.site.name}
-              </p>
-              <p className="truncate font-serif text-lg tracking-[-0.03em] text-fg-secondary sm:text-xl">
-                <span className="text-accent">Bitcoin</span> {messages.site.tagline}
-              </p>
-            </div>
+          <div className="flex flex-col gap-3 px-4 py-2.5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+            <Link href={`/${locale}`} className="min-w-0 max-w-fit text-left">
+              <div className="flex flex-col gap-0">
+                <p className="font-serif text-[1.7rem] leading-none tracking-[0.005em] text-fg sm:text-[1.95rem]">
+                  <span className="text-fg">bit</span>
+                  <span className="text-accent">stats</span>
+                  <span className="ml-0.75 inline-block text-[0.56em] text-fg-secondary">.org</span>
+                </p>
+                <p className="-mt-0.5 font-sans text-[0.76rem] leading-[1.1] tracking-[-0.005em] text-fg-muted sm:text-[0.84rem]">
+                  Bitcoin Data, Charts &amp; Tools
+                </p>
+              </div>
+            </Link>
 
             <SiteNavigation />
           </div>

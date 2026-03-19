@@ -3,7 +3,7 @@ import type { AppLocale } from "./config";
 export const dictionaries = {
   de: {
     site: {
-      name: "Bitcoin Dashboard",
+      name: "bitstats.org",
       tagline: "Bitcoin in ruhigerem Fokus",
       languageSwitchLabel: "Sprache wechseln",
       footer: {
@@ -165,7 +165,7 @@ export const dictionaries = {
       },
     },
     home: {
-      headerEyebrow: "Bitcoin Dashboard",
+      headerEyebrow: "bitstats.org",
       headerTitlePrefix: "Bitcoin auf einen",
       headerTitleAccent: "ruhigen Blick",
       headerDescription: "Preis, Stimmung und Netzwerk in einer klaren Bitcoin-Ansicht.",
@@ -534,7 +534,7 @@ export const dictionaries = {
   },
   en: {
     site: {
-      name: "Bitcoin Dashboard",
+      name: "bitstats.org",
       tagline: "Bitcoin with calmer focus",
       languageSwitchLabel: "Switch language",
       footer: {
@@ -695,7 +695,7 @@ export const dictionaries = {
       },
     },
     home: {
-      headerEyebrow: "Bitcoin Dashboard",
+      headerEyebrow: "bitstats.org",
       headerTitlePrefix: "Bitcoin at a",
       headerTitleAccent: "calmer glance",
       headerDescription: "Price, sentiment, and network in a focused Bitcoin view.",
