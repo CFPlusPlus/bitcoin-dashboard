@@ -48,7 +48,8 @@ describe("route validation handling", () => {
   it("sets the overview cache header explicitly", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn()
+      vi
+        .fn()
         .mockResolvedValueOnce(
           new Response(
             JSON.stringify([
@@ -122,7 +123,9 @@ describe("route validation handling", () => {
     );
 
     const { GET } = await import("./market-context-chart/route");
-    const response = await GET(new Request("https://example.com/api/market-context-chart?currency=usd"));
+    const response = await GET(
+      new Request("https://example.com/api/market-context-chart?currency=usd")
+    );
     const body = await response.json();
 
     expect(response.status).toBe(502);
@@ -152,7 +155,9 @@ describe("route validation handling", () => {
     );
 
     const { GET } = await import("./market-context-chart/route");
-    const response = await GET(new Request("https://example.com/api/market-context-chart?currency=usd"));
+    const response = await GET(
+      new Request("https://example.com/api/market-context-chart?currency=usd")
+    );
 
     expect(response.headers.get("cache-control")).toBe(
       getCacheControlHeader(getChartCachePolicy(30))
@@ -205,10 +210,18 @@ describe("route validation handling", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ prices: [[1, 67000], [2, 68000]] }), {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        })
+        new Response(
+          JSON.stringify({
+            prices: [
+              [1, 67000],
+              [2, 68000],
+            ],
+          }),
+          {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          }
+        )
       )
     );
 
@@ -223,7 +236,8 @@ describe("route validation handling", () => {
   it("sets the network cache header explicitly", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn()
+      vi
+        .fn()
         .mockResolvedValueOnce(
           new Response(
             JSON.stringify({

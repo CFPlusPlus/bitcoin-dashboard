@@ -55,7 +55,9 @@ export default function MetadataSection({
         titleAs="h3"
         titleSize="md"
         description={formatMessage(copy.description, { currency: currency.toUpperCase() })}
-        meta={<DataStateMeta lastUpdatedLabel={messages.common.lastUpdated} state={dashboardState} />}
+        meta={
+          <DataStateMeta lastUpdatedLabel={messages.common.lastUpdated} state={dashboardState} />
+        }
       />
 
       <DataState
@@ -69,10 +71,22 @@ export default function MetadataSection({
           <MetadataItem label={copy.networkSource} value={getMetadataValue(network?.source)} />
           <MetadataItem label={copy.sentimentSource} value={getMetadataValue(sentiment?.source)} />
           <MetadataItem label={copy.chartSource} value={getMetadataValue(chart?.source)} />
-          <MetadataItem label={copy.marketUpdated} value={formatDateTime(overview?.lastUpdatedAt ?? null, locale)} />
-          <MetadataItem label={copy.networkUpdated} value={formatDateTime(network?.fetchedAt ?? null, locale)} />
-          <MetadataItem label={copy.sentimentUpdated} value={formatDateTime(sentiment?.fetchedAt ?? null, locale)} />
-          <MetadataItem label={copy.chartUpdated} value={formatDateTime(chart?.fetchedAt ?? null, locale)} />
+          <MetadataItem
+            label={copy.marketUpdated}
+            value={formatDateTime(overview?.lastUpdatedAt ?? null, locale)}
+          />
+          <MetadataItem
+            label={copy.networkUpdated}
+            value={formatDateTime(network?.fetchedAt ?? null, locale)}
+          />
+          <MetadataItem
+            label={copy.sentimentUpdated}
+            value={formatDateTime(sentiment?.fetchedAt ?? null, locale)}
+          />
+          <MetadataItem
+            label={copy.chartUpdated}
+            value={formatDateTime(chart?.fetchedAt ?? null, locale)}
+          />
         </div>
       </DataState>
     </Card>

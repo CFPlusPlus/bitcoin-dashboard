@@ -91,8 +91,7 @@ export async function GET() {
     fees: feesResult.status === "fulfilled" ? feesResult.value : null,
     latestBlockHeight: blockHeightResult.status === "fulfilled" ? blockHeightResult.value : null,
     hashrate: hashrateResult.status === "fulfilled" ? hashrateResult.value : null,
-    difficultyAdjustment:
-      difficultyResult.status === "fulfilled" ? difficultyResult.value : null,
+    difficultyAdjustment: difficultyResult.status === "fulfilled" ? difficultyResult.value : null,
     mempoolBlocks: mempoolBlocksResult.status === "fulfilled" ? mempoolBlocksResult.value : null,
     recentBlocks: recentBlocksResult.status === "fulfilled" ? recentBlocksResult.value : null,
     fetchedAt: new Date().toISOString(),

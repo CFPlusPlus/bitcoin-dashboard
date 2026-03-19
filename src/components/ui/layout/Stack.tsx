@@ -22,12 +22,7 @@ type StackProps = HTMLAttributes<HTMLDivElement> &
     children: ReactNode;
   };
 
-export default function Stack({
-  children,
-  className,
-  gap,
-  ...props
-}: StackProps) {
+export default function Stack({ children, className, gap, ...props }: StackProps) {
   return (
     <div className={cn(stackVariants({ gap }), className)} {...props}>
       {children}

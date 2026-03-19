@@ -26,11 +26,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function PrivacyRoute({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function PrivacyRoute({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
 
   if (!isValidLocale(locale)) {

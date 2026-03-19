@@ -1,14 +1,19 @@
 import type { Metadata } from "next";
-import { DEFAULT_LOCALE, LOCALES, getAlternateLocalePath, localeMeta, type AppLocale } from "../i18n/config";
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  getAlternateLocalePath,
+  localeMeta,
+  type AppLocale,
+} from "../i18n/config";
 
 export const SITE_NAME = "Bitcoin Dashboard";
 export const DEFAULT_SOCIAL_IMAGE_PATH = "/opengraph-image";
 const LOCAL_DEVELOPMENT_URL = "http://localhost:3000";
 
 function normalizeSiteUrl(value: string) {
-  const withProtocol = value.startsWith("http://") || value.startsWith("https://")
-    ? value
-    : `https://${value}`;
+  const withProtocol =
+    value.startsWith("http://") || value.startsWith("https://") ? value : `https://${value}`;
 
   return withProtocol.endsWith("/") ? withProtocol.slice(0, -1) : withProtocol;
 }
@@ -80,7 +85,10 @@ export function createPageMetadata({
     alternates: {
       canonical: getAlternateLocalePath(canonicalPath, locale),
       languages: Object.fromEntries(
-        LOCALES.map((entry) => [localeMeta[entry].bcp47, getAlternateLocalePath(canonicalPath, entry)])
+        LOCALES.map((entry) => [
+          localeMeta[entry].bcp47,
+          getAlternateLocalePath(canonicalPath, entry),
+        ])
       ),
     },
     openGraph: {

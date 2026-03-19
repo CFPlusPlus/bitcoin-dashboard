@@ -126,7 +126,10 @@ export async function fetchLatestBlockHeight(cachePolicy?: CachePolicy) {
   const latestBlockHeight = Number(text);
 
   if (!Number.isInteger(latestBlockHeight) || latestBlockHeight < 0) {
-    throw invalidUpstreamShape(provider, "mempool.space block height response was not a valid integer.");
+    throw invalidUpstreamShape(
+      provider,
+      "mempool.space block height response was not a valid integer."
+    );
   }
 
   return latestBlockHeight;

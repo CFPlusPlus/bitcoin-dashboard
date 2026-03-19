@@ -28,13 +28,7 @@ type MetaTextProps = HTMLAttributes<HTMLParagraphElement> &
     children: ReactNode;
   };
 
-export default function MetaText({
-  children,
-  className,
-  size,
-  tone,
-  ...props
-}: MetaTextProps) {
+export default function MetaText({ children, className, size, tone, ...props }: MetaTextProps) {
   return (
     <p className={cn(metaTextVariants({ size, tone }), className)} {...props}>
       {children}

@@ -172,7 +172,11 @@ export function useDashboardData(locale: AppLocale) {
   const chartError = useMemo(
     () =>
       chartQuery.error
-        ? getSectionErrorMessage(copy.stateCopy.fallbacks.chartUnavailable, chartQuery.error, locale)
+        ? getSectionErrorMessage(
+            copy.stateCopy.fallbacks.chartUnavailable,
+            chartQuery.error,
+            locale
+          )
         : "",
     [chartQuery.error, copy.stateCopy.fallbacks.chartUnavailable, locale]
   );
@@ -463,8 +467,8 @@ export function useDashboardData(locale: AppLocale) {
           Boolean(performance?.partial) ||
           Boolean(
             performance &&
-              performance.periods.length > 0 &&
-              performance.periods.some((period) => period.changePercent === null)
+            performance.periods.length > 0 &&
+            performance.periods.some((period) => period.changePercent === null)
           ),
         lastUpdatedAt: performance?.fetchedAt ?? null,
       }),

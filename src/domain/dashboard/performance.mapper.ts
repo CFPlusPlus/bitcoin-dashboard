@@ -142,7 +142,10 @@ export function mapPerformanceDto(input: {
   fetchedAt: string;
 }): PerformanceDto {
   const rawPoints = input.payload.prices;
-  const points = rawPoints.filter(isPoint).map(toPoint).sort((left, right) => left.timestamp - right.timestamp);
+  const points = rawPoints
+    .filter(isPoint)
+    .map(toPoint)
+    .sort((left, right) => left.timestamp - right.timestamp);
   const warnings =
     points.length !== rawPoints.length
       ? ["Einige Performance-Punkte konnten nicht verarbeitet werden."]

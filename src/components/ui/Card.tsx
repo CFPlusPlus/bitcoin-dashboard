@@ -21,12 +21,7 @@ type CardProps = Omit<SurfaceProps, "children"> &
     children: ReactNode;
   };
 
-export default function Card({
-  children,
-  className,
-  gap,
-  ...props
-}: CardProps) {
+export default function Card({ children, className, gap, ...props }: CardProps) {
   return (
     <Surface className={cn(cardVariants({ gap }), className)} {...props}>
       {children}

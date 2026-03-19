@@ -87,10 +87,7 @@ export function getDashboardSectionStateMessages(
   };
 }
 
-export function normalizeDashboardWarningMessage(
-  warning: string,
-  locale: AppLocale = "de"
-) {
+export function normalizeDashboardWarningMessage(warning: string, locale: AppLocale = "de") {
   const trimmed = normalizeText(warning);
   const normalized = toLowerText(warning);
   const copy = getDictionary(locale).dashboard.stateCopy?.warningNormalization;

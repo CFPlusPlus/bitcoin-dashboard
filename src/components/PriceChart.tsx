@@ -12,7 +12,11 @@ type PriceChartProps = {
   range: ChartRange;
 };
 
-function getRangeLabel(range: ChartRange, locale: "de" | "en", copy: ReturnType<typeof useI18n>["messages"]["dashboard"]["chart"]) {
+function getRangeLabel(
+  range: ChartRange,
+  locale: "de" | "en",
+  copy: ReturnType<typeof useI18n>["messages"]["dashboard"]["chart"]
+) {
   if (range === 1) return copy.rangeLabel24h;
   if (range === 7) return copy.rangeLabel7d;
   return copy.rangeLabel30d;
@@ -139,7 +143,9 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
     absoluteChange > 0 ? "text-success" : absoluteChange < 0 ? "text-danger" : "text-fg";
 
   const getX = (index: number) =>
-    points.length === 1 ? width / 2 : paddingX + (index / (points.length - 1)) * (width - paddingX * 2);
+    points.length === 1
+      ? width / 2
+      : paddingX + (index / (points.length - 1)) * (width - paddingX * 2);
 
   const getY = (price: number) => {
     const normalized = (price - minPrice) / priceDelta;
@@ -147,7 +153,10 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   };
 
   const linePath = points
-    .map((point, index) => `${index === 0 ? "M" : "L"} ${getX(index).toFixed(2)} ${getY(point.price).toFixed(2)}`)
+    .map(
+      (point, index) =>
+        `${index === 0 ? "M" : "L"} ${getX(index).toFixed(2)} ${getY(point.price).toFixed(2)}`
+    )
     .join(" ");
   const hoverablePoints = points.map((point, index) => ({
     ...point,
@@ -162,8 +171,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   const baseY = height - paddingY;
   const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(2)} ${baseY.toFixed(2)} Z`;
   const rangeLabel = getRangeLabel(range, locale, copy);
-  const activeHoveredPoint =
-    hoveredIndex === null ? null : hoverablePoints[hoveredIndex] ?? null;
+  const activeHoveredPoint = hoveredIndex === null ? null : (hoverablePoints[hoveredIndex] ?? null);
   const tooltipValueLabel = activeHoveredPoint
     ? formatCurrency(activeHoveredPoint.price, currency, locale)
     : "";
@@ -173,10 +181,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   const tooltipWidth = getTooltipWidth(tooltipValueLabel, tooltipDateLabel);
   const tooltipHeight = 46;
   const tooltipX = activeHoveredPoint
-    ? Math.min(
-        Math.max(activeHoveredPoint.x - tooltipWidth / 2, 10),
-        width - tooltipWidth - 10
-      )
+    ? Math.min(Math.max(activeHoveredPoint.x - tooltipWidth / 2, 10), width - tooltipWidth - 10)
     : 0;
   const tooltipY = activeHoveredPoint
     ? getTooltipY({
@@ -211,9 +216,14 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
     <div className="flex flex-col gap-5">
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
         <div className="border border-accent/30 bg-accent-soft px-3 py-3">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.contextLabel}</p>
+          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
+            {copy.contextLabel}
+          </p>
           <p className="mt-2 text-sm font-medium text-fg">
-            {formatMessage(copy.contextLine, { currency: currency.toUpperCase(), range: rangeLabel })}
+            {formatMessage(copy.contextLine, {
+              currency: currency.toUpperCase(),
+              range: rangeLabel,
+            })}
           </p>
           <p className="mt-2 text-sm leading-6 text-fg-muted">
             {formatMessage(copy.contextCoverage, {
@@ -224,20 +234,31 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
         </div>
 
         <div className="border border-border-subtle bg-surface px-3 py-2.5">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.lowInWindow}</p>
-          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(minPrice, currency, locale)}</p>
+          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
+            {copy.lowInWindow}
+          </p>
+          <p className="mt-2 font-mono text-base text-fg">
+            {formatCurrency(minPrice, currency, locale)}
+          </p>
         </div>
 
         <div className="border border-border-subtle bg-surface px-3 py-2.5">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.highInWindow}</p>
-          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(maxPrice, currency, locale)}</p>
+          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
+            {copy.highInWindow}
+          </p>
+          <p className="mt-2 font-mono text-base text-fg">
+            {formatCurrency(maxPrice, currency, locale)}
+          </p>
         </div>
 
         <div className="border border-accent/35 bg-accent-soft px-3 py-2.5">
           <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.latest}</p>
-          <p className="mt-2 font-mono text-base text-fg">{formatCurrency(currentPrice, currency, locale)}</p>
+          <p className="mt-2 font-mono text-base text-fg">
+            {formatCurrency(currentPrice, currency, locale)}
+          </p>
           <p className={`mt-2 text-sm font-medium ${changeTone}`}>
-            {formatCurrency(absoluteChange, currency, locale)} ({formatPercent(relativeChange, locale)})
+            {formatCurrency(absoluteChange, currency, locale)} (
+            {formatPercent(relativeChange, locale)})
           </p>
         </div>
       </div>
@@ -262,11 +283,22 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
             currency: currency.toUpperCase(),
           })}
         >
-          <line x1={paddingX} y1={baseY} x2={width - paddingX} y2={baseY} stroke="rgb(255 245 232 / 0.1)" strokeWidth="1" />
+          <line
+            x1={paddingX}
+            y1={baseY}
+            x2={width - paddingX}
+            y2={baseY}
+            stroke="rgb(255 245 232 / 0.1)"
+            strokeWidth="1"
+          />
 
           {[
             { label: formatCurrency(maxPrice, currency, locale), value: maxPrice, dashed: true },
-            { label: formatCurrency(midpointPrice, currency, locale), value: midpointPrice, dashed: true },
+            {
+              label: formatCurrency(midpointPrice, currency, locale),
+              value: midpointPrice,
+              dashed: true,
+            },
             { label: formatCurrency(minPrice, currency, locale), value: minPrice, dashed: false },
           ].map((item) => {
             const y = getY(item.value);
@@ -290,8 +322,22 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           })}
 
           <path d={areaPath} fill="rgba(242, 143, 45, 0.12)" />
-          <path d={linePath} fill="none" stroke="#f28f2d" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={linePath} fill="none" stroke="rgba(255, 178, 90, 0.55)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d={linePath}
+            fill="none"
+            stroke="#f28f2d"
+            strokeWidth="1"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d={linePath}
+            fill="none"
+            stroke="rgba(255, 178, 90, 0.55)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
           {activeHoveredPoint ? (
             <>
               <line
@@ -303,7 +349,14 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
                 strokeDasharray="5 7"
                 strokeWidth="1"
               />
-              <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="6" fill="#17120d" stroke="#f28f2d" strokeWidth="2" />
+              <circle
+                cx={activeHoveredPoint.x}
+                cy={activeHoveredPoint.y}
+                r="6"
+                fill="#17120d"
+                stroke="#f28f2d"
+                strokeWidth="2"
+              />
               <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="2.5" fill="#f6b05d" />
             </>
           ) : null}
@@ -330,7 +383,13 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
                 fill="#110d0a"
                 stroke="rgba(242, 143, 45, 0.24)"
               />
-              <text x={tooltipX + 10} y={tooltipY + 18} fill="#f7efe5" fontSize="13" fontWeight="600">
+              <text
+                x={tooltipX + 10}
+                y={tooltipY + 18}
+                fill="#f7efe5"
+                fontSize="13"
+                fontWeight="600"
+              >
                 {tooltipValueLabel}
               </text>
               <text x={tooltipX + 10} y={tooltipY + 33} fill="#9f968b" fontSize="11.5">

@@ -1,11 +1,11 @@
 import { mapOverviewDto } from "../../../domain/dashboard/overview.mapper";
-import {
-  getCacheControlHeader,
-  overviewCachePolicy,
-} from "../../../server/cache";
+import { getCacheControlHeader, overviewCachePolicy } from "../../../server/cache";
 import { getAppEnv } from "../../../server/env";
 import { errorResponse, getReasonMessage, jsonResponse } from "../../../server/http";
-import { fetchCoinGeckoGlobalData, fetchCoinGeckoMarketData } from "../../../server/providers/coingecko";
+import {
+  fetchCoinGeckoGlobalData,
+  fetchCoinGeckoMarketData,
+} from "../../../server/providers/coingecko";
 import { isUpstreamError } from "../../../server/upstream";
 
 function getRejectedReason<T>(result: PromiseSettledResult<T>) {
@@ -44,7 +44,9 @@ export async function GET() {
   }
 
   if (!usd && !eur) {
-    const errors = [getRejectedReason(usdResult), getRejectedReason(eurResult)].filter(isUpstreamError);
+    const errors = [getRejectedReason(usdResult), getRejectedReason(eurResult)].filter(
+      isUpstreamError
+    );
 
     return errorResponse(502, "Fehler beim Laden der Overview-Daten.", warnings.join(" "), {
       ...(errors.length > 0 ? { codes: [...new Set(errors.map((error) => error.code))] } : {}),

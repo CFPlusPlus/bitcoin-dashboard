@@ -18,8 +18,7 @@ type DataStateMetaProps = {
 
 export default function DataStateMeta({ className, lastUpdatedLabel, state }: DataStateMetaProps) {
   const { messages } = useI18n();
-  const showMeta =
-    state.isRefreshing || state.isPartial || state.isStale || state.hasUsableData;
+  const showMeta = state.isRefreshing || state.isPartial || state.isStale || state.hasUsableData;
 
   if (!showMeta) {
     return null;

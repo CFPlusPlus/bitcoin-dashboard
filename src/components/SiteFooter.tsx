@@ -42,7 +42,10 @@ export default function SiteFooter({ locale, messages }: SiteFooterProps) {
             <p className="font-mono text-[0.68rem] uppercase tracking-[0.24em] text-fg-muted">
               {messages.footer.navigation}
             </p>
-            <nav className="flex flex-wrap gap-3 sm:justify-end" aria-label={messages.footer.navigation}>
+            <nav
+              className="flex flex-wrap gap-3 sm:justify-end"
+              aria-label={messages.footer.navigation}
+            >
               {navItems.map((item) => (
                 <Link
                   key={item.href}

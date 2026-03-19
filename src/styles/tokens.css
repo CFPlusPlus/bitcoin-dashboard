@@ -60,9 +60,11 @@
   --state-stale-fg: var(--token-color-warning);
 
   --token-font-family-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
-  --token-font-family-serif: "Newsreader Variable", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --token-font-family-serif:
+    "Newsreader Variable", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --token-font-family-mono:
-    "IBM Plex Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", monospace;
+    "IBM Plex Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono",
+    monospace;
 
   --container-max-width: 82rem;
   --container-padding-x: 1rem;

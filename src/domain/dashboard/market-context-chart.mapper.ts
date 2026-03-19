@@ -31,13 +31,19 @@ function mapSeries(
   rawPoints: Array<[number, number]> | undefined
 ): MarketContextChartSeriesDto {
   if (!rawPoints?.length) {
-    throw missingUpstreamData("coingecko", `CoinGecko market chart response missing ${key} points.`);
+    throw missingUpstreamData(
+      "coingecko",
+      `CoinGecko market chart response missing ${key} points.`
+    );
   }
 
   const points = rawPoints.filter(isPoint).map(mapPoint);
 
   if (points.length === 0) {
-    throw missingUpstreamData("coingecko", `CoinGecko market chart response contained no valid ${key} points.`);
+    throw missingUpstreamData(
+      "coingecko",
+      `CoinGecko market chart response contained no valid ${key} points.`
+    );
   }
 
   const values = points.map((point) => point.value);

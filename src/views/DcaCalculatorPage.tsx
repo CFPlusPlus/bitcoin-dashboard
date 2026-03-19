@@ -28,12 +28,7 @@ import {
   normalizeDcaEntryStore,
   removeDcaEntry,
 } from "../lib/dca";
-import {
-  formatBtc,
-  formatCurrency,
-  formatDate,
-  formatPercent,
-} from "../lib/format";
+import { formatBtc, formatCurrency, formatDate, formatPercent } from "../lib/format";
 import type { Currency, DcaEntryStore, Overview } from "../types/dashboard";
 
 const STORAGE_KEYS = {
@@ -108,10 +103,7 @@ export default function DcaCalculatorPage() {
   const copy = messages.dca;
   const unavailableText = messages.common.unavailable;
   const currencyStateOptions = useMemo(() => ({ validator: isCurrency }), []);
-  const entryStoreStateOptions = useMemo(
-    () => ({ normalize: normalizeDcaEntryStore }),
-    []
-  );
+  const entryStoreStateOptions = useMemo(() => ({ normalize: normalizeDcaEntryStore }), []);
 
   const [currency, setCurrency] = usePersistentState<Currency>(
     STORAGE_KEYS.currency,
@@ -144,8 +136,7 @@ export default function DcaCalculatorPage() {
       const overviewData = await fetchJson<Overview>("/api/overview", locale);
       setOverview(overviewData);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : copy.marketState.loadError;
+      const message = error instanceof Error ? error.message : copy.marketState.loadError;
       setMarketError(message);
     } finally {
       setMarketLoading(false);
@@ -189,12 +180,15 @@ export default function DcaCalculatorPage() {
     setFormError("");
     setFormErrorField(null);
 
-    const result = createDcaEntry({
-      amountInvested,
-      bitcoinPrice,
-      date,
-      note,
-    }, locale);
+    const result = createDcaEntry(
+      {
+        amountInvested,
+        bitcoinPrice,
+        date,
+        note,
+      },
+      locale
+    );
 
     if (!result.success) {
       setFormError(result.error);
@@ -306,7 +300,12 @@ export default function DcaCalculatorPage() {
             ))}
           </div>
 
-          <Button type="button" intent="primary" size="sm" onClick={() => void loadMarketOverview()}>
+          <Button
+            type="button"
+            intent="primary"
+            size="sm"
+            onClick={() => void loadMarketOverview()}
+          >
             {copy.refreshPrice}
           </Button>
         </div>
@@ -332,9 +331,7 @@ export default function DcaCalculatorPage() {
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
           <p className="text-sm text-fg-secondary">{copy.bitcoinLabel}</p>
           <h3>{formatBtc(dcaView.summary.totalBitcoin, locale)}</h3>
-          <p className="text-sm leading-6 text-fg-muted">
-            {copy.bitcoinDescription}
-          </p>
+          <p className="text-sm leading-6 text-fg-muted">{copy.bitcoinDescription}</p>
         </Card>
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
           <p className="text-sm text-fg-secondary">{copy.averageLabel}</p>
@@ -343,9 +340,7 @@ export default function DcaCalculatorPage() {
               ? unavailableText
               : `${formatCurrency(dcaView.summary.averageBuyPrice, currency, locale)} / BTC`}
           </h3>
-          <p className="text-sm leading-6 text-fg-muted">
-            {copy.averageDescription}
-          </p>
+          <p className="text-sm leading-6 text-fg-muted">{copy.averageDescription}</p>
         </Card>
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
           <p className="text-sm text-fg-secondary">{copy.currentPriceLabel}</p>
@@ -354,16 +349,12 @@ export default function DcaCalculatorPage() {
               ? unavailableText
               : `${formatCurrency(dcaView.summary.currentPrice, currency, locale)} / BTC`}
           </h3>
-          <p className="text-sm leading-6 text-fg-muted">
-            {copy.currentPriceDescription}
-          </p>
+          <p className="text-sm leading-6 text-fg-muted">{copy.currentPriceDescription}</p>
         </Card>
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
           <p className="text-sm text-fg-secondary">{copy.currentValueLabel}</p>
           <h3>{formatCurrency(dcaView.summary.currentValue, currency, locale)}</h3>
-          <p className="text-sm leading-6 text-fg-muted">
-            {copy.currentValueDescription}
-          </p>
+          <p className="text-sm leading-6 text-fg-muted">{copy.currentValueDescription}</p>
         </Card>
         <Card as="article" padding="md" gap="sm" className="dca-summary-card">
           <p className="text-sm text-fg-secondary">{copy.pnlLabel}</p>
@@ -381,9 +372,7 @@ export default function DcaCalculatorPage() {
           <Card as="article" padding="lg" gap="md" className="dca-form-card">
             <p className="text-sm text-fg-secondary">{copy.formEyebrow}</p>
             <h3>{copy.formTitle}</h3>
-            <p className="text-sm leading-6 text-fg-muted">
-              {copy.formDescription}
-            </p>
+            <p className="text-sm leading-6 text-fg-muted">{copy.formDescription}</p>
 
             <form className="dca-form" onSubmit={handleAddEntry}>
               <label className="dca-input-group">
@@ -394,13 +383,13 @@ export default function DcaCalculatorPage() {
                   value={date}
                   onChange={(event) => setDate(event.target.value)}
                 />
-                <small className="dca-input-hint">
-                  {copy.fields.dateHint}
-                </small>
+                <small className="dca-input-hint">{copy.fields.dateHint}</small>
               </label>
 
               <label className="dca-input-group">
-                <span>{formatMessage(copy.fields.amount, { currency: currency.toUpperCase() })}</span>
+                <span>
+                  {formatMessage(copy.fields.amount, { currency: currency.toUpperCase() })}
+                </span>
                 <input
                   aria-invalid={formErrorField === "amountInvested"}
                   type="number"
@@ -411,13 +400,13 @@ export default function DcaCalculatorPage() {
                   onChange={(event) => setAmountInvested(event.target.value)}
                   placeholder={currency === "usd" ? "250" : "200"}
                 />
-                <small className="dca-input-hint">
-                  {copy.fields.amountHint}
-                </small>
+                <small className="dca-input-hint">{copy.fields.amountHint}</small>
               </label>
 
               <label className="dca-input-group">
-                <span>{formatMessage(copy.fields.bitcoinPrice, { currency: currency.toUpperCase() })}</span>
+                <span>
+                  {formatMessage(copy.fields.bitcoinPrice, { currency: currency.toUpperCase() })}
+                </span>
                 <input
                   aria-invalid={formErrorField === "bitcoinPrice"}
                   type="number"
@@ -428,9 +417,7 @@ export default function DcaCalculatorPage() {
                   onChange={(event) => setBitcoinPrice(event.target.value)}
                   placeholder={currency === "usd" ? "50000" : "46000"}
                 />
-                <small className="dca-input-hint">
-                  {copy.fields.bitcoinPriceHint}
-                </small>
+                <small className="dca-input-hint">{copy.fields.bitcoinPriceHint}</small>
               </label>
 
               <label className="dca-input-group">
@@ -441,9 +428,7 @@ export default function DcaCalculatorPage() {
                   onChange={(event) => setNote(event.target.value)}
                   placeholder={copy.fields.notePlaceholder}
                 />
-                <small className="dca-input-hint">
-                  {copy.fields.noteHint}
-                </small>
+                <small className="dca-input-hint">{copy.fields.noteHint}</small>
               </label>
 
               {formError && (
@@ -456,9 +441,7 @@ export default function DcaCalculatorPage() {
                 <Button type="submit" intent="primary" size="sm">
                   {copy.savePurchase}
                 </Button>
-                <p className="dca-persistence-note">
-                  {copy.persistenceNote}
-                </p>
+                <p className="dca-persistence-note">{copy.persistenceNote}</p>
               </div>
             </form>
           </Card>
@@ -483,7 +466,10 @@ export default function DcaCalculatorPage() {
 
             <div className="dca-list-actions">
               <Link
-                className={cn(buttonVariants({ intent: "secondary", size: "sm" }), "min-w-[11rem] no-underline")}
+                className={cn(
+                  buttonVariants({ intent: "secondary", size: "sm" }),
+                  "min-w-[11rem] no-underline"
+                )}
                 href={getLocalizedPathname(locale, "/tools")}
               >
                 {copy.backToTools}
@@ -510,7 +496,9 @@ export default function DcaCalculatorPage() {
                   type="button"
                   intent="primary"
                   size="sm"
-                  onClick={() => formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                  onClick={() =>
+                    formCardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }
                 >
                   {copy.firstPurchase}
                 </Button>

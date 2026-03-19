@@ -1,6 +1,7 @@
 # Design Tokens (V1 Draft)
 
 ## Purpose
+
 This document defines the foundational design tokens for V1.
 It is the basis for a consistent UI system and should make later design work easier.
 
@@ -13,6 +14,7 @@ They should create stability without blocking later refinement.
 ## 1. Core Principles
 
 The token system should:
+
 - be dark-mode-first
 - feel calm and data-focused
 - use orange as an accent in a controlled way
@@ -26,29 +28,34 @@ The token system should:
 Instead of spreading hard-coded individual values too early, the system should use semantic roles.
 
 ## 2.1 Base Colors
+
 - `--color-bg-app`
 - `--color-bg-surface`
 - `--color-bg-elevated`
 - `--color-bg-muted`
 
 ## 2.2 Text Colors
+
 - `--color-text-primary`
 - `--color-text-secondary`
 - `--color-text-muted`
 - `--color-text-inverse`
 
 ## 2.3 Accent Colors
+
 - `--color-accent-primary`
 - `--color-accent-soft`
 - `--color-accent-strong`
 
 ## 2.4 Semantic Colors
+
 - `--color-success`
 - `--color-warning`
 - `--color-danger`
 - `--color-info`
 
 ## 2.5 Border Colors
+
 - `--color-border-subtle`
 - `--color-border-default`
 - `--color-border-strong`
@@ -58,6 +65,7 @@ Instead of spreading hard-coded individual values too early, the system should u
 ## 3. Color Character for V1
 
 ### Base
+
 - very dark app background
 - flat, matte surfaces without gradients
 - lightly stepped surface layers
@@ -65,6 +73,7 @@ Instead of spreading hard-coded individual values too early, the system should u
 - strong contrast, but not overly harsh
 
 ### Accent
+
 - orange as the focus color
 - only use the accent where attention should be guided deliberately:
   - active states
@@ -74,6 +83,7 @@ Instead of spreading hard-coded individual values too early, the system should u
   - selected data accents
 
 ### Semantics
+
 - positive values: calm, not aggressive
 - negative values: clearly visible, but not alarmist
 - warning / info: functional, not colorful for its own sake
@@ -83,11 +93,13 @@ Instead of spreading hard-coded individual values too early, the system should u
 ## 4. Typography Tokens
 
 ## 4.1 Font Families
+
 - `--font-sans`: primary typeface for UI and body text
 - `--font-serif`: accent typeface for headings or highlights
 - `--font-mono`: typeface for numbers, KPIs, and technical values
 
 ## 4.2 Typographic Roles
+
 - `--text-display`
 - `--text-h1`
 - `--text-h2`
@@ -101,6 +113,7 @@ Instead of spreading hard-coded individual values too early, the system should u
 - `--text-caption`
 
 ## 4.3 Typography Principles
+
 - body text: sans-serif, clean, highly readable
 - headings: primarily sans, with selective serif accents
 - numbers: technical, precise, stable
@@ -114,7 +127,9 @@ Instead of spreading hard-coded individual values too early, the system should u
 Spacing should create calmness, rhythm, and grouping.
 
 ## 5.1 Base Scale
+
 Recommended scale:
+
 - `--space-1`: 4px
 - `--space-2`: 8px
 - `--space-3`: 12px
@@ -127,6 +142,7 @@ Recommended scale:
 - `--space-16`: 64px
 
 ## 5.2 Usage Rules
+
 - small internal spacing for dense UI elements
 - medium spacing inside cards
 - large spacing between sections
@@ -139,12 +155,14 @@ Recommended scale:
 Surfaces should feel precise, calm, and architectural.
 
 Recommended roles:
+
 - `--radius-sm`
 - `--radius-md`
 - `--radius-lg`
 - `--radius-xl`
 
 Recommended direction:
+
 - noticeably tighter than typical SaaS dashboards
 - no pill-heavy component language as the default
 - clear geometry with only slight softening at the corners
@@ -156,12 +174,14 @@ Recommended direction:
 Shadows should be used very carefully in dark mode.
 
 Roles:
+
 - `--shadow-xs`
 - `--shadow-sm`
 - `--shadow-md`
 - `--shadow-lg`
 
 Principles:
+
 - keep shadows minimal to none
 - create elevation mainly through surface and border differences
 - avoid floating, glassy, or layered card effects
@@ -173,11 +193,13 @@ Principles:
 Borders help provide structure and readability in dark mode.
 
 Roles:
+
 - `--border-subtle`
 - `--border-default`
 - `--border-strong`
 
 Principles:
+
 - use fine, controlled separation
 - prefer subtle edges over heavy boxes everywhere
 - borders are structural, not decorative
@@ -187,18 +209,21 @@ Principles:
 ## 9. Layout Tokens
 
 ## 9.1 Container
+
 - `--container-max-width`
 - `--container-padding-x`
 - `--section-gap`
 - `--grid-gap`
 
 ## 9.2 Surface Roles
+
 - `surface/base`
 - `surface/card`
 - `surface/elevated`
 - `surface/interactive`
 
 ## 9.3 Grid Principles
+
 - desktop: generous sections and clear rhythm
 - tablet: reduced multi-column complexity
 - mobile: linear reading flow with full content preserved
@@ -210,6 +235,7 @@ Principles:
 These roles should later be consumed by components:
 
 ### Card
+
 - background
 - border
 - radius
@@ -219,6 +245,7 @@ These roles should later be consumed by components:
 - meta style
 
 ### KPI
+
 - label
 - main value
 - delta
@@ -226,11 +253,13 @@ These roles should later be consumed by components:
 - status
 
 ### Button / CTA
+
 - primary
 - secondary
 - tertiary / ghost
 
 ### Input
+
 - background
 - border
 - focus ring
@@ -238,6 +267,7 @@ These roles should later be consumed by components:
 - help / error text
 
 ### Chart Container
+
 - surface
 - border
 - header
@@ -251,6 +281,7 @@ These roles should later be consumed by components:
 Every UI area should use consistent states.
 
 ## 11.1 Async States
+
 - loading
 - success
 - empty
@@ -259,6 +290,7 @@ Every UI area should use consistent states.
 - stale
 
 ## 11.2 Semantic Roles per State
+
 - `--state-loading-bg`
 - `--state-loading-fg`
 - `--state-error-bg`
@@ -278,16 +310,19 @@ States are part of the design system, not just technical edge cases.
 Motion should stay calm and supportive.
 
 Roles:
+
 - `--motion-fast`
 - `--motion-base`
 - `--motion-slow`
 
 Easing:
+
 - soft
 - controlled
 - no aggressive snaps as the default
 
 Use for:
+
 - hover
 - focus
 - expand / collapse
@@ -295,6 +330,7 @@ Use for:
 - light entrance transitions
 
 Do not use for:
+
 - showcase effects
 - constant motion
 - distracting number animations
@@ -304,6 +340,7 @@ Do not use for:
 ## 13. Z-Index / Layer Tokens
 
 Recommended roles:
+
 - `--z-base`
 - `--z-sticky`
 - `--z-dropdown`
@@ -319,12 +356,14 @@ predictable layering instead of ad-hoc values.
 ## 14. Responsive Tokens
 
 Recommended breakpoint roles:
+
 - `--bp-sm`
 - `--bp-md`
 - `--bp-lg`
 - `--bp-xl`
 
 Principle:
+
 - layout changes should be intentional
 - not just compressing everything
 - on mobile, reorder priorities rather than removing important content
@@ -340,6 +379,7 @@ These tokens should live in one central place in the codebase, for example:
 - or combined with Tailwind theme extensions
 
 Important:
+
 - avoid scattered magic numbers
 - avoid hard-coded values inside feature components
 - prefer semantic naming over purely visual naming

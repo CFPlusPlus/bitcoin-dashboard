@@ -15,6 +15,8 @@
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
@@ -51,6 +53,7 @@
     "jsdom": "^26.1.0",
     "msw": "^2.12.13",
     "postcss": "^8.5.8",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.44.0",

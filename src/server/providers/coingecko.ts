@@ -97,7 +97,10 @@ export async function fetchCoinGeckoMarketData(
   const item = parsed.data[0];
 
   if (!item) {
-    throw missingUpstreamData(provider, `CoinGecko ${currency.toUpperCase()} returned no bitcoin market data.`);
+    throw missingUpstreamData(
+      provider,
+      `CoinGecko ${currency.toUpperCase()} returned no bitcoin market data.`
+    );
   }
 
   ensureMarketItemCompleteness(item, currency);
@@ -140,7 +143,10 @@ export async function fetchCoinGeckoMarketChart(input: {
   }
 
   if (parsed.data.prices.length === 0) {
-    throw missingUpstreamData(provider, "CoinGecko chart response did not include any price points.");
+    throw missingUpstreamData(
+      provider,
+      "CoinGecko chart response did not include any price points."
+    );
   }
 
   return parsed.data;

@@ -46,12 +46,7 @@ export default function SectionHeader({
       </Stack>
 
       {meta || action ? (
-        <Cluster
-          align="center"
-          gap="sm"
-          justify="end"
-          className="sm:shrink-0 sm:justify-end"
-        >
+        <Cluster align="center" gap="sm" justify="end" className="sm:shrink-0 sm:justify-end">
           {meta}
           {action}
         </Cluster>

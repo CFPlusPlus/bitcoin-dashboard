@@ -86,12 +86,13 @@ export default function MarketMetricChart({
   const baseY = height - paddingBottom;
   const absoluteChange = lastPoint.value - firstPoint.value;
   const relativeChange = firstPoint.value === 0 ? 0 : (absoluteChange / firstPoint.value) * 100;
-  const deltaTone =
-    relativeChange > 0 ? "positive" : relativeChange < 0 ? "negative" : "neutral";
+  const deltaTone = relativeChange > 0 ? "positive" : relativeChange < 0 ? "negative" : "neutral";
   const deltaLabel = `${relativeChange > 0 ? "+" : ""}${relativeChange.toFixed(1)}% (30d)`;
 
   const getX = (index: number) =>
-    points.length === 1 ? width / 2 : paddingX + (index / (points.length - 1)) * (width - paddingX * 2);
+    points.length === 1
+      ? width / 2
+      : paddingX + (index / (points.length - 1)) * (width - paddingX * 2);
 
   const getY = (value: number) => {
     const normalized = (value - min) / delta;
@@ -99,7 +100,10 @@ export default function MarketMetricChart({
   };
 
   const linePath = points
-    .map((point, index) => `${index === 0 ? "M" : "L"} ${getX(index).toFixed(2)} ${getY(point.value).toFixed(2)}`)
+    .map(
+      (point, index) =>
+        `${index === 0 ? "M" : "L"} ${getX(index).toFixed(2)} ${getY(point.value).toFixed(2)}`
+    )
     .join(" ");
   const hoverablePoints = points.map((point, index) => ({
     ...point,
@@ -116,8 +120,7 @@ export default function MarketMetricChart({
   const stroke = tone === "accent" ? "#f28f2d" : "#e7dfd4";
   const glow = tone === "accent" ? "rgba(255, 178, 90, 0.18)" : "rgba(231, 223, 212, 0.14)";
   const area = tone === "accent" ? "rgba(242, 143, 45, 0.06)" : "rgba(231, 223, 212, 0.04)";
-  const activeHoveredPoint =
-    hoveredIndex === null ? null : hoverablePoints[hoveredIndex] ?? null;
+  const activeHoveredPoint = hoveredIndex === null ? null : (hoverablePoints[hoveredIndex] ?? null);
   const tooltipValueLabel = activeHoveredPoint
     ? formatCompactCurrency(activeHoveredPoint.value, currency, locale, 1)
     : "";
@@ -127,10 +130,7 @@ export default function MarketMetricChart({
   const tooltipWidth = getTooltipWidth(tooltipValueLabel, tooltipDateLabel);
   const tooltipHeight = 42;
   const tooltipX = activeHoveredPoint
-    ? Math.min(
-        Math.max(activeHoveredPoint.x - tooltipWidth / 2, 6),
-        width - tooltipWidth - 6
-      )
+    ? Math.min(Math.max(activeHoveredPoint.x - tooltipWidth / 2, 6), width - tooltipWidth - 6)
     : 0;
   const tooltipY = activeHoveredPoint
     ? getTooltipY({
@@ -152,7 +152,8 @@ export default function MarketMetricChart({
     const pointerX =
       paddingX + ((event.clientX - bounds.left) / bounds.width) * (width - paddingX * 2);
     const pointerY =
-      paddingTop + ((event.clientY - bounds.top) / bounds.height) * (height - paddingTop - paddingBottom);
+      paddingTop +
+      ((event.clientY - bounds.top) / bounds.height) * (height - paddingTop - paddingBottom);
     const clampedX = Math.min(Math.max(pointerX, paddingX), width - paddingX);
     const clampedY = Math.min(Math.max(pointerY, paddingTop), baseY);
     const progress = (clampedX - paddingX) / (width - paddingX * 2 || 1);
@@ -190,10 +191,29 @@ export default function MarketMetricChart({
       </div>
 
       <div className="px-2 pb-2 pt-2">
-        <svg viewBox={`0 0 ${width} ${height}`} className="block h-auto w-full overflow-visible" role="img" aria-label={label}>
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="block h-auto w-full overflow-visible"
+          role="img"
+          aria-label={label}
+        >
           <path d={areaPath} fill={area} />
-          <path d={linePath} fill="none" stroke={glow} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={linePath} fill="none" stroke={stroke} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d={linePath}
+            fill="none"
+            stroke={glow}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d={linePath}
+            fill="none"
+            stroke={stroke}
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
           {activeHoveredPoint ? (
             <>
               <line
@@ -205,7 +225,14 @@ export default function MarketMetricChart({
                 strokeDasharray="4 5"
                 strokeWidth="1"
               />
-              <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="4.5" fill="#17120d" stroke={stroke} strokeWidth="1.4" />
+              <circle
+                cx={activeHoveredPoint.x}
+                cy={activeHoveredPoint.y}
+                r="4.5"
+                fill="#17120d"
+                stroke={stroke}
+                strokeWidth="1.4"
+              />
               <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="1.9" fill={stroke} />
             </>
           ) : null}
@@ -229,9 +256,17 @@ export default function MarketMetricChart({
                 height={tooltipHeight}
                 rx="6"
                 fill="#110d0a"
-                stroke={tone === "accent" ? "rgba(242, 143, 45, 0.24)" : "rgba(231, 223, 212, 0.18)"}
+                stroke={
+                  tone === "accent" ? "rgba(242, 143, 45, 0.24)" : "rgba(231, 223, 212, 0.18)"
+                }
               />
-              <text x={tooltipX + 9} y={tooltipY + 17} fill="#f7efe5" fontSize="12.5" fontWeight="600">
+              <text
+                x={tooltipX + 9}
+                y={tooltipY + 17}
+                fill="#f7efe5"
+                fontSize="12.5"
+                fontWeight="600"
+              >
                 {tooltipValueLabel}
               </text>
               <text x={tooltipX + 9} y={tooltipY + 31} fill="#9f968b" fontSize="11">

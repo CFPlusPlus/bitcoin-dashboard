@@ -43,10 +43,7 @@ export default function LanguageSwitcher() {
   }, [isOpen]);
 
   return (
-    <div
-      ref={wrapperRef}
-      className="relative"
-    >
+    <div ref={wrapperRef} className="relative">
       <button
         type="button"
         aria-label={messages.site.languageSwitchLabel}
@@ -108,7 +105,9 @@ export default function LanguageSwitcher() {
                 <span className="text-[0.68rem] font-medium uppercase tracking-[0.2em] text-fg-muted">
                   {entry.toUpperCase()}
                 </span>
-                <span className="text-sm font-medium tracking-[-0.01em]">{localeLabels[entry]}</span>
+                <span className="text-sm font-medium tracking-[-0.01em]">
+                  {localeLabels[entry]}
+                </span>
               </span>
               <Check
                 className={cn(

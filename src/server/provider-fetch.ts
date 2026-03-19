@@ -53,15 +53,23 @@ export async function requestUpstream({
 
   if (!response.ok) {
     const details = await readErrorBody(response);
-    throw upstreamFetchFailed(provider, `${resource} request failed: ${response.status} ${details}`.trim(), {
-      upstreamStatus: response.status,
-    });
+    throw upstreamFetchFailed(
+      provider,
+      `${resource} request failed: ${response.status} ${details}`.trim(),
+      {
+        upstreamStatus: response.status,
+      }
+    );
   }
 
   return response;
 }
 
-export async function readUpstreamJson(response: Response, provider: string, invalidJsonMessage: string) {
+export async function readUpstreamJson(
+  response: Response,
+  provider: string,
+  invalidJsonMessage: string
+) {
   try {
     return await response.json();
   } catch {

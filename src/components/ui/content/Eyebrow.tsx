@@ -20,12 +20,7 @@ type EyebrowProps = HTMLAttributes<HTMLParagraphElement> &
     children: ReactNode;
   };
 
-export default function Eyebrow({
-  children,
-  className,
-  tone,
-  ...props
-}: EyebrowProps) {
+export default function Eyebrow({ children, className, tone, ...props }: EyebrowProps) {
   return (
     <p className={cn(eyebrowVariants({ tone }), className)} {...props}>
       {children}

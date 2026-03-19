@@ -55,7 +55,9 @@ export default async function LocaleLayout({
     <AppProviders>
       <I18nProvider locale={locale} messages={messages}>
         <StructuredData
-          data={serializeJsonLd(createWebsiteSchema({ locale, description: messages.metadata.defaultDescription }))}
+          data={serializeJsonLd(
+            createWebsiteSchema({ locale, description: messages.metadata.defaultDescription })
+          )}
         />
         <main className="flex min-h-screen flex-col py-0">
           <header className="w-full border-b border-border-default/80 bg-surface">
@@ -65,7 +67,9 @@ export default async function LocaleLayout({
                   <p className="font-serif text-[1.7rem] leading-none tracking-[0.005em] text-fg sm:text-[1.95rem]">
                     <span className="text-fg">bit</span>
                     <span className="text-accent">stats</span>
-                    <span className="ml-0.75 inline-block text-[0.56em] text-fg-secondary">.org</span>
+                    <span className="ml-0.75 inline-block text-[0.56em] text-fg-secondary">
+                      .org
+                    </span>
                   </p>
                   <p className="-mt-0.5 font-sans text-[0.76rem] leading-[1.1] tracking-[-0.005em] text-fg-muted sm:text-[0.84rem]">
                     Bitcoin Data, Charts &amp; Tools

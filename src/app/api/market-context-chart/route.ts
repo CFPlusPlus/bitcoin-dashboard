@@ -47,6 +47,10 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    return upstreamErrorResponse("coingecko", error, "Fehler beim Laden der Marktkontext-Charts von CoinGecko.");
+    return upstreamErrorResponse(
+      "coingecko",
+      error,
+      "Fehler beim Laden der Marktkontext-Charts von CoinGecko."
+    );
   }
 }

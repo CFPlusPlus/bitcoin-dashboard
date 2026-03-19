@@ -15,7 +15,9 @@ export default function RefreshButton({ refreshing, onRefresh }: RefreshButtonPr
   return (
     <Button intent="primary" onClick={onRefresh} disabled={refreshing}>
       <RefreshCw className={refreshing ? "size-4 animate-spin" : "size-4"} aria-hidden="true" />
-      {refreshing ? messages.dashboard.controls.refreshingView : messages.dashboard.controls.refreshNow}
+      {refreshing
+        ? messages.dashboard.controls.refreshingView
+        : messages.dashboard.controls.refreshNow}
     </Button>
   );
 }

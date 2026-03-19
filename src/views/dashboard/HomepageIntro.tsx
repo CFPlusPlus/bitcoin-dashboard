@@ -41,12 +41,7 @@ export default function HomepageIntro({
   return (
     <Section aria-label={copy.introAriaLabel} space="md">
       <div className="grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(19rem,0.8fr)] xl:items-start">
-        <Surface
-          as="section"
-          tone="elevated"
-          padding="md"
-          className="border-border-default/80"
-        >
+        <Surface as="section" tone="elevated" padding="md" className="border-border-default/80">
           <div className="flex flex-col gap-5">
             <PageHeader />
 

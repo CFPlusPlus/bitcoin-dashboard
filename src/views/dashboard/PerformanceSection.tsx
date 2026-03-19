@@ -36,7 +36,11 @@ export default function PerformanceSection({
 }: PerformanceSectionProps) {
   const { locale, messages } = useI18n();
   const copy = messages.dashboard.performance;
-  const stateMessages = getDashboardSectionStateMessages("performance", performanceState.error, locale);
+  const stateMessages = getDashboardSectionStateMessages(
+    "performance",
+    performanceState.error,
+    locale
+  );
   const periodsByKey = new Map((performance?.periods ?? []).map((period) => [period.key, period]));
 
   return (

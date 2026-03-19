@@ -1,6 +1,7 @@
 # Async State Pattern
 
 ## Goal
+
 Create one calm, reusable pattern for data-driven UI across dashboard sections and tool pages.
 
 The system standardizes these states:

@@ -1,6 +1,7 @@
 # UI Principles & Vision
 
 ## Purpose
+
 This document defines the design guardrails for the Bitcoin Dashboard.
 It does not describe the final visual design in full detail. Instead, it defines the principles that should guide layout, components, typography, states, and later redesign decisions.
 
@@ -11,6 +12,7 @@ It does not describe the final visual design in full detail. Instead, it defines
 The Bitcoin Dashboard should feel like a modern, calm, and trustworthy Bitcoin information product — not like a trading casino.
 
 V1 is a focused Bitcoin information product:
+
 - with market overview
 - with selected Bitcoin metrics
 - with a small set of useful tools
@@ -26,6 +28,7 @@ The product is **not** a portfolio tracker, **not** a general crypto platform, a
 The site should allow users to understand the current Bitcoin situation within a few seconds and then go deeper into specific areas when needed.
 
 The experience should feel:
+
 - fast
 - trustworthy
 - calm
@@ -38,14 +41,17 @@ The experience should feel:
 ## 3. Main Users
 
 ### Primary audience
+
 - Bitcoin-interested end users
 - mixed experience level: beginners to more advanced users
 
 ### Usage context
+
 - primarily a quick daily check
 - secondarily longer analysis sessions
 
 ### Device focus
+
 - desktop-first in design
 - mobile-complete in usage
 - mobile must not be treated as a reduced secondary experience
@@ -55,34 +61,42 @@ The experience should feel:
 ## 4. Core Principles
 
 ### 4.1 Bitcoin-first
+
 The site is clearly focused on Bitcoin.
 No distractions from multi-coin logic, unnecessary market breadth, or features outside the core value proposition.
 
 ### 4.2 Data-first, not decorative
+
 Data and orientation come first.
 Visual design should support the content, not overpower it.
 
 ### 4.3 Scannable, not text-heavy
+
 The most important information must be easy to understand at a glance.
 Users should be able to find price, 24h change, chart, sentiment, and tool access without effort.
 
 ### 4.4 Calm, not crowded
+
 The interface should be informative, but never hectic.
 Less visual friction, clearer grouping, and intentionally placed accents.
 
 ### 4.5 Serious, not hype-crypto
+
 The product should feel factual, stable, and trustworthy.
 No meme aesthetics, no artificial market hype, no casino associations.
 
 ### 4.6 A few strong components, not many one-offs
+
 The system should consist of reusable, consistent UI building blocks.
 Avoid visual fragmentation caused by too many custom patterns.
 
 ### 4.7 Desktop-first, mobile-complete
+
 Desktop can be the main stage.
 Mobile must still preserve all core information and all important interactions.
 
 ### 4.8 Character without noise
+
 The site should have a recognizable identity, but must not become loud.
 Character should come from typography, proportions, rhythm, materiality, and disciplined use of color.
 
@@ -105,6 +119,7 @@ The following should be explicitly avoided:
 ## 6. Visual Direction for V1
 
 ### Style direction
+
 - dark
 - minimal
 - calm
@@ -115,6 +130,7 @@ The following should be explicitly avoided:
 - tighter radii, not soft bubble-like shapes
 
 ### Product character
+
 The product should feel more like a distinct premium Bitcoin product
 than like a generic dashboard template.
 
@@ -123,14 +139,17 @@ than like a generic dashboard template.
 ## 7. Typography Direction
 
 ### Text
+
 - sans-serif typeface for body copy and UI text
 - strong readability and technical cleanliness
 
 ### Accents
+
 - serif typeface for selected headings or highlights
 - use sparingly, not everywhere
 
 ### Numbers
+
 - technically precise number styling
 - values should feel stable, exact, and clear
 - suitable for price, percentages, and network metrics
@@ -140,17 +159,20 @@ than like a generic dashboard template.
 ## 8. Color & Mood Direction
 
 ### Base
+
 - dark mode as the starting point for V1
 - dark, calm surfaces
 - strong contrast without aggressive harshness
 - no gradients as a foundational surface treatment
 
 ### Accent
+
 - orange as the central brand / signal accent color
 - use it sparingly and deliberately
 - not as dominant full-surface color, but as a focus color
 
 ### Materiality
+
 - solid fills instead of translucent glass effects
 - borders should define structure more than shadows
 - surfaces should feel crisp and stable, not floating
@@ -162,12 +184,14 @@ than like a generic dashboard template.
 Animation is allowed, but only in a supportive role.
 
 ### Allowed
+
 - subtle hover reactions
 - soft transitions
 - discreet loading / refresh feedback
 - light entrance animations with functional value
 
 ### Not desired
+
 - excessive motion
 - showcase animations without purpose
 - harsh, hectic, or gamified effects
@@ -203,6 +227,7 @@ Every new UI decision should be checked against these questions:
 ## 12. Summary
 
 The Bitcoin Dashboard should feel:
+
 - calm
 - serious
 - modern
@@ -212,6 +237,7 @@ The Bitcoin Dashboard should feel:
 - Bitcoin-first
 
 It should **not** feel:
+
 - loud
 - playful
 - neon-heavy

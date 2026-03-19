@@ -87,7 +87,8 @@ export const dictionaries = {
       privacy: {
         path: "/datenschutz",
         title: "Datenschutz",
-        description: "Vorbereitete Platzhalterseite fuer die Datenschutzhinweise des Bitcoin Dashboards.",
+        description:
+          "Vorbereitete Platzhalterseite fuer die Datenschutzhinweise des Bitcoin Dashboards.",
         schemaName: "Datenschutz",
       },
     },
@@ -113,8 +114,7 @@ export const dictionaries = {
         openFeatured: "DCA-Rechner öffnen",
         focusEyebrow: "Klarer Fokus",
         focusTitle: "Weniger reden, mehr nutzen",
-        focusDescription:
-          "Hier geht es nicht um mehr Inhalt, sondern um bessere Entscheidungen.",
+        focusDescription: "Hier geht es nicht um mehr Inhalt, sondern um bessere Entscheidungen.",
         pillars: [
           {
             title: "Schnell erfassbar",
@@ -122,8 +122,7 @@ export const dictionaries = {
           },
           {
             title: "Direkt nützlich",
-            description:
-              "Du sollst nach wenigen Sekunden wissen, was dir die Zahl bringt.",
+            description: "Du sollst nach wenigen Sekunden wissen, was dir die Zahl bringt.",
           },
           {
             title: "Bewusst klein",
@@ -143,8 +142,7 @@ export const dictionaries = {
         listDescription: "Der Bereich ist klein. Genau deshalb muss jedes Tool sitzen.",
         nextEyebrow: "Nächster Ausbau",
         nextTitle: "Mehr kommt später",
-        nextDescription:
-          "Neue Werkzeuge kommen erst, wenn sie einen echten Mehrwert bringen.",
+        nextDescription: "Neue Werkzeuge kommen erst, wenn sie einen echten Mehrwert bringen.",
         nextLead: "Kein Katalog. Ein kleines Set guter Bitcoin-Helfer.",
         nextBody: "Lieber ein starkes Werkzeug als zehn halbe.",
       },
@@ -156,10 +154,8 @@ export const dictionaries = {
         pageLink: "Werkzeugseite",
         followUpEyebrow: "Weiterführend",
         followUpTitle: "Vom Blick zur Aktion",
-        followUpDescription:
-          "Hier wird aus Beobachtung eine konkrete Bitcoin-Entscheidung.",
-        followUpLead:
-          "Starte mit dem DCA-Rechner, wenn du Käufe sauber einordnen willst.",
+        followUpDescription: "Hier wird aus Beobachtung eine konkrete Bitcoin-Entscheidung.",
+        followUpLead: "Starte mit dem DCA-Rechner, wenn du Käufe sauber einordnen willst.",
         openDca: "DCA-Rechner",
         allTools: "Alle Werkzeuge",
       },
@@ -202,8 +198,7 @@ export const dictionaries = {
           "Mindestens ein Bereich zeigt derzeit ältere Daten. Vorhandene Inhalte bleiben sichtbar.",
         partial:
           "Einzelne Bereiche liefern gerade unvollständige Werte. Der Rest bleibt weiter nutzbar.",
-        refreshing:
-          "Die aktuelle Ansicht bleibt während der Aktualisierung sichtbar.",
+        refreshing: "Die aktuelle Ansicht bleibt während der Aktualisierung sichtbar.",
         persisted: "Deine Einstellungen bleiben auf diesem Gerät gespeichert.",
       },
       overview: {
@@ -225,7 +220,8 @@ export const dictionaries = {
         liveStatusActive: "Live-Preis aktualisiert sich laufend.",
         liveStatusConnecting: "Live-Stream wird verbunden.",
         liveStatusReconnecting: "Live-Stream verbindet sich erneut.",
-        liveStatusFallback: "Live-Preis konnte gerade nicht erneuert werden. Letzter Wert bleibt sichtbar.",
+        liveStatusFallback:
+          "Live-Preis konnte gerade nicht erneuert werden. Letzter Wert bleibt sichtbar.",
         liveUpdated: "Live-Stand: {value}",
         highLabel: "24h Tageshoch ({currency})",
         highMeta: "Höchster Preis der letzten 24 Stunden.",
@@ -237,7 +233,8 @@ export const dictionaries = {
       performance: {
         eyebrow: "Performance",
         title: "Bitcoin über mehrere Zeiträume",
-        description: "Die prozentuale BTC-Performance in {currency} für wichtige Vergleichsfenster.",
+        description:
+          "Die prozentuale BTC-Performance in {currency} für wichtige Vergleichsfenster.",
         referenceDate: "Seit {value}",
         referencePrice: "Referenz: {value}",
         periods: {
@@ -290,7 +287,8 @@ export const dictionaries = {
       network: {
         eyebrow: "Netzwerk",
         title: "Bitcoin im Netzwerk",
-        description: "Hashrate, Schwierigkeit und Gebühren zeigen, wie belastet oder ruhig das Netzwerk gerade läuft.",
+        description:
+          "Hashrate, Schwierigkeit und Gebühren zeigen, wie belastet oder ruhig das Netzwerk gerade läuft.",
         statsCardTitle: "Netzwerk-Status",
         hashrateCardTitle: "Hashrate",
         difficultyCardTitle: "Schwierigkeit",
@@ -356,53 +354,184 @@ export const dictionaries = {
       },
       stateCopy: {
         overview: {
-          loading: { title: "Marktdaten werden geladen", description: "Preis, 24h-Bewegung und Handelsspanne werden vorbereitet." },
-          empty: { title: "Keine Marktdaten verfügbar", description: "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren Marktdaten." },
-          error: { title: "Marktdaten sind gerade nicht verfügbar", fallbackDescription: "Es konnten noch keine verlässlichen Marktdaten geladen werden." },
-          partial: { title: "Marktdaten sind teilweise verfügbar", description: "Einzelne Kennzahlen fehlen im aktuellen Abruf. Verfügbare Werte bleiben sichtbar." },
-          stale: { title: "Letzte Marktdaten bleiben sichtbar", description: "Die letzte Aktualisierung ist fehlgeschlagen. Die angezeigten Werte können inzwischen überholt sein." },
+          loading: {
+            title: "Marktdaten werden geladen",
+            description: "Preis, 24h-Bewegung und Handelsspanne werden vorbereitet.",
+          },
+          empty: {
+            title: "Keine Marktdaten verfügbar",
+            description:
+              "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren Marktdaten.",
+          },
+          error: {
+            title: "Marktdaten sind gerade nicht verfügbar",
+            fallbackDescription: "Es konnten noch keine verlässlichen Marktdaten geladen werden.",
+          },
+          partial: {
+            title: "Marktdaten sind teilweise verfügbar",
+            description:
+              "Einzelne Kennzahlen fehlen im aktuellen Abruf. Verfügbare Werte bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzte Marktdaten bleiben sichtbar",
+            description:
+              "Die letzte Aktualisierung ist fehlgeschlagen. Die angezeigten Werte können inzwischen überholt sein.",
+          },
         },
         performance: {
-          loading: { title: "Performance wird geladen", description: "Die BTC-Performance für mehrere Vergleichszeiträume wird vorbereitet." },
-          empty: { title: "Keine Performance verfügbar", description: "Der Abruf war erfolgreich, liefert aber aktuell keine auswertbaren Vergleichswerte." },
-          error: { title: "Performance ist gerade nicht verfügbar", fallbackDescription: "Es konnten noch keine verlässlichen Performance-Daten geladen werden." },
-          partial: { title: "Performance ist teilweise verfügbar", description: "Einzelne Zeiträume fehlen im aktuellen Abruf. Verfügbare Werte bleiben sichtbar." },
-          stale: { title: "Letzte Performance bleibt sichtbar", description: "Die Aktualisierung ist fehlgeschlagen. Die angezeigten Vergleichswerte können inzwischen überholt sein." },
+          loading: {
+            title: "Performance wird geladen",
+            description: "Die BTC-Performance für mehrere Vergleichszeiträume wird vorbereitet.",
+          },
+          empty: {
+            title: "Keine Performance verfügbar",
+            description:
+              "Der Abruf war erfolgreich, liefert aber aktuell keine auswertbaren Vergleichswerte.",
+          },
+          error: {
+            title: "Performance ist gerade nicht verfügbar",
+            fallbackDescription:
+              "Es konnten noch keine verlässlichen Performance-Daten geladen werden.",
+          },
+          partial: {
+            title: "Performance ist teilweise verfügbar",
+            description:
+              "Einzelne Zeiträume fehlen im aktuellen Abruf. Verfügbare Werte bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzte Performance bleibt sichtbar",
+            description:
+              "Die Aktualisierung ist fehlgeschlagen. Die angezeigten Vergleichswerte können inzwischen überholt sein.",
+          },
         },
         chart: {
-          loading: { title: "Chart wird vorbereitet", description: "Der Preisverlauf für den gewählten Zeitraum wird geladen und aufbereitet." },
-          empty: { title: "Keine Chartdaten verfügbar", description: "Für den ausgewählten Zeitraum liegen aktuell keine auswertbaren Kursdaten vor. Bitte wähle später erneut oder wechsle kurz den Zeitraum." },
-          error: { title: "Chart ist gerade nicht verfügbar", fallbackDescription: "Es konnten gerade keine verlässlichen Chartdaten geladen werden. Ein erneuter Abruf versucht denselben Zeitraum noch einmal." },
-          partial: { title: "Chart ist teilweise verfügbar", description: "Ein Teil der Kursdaten fehlt im aktuellen Abruf. Der Verlauf bleibt sichtbar, kann im Detail aber Lücken enthalten." },
-          stale: { title: "Letzter Chart bleibt sichtbar", description: "Der Chart konnte nicht neu geladen werden. Der letzte nutzbare Verlauf bleibt sichtbar, bis wieder neue Kursdaten vorliegen." },
+          loading: {
+            title: "Chart wird vorbereitet",
+            description:
+              "Der Preisverlauf für den gewählten Zeitraum wird geladen und aufbereitet.",
+          },
+          empty: {
+            title: "Keine Chartdaten verfügbar",
+            description:
+              "Für den ausgewählten Zeitraum liegen aktuell keine auswertbaren Kursdaten vor. Bitte wähle später erneut oder wechsle kurz den Zeitraum.",
+          },
+          error: {
+            title: "Chart ist gerade nicht verfügbar",
+            fallbackDescription:
+              "Es konnten gerade keine verlässlichen Chartdaten geladen werden. Ein erneuter Abruf versucht denselben Zeitraum noch einmal.",
+          },
+          partial: {
+            title: "Chart ist teilweise verfügbar",
+            description:
+              "Ein Teil der Kursdaten fehlt im aktuellen Abruf. Der Verlauf bleibt sichtbar, kann im Detail aber Lücken enthalten.",
+          },
+          stale: {
+            title: "Letzter Chart bleibt sichtbar",
+            description:
+              "Der Chart konnte nicht neu geladen werden. Der letzte nutzbare Verlauf bleibt sichtbar, bis wieder neue Kursdaten vorliegen.",
+          },
         },
         marketContext: {
-          loading: { title: "Marktkontext wird geladen", description: "Market Cap und Handelsvolumen werden vorbereitet." },
-          empty: { title: "Kein Marktkontext verfügbar", description: "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren Marktmetriken." },
-          error: { title: "Marktkontext ist gerade nicht verfügbar", fallbackDescription: "Es konnten noch keine verlässlichen Marktmetriken geladen werden." },
-          partial: { title: "Marktkontext ist teilweise verfügbar", description: "Einzelne Metriken fehlen im aktuellen Abruf. Verfügbare Werte bleiben sichtbar." },
-          stale: { title: "Letzter Marktkontext bleibt sichtbar", description: "Die Aktualisierung ist fehlgeschlagen. Die angezeigten Kennzahlen können inzwischen überholt sein." },
+          loading: {
+            title: "Marktkontext wird geladen",
+            description: "Market Cap und Handelsvolumen werden vorbereitet.",
+          },
+          empty: {
+            title: "Kein Marktkontext verfügbar",
+            description:
+              "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren Marktmetriken.",
+          },
+          error: {
+            title: "Marktkontext ist gerade nicht verfügbar",
+            fallbackDescription:
+              "Es konnten noch keine verlässlichen Marktmetriken geladen werden.",
+          },
+          partial: {
+            title: "Marktkontext ist teilweise verfügbar",
+            description:
+              "Einzelne Metriken fehlen im aktuellen Abruf. Verfügbare Werte bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzter Marktkontext bleibt sichtbar",
+            description:
+              "Die Aktualisierung ist fehlgeschlagen. Die angezeigten Kennzahlen können inzwischen überholt sein.",
+          },
         },
         network: {
-          loading: { title: "Netzwerkdaten werden geladen", description: "Blockhöhe und Fee-Schätzungen werden vorbereitet." },
-          empty: { title: "Keine Netzwerkdaten verfügbar", description: "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren On-Chain-Werte." },
-          error: { title: "Netzwerkdaten sind gerade nicht verfügbar", fallbackDescription: "Es konnten noch keine verlässlichen Netzwerkdaten geladen werden." },
-          partial: { title: "Netzwerkdaten sind teilweise verfügbar", description: "Einzelne On-Chain-Werte fehlen im aktuellen Abruf. Verfügbare Kennzahlen bleiben sichtbar." },
-          stale: { title: "Letzte Netzwerkdaten bleiben sichtbar", description: "Die Aktualisierung hat nicht alle Werte erneuert. Die angezeigten Angaben können inzwischen überholt sein." },
+          loading: {
+            title: "Netzwerkdaten werden geladen",
+            description: "Blockhöhe und Fee-Schätzungen werden vorbereitet.",
+          },
+          empty: {
+            title: "Keine Netzwerkdaten verfügbar",
+            description:
+              "Der Abruf war erfolgreich, liefert aktuell aber keine auswertbaren On-Chain-Werte.",
+          },
+          error: {
+            title: "Netzwerkdaten sind gerade nicht verfügbar",
+            fallbackDescription:
+              "Es konnten noch keine verlässlichen Netzwerkdaten geladen werden.",
+          },
+          partial: {
+            title: "Netzwerkdaten sind teilweise verfügbar",
+            description:
+              "Einzelne On-Chain-Werte fehlen im aktuellen Abruf. Verfügbare Kennzahlen bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzte Netzwerkdaten bleiben sichtbar",
+            description:
+              "Die Aktualisierung hat nicht alle Werte erneuert. Die angezeigten Angaben können inzwischen überholt sein.",
+          },
         },
         sentiment: {
-          loading: { title: "Sentiment wird geladen", description: "Der Fear-and-Greed-Index wird vorbereitet." },
-          empty: { title: "Kein Sentiment verfügbar", description: "Der Anbieter liefert aktuell keine verwertbaren Werte für diesen Index." },
-          error: { title: "Sentiment ist gerade nicht verfügbar", fallbackDescription: "Es konnten noch keine verlässlichen Sentimentdaten geladen werden." },
-          partial: { title: "Sentiment ist teilweise verfügbar", description: "Der aktuelle Abruf ist unvollständig. Vorhandene Hinweise bleiben sichtbar." },
-          stale: { title: "Letztes Sentiment bleibt sichtbar", description: "Es konnte kein neuer Indexstand geladen werden. Die Anzeige kann inzwischen überholt sein." },
+          loading: {
+            title: "Sentiment wird geladen",
+            description: "Der Fear-and-Greed-Index wird vorbereitet.",
+          },
+          empty: {
+            title: "Kein Sentiment verfügbar",
+            description: "Der Anbieter liefert aktuell keine verwertbaren Werte für diesen Index.",
+          },
+          error: {
+            title: "Sentiment ist gerade nicht verfügbar",
+            fallbackDescription:
+              "Es konnten noch keine verlässlichen Sentimentdaten geladen werden.",
+          },
+          partial: {
+            title: "Sentiment ist teilweise verfügbar",
+            description:
+              "Der aktuelle Abruf ist unvollständig. Vorhandene Hinweise bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letztes Sentiment bleibt sichtbar",
+            description:
+              "Es konnte kein neuer Indexstand geladen werden. Die Anzeige kann inzwischen überholt sein.",
+          },
         },
         metadata: {
-          loading: { title: "Quellenhinweise werden geladen", description: "Zeitstempel und Anbieterangaben werden vorbereitet." },
-          empty: { title: "Keine Quellenhinweise verfügbar", description: "Sobald die ersten Daten vorliegen, erscheinen hier Quellen und Aktualisierungszeiten." },
-          error: { title: "Quellenhinweise sind gerade nicht verfügbar", fallbackDescription: "Es konnten noch keine verlässlichen Hinweise zu Quellen und Zeitstempeln geladen werden." },
-          partial: { title: "Quellenhinweise sind teilweise verfügbar", description: "Einzelne Angaben fehlen noch. Vorhandene Quellenhinweise bleiben sichtbar." },
-          stale: { title: "Letzte Quellenhinweise bleiben sichtbar", description: "Die angezeigten Zeitstempel und Quellen können inzwischen überholt sein." },
+          loading: {
+            title: "Quellenhinweise werden geladen",
+            description: "Zeitstempel und Anbieterangaben werden vorbereitet.",
+          },
+          empty: {
+            title: "Keine Quellenhinweise verfügbar",
+            description:
+              "Sobald die ersten Daten vorliegen, erscheinen hier Quellen und Aktualisierungszeiten.",
+          },
+          error: {
+            title: "Quellenhinweise sind gerade nicht verfügbar",
+            fallbackDescription:
+              "Es konnten noch keine verlässlichen Hinweise zu Quellen und Zeitstempeln geladen werden.",
+          },
+          partial: {
+            title: "Quellenhinweise sind teilweise verfügbar",
+            description:
+              "Einzelne Angaben fehlen noch. Vorhandene Quellenhinweise bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzte Quellenhinweise bleiben sichtbar",
+            description: "Die angezeigten Zeitstempel und Quellen können inzwischen überholt sein.",
+          },
         },
         sanitizedErrors: {
           network: "Die Verbindung zum Datendienst ist gerade instabil. Bitte gleich erneut laden.",
@@ -410,25 +539,29 @@ export const dictionaries = {
           emptyResponse: "Der Datendienst liefert im Moment noch keine verwertbaren Angaben.",
         },
         warningNormalization: {
-          usdDelayed: "USD-Marktdaten kommen gerade verzögert an. Vorhandene Werte bleiben sichtbar.",
-          eurDelayed: "EUR-Marktdaten kommen gerade verzögert an. Vorhandene Werte bleiben sichtbar.",
-          feeDelayed: "Fee-Schätzungen werden gerade nicht vollständig erneuert. Vorhandene Werte bleiben sichtbar.",
-          blockHeightMissing: "Die letzte Blockhöhe ist gerade nicht vollständig verfügbar. Vorhandene Angaben bleiben sichtbar.",
-          chartPointsMissing: "Ein Teil der Chartpunkte fehlt im aktuellen Abruf. Der Verlauf bleibt trotzdem lesbar.",
-          sentimentUpdateMissing: "Die Zeit bis zur nächsten Sentiment-Aktualisierung ist gerade nicht verfügbar.",
+          usdDelayed:
+            "USD-Marktdaten kommen gerade verzögert an. Vorhandene Werte bleiben sichtbar.",
+          eurDelayed:
+            "EUR-Marktdaten kommen gerade verzögert an. Vorhandene Werte bleiben sichtbar.",
+          feeDelayed:
+            "Fee-Schätzungen werden gerade nicht vollständig erneuert. Vorhandene Werte bleiben sichtbar.",
+          blockHeightMissing:
+            "Die letzte Blockhöhe ist gerade nicht vollständig verfügbar. Vorhandene Angaben bleiben sichtbar.",
+          chartPointsMissing:
+            "Ein Teil der Chartpunkte fehlt im aktuellen Abruf. Der Verlauf bleibt trotzdem lesbar.",
+          sentimentUpdateMissing:
+            "Die Zeit bis zur nächsten Sentiment-Aktualisierung ist gerade nicht verfügbar.",
           fallbackSuffix: "Verfügbare Daten bleiben sichtbar.",
         },
         fallbacks: {
-          overviewUnavailable:
-            "Marktdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
+          overviewUnavailable: "Marktdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
           performanceUnavailable:
             "Performance-Daten sind gerade nicht verfügbar. Bitte später erneut laden.",
           networkUnavailable:
             "Netzwerkdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
           sentimentUnavailable:
             "Sentimentdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
-          chartUnavailable:
-            "Chartdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
+          chartUnavailable: "Chartdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
         },
       },
     },
@@ -501,8 +634,7 @@ export const dictionaries = {
           "Das ist der Preis pro 1 BTC zum Kaufzeitpunkt, nicht dein investierter Gesamtbetrag.",
         note: "Kurze Notiz (optional)",
         notePlaceholder: "z. B. Monatsrate März",
-        noteHint:
-          "Hilfreich für Erinnerungen wie Sparplan, Sonderkauf oder Rücksetzer.",
+        noteHint: "Hilfreich für Erinnerungen wie Sparplan, Sonderkauf oder Rücksetzer.",
       },
       savePurchase: "Kauf speichern",
       persistenceNote: "Deine Liste bleibt auf diesem Gerät erhalten, bis du sie selbst löschst.",
@@ -543,8 +675,7 @@ export const dictionaries = {
         description:
           "Diese Seite ist als Platzhalter vorbereitet. Die finalen Anbieterangaben und Kontaktdaten werden hier ergaenzt.",
         bodyTitle: "In Vorbereitung",
-        body:
-          "Hier entsteht das vollstaendige Impressum fuer das Bitcoin Dashboard. Bis zur finalen Veroeffentlichung dient diese Seite als strukturierter Platzhalter.",
+        body: "Hier entsteht das vollstaendige Impressum fuer das Bitcoin Dashboard. Bis zur finalen Veroeffentlichung dient diese Seite als strukturierter Platzhalter.",
       },
       privacy: {
         eyebrow: "Rechtliches",
@@ -552,8 +683,7 @@ export const dictionaries = {
         description:
           "Diese Seite ist als Platzhalter vorbereitet. Die finalen Datenschutzhinweise und Informationen zur Datenverarbeitung werden hier ergaenzt.",
         bodyTitle: "In Vorbereitung",
-        body:
-          "Hier entstehen die Datenschutzhinweise fuer das Bitcoin Dashboard. Bis zur finalen Ausarbeitung dient diese Seite als strukturierter Platzhalter.",
+        body: "Hier entstehen die Datenschutzhinweise fuer das Bitcoin Dashboard. Bis zur finalen Ausarbeitung dient diese Seite als strukturierter Platzhalter.",
       },
     },
   },
@@ -563,8 +693,7 @@ export const dictionaries = {
       tagline: "Bitcoin with calmer focus",
       languageSwitchLabel: "Switch language",
       footer: {
-        description:
-          "A calmer Bitcoin view of market, network, sentiment, and focused tools.",
+        description: "A calmer Bitcoin view of market, network, sentiment, and focused tools.",
         navigation: "Navigation",
         legal: "Legal",
         dashboard: "Go to dashboard",
@@ -669,8 +798,7 @@ export const dictionaries = {
         openFeatured: "Open DCA Calculator",
         focusEyebrow: "Clear focus",
         focusTitle: "Less talking, more usefulness",
-        focusDescription:
-          "This is not about more content. It is about better decisions.",
+        focusDescription: "This is not about more content. It is about better decisions.",
         pillars: [
           {
             title: "Quick to grasp",
@@ -678,8 +806,7 @@ export const dictionaries = {
           },
           {
             title: "Immediately useful",
-            description:
-              "You should know within seconds what value a number gives you.",
+            description: "You should know within seconds what value a number gives you.",
           },
           {
             title: "Intentionally small",
@@ -699,8 +826,7 @@ export const dictionaries = {
         listDescription: "The section is small. That is exactly why every tool has to matter.",
         nextEyebrow: "Next expansion",
         nextTitle: "More will come later",
-        nextDescription:
-          "New tools only arrive when they add real value.",
+        nextDescription: "New tools only arrive when they add real value.",
         nextLead: "Not a catalog. A small set of strong Bitcoin helpers.",
         nextBody: "Better one strong tool than ten half-finished ones.",
       },
@@ -713,8 +839,7 @@ export const dictionaries = {
         followUpEyebrow: "Next up",
         followUpTitle: "From viewing to action",
         followUpDescription: "This is where observation turns into a concrete Bitcoin decision.",
-        followUpLead:
-          "Start with the DCA Calculator if you want to understand your buys cleanly.",
+        followUpLead: "Start with the DCA Calculator if you want to understand your buys cleanly.",
         openDca: "DCA Calculator",
         allTools: "All tools",
       },
@@ -753,10 +878,8 @@ export const dictionaries = {
         paused: "paused",
         firstLoad:
           "The first fetch is running. Sections will fill in as soon as the first data arrives.",
-        stale:
-          "At least one section currently shows older data. Existing content stays visible.",
-        partial:
-          "Some sections currently return incomplete values. The rest remains usable.",
+        stale: "At least one section currently shows older data. Existing content stays visible.",
+        partial: "Some sections currently return incomplete values. The rest remains usable.",
         refreshing: "The current view stays visible while refreshing.",
         persisted: "Your settings stay saved on this device.",
       },
@@ -779,7 +902,8 @@ export const dictionaries = {
         liveStatusActive: "Live price is updating continuously.",
         liveStatusConnecting: "Connecting live stream.",
         liveStatusReconnecting: "Reconnecting live stream.",
-        liveStatusFallback: "Live price could not be refreshed right now. The last value stays visible.",
+        liveStatusFallback:
+          "Live price could not be refreshed right now. The last value stays visible.",
         liveUpdated: "Live status: {value}",
         highLabel: "24h high ({currency})",
         highMeta: "Highest price in the last 24 hours.",
@@ -791,7 +915,8 @@ export const dictionaries = {
       performance: {
         eyebrow: "Performance",
         title: "Bitcoin across key timeframes",
-        description: "BTC percentage performance in {currency} across the comparison windows that matter most.",
+        description:
+          "BTC percentage performance in {currency} across the comparison windows that matter most.",
         referenceDate: "Since {value}",
         referencePrice: "Reference: {value}",
         periods: {
@@ -844,7 +969,8 @@ export const dictionaries = {
       network: {
         eyebrow: "Network",
         title: "Bitcoin on the network",
-        description: "Hashrate, difficulty, and fees show how calm or crowded the network feels right now.",
+        description:
+          "Hashrate, difficulty, and fees show how calm or crowded the network feels right now.",
         statsCardTitle: "Network Status",
         hashrateCardTitle: "Hashrate",
         difficultyCardTitle: "Difficulty",
@@ -910,71 +1036,194 @@ export const dictionaries = {
       },
       stateCopy: {
         overview: {
-          loading: { title: "Loading market data", description: "Price, 24h move, and range are being prepared." },
-          empty: { title: "No market data available", description: "The fetch succeeded, but there is no usable market data right now." },
-          error: { title: "Market data is currently unavailable", fallbackDescription: "No reliable market data could be loaded yet." },
-          partial: { title: "Market data is partially available", description: "Some metrics are missing in the current fetch. Available values stay visible." },
-          stale: { title: "Latest market data stays visible", description: "The latest refresh failed. The visible values may now be outdated." },
+          loading: {
+            title: "Loading market data",
+            description: "Price, 24h move, and range are being prepared.",
+          },
+          empty: {
+            title: "No market data available",
+            description: "The fetch succeeded, but there is no usable market data right now.",
+          },
+          error: {
+            title: "Market data is currently unavailable",
+            fallbackDescription: "No reliable market data could be loaded yet.",
+          },
+          partial: {
+            title: "Market data is partially available",
+            description:
+              "Some metrics are missing in the current fetch. Available values stay visible.",
+          },
+          stale: {
+            title: "Latest market data stays visible",
+            description: "The latest refresh failed. The visible values may now be outdated.",
+          },
         },
         performance: {
-          loading: { title: "Loading performance", description: "BTC performance across multiple comparison windows is being prepared." },
-          empty: { title: "No performance available", description: "The fetch succeeded, but there are currently no usable comparison values." },
-          error: { title: "Performance is currently unavailable", fallbackDescription: "No reliable performance data could be loaded yet." },
-          partial: { title: "Performance is partially available", description: "Some timeframes are missing in the current fetch. Available values stay visible." },
-          stale: { title: "Latest performance stays visible", description: "The refresh failed. The displayed comparison values may now be outdated." },
+          loading: {
+            title: "Loading performance",
+            description: "BTC performance across multiple comparison windows is being prepared.",
+          },
+          empty: {
+            title: "No performance available",
+            description:
+              "The fetch succeeded, but there are currently no usable comparison values.",
+          },
+          error: {
+            title: "Performance is currently unavailable",
+            fallbackDescription: "No reliable performance data could be loaded yet.",
+          },
+          partial: {
+            title: "Performance is partially available",
+            description:
+              "Some timeframes are missing in the current fetch. Available values stay visible.",
+          },
+          stale: {
+            title: "Latest performance stays visible",
+            description: "The refresh failed. The displayed comparison values may now be outdated.",
+          },
         },
         chart: {
-          loading: { title: "Preparing chart", description: "Price action for the selected range is loading and being processed." },
-          empty: { title: "No chart data available", description: "There is currently no usable price data for the selected range. Please try again later or switch the range briefly." },
-          error: { title: "Chart is currently unavailable", fallbackDescription: "No reliable chart data could be loaded right now. A retry will request the same range again." },
-          partial: { title: "Chart is partially available", description: "Some price points are missing in the current fetch. The line remains visible but may contain gaps." },
-          stale: { title: "Latest chart stays visible", description: "The chart could not be refreshed. The last usable line stays visible until new market data arrives." },
+          loading: {
+            title: "Preparing chart",
+            description: "Price action for the selected range is loading and being processed.",
+          },
+          empty: {
+            title: "No chart data available",
+            description:
+              "There is currently no usable price data for the selected range. Please try again later or switch the range briefly.",
+          },
+          error: {
+            title: "Chart is currently unavailable",
+            fallbackDescription:
+              "No reliable chart data could be loaded right now. A retry will request the same range again.",
+          },
+          partial: {
+            title: "Chart is partially available",
+            description:
+              "Some price points are missing in the current fetch. The line remains visible but may contain gaps.",
+          },
+          stale: {
+            title: "Latest chart stays visible",
+            description:
+              "The chart could not be refreshed. The last usable line stays visible until new market data arrives.",
+          },
         },
         marketContext: {
-          loading: { title: "Loading market context", description: "Market cap and trading volume are being prepared." },
-          empty: { title: "No market context available", description: "The fetch succeeded, but there are no usable market metrics right now." },
-          error: { title: "Market context is currently unavailable", fallbackDescription: "No reliable market metrics could be loaded yet." },
-          partial: { title: "Market context is partially available", description: "Some metrics are missing in the current fetch. Available values stay visible." },
-          stale: { title: "Latest market context stays visible", description: "The refresh failed. The displayed metrics may now be outdated." },
+          loading: {
+            title: "Loading market context",
+            description: "Market cap and trading volume are being prepared.",
+          },
+          empty: {
+            title: "No market context available",
+            description: "The fetch succeeded, but there are no usable market metrics right now.",
+          },
+          error: {
+            title: "Market context is currently unavailable",
+            fallbackDescription: "No reliable market metrics could be loaded yet.",
+          },
+          partial: {
+            title: "Market context is partially available",
+            description:
+              "Some metrics are missing in the current fetch. Available values stay visible.",
+          },
+          stale: {
+            title: "Latest market context stays visible",
+            description: "The refresh failed. The displayed metrics may now be outdated.",
+          },
         },
         network: {
-          loading: { title: "Loading network data", description: "Block height and fee estimates are being prepared." },
-          empty: { title: "No network data available", description: "The fetch succeeded, but there are no usable on-chain values right now." },
-          error: { title: "Network data is currently unavailable", fallbackDescription: "No reliable network data could be loaded yet." },
-          partial: { title: "Network data is partially available", description: "Some on-chain values are missing in the current fetch. Available metrics stay visible." },
-          stale: { title: "Latest network data stays visible", description: "The refresh did not update all values. The displayed data may now be outdated." },
+          loading: {
+            title: "Loading network data",
+            description: "Block height and fee estimates are being prepared.",
+          },
+          empty: {
+            title: "No network data available",
+            description: "The fetch succeeded, but there are no usable on-chain values right now.",
+          },
+          error: {
+            title: "Network data is currently unavailable",
+            fallbackDescription: "No reliable network data could be loaded yet.",
+          },
+          partial: {
+            title: "Network data is partially available",
+            description:
+              "Some on-chain values are missing in the current fetch. Available metrics stay visible.",
+          },
+          stale: {
+            title: "Latest network data stays visible",
+            description:
+              "The refresh did not update all values. The displayed data may now be outdated.",
+          },
         },
         sentiment: {
-          loading: { title: "Loading sentiment", description: "The Fear and Greed Index is being prepared." },
-          empty: { title: "No sentiment available", description: "The provider currently returns no usable values for this index." },
-          error: { title: "Sentiment is currently unavailable", fallbackDescription: "No reliable sentiment data could be loaded yet." },
-          partial: { title: "Sentiment is partially available", description: "The current fetch is incomplete. Existing hints stay visible." },
-          stale: { title: "Latest sentiment stays visible", description: "No new index value could be loaded. The display may now be outdated." },
+          loading: {
+            title: "Loading sentiment",
+            description: "The Fear and Greed Index is being prepared.",
+          },
+          empty: {
+            title: "No sentiment available",
+            description: "The provider currently returns no usable values for this index.",
+          },
+          error: {
+            title: "Sentiment is currently unavailable",
+            fallbackDescription: "No reliable sentiment data could be loaded yet.",
+          },
+          partial: {
+            title: "Sentiment is partially available",
+            description: "The current fetch is incomplete. Existing hints stay visible.",
+          },
+          stale: {
+            title: "Latest sentiment stays visible",
+            description: "No new index value could be loaded. The display may now be outdated.",
+          },
         },
         metadata: {
-          loading: { title: "Loading source details", description: "Timestamps and provider details are being prepared." },
-          empty: { title: "No source details available", description: "As soon as the first data arrives, sources and refresh times will appear here." },
-          error: { title: "Source details are currently unavailable", fallbackDescription: "No reliable source and timestamp details could be loaded yet." },
-          partial: { title: "Source details are partially available", description: "Some details are still missing. Existing source details stay visible." },
-          stale: { title: "Latest source details stay visible", description: "The displayed timestamps and sources may now be outdated." },
+          loading: {
+            title: "Loading source details",
+            description: "Timestamps and provider details are being prepared.",
+          },
+          empty: {
+            title: "No source details available",
+            description:
+              "As soon as the first data arrives, sources and refresh times will appear here.",
+          },
+          error: {
+            title: "Source details are currently unavailable",
+            fallbackDescription: "No reliable source and timestamp details could be loaded yet.",
+          },
+          partial: {
+            title: "Source details are partially available",
+            description: "Some details are still missing. Existing source details stay visible.",
+          },
+          stale: {
+            title: "Latest source details stay visible",
+            description: "The displayed timestamps and sources may now be outdated.",
+          },
         },
         sanitizedErrors: {
-          network: "The connection to the data service is unstable right now. Please try again in a moment.",
-          timeout: "The data service is responding too slowly right now. Please try again in a moment.",
+          network:
+            "The connection to the data service is unstable right now. Please try again in a moment.",
+          timeout:
+            "The data service is responding too slowly right now. Please try again in a moment.",
           emptyResponse: "The data service is currently not returning usable details.",
         },
         warningNormalization: {
           usdDelayed: "USD market data is arriving with a delay. Available values stay visible.",
           eurDelayed: "EUR market data is arriving with a delay. Available values stay visible.",
-          feeDelayed: "Fee estimates are not being fully refreshed right now. Available values stay visible.",
-          blockHeightMissing: "The latest block height is not fully available right now. Available details stay visible.",
-          chartPointsMissing: "Some chart points are missing in the current fetch. The chart remains readable.",
-          sentimentUpdateMissing: "The time until the next sentiment update is not available right now.",
+          feeDelayed:
+            "Fee estimates are not being fully refreshed right now. Available values stay visible.",
+          blockHeightMissing:
+            "The latest block height is not fully available right now. Available details stay visible.",
+          chartPointsMissing:
+            "Some chart points are missing in the current fetch. The chart remains readable.",
+          sentimentUpdateMissing:
+            "The time until the next sentiment update is not available right now.",
           fallbackSuffix: "Available data stays visible.",
         },
         fallbacks: {
           overviewUnavailable: "Market data is currently unavailable. Please try again later.",
-          performanceUnavailable: "Performance data is currently unavailable. Please try again later.",
+          performanceUnavailable:
+            "Performance data is currently unavailable. Please try again later.",
           networkUnavailable: "Network data is currently unavailable. Please try again later.",
           sentimentUnavailable: "Sentiment data is currently unavailable. Please try again later.",
           chartUnavailable: "Chart data is currently unavailable. Please try again later.",
@@ -1017,7 +1266,8 @@ export const dictionaries = {
       currentPriceLabel: "Current comparison price",
       currentPriceDescription: "The latest loaded BTC reference price for this currency.",
       currentValueLabel: "Estimated value today",
-      currentValueDescription: "This is what your holdings would be worth at the current reference price.",
+      currentValueDescription:
+        "This is what your holdings would be worth at the current reference price.",
       pnlLabel: "Difference vs. invested capital",
       marketState: {
         loadingTitle: "Loading reference price",
@@ -1026,14 +1276,12 @@ export const dictionaries = {
         emptyDescription:
           "The fetch succeeded, but there is no usable price for the active currency.",
         errorTitle: "Reference price is currently unavailable",
-        errorFallback:
-          "No reliable market price for the calculator could be loaded yet.",
+        errorFallback: "No reliable market price for the calculator could be loaded yet.",
         partialTitle: "Reference price is partially available",
         partialDescription:
           "The current market fetch is incomplete. Available values stay visible for the calculator.",
         staleTitle: "Latest reference price stays visible",
-        staleDescription:
-          "The refresh failed. The displayed price may now be outdated.",
+        staleDescription: "The refresh failed. The displayed price may now be outdated.",
         loadError: "The reference price could not be loaded.",
       },
       formEyebrow: "New buy",
@@ -1091,8 +1339,7 @@ export const dictionaries = {
         description:
           "This page is prepared as a placeholder. Final provider details and contact information will be added here.",
         bodyTitle: "In progress",
-        body:
-          "The full imprint for Bitcoin Dashboard will live here. Until the final version is published, this page serves as a structured placeholder.",
+        body: "The full imprint for Bitcoin Dashboard will live here. Until the final version is published, this page serves as a structured placeholder.",
       },
       privacy: {
         eyebrow: "Legal",
@@ -1100,8 +1347,7 @@ export const dictionaries = {
         description:
           "This page is prepared as a placeholder. Final privacy details and information about data processing will be added here.",
         bodyTitle: "In progress",
-        body:
-          "The privacy notice for Bitcoin Dashboard will live here. Until the final version is published, this page serves as a structured placeholder.",
+        body: "The privacy notice for Bitcoin Dashboard will live here. Until the final version is published, this page serves as a structured placeholder.",
       },
     },
   },

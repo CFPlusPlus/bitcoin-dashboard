@@ -24,7 +24,7 @@ export function mapNetworkDto(input: {
     blockIndex: index + 1,
     transactionCount: block.nTx ?? null,
     minFeeRate: block.feeRange?.[0] ?? null,
-    maxFeeRate: block.feeRange ? block.feeRange[block.feeRange.length - 1] ?? null : null,
+    maxFeeRate: block.feeRange ? (block.feeRange[block.feeRange.length - 1] ?? null) : null,
     medianFeeRate: block.medianFee ?? null,
   }));
   const pendingTransactions = input.mempoolBlocks

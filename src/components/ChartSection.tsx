@@ -79,9 +79,7 @@ export default function ChartSection({
                 </Button>
               ))}
             </Cluster>
-            <p className="max-w-[32rem] text-sm text-fg-muted sm:text-right">
-              {copy.preserveHint}
-            </p>
+            <p className="max-w-[32rem] text-sm text-fg-muted sm:text-right">{copy.preserveHint}</p>
           </div>
         }
       />

@@ -74,7 +74,8 @@ describe("seo helpers", () => {
   });
 
   it("serializes json-ld safely", () => {
-    expect(serializeJsonLd({ "@context": "https://schema.org", "@type": "WebSite", name: "<btc>" }))
-      .toContain("\\u003cbtc>");
+    expect(
+      serializeJsonLd({ "@context": "https://schema.org", "@type": "WebSite", name: "<btc>" })
+    ).toContain("\\u003cbtc>");
   });
 });

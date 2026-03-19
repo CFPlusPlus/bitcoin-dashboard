@@ -133,11 +133,7 @@ function buildMovingTimeTicks(now: number, chartWidth: number, paddingLeft: numb
   const firstTick = Math.floor(visibleStart / AXIS_TICK_MS) * AXIS_TICK_MS;
   const ticks: Array<{ timestamp: number; x: number }> = [];
 
-  for (
-    let timestamp = firstTick;
-    timestamp <= now + AXIS_TICK_MS;
-    timestamp += AXIS_TICK_MS
-  ) {
+  for (let timestamp = firstTick; timestamp <= now + AXIS_TICK_MS; timestamp += AXIS_TICK_MS) {
     if (timestamp < visibleStart || timestamp > now) {
       continue;
     }
@@ -152,10 +148,7 @@ function buildMovingTimeTicks(now: number, chartWidth: number, paddingLeft: numb
   return ticks;
 }
 
-export default function LivePriceSparkline({
-  currency,
-  points,
-}: LivePriceSparklineProps) {
+export default function LivePriceSparkline({ currency, points }: LivePriceSparklineProps) {
   const { locale, messages } = useI18n();
   const copy = messages.dashboard.overview;
   const [now, setNow] = useState(() => Date.now());
@@ -196,10 +189,7 @@ export default function LivePriceSparkline({
       const deltaSeconds =
         previousFrameTime === null
           ? SAMPLE_INTERVAL_MS / 1000
-          : Math.min(
-              (frameTime - previousFrameTime) / 1000,
-              MAX_FRAME_DELTA_SECONDS
-            );
+          : Math.min((frameTime - previousFrameTime) / 1000, MAX_FRAME_DELTA_SECONDS);
 
       lastFrameTimeRef.current = frameTime;
 
@@ -208,8 +198,7 @@ export default function LivePriceSparkline({
         const springForce = displacement * DISPLAY_SPRING_STIFFNESS;
         const dampingForce = renderedVelocityRef.current * DISPLAY_SPRING_DAMPING;
         const acceleration = springForce - dampingForce;
-        const nextVelocity =
-          renderedVelocityRef.current + acceleration * deltaSeconds;
+        const nextVelocity = renderedVelocityRef.current + acceleration * deltaSeconds;
         const nextRenderedPrice = currentPrice + nextVelocity * deltaSeconds;
 
         renderedVelocityRef.current = nextVelocity;
@@ -298,9 +287,7 @@ export default function LivePriceSparkline({
   const visibleEnd = now;
   const visibleStart = visibleEnd - LIVE_WINDOW_MS;
   const usablePoints = displayPoints.filter(
-    (point) =>
-      point.timestamp >= visibleStart - AXIS_TICK_MS &&
-      point.timestamp <= visibleEnd
+    (point) => point.timestamp >= visibleStart - AXIS_TICK_MS && point.timestamp <= visibleEnd
   );
 
   if (usablePoints.length < 2) {
@@ -312,9 +299,7 @@ export default function LivePriceSparkline({
   }
 
   const axisSourcePoints = displayPoints.length > 0 ? displayPoints : usablePoints;
-  const prices = axisSourcePoints.length > 0
-    ? axisSourcePoints.map((point) => point.price)
-    : [0];
+  const prices = axisSourcePoints.length > 0 ? axisSourcePoints.map((point) => point.price) : [0];
   const firstVisiblePoint = usablePoints[0];
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
@@ -357,8 +342,7 @@ export default function LivePriceSparkline({
 
   const pathSourcePoints = displayPoints.filter(
     (point) =>
-      point.timestamp >= visibleStart - AXIS_TICK_MS &&
-      point.timestamp <= visibleEnd + AXIS_TICK_MS
+      point.timestamp >= visibleStart - AXIS_TICK_MS && point.timestamp <= visibleEnd + AXIS_TICK_MS
   );
   const chartPoints = pathSourcePoints.map((point) => ({
     x: getX(point.timestamp),
@@ -371,14 +355,14 @@ export default function LivePriceSparkline({
   }));
   const linePath = buildLinePath(chartPoints);
   const firstX = chartPoints[0]?.x ?? paddingLeft;
-  const lastX = chartPoints[chartPoints.length - 1]?.x ?? (width - paddingRight);
+  const lastX = chartPoints[chartPoints.length - 1]?.x ?? width - paddingRight;
   const lastY = getY(latestPoint.price);
   const baseY = height - paddingBottom;
   const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(2)} ${baseY.toFixed(2)} Z`;
   const activeHoveredPoint =
     hoveredTimestamp === null
       ? null
-      : hoverablePoints.find((point) => point.timestamp === hoveredTimestamp) ?? null;
+      : (hoverablePoints.find((point) => point.timestamp === hoveredTimestamp) ?? null);
   const tooltipValueLabel = activeHoveredPoint
     ? formatCurrency(activeHoveredPoint.price, currency, locale)
     : "";
@@ -388,10 +372,7 @@ export default function LivePriceSparkline({
   const tooltipWidth = getTooltipWidth(tooltipValueLabel, tooltipDateLabel);
   const tooltipHeight = 46;
   const tooltipX = activeHoveredPoint
-    ? Math.min(
-        Math.max(activeHoveredPoint.x - tooltipWidth / 2, 10),
-        width - tooltipWidth - 10
-      )
+    ? Math.min(Math.max(activeHoveredPoint.x - tooltipWidth / 2, 10), width - tooltipWidth - 10)
     : 0;
   const tooltipY = activeHoveredPoint
     ? getTooltipY({
@@ -410,8 +391,7 @@ export default function LivePriceSparkline({
     const bounds = event.currentTarget.getBoundingClientRect();
     if (bounds.width === 0) return;
 
-    const pointerX =
-      paddingLeft + ((event.clientX - bounds.left) / bounds.width) * chartWidth;
+    const pointerX = paddingLeft + ((event.clientX - bounds.left) / bounds.width) * chartWidth;
     const clampedX = Math.min(Math.max(pointerX, paddingLeft), paddingLeft + chartWidth);
     const closestPoint = hoverablePoints.reduce((closest, point) =>
       Math.abs(point.x - clampedX) < Math.abs(closest.x - clampedX) ? point : closest
@@ -503,8 +483,22 @@ export default function LivePriceSparkline({
         />
         <g clipPath={`url(#${idPrefix}-live-chart-clip)`}>
           <path d={areaPath} fill={`url(#${idPrefix}-live-area-fill)`} />
-          <path d={linePath} fill="none" stroke="rgba(11,17,13,0.45)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={linePath} fill="none" stroke={`url(#${idPrefix}-live-line-stroke)`} strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d={linePath}
+            fill="none"
+            stroke="rgba(11,17,13,0.45)"
+            strokeWidth="7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d={linePath}
+            fill="none"
+            stroke={`url(#${idPrefix}-live-line-stroke)`}
+            strokeWidth="3.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
           {activeHoveredPoint ? (
             <>
               <line
@@ -516,11 +510,30 @@ export default function LivePriceSparkline({
                 strokeDasharray="5 7"
                 strokeWidth="1"
               />
-              <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="8" fill="rgba(13,18,16,0.92)" stroke={theme.dotStroke} strokeWidth="2.5" />
-              <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="3.5" fill={theme.dot} />
+              <circle
+                cx={activeHoveredPoint.x}
+                cy={activeHoveredPoint.y}
+                r="8"
+                fill="rgba(13,18,16,0.92)"
+                stroke={theme.dotStroke}
+                strokeWidth="2.5"
+              />
+              <circle
+                cx={activeHoveredPoint.x}
+                cy={activeHoveredPoint.y}
+                r="3.5"
+                fill={theme.dot}
+              />
             </>
           ) : null}
-          <circle cx={chartPoints[chartPoints.length - 1].x} cy={lastY} r={LIVE_DOT_RADIUS} fill="#0d1210" stroke={theme.dotStroke} strokeWidth="3" />
+          <circle
+            cx={chartPoints[chartPoints.length - 1].x}
+            cy={lastY}
+            r={LIVE_DOT_RADIUS}
+            fill="#0d1210"
+            stroke={theme.dotStroke}
+            strokeWidth="3"
+          />
           <circle cx={chartPoints[chartPoints.length - 1].x} cy={lastY} r="3.5" fill={theme.dot} />
         </g>
         <rect
@@ -555,8 +568,12 @@ export default function LivePriceSparkline({
       </svg>
 
       <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/6 pt-3 text-sm text-fg-muted">
-        <span>{copy.liveCoverageStart}: {formatTimeLabel(visibleStart, locale)}</span>
-        <span>{copy.liveCoverageEnd}: {formatTimeLabel(visibleEnd, locale)}</span>
+        <span>
+          {copy.liveCoverageStart}: {formatTimeLabel(visibleStart, locale)}
+        </span>
+        <span>
+          {copy.liveCoverageEnd}: {formatTimeLabel(visibleEnd, locale)}
+        </span>
       </div>
     </div>
   );

@@ -1,17 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import LivePriceSparkline, {
-  type LivePricePoint,
-} from "../../components/LivePriceSparkline";
+import LivePriceSparkline, { type LivePricePoint } from "../../components/LivePriceSparkline";
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import {
-  formatCompactCurrency,
-  formatCurrency,
-  formatPercent,
-} from "../../lib/format";
+import { formatCompactCurrency, formatCurrency, formatPercent } from "../../lib/format";
 import { formatMessage } from "../../i18n/template";
 import { useI18n } from "../../i18n/context";
 import MetricCard from "../../components/MetricCard";
@@ -124,7 +118,10 @@ export default function OverviewSection({
   const stateMessages = getDashboardSectionStateMessages("overview", overviewState.error, locale);
   const [liveSeries, setLiveSeries] = useState<LivePriceSeries | null>(null);
   const [liveSnapshot, setLiveSnapshot] = useState<LiveSnapshot | null>(null);
-  const [liveConnection, setLiveConnection] = useState<{ currency: Currency; state: LiveConnectionState } | null>(null);
+  const [liveConnection, setLiveConnection] = useState<{
+    currency: Currency;
+    state: LiveConnectionState;
+  } | null>(null);
   const reconnectTimeoutRef = useRef<number | null>(null);
   const activeLiveSnapshot = liveSnapshot?.currency === currency ? liveSnapshot : null;
   const livePoints =

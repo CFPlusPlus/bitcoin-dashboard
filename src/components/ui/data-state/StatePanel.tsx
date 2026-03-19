@@ -65,8 +65,7 @@ export default function StatePanel({
   title,
   tone,
 }: StatePanelProps) {
-  const { iconClassName, iconWrapClassName, messageClassName, surfaceClassName } =
-    toneStyles[tone];
+  const { iconClassName, iconWrapClassName, messageClassName, surfaceClassName } = toneStyles[tone];
 
   return (
     <Surface

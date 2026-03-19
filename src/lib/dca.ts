@@ -139,7 +139,10 @@ export function getDcaTone(value: number | null) {
   return value > 0 ? "positive" : "negative";
 }
 
-export function validateDcaFormInput(input: DcaFormInput, locale: AppLocale = "de"): DcaValidationResult {
+export function validateDcaFormInput(
+  input: DcaFormInput,
+  locale: AppLocale = "de"
+): DcaValidationResult {
   const copy = getDictionary(locale).dca.validation;
 
   if (input.date.trim().length === 0) {
@@ -294,7 +297,9 @@ export function buildDcaSummary(
   const totalBitcoin = entries.reduce((sum, entry) => sum + entry.bitcoinAmount, 0);
   const averageBuyPrice = totalBitcoin > 0 ? totalInvested / totalBitcoin : null;
   const currentValue =
-    normalizedCurrentPrice !== null && totalBitcoin > 0 ? totalBitcoin * normalizedCurrentPrice : null;
+    normalizedCurrentPrice !== null && totalBitcoin > 0
+      ? totalBitcoin * normalizedCurrentPrice
+      : null;
   const pnlAbsolute = currentValue === null ? null : currentValue - totalInvested;
   const pnlPercent =
     pnlAbsolute === null || totalInvested <= 0 ? null : (pnlAbsolute / totalInvested) * 100;

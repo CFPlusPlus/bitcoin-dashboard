@@ -89,31 +89,28 @@ export function usePersistentState<T>(
     [key]
   );
 
-  const getSnapshot = useCallback(
-    () => {
-      if (typeof window === "undefined") {
-        return initialValue;
-      }
+  const getSnapshot = useCallback(() => {
+    if (typeof window === "undefined") {
+      return initialValue;
+    }
 
-      const storedValue = window.localStorage.getItem(key);
-      const cached = cacheRef.current;
+    const storedValue = window.localStorage.getItem(key);
+    const cached = cacheRef.current;
 
-      if (cached.hasValue && cached.storedValue === storedValue) {
-        return cached.snapshot;
-      }
+    if (cached.hasValue && cached.storedValue === storedValue) {
+      return cached.snapshot;
+    }
 
-      const snapshot = resolveStoredValue(storedValue, initialValue, options);
+    const snapshot = resolveStoredValue(storedValue, initialValue, options);
 
-      cacheRef.current = {
-        hasValue: true,
-        snapshot,
-        storedValue,
-      };
+    cacheRef.current = {
+      hasValue: true,
+      snapshot,
+      storedValue,
+    };
 
-      return snapshot;
-    },
-    [initialValue, key, options]
-  );
+    return snapshot;
+  }, [initialValue, key, options]);
 
   const value = useSyncExternalStore(subscribe, getSnapshot, () => initialValue);
 

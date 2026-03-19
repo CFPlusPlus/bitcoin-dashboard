@@ -11,11 +11,7 @@ export const alt = socialImageAlt;
 export const size = socialImageSize;
 export const contentType = socialImageContentType;
 
-export default async function OpenGraphImage({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function OpenGraphImage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const safeLocale = isValidLocale(locale) ? locale : "de";
   const metadata = getDictionary(safeLocale).metadata;

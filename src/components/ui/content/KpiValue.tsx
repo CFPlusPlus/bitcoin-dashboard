@@ -41,7 +41,11 @@ export default function KpiValue({
 }: KpiValueProps) {
   return (
     <div className={cn("flex flex-col gap-2", className)} {...props}>
-      {label ? <MetaText className="uppercase tracking-[0.16em]" size="xs">{label}</MetaText> : null}
+      {label ? (
+        <MetaText className="uppercase tracking-[0.16em]" size="xs">
+          {label}
+        </MetaText>
+      ) : null}
       <div className={cn(kpiValueVariants({ size, tone }))}>{value}</div>
       {delta ? <MetaText tone={tone === "default" ? "default" : tone}>{delta}</MetaText> : null}
       {meta ? <MetaText>{meta}</MetaText> : null}

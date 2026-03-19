@@ -107,9 +107,7 @@ export default function SentimentSection({
               <MetaText size="xs" className="uppercase tracking-[0.16em]">
                 {copy.sourceLabel}
               </MetaText>
-              <p className="text-base font-medium text-fg">
-                {sentiment?.attribution ?? fallback}
-              </p>
+              <p className="text-base font-medium text-fg">{sentiment?.attribution ?? fallback}</p>
               <MetaText>{copy.sourceHint}</MetaText>
             </div>
           </div>

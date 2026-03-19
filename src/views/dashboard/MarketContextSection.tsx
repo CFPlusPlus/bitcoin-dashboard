@@ -38,9 +38,14 @@ export default function MarketContextSection({
   const { locale, messages } = useI18n();
   const copy = messages.dashboard.marketContext;
   const currencyLabel = currency.toUpperCase();
-  const stateMessages = getDashboardSectionStateMessages("marketContext", overviewState.error, locale);
+  const stateMessages = getDashboardSectionStateMessages(
+    "marketContext",
+    overviewState.error,
+    locale
+  );
   const btcDominance = overview?.btcDominance ?? null;
-  const marketCapSeries = marketContextChart?.series.find((item) => item.key === "marketCap") ?? null;
+  const marketCapSeries =
+    marketContextChart?.series.find((item) => item.key === "marketCap") ?? null;
   const volumeSeries = marketContextChart?.series.find((item) => item.key === "volume24h") ?? null;
   const dominanceCopy =
     locale === "de"
@@ -57,15 +62,19 @@ export default function MarketContextSection({
       ? {
           loading: {
             title: "30-Tage-Verlauf wird geladen",
-            description: "Marktkapitalisierung und Volumen werden für die letzten 30 Tage vorbereitet.",
+            description:
+              "Marktkapitalisierung und Volumen werden für die letzten 30 Tage vorbereitet.",
           },
           error: {
             title: "30-Tage-Verlauf gerade nicht verfügbar",
-            description: marketContextChartState.error ?? "Die historischen Marktkontext-Daten konnten nicht geladen werden.",
+            description:
+              marketContextChartState.error ??
+              "Die historischen Marktkontext-Daten konnten nicht geladen werden.",
           },
           empty: {
             title: "Keine Verlaufsdaten vorhanden",
-            description: "Für die letzten 30 Tage wurden keine verwertbaren Marktkontext-Daten gefunden.",
+            description:
+              "Für die letzten 30 Tage wurden keine verwertbaren Marktkontext-Daten gefunden.",
           },
         }
       : {
@@ -75,7 +84,9 @@ export default function MarketContextSection({
           },
           error: {
             title: "30-day history is unavailable right now",
-            description: marketContextChartState.error ?? "The historical market context data could not be loaded.",
+            description:
+              marketContextChartState.error ??
+              "The historical market context data could not be loaded.",
           },
           empty: {
             title: "No history data available",
@@ -84,7 +95,12 @@ export default function MarketContextSection({
         };
 
   return (
-    <Card as="section" tone="default" padding="md" className="h-full gap-4 border-border-default/80">
+    <Card
+      as="section"
+      tone="default"
+      padding="md"
+      className="h-full gap-4 border-border-default/80"
+    >
       <SectionHeader
         eyebrow={copy.eyebrow}
         title={copy.title}
@@ -120,7 +136,11 @@ export default function MarketContextSection({
               <MarketMetricChart
                 currency={currency}
                 label={formatMessage(copy.marketCapLabel, { currency: currencyLabel })}
-                currentValue={formatCompactCurrency(marketCapSeries.stats.currentValue, currency, locale)}
+                currentValue={formatCompactCurrency(
+                  marketCapSeries.stats.currentValue,
+                  currency,
+                  locale
+                )}
                 meta={copy.marketCapFootnote}
                 points={marketCapSeries.points}
                 tone="accent"
@@ -130,7 +150,11 @@ export default function MarketContextSection({
               <MarketMetricChart
                 currency={currency}
                 label={formatMessage(copy.volumeLabel, { currency: currencyLabel })}
-                currentValue={formatCompactCurrency(volumeSeries.stats.currentValue, currency, locale)}
+                currentValue={formatCompactCurrency(
+                  volumeSeries.stats.currentValue,
+                  currency,
+                  locale
+                )}
                 meta={copy.volumeFootnote}
                 points={volumeSeries.points}
               />

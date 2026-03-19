@@ -179,10 +179,9 @@ function Sparkline({
   }));
 
   const areaPath = `${path} L ${width},${height} L 0,${height} Z`;
-  const activeHoveredPoint =
-    hoveredIndex === null ? null : hoverablePoints[hoveredIndex] ?? null;
+  const activeHoveredPoint = hoveredIndex === null ? null : (hoverablePoints[hoveredIndex] ?? null);
   const tooltipValueLabel = activeHoveredPoint
-    ? formatHashrate(activeHoveredPoint.ehPerSecond, locale === "de" ? "de-DE" : "en-US") ?? "n/a"
+    ? (formatHashrate(activeHoveredPoint.ehPerSecond, locale === "de" ? "de-DE" : "en-US") ?? "n/a")
     : "";
   const tooltipDateLabel = activeHoveredPoint
     ? formatSparklineDate(activeHoveredPoint.timestamp, locale)
@@ -204,12 +203,8 @@ function Sparkline({
         renderedHeightPx: renderedChartHeight,
       })
     : 0;
-  const markerLeftPercent = activeHoveredPoint
-    ? (activeHoveredPoint.x / width) * 100
-    : 0;
-  const markerTopPercent = activeHoveredPoint
-    ? (activeHoveredPoint.y / height) * 100
-    : 0;
+  const markerLeftPercent = activeHoveredPoint ? (activeHoveredPoint.x / width) * 100 : 0;
+  const markerTopPercent = activeHoveredPoint ? (activeHoveredPoint.y / height) * 100 : 0;
 
   function handlePointerMove(event: PointerEvent<SVGRectElement>) {
     if (points.length === 0) return;
@@ -297,9 +292,7 @@ function Sparkline({
           <div className="text-[10.5px] font-semibold leading-none text-fg">
             {tooltipValueLabel}
           </div>
-          <div className="mt-1 text-[9.5px] leading-none text-fg-muted">
-            {tooltipDateLabel}
-          </div>
+          <div className="mt-1 text-[9.5px] leading-none text-fg-muted">{tooltipDateLabel}</div>
         </div>
       ) : null}
     </div>
@@ -456,7 +449,9 @@ function RecentBlockTile({
         </div>
         <div className="space-y-1">
           <div className="font-mono text-[1.35rem] font-medium leading-none tracking-[-0.04em] text-fg">
-            {block.transactionCount === null ? fallback : formatNumber(block.transactionCount, locale)}
+            {block.transactionCount === null
+              ? fallback
+              : formatNumber(block.transactionCount, locale)}
           </div>
           <MetaText size="xs" className="text-[0.74rem] uppercase tracking-[0.16em]">
             {transactionsSuffix}
@@ -522,20 +517,22 @@ export default function NetworkOverviewSection({
               />
               <StatLabel
                 label={copy.hashrateCurrentLabel}
-                value={formatHashrate(network?.hashrate.currentEhPerSecond ?? null, numberLocale) ?? fallback}
+                value={
+                  formatHashrate(network?.hashrate.currentEhPerSecond ?? null, numberLocale) ??
+                  fallback
+                }
               />
               <StatLabel
                 label={copy.difficultyCurrentLabel}
-                value={formatDifficulty(network?.difficulty.current ?? null, numberLocale) ?? fallback}
+                value={
+                  formatDifficulty(network?.difficulty.current ?? null, numberLocale) ?? fallback
+                }
               />
               <StatLabel
                 label={copy.pendingTransactionsLabel}
                 value={formatNumber(network?.mempool.pendingTransactions ?? null, locale)}
               />
-              <StatLabel
-                label={copy.priorityFeeLabel}
-                value={highPriorityFee}
-              />
+              <StatLabel label={copy.priorityFeeLabel} value={highPriorityFee} />
               <StatLabel
                 label={copy.unconfirmedSizeLabel}
                 value={
@@ -552,7 +549,10 @@ export default function NetworkOverviewSection({
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col gap-2">
                 <KpiValue
-                  value={formatHashrate(network?.hashrate.currentEhPerSecond ?? null, numberLocale) ?? fallback}
+                  value={
+                    formatHashrate(network?.hashrate.currentEhPerSecond ?? null, numberLocale) ??
+                    fallback
+                  }
                   size="md"
                 />
                 <div
@@ -580,15 +580,22 @@ export default function NetworkOverviewSection({
             <div className="grid gap-4 sm:grid-cols-3">
               <StatLabel
                 label={copy.hashrateLowLabel}
-                value={formatHashrate(network?.hashrate.stats.low30d ?? null, numberLocale) ?? fallback}
+                value={
+                  formatHashrate(network?.hashrate.stats.low30d ?? null, numberLocale) ?? fallback
+                }
               />
               <StatLabel
                 label={copy.hashrateHighLabel}
-                value={formatHashrate(network?.hashrate.stats.high30d ?? null, numberLocale) ?? fallback}
+                value={
+                  formatHashrate(network?.hashrate.stats.high30d ?? null, numberLocale) ?? fallback
+                }
               />
               <StatLabel
                 label={copy.hashrateAverageLabel}
-                value={formatHashrate(network?.hashrate.stats.average30d ?? null, numberLocale) ?? fallback}
+                value={
+                  formatHashrate(network?.hashrate.stats.average30d ?? null, numberLocale) ??
+                  fallback
+                }
               />
             </div>
           </NetworkPanel>

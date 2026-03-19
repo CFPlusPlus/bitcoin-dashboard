@@ -107,7 +107,10 @@ export function getLatestSuccessfulUpdate(values: Array<string | null | undefine
       raw: value ?? null,
       timestamp: getTimestamp(value),
     }))
-    .filter((item): item is { raw: string; timestamp: number } => item.raw !== null && item.timestamp !== null)
+    .filter(
+      (item): item is { raw: string; timestamp: number } =>
+        item.raw !== null && item.timestamp !== null
+    )
     .sort((left, right) => right.timestamp - left.timestamp);
 
   return timestamps[0]?.raw ?? null;

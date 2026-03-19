@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { networkCachePolicy, overviewCachePolicy, sentimentCachePolicy } from "../cache";
 import { fetchFearAndGreedIndex } from "./alternative";
-import { fetchCoinGeckoGlobalData, fetchCoinGeckoMarketChart, fetchCoinGeckoMarketData } from "./coingecko";
+import {
+  fetchCoinGeckoGlobalData,
+  fetchCoinGeckoMarketChart,
+  fetchCoinGeckoMarketData,
+} from "./coingecko";
 import { fetchLatestBlockHeight, fetchRecommendedFees } from "./mempool";
 
 describe("provider validation", () => {

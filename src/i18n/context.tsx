@@ -21,9 +21,7 @@ export function I18nProvider({
   locale: AppLocale;
   messages: Dictionary;
 }) {
-  return (
-    <I18nContext.Provider value={{ locale, messages }}>{children}</I18nContext.Provider>
-  );
+  return <I18nContext.Provider value={{ locale, messages }}>{children}</I18nContext.Provider>;
 }
 
 export function useI18n() {

@@ -92,7 +92,11 @@ export function formatDateTime(value: string | null, locale: AppLocale = "de") {
   return date.toLocaleString(localeMeta[locale].bcp47);
 }
 
-export function formatRelativeTime(value: string | null, locale: AppLocale = "de", now = Date.now()) {
+export function formatRelativeTime(
+  value: string | null,
+  locale: AppLocale = "de",
+  now = Date.now()
+) {
   if (!value) return getUnavailableText(locale);
 
   const timestamp = new Date(value).getTime();

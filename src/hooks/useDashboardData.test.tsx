@@ -133,10 +133,30 @@ const performanceFixture = {
   currency: "usd" as const,
   currentPrice: 60000,
   periods: [
-    { key: "7d" as const, referencePrice: 57000, referenceTimestamp: 1709400000, changePercent: 5.2 },
-    { key: "30d" as const, referencePrice: 54000, referenceTimestamp: 1707400000, changePercent: 11.1 },
-    { key: "1y" as const, referencePrice: 34000, referenceTimestamp: 1678500000, changePercent: 76.4 },
-    { key: "ytd" as const, referencePrice: 50000, referenceTimestamp: 1704067200, changePercent: 20.0 },
+    {
+      key: "7d" as const,
+      referencePrice: 57000,
+      referenceTimestamp: 1709400000,
+      changePercent: 5.2,
+    },
+    {
+      key: "30d" as const,
+      referencePrice: 54000,
+      referenceTimestamp: 1707400000,
+      changePercent: 11.1,
+    },
+    {
+      key: "1y" as const,
+      referencePrice: 34000,
+      referenceTimestamp: 1678500000,
+      changePercent: 76.4,
+    },
+    {
+      key: "ytd" as const,
+      referencePrice: 50000,
+      referenceTimestamp: 1704067200,
+      changePercent: 20.0,
+    },
   ],
   warnings: [],
 };

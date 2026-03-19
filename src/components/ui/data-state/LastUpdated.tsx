@@ -12,12 +12,7 @@ type LastUpdatedProps = {
   value: string | null;
 };
 
-export default function LastUpdated({
-  className,
-  emptyLabel,
-  label,
-  value,
-}: LastUpdatedProps) {
+export default function LastUpdated({ className, emptyLabel, label, value }: LastUpdatedProps) {
   const { locale, messages } = useI18n();
   const exactTime = formatDateTime(value, locale);
   const relativeTime = formatRelativeTime(value, locale);
