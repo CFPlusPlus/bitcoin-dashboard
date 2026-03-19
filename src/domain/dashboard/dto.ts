@@ -68,6 +68,12 @@ export type NetworkDto = ApiEnvelope & {
       medianFeeRate: number | null;
     }>;
   };
+  latestBlocks: Array<{
+    height: number;
+    timestamp: number;
+    transactionCount: number | null;
+    sizeBytes: number | null;
+  }>;
 };
 
 export type SentimentDto = ApiEnvelope & {

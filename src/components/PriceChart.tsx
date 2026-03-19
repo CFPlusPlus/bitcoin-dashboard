@@ -315,8 +315,8 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
                 y={tooltipY}
                 width={tooltipWidth}
                 height={tooltipHeight}
-                rx="10"
-                fill="rgba(14, 11, 9, 0.94)"
+                rx="6"
+                fill="#110d0a"
                 stroke="rgba(242, 143, 45, 0.24)"
               />
               <text x={tooltipX + 10} y={tooltipY + 18} fill="#f7efe5" fontSize="13" fontWeight="600">

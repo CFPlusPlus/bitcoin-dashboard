@@ -2,6 +2,7 @@ import type {
   MempoolBlock,
   MempoolDifficultyAdjustment,
   MempoolHashrate,
+  MempoolRecentBlock,
   MempoolRecommendedFees,
 } from "../../server/providers/mempool";
 import type { NetworkDto } from "./dto";
@@ -12,6 +13,7 @@ export function mapNetworkDto(input: {
   hashrate: MempoolHashrate | null;
   difficultyAdjustment: MempoolDifficultyAdjustment | null;
   mempoolBlocks: MempoolBlock[] | null;
+  recentBlocks: MempoolRecentBlock[] | null;
   fetchedAt: string;
   warnings?: string[];
 }): NetworkDto {
@@ -31,6 +33,12 @@ export function mapNetworkDto(input: {
   const pendingVirtualSizeMb = input.mempoolBlocks
     ? input.mempoolBlocks.reduce((sum, block) => sum + (block.blockVSize ?? 0), 0) / 1_000_000
     : null;
+  const latestBlocks = (input.recentBlocks ?? []).slice(0, 6).map((block) => ({
+    height: block.height,
+    timestamp: block.timestamp * 1000,
+    transactionCount: block.tx_count ?? null,
+    sizeBytes: block.size ?? null,
+  }));
 
   return {
     source: "mempool.space",
@@ -77,6 +85,7 @@ export function mapNetworkDto(input: {
       pendingVirtualSizeMb,
       projectedBlocks,
     },
+    latestBlocks,
     partial: Boolean(warnings?.length),
     warnings: warnings?.length ? warnings : undefined,
     fetchedAt: input.fetchedAt,

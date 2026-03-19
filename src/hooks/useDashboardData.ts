@@ -22,6 +22,9 @@ const STORAGE_KEYS = {
   range: "bitcoin-dashboard:range",
 } as const;
 
+const DASHBOARD_REFRESH_INTERVAL_MS = 60_000;
+const NETWORK_BLOCK_POLL_INTERVAL_MS = 15_000;
+
 function isCurrency(value: unknown): value is Currency {
   return value === "usd" || value === "eur";
 }
@@ -141,9 +144,13 @@ export function useDashboardData(locale: AppLocale) {
     }
   }, [copy.stateCopy.fallbacks.overviewUnavailable, locale]);
 
-  const loadNetworkData = useCallback(async () => {
+  const loadNetworkData = useCallback(async (options?: { silent?: boolean }) => {
+    const silent = options?.silent ?? false;
+
     setNetworkError("");
-    setNetworkLoading(true);
+    if (!silent) {
+      setNetworkLoading(true);
+    }
 
     try {
       const networkData = await fetchNetwork(locale);
@@ -159,7 +166,9 @@ export function useDashboardData(locale: AppLocale) {
       );
       return null;
     } finally {
-      setNetworkLoading(false);
+      if (!silent) {
+        setNetworkLoading(false);
+      }
     }
   }, [copy.stateCopy.fallbacks.networkUnavailable, locale]);
 
@@ -307,10 +316,20 @@ export function useDashboardData(locale: AppLocale) {
 
     const timerId = window.setInterval(() => {
       void refreshAll(range, currency);
-    }, 60_000);
+    }, DASHBOARD_REFRESH_INTERVAL_MS);
 
     return () => window.clearInterval(timerId);
   }, [autoRefresh, currency, range, refreshAll]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+
+    const timerId = window.setInterval(() => {
+      void loadNetworkData({ silent: true });
+    }, NETWORK_BLOCK_POLL_INTERVAL_MS);
+
+    return () => window.clearInterval(timerId);
+  }, [autoRefresh, loadNetworkData]);
 
   const warnings = useMemo(() => {
     const items = [

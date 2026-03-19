@@ -209,8 +209,8 @@ export default function MarketMetricChart({
                 y={tooltipY}
                 width={tooltipWidth}
                 height={tooltipHeight}
-                rx="10"
-                fill="rgba(14, 11, 9, 0.94)"
+                rx="6"
+                fill="#110d0a"
                 stroke={tone === "accent" ? "rgba(242, 143, 45, 0.24)" : "rgba(231, 223, 212, 0.18)"}
               />
               <text x={tooltipX + 9} y={tooltipY + 17} fill="#f7efe5" fontSize="12.5" fontWeight="600">

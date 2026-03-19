@@ -529,8 +529,8 @@ export default function LivePriceSparkline({
               y={tooltipY}
               width={tooltipWidth}
               height={tooltipHeight}
-              rx="10"
-              fill="rgba(12, 10, 9, 0.92)"
+              rx="6"
+              fill="#110d0a"
               stroke="rgba(242, 143, 45, 0.28)"
             />
             <text x={tooltipX + 10} y={tooltipY + 18} fill="#f7efe5" fontSize="13" fontWeight="600">

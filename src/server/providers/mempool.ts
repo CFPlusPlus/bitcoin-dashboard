@@ -48,10 +48,18 @@ const mempoolBlockSchema = z.object({
   feeRange: z.array(finiteNumber).optional(),
 });
 
+const mempoolRecentBlockSchema = z.object({
+  height: z.number().int().nonnegative(),
+  timestamp: z.number().int().nonnegative(),
+  tx_count: z.number().int().nonnegative(),
+  size: z.number().int().nonnegative(),
+});
+
 export type MempoolRecommendedFees = z.infer<typeof mempoolRecommendedFeesSchema>;
 export type MempoolHashrate = z.infer<typeof mempoolHashrateSchema>;
 export type MempoolDifficultyAdjustment = z.infer<typeof mempoolDifficultyAdjustmentSchema>;
 export type MempoolBlock = z.infer<typeof mempoolBlockSchema>;
+export type MempoolRecentBlock = z.infer<typeof mempoolRecentBlockSchema>;
 
 function ensureRecommendedFeesComplete(fees: MempoolRecommendedFees) {
   const requiredFields = [
@@ -202,6 +210,35 @@ export async function fetchMempoolBlocks(cachePolicy?: CachePolicy) {
 
   if (parsed.data.length === 0) {
     throw missingUpstreamData(provider, "mempool.space mempool blocks response was empty.");
+  }
+
+  return parsed.data;
+}
+
+export async function fetchRecentBlocks(cachePolicy?: CachePolicy) {
+  const response = await requestUpstream({
+    provider,
+    resource: "Recent blocks",
+    url: "https://mempool.space/api/blocks",
+    accept: "application/json",
+    timeoutMs: 6000,
+    cachePolicy,
+  });
+
+  const payload = await readUpstreamJson(
+    response,
+    provider,
+    "mempool.space recent blocks response returned invalid JSON."
+  );
+
+  const parsed = z.array(mempoolRecentBlockSchema).safeParse(payload);
+
+  if (!parsed.success) {
+    throw invalidUpstreamShape(provider, parsed.error);
+  }
+
+  if (parsed.data.length === 0) {
+    throw missingUpstreamData(provider, "mempool.space recent blocks response was empty.");
   }
 
   return parsed.data;

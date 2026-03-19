@@ -48,6 +48,53 @@ function formatHashrate(value: number | null, locale: string) {
   return formatted ? `${formatted} EH/s` : null;
 }
 
+function formatFileSize(value: number | null, locale: string) {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
+    return null;
+  }
+
+  if (value >= 1_000_000) {
+    return `${formatDecimal(value / 1_000_000, locale, 2)} MB`;
+  }
+
+  return `${formatDecimal(value / 1_000, locale, 0)} KB`;
+}
+
+function formatRelativeTimestamp(timestamp: number, locale: "de" | "en", now = Date.now()) {
+  if (!Number.isFinite(timestamp)) {
+    return null;
+  }
+
+  const diffMs = now - timestamp;
+  const absDiffSeconds = Math.round(Math.abs(diffMs) / 1000);
+
+  if (absDiffSeconds < 45) {
+    return locale === "de" ? "gerade eben" : "just now";
+  }
+
+  const formatter = new Intl.RelativeTimeFormat(locale === "de" ? "de-DE" : "en-US", {
+    numeric: "auto",
+  });
+  const units = [
+    { amount: 60, unit: "second" as const },
+    { amount: 60, unit: "minute" as const },
+    { amount: 24, unit: "hour" as const },
+    { amount: 7, unit: "day" as const },
+  ];
+
+  let valueToFormat = diffMs / 1000;
+
+  for (const currentUnit of units) {
+    if (Math.abs(valueToFormat) < currentUnit.amount) {
+      return formatter.format(-Math.round(valueToFormat), currentUnit.unit);
+    }
+
+    valueToFormat /= currentUnit.amount;
+  }
+
+  return formatter.format(-Math.round(valueToFormat), "week");
+}
+
 function formatSparklineDate(timestamp: number, locale: "de" | "en") {
   const code = locale === "de" ? "de-DE" : "en-US";
   return new Intl.DateTimeFormat(code, {
@@ -228,7 +275,7 @@ function Sparkline({
       ) : null}
       {activeHoveredPoint ? (
         <div
-          className="pointer-events-none absolute -translate-x-1/2 rounded-md border border-accent/25 bg-[rgba(14,11,9,0.94)] px-2 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.28)]"
+          className="pointer-events-none absolute -translate-x-1/2 rounded-[6px] border border-accent/25 bg-[#110d0a] px-2 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.28)]"
           style={{
             left: `${tooltipLeftPercent}%`,
             top: `${tooltipTopPercent}%`,
@@ -352,6 +399,64 @@ function FeePriorityRow({
   );
 }
 
+function RecentBlockTile({
+  ageLabel,
+  block,
+  fallback,
+  locale,
+  now,
+  sizeLabel,
+  transactionsSuffix,
+}: {
+  ageLabel: string;
+  block: Network["latestBlocks"][number];
+  fallback: string;
+  locale: "de" | "en";
+  now: number;
+  sizeLabel: string;
+  transactionsSuffix: string;
+}) {
+  const numberLocale = locale === "de" ? "de-DE" : "en-US";
+  const age = formatRelativeTimestamp(block.timestamp, locale, now) ?? fallback;
+  const transactions =
+    block.transactionCount === null
+      ? fallback
+      : `${formatNumber(block.transactionCount, locale)} ${transactionsSuffix}`;
+  const size = formatFileSize(block.sizeBytes, numberLocale) ?? fallback;
+  const blockUrl = `https://mempool.space/block/${block.height}`;
+
+  return (
+    <a
+      href={blockUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="min-w-0 border border-border-subtle/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01))] px-3 py-3 transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent/45 hover:bg-[linear-gradient(180deg,rgba(242,143,45,0.06),rgba(255,255,255,0.01))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+    >
+      <div className="flex h-full flex-col items-center justify-between gap-2 text-center">
+        <div className="space-y-1">
+          <div className="font-mono text-[1.05rem] font-semibold leading-none tracking-[-0.04em] text-accent">
+            #{formatNumber(block.height, locale)}
+          </div>
+          <MetaText size="xs" className="text-[0.74rem]">
+            {age}
+          </MetaText>
+        </div>
+        <div className="space-y-1">
+          <div className="font-mono text-[1.35rem] font-medium leading-none tracking-[-0.04em] text-fg">
+            {block.transactionCount === null ? fallback : formatNumber(block.transactionCount, locale)}
+          </div>
+          <MetaText size="xs" className="text-[0.74rem] uppercase tracking-[0.16em]">
+            {transactionsSuffix}
+          </MetaText>
+        </div>
+        <MetaText size="xs" className="font-mono text-[0.78rem] text-fg-secondary">
+          {size}
+        </MetaText>
+      </div>
+    </a>
+  );
+}
+
 export default function NetworkOverviewSection({
   network,
   networkState,
@@ -368,6 +473,7 @@ export default function NetworkOverviewSection({
   const lowPriorityFee = formatFee(network?.fees.minimumFee ?? null, numberLocale) ?? fallback;
   const hashrateIsPositive = (network?.hashrate.changePercent30d ?? 0) >= 0;
   const difficultyIsPositive = (network?.difficulty.adjustmentPercent ?? 0) >= 0;
+  const nowTimestamp = network?.fetchedAt ? new Date(network.fetchedAt).getTime() : 0;
   const maxFee = Math.max(
     network?.fees.fastestFee ?? 0,
     network?.fees.halfHourFee ?? 0,
@@ -581,6 +687,27 @@ export default function NetworkOverviewSection({
             </Stack>
           </NetworkPanel>
         </div>
+
+        <NetworkPanel title={copy.latestBlocksTitle} className="min-h-0">
+          {network?.latestBlocks.length ? (
+            <div className="grid gap-2 md:grid-cols-3 xl:grid-cols-6">
+              {network.latestBlocks.map((block) => (
+                <RecentBlockTile
+                  key={block.height}
+                  ageLabel={copy.blockAgeLabel}
+                  block={block}
+                  fallback={fallback}
+                  locale={locale}
+                  now={nowTimestamp}
+                  sizeLabel={copy.blockSizeLabel}
+                  transactionsSuffix={copy.transactionsSuffix}
+                />
+              ))}
+            </div>
+          ) : (
+            <MetaText>{copy.latestBlocksEmpty}</MetaText>
+          )}
+        </NetworkPanel>
       </DataState>
     </Card>
   );
