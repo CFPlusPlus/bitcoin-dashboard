@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { networkCachePolicy, overviewCachePolicy, sentimentCachePolicy } from "../cache";
 import { fetchFearAndGreedIndex } from "./alternative";
-import { fetchCoinGeckoMarketChart, fetchCoinGeckoMarketData } from "./coingecko";
+import { fetchCoinGeckoGlobalData, fetchCoinGeckoMarketChart, fetchCoinGeckoMarketData } from "./coingecko";
 import { fetchLatestBlockHeight, fetchRecommendedFees } from "./mempool";
 
 describe("provider validation", () => {
@@ -51,6 +51,36 @@ describe("provider validation", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await fetchCoinGeckoMarketData("usd", "demo-key", overviewCachePolicy);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        cache: "force-cache",
+        next: { revalidate: overviewCachePolicy.revalidateSeconds },
+      })
+    );
+  });
+
+  it("passes overview revalidation options to CoinGecko global requests", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            market_cap_percentage: {
+              btc: 58.42,
+            },
+          },
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }
+      )
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchCoinGeckoGlobalData("demo-key", overviewCachePolicy);
 
     expect(fetchMock).toHaveBeenCalledWith(
       expect.any(String),

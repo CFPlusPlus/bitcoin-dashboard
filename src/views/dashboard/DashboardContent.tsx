@@ -5,6 +5,7 @@ import type {
   ChartData,
   ChartRange,
   Currency,
+  MarketContextChartData,
   Network,
   Overview,
   Performance,
@@ -27,10 +28,13 @@ type DashboardContentProps = {
   chartState: AsyncDataState<ChartData>;
   currency: Currency;
   dashboardState: AsyncDataState<{ lastRefreshAt: string }>;
+  marketContextChart: MarketContextChartData | null;
+  marketContextChartState: AsyncDataState<MarketContextChartData>;
   network: Network | null;
   networkState: AsyncDataState<Network>;
   onChartRetry: () => void;
   onDashboardRetry: () => void;
+  onMarketContextChartRetry: () => void;
   onNetworkRetry: () => void;
   onOverviewRetry: () => void;
   onPerformanceRetry: () => void;
@@ -90,6 +94,9 @@ export default function DashboardContent(props: DashboardContentProps) {
 
           <MarketContextSection
             currency={props.currency}
+            marketContextChart={props.marketContextChart}
+            marketContextChartState={props.marketContextChartState}
+            onChartRetry={props.onMarketContextChartRetry}
             overview={props.overview}
             overviewState={props.overviewState}
             onRetry={props.onOverviewRetry}

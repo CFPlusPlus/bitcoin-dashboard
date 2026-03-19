@@ -301,6 +301,7 @@ describe("dca view helpers", () => {
   it("returns the current market price for the selected currency only when valid", () => {
     const overview: Overview = {
       fetchedAt: "2026-03-17T12:00:00.000Z",
+      btcDominance: 58.42,
       marketCapUsd: 1,
       priceEur: 45000,
       priceUsd: 50000,

@@ -9,6 +9,7 @@ export function getOverviewValues(overview: Overview | null, currency: Currency)
       currency === "usd" ? overview?.volume24hUsd ?? null : overview?.volume24hEur ?? null,
     marketCap:
       currency === "usd" ? overview?.marketCapUsd ?? null : overview?.marketCapEur ?? null,
+    btcDominance: overview?.btcDominance ?? null,
     high24h: currency === "usd" ? overview?.high24hUsd ?? null : overview?.high24hEur ?? null,
     low24h: currency === "usd" ? overview?.low24hUsd ?? null : overview?.low24hEur ?? null,
   };

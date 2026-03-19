@@ -22,10 +22,21 @@ const coinGeckoMarketResponseSchema = z.array(coinGeckoMarketItemSchema);
 
 const coinGeckoChartResponseSchema = z.object({
   prices: z.array(z.tuple([finiteNumber, finiteNumber])),
+  market_caps: z.array(z.tuple([finiteNumber, finiteNumber])).optional(),
+  total_volumes: z.array(z.tuple([finiteNumber, finiteNumber])).optional(),
+});
+
+const coinGeckoGlobalResponseSchema = z.object({
+  data: z.object({
+    market_cap_percentage: z.object({
+      btc: finiteNumber,
+    }),
+  }),
 });
 
 export type CoinGeckoMarketItem = z.infer<typeof coinGeckoMarketItemSchema>;
 export type CoinGeckoMarketChartResponse = z.infer<typeof coinGeckoChartResponseSchema>;
+export type CoinGeckoGlobalResponse = z.infer<typeof coinGeckoGlobalResponseSchema>;
 
 function ensureMarketItemCompleteness(item: CoinGeckoMarketItem, currency: "usd" | "eur") {
   const requiredFields = [
@@ -130,6 +141,36 @@ export async function fetchCoinGeckoMarketChart(input: {
 
   if (parsed.data.prices.length === 0) {
     throw missingUpstreamData(provider, "CoinGecko chart response did not include any price points.");
+  }
+
+  return parsed.data;
+}
+
+export async function fetchCoinGeckoGlobalData(apiKey: string, cachePolicy?: CachePolicy) {
+  const url = "https://api.coingecko.com/api/v3/global";
+
+  const response = await requestUpstream({
+    provider,
+    resource: "CoinGecko global",
+    url,
+    accept: "application/json",
+    timeoutMs: 8000,
+    cachePolicy,
+    headers: {
+      "x-cg-demo-api-key": apiKey,
+    },
+  });
+
+  const payload = await readUpstreamJson(
+    response,
+    provider,
+    "CoinGecko global response returned invalid JSON."
+  );
+
+  const parsed = coinGeckoGlobalResponseSchema.safeParse(payload);
+
+  if (!parsed.success) {
+    throw invalidUpstreamShape(provider, parsed.error);
   }
 
   return parsed.data;

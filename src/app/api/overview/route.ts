@@ -5,7 +5,7 @@ import {
 } from "../../../server/cache";
 import { getAppEnv } from "../../../server/env";
 import { errorResponse, getReasonMessage, jsonResponse } from "../../../server/http";
-import { fetchCoinGeckoMarketData } from "../../../server/providers/coingecko";
+import { fetchCoinGeckoGlobalData, fetchCoinGeckoMarketData } from "../../../server/providers/coingecko";
 import { isUpstreamError } from "../../../server/upstream";
 
 function getRejectedReason<T>(result: PromiseSettledResult<T>) {
@@ -19,14 +19,17 @@ export async function GET() {
     return errorResponse(500, "COINGECKO_DEMO_API_KEY fehlt.");
   }
 
-  const [usdResult, eurResult] = await Promise.allSettled([
+  const [usdResult, eurResult, globalResult] = await Promise.allSettled([
     fetchCoinGeckoMarketData("usd", apiKey, overviewCachePolicy),
     fetchCoinGeckoMarketData("eur", apiKey, overviewCachePolicy),
+    fetchCoinGeckoGlobalData(apiKey, overviewCachePolicy),
   ]);
 
   const warnings: string[] = [];
   const usd = usdResult.status === "fulfilled" ? usdResult.value : null;
   const eur = eurResult.status === "fulfilled" ? eurResult.value : null;
+  const btcDominance =
+    globalResult.status === "fulfilled" ? globalResult.value.data.market_cap_percentage.btc : null;
 
   if (usdResult.status === "rejected") {
     warnings.push(getReasonMessage("USD-Marktdaten nicht verfügbar", usdResult.reason));
@@ -34,6 +37,10 @@ export async function GET() {
 
   if (eurResult.status === "rejected") {
     warnings.push(getReasonMessage("EUR-Marktdaten nicht verfügbar", eurResult.reason));
+  }
+
+  if (globalResult.status === "rejected") {
+    warnings.push(getReasonMessage("Globale Marktdaten nicht verfÃ¼gbar", globalResult.reason));
   }
 
   if (!usd && !eur) {
@@ -50,6 +57,7 @@ export async function GET() {
   const dto = mapOverviewDto({
     usd,
     eur,
+    btcDominance,
     fetchedAt: new Date().toISOString(),
     warnings,
   });

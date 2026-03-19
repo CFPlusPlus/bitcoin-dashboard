@@ -26,6 +26,7 @@ function mapCoinGeckoMarketItem(item: CoinGeckoMarketItem | null): OverviewCurre
 export function mapOverviewDto(input: {
   usd: CoinGeckoMarketItem | null;
   eur: CoinGeckoMarketItem | null;
+  btcDominance: number | null;
   fetchedAt: string;
   warnings?: string[];
 }): OverviewDto {
@@ -44,6 +45,7 @@ export function mapOverviewDto(input: {
     marketCapEur: eur.marketCap,
     volume24hUsd: usd.volume24h,
     volume24hEur: eur.volume24h,
+    btcDominance: input.btcDominance,
     high24hUsd: usd.high24h,
     high24hEur: eur.high24h,
     low24hUsd: usd.low24h,

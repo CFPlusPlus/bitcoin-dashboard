@@ -19,6 +19,7 @@ export type OverviewDto = ApiEnvelope & {
   marketCapEur: number | null;
   volume24hUsd: number | null;
   volume24hEur: number | null;
+  btcDominance: number | null;
   high24hUsd: number | null;
   high24hEur: number | null;
   low24hUsd: number | null;
@@ -52,6 +53,23 @@ export type ChartPointDto = {
   price: number;
 };
 
+export type MarketContextMetricKey = "marketCap" | "volume24h";
+
+export type MarketContextChartPointDto = {
+  timestamp: number;
+  value: number;
+};
+
+export type MarketContextChartSeriesDto = {
+  key: MarketContextMetricKey;
+  points: MarketContextChartPointDto[];
+  stats: {
+    currentValue: number | null;
+    minValue: number | null;
+    maxValue: number | null;
+  };
+};
+
 export type ChartDto = ApiEnvelope & {
   currency: Currency;
   range: ChartRange;
@@ -61,6 +79,12 @@ export type ChartDto = ApiEnvelope & {
     minPrice: number | null;
     maxPrice: number | null;
   };
+};
+
+export type MarketContextChartDto = ApiEnvelope & {
+  currency: Currency;
+  range: 30;
+  series: MarketContextChartSeriesDto[];
 };
 
 export type PerformanceWindowDto = {

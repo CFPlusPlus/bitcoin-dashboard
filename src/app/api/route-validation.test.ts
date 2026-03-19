@@ -87,12 +87,76 @@ describe("route validation handling", () => {
             }
           )
         )
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              data: {
+                market_cap_percentage: {
+                  btc: 58.42,
+                },
+              },
+            }),
+            {
+              status: 200,
+              headers: { "content-type": "application/json" },
+            }
+          )
+        )
     );
 
     const { GET } = await import("./overview/route");
     const response = await GET();
 
     expect(response.headers.get("cache-control")).toBe(getCacheControlHeader(overviewCachePolicy));
+  });
+
+  it("returns a controlled market context chart error for missing history arrays", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify({ prices: [[1, 67000]] }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })
+      )
+    );
+
+    const { GET } = await import("./market-context-chart/route");
+    const response = await GET(new Request("https://example.com/api/market-context-chart?currency=usd"));
+    const body = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(body).toMatchObject({
+      error: "Fehler beim Laden der Marktkontext-Charts von CoinGecko.",
+      code: "upstream_missing_data",
+      provider: "coingecko",
+    });
+  });
+
+  it("sets the market context chart cache header explicitly", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            prices: [[1, 67000]],
+            market_caps: [[1, 1200000000000]],
+            total_volumes: [[1, 43000000000]],
+          }),
+          {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          }
+        )
+      )
+    );
+
+    const { GET } = await import("./market-context-chart/route");
+    const response = await GET(new Request("https://example.com/api/market-context-chart?currency=usd"));
+
+    expect(response.headers.get("cache-control")).toBe(
+      getCacheControlHeader(getChartCachePolicy(30))
+    );
   });
 
   it("sets a range-aware chart cache header explicitly", async () => {

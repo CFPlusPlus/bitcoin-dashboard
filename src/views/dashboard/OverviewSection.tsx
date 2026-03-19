@@ -9,9 +9,7 @@ import type { Currency, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import {
   formatCurrency,
-  formatDateTime,
   formatPercent,
-  formatRelativeTime,
 } from "../../lib/format";
 import { formatMessage } from "../../i18n/template";
 import { useI18n } from "../../i18n/context";
@@ -21,7 +19,6 @@ import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
-import Stack from "../../components/ui/layout/Stack";
 import { getOverviewValues } from "./overview-values";
 
 type OverviewSectionProps = {
@@ -120,8 +117,9 @@ export default function OverviewSection({
 }: OverviewSectionProps) {
   const { locale, messages } = useI18n();
   const copy = messages.dashboard.overview;
+  const marketContextCopy = messages.dashboard.marketContext;
   const currencyLabel = currency.toUpperCase();
-  const { change24h, high24h, low24h, price } = getOverviewValues(overview, currency);
+  const { change24h, high24h, low24h, price, volume24h } = getOverviewValues(overview, currency);
   const stateMessages = getDashboardSectionStateMessages("overview", overviewState.error, locale);
   const [liveSeries, setLiveSeries] = useState<LivePriceSeries | null>(null);
   const [liveSnapshot, setLiveSnapshot] = useState<LiveSnapshot | null>(null);
@@ -250,24 +248,6 @@ export default function OverviewSection({
     };
   }, [currency]);
 
-  const liveStatusTone =
-    liveConnectionState === "live"
-      ? "text-success"
-      : liveConnectionState === "connecting" || liveConnectionState === "reconnecting"
-        ? "text-accent"
-        : "text-fg-muted";
-  const liveStatusLabel =
-    liveConnectionState === "live"
-      ? copy.liveStatusActive
-      : liveConnectionState === "connecting"
-        ? copy.liveStatusConnecting
-        : liveConnectionState === "reconnecting"
-          ? copy.liveStatusReconnecting
-          : copy.liveStatusFallback;
-  const liveUpdatedLabel = formatMessage(copy.liveUpdated, {
-    value: formatRelativeTime(displayedFetchedAt, locale),
-  });
-
   return (
     <Card as="section" tone="elevated" padding="md" gap="md" className="overflow-hidden">
       <SectionHeader
@@ -319,29 +299,9 @@ export default function OverviewSection({
               performancePercent={displayedChange24h}
               points={livePoints}
             />
-
-            <div className="grid gap-4 border-t border-border-subtle pt-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-              <Stack gap="xs" className="max-w-xl">
-                <MetaText tone="strong">{copy.lead}</MetaText>
-                <MetaText>
-                  {formatMessage(copy.providerUpdated, {
-                    value: formatDateTime(overview?.lastUpdatedAt ?? null, locale),
-                  })}
-                </MetaText>
-                <MetaText className={liveStatusTone}>
-                  {liveStatusLabel}
-                </MetaText>
-                <MetaText>{liveUpdatedLabel}</MetaText>
-              </Stack>
-              <div className="border border-accent/35 bg-accent-soft/80 px-3 py-2">
-                <p className="font-serif text-base leading-none tracking-[-0.03em] text-accent">
-                  {copy.spotBadge}
-                </p>
-              </div>
-            </div>
           </div>
 
-          <div className="grid gap-3">
+          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
             {[
               {
                 label: formatMessage(copy.highLabel, { currency: currencyLabel }),
@@ -356,6 +316,13 @@ export default function OverviewSection({
                 meta: copy.lowMeta,
                 footnote: copy.lowFootnote,
                 tone: "muted" as const,
+              },
+              {
+                label: formatMessage(marketContextCopy.volumeLabel, { currency: currencyLabel }),
+                text: formatCurrency(volume24h, currency, locale),
+                meta: marketContextCopy.volumeMeta,
+                footnote: marketContextCopy.volumeFootnote,
+                tone: "default" as const,
               },
             ].map((item) => (
               <MetricCard

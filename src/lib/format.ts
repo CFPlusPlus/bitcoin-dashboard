@@ -43,6 +43,17 @@ export function formatPercent(value: number | null, locale: AppLocale = "de") {
   return `${sign}${value.toFixed(2)}%`;
 }
 
+export function formatPercentValue(value: number | null, locale: AppLocale = "de") {
+  if (!isFiniteNumber(value)) return getUnavailableText(locale);
+
+  return (
+    new Intl.NumberFormat(getNumberLocale(locale), {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(value) + "%"
+  );
+}
+
 export function formatDateTime(value: string | null, locale: AppLocale = "de") {
   if (!value) return getUnavailableText(locale);
 
