@@ -31,9 +31,38 @@ export function formatCurrency(value: number | null, currency: Currency, locale:
   }).format(value);
 }
 
+export function formatCompactCurrency(
+  value: number | null,
+  currency: Currency,
+  locale: AppLocale = "de",
+  maximumFractionDigits = 1
+) {
+  if (!isFiniteNumber(value)) return getUnavailableText(locale);
+
+  return new Intl.NumberFormat(getNumberLocale(locale, currency), {
+    style: "currency",
+    currency: currency.toUpperCase(),
+    notation: "compact",
+    maximumFractionDigits,
+  }).format(value);
+}
+
 export function formatNumber(value: number | null, locale: AppLocale = "de") {
   if (!isFiniteNumber(value)) return getUnavailableText(locale);
   return new Intl.NumberFormat(getNumberLocale(locale), { maximumFractionDigits: 0 }).format(value);
+}
+
+export function formatCompactNumber(
+  value: number | null,
+  locale: AppLocale = "de",
+  maximumFractionDigits = 1
+) {
+  if (!isFiniteNumber(value)) return getUnavailableText(locale);
+
+  return new Intl.NumberFormat(getNumberLocale(locale), {
+    notation: "compact",
+    maximumFractionDigits,
+  }).format(value);
 }
 
 export function formatPercent(value: number | null, locale: AppLocale = "de") {

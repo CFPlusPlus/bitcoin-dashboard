@@ -3,15 +3,18 @@
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency, MarketContextChartData, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import { formatCurrency, formatPercentValue } from "../../lib/format";
+import { formatCompactCurrency, formatPercentValue } from "../../lib/format";
 import { formatMessage } from "../../i18n/template";
 import { useI18n } from "../../i18n/context";
 import MarketMetricChart from "../../components/MarketMetricChart";
 import Card from "../../components/ui/Card";
+import KpiValue from "../../components/ui/content/KpiValue";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
 import MetaText from "../../components/ui/content/MetaText";
+import Cluster from "../../components/ui/layout/Cluster";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
+import Stack from "../../components/ui/layout/Stack";
 
 type MarketContextSectionProps = {
   currency: Currency;
@@ -22,19 +25,6 @@ type MarketContextSectionProps = {
   overview: Overview | null;
   overviewState: AsyncDataState<Overview>;
 };
-
-function formatCompactCurrency(value: number | null, currency: Currency, locale: "de" | "en") {
-  if (value === null || !Number.isFinite(value)) {
-    return locale === "de" ? "k. A." : "N/A";
-  }
-
-  return new Intl.NumberFormat(locale === "de" ? (currency === "eur" ? "de-DE" : "en-US") : "en-US", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-    notation: "compact",
-    maximumFractionDigits: 1,
-  }).format(value);
-}
 
 export default function MarketContextSection({
   currency,
@@ -130,6 +120,7 @@ export default function MarketContextSection({
               <MarketMetricChart
                 label={formatMessage(copy.marketCapLabel, { currency: currencyLabel })}
                 currentValue={formatCompactCurrency(marketCapSeries.stats.currentValue, currency, locale)}
+                meta={copy.marketCapFootnote}
                 points={marketCapSeries.points}
                 tone="accent"
               />
@@ -138,21 +129,25 @@ export default function MarketContextSection({
               <MarketMetricChart
                 label={formatMessage(copy.volumeLabel, { currency: currencyLabel })}
                 currentValue={formatCompactCurrency(volumeSeries.stats.currentValue, currency, locale)}
+                meta={copy.volumeFootnote}
                 points={volumeSeries.points}
               />
             ) : null}
             <div className="overflow-hidden rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))]">
               <div className="px-4 py-4">
-                <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{dominanceCopy.label}</p>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <p className="font-mono text-[1.75rem] leading-none tracking-[-0.05em] text-fg sm:text-[1.95rem]">
-                    {formatPercentValue(btcDominance, locale)}
-                  </p>
-                  <span className="inline-flex min-h-7 items-center rounded-md bg-elevated px-2.5 text-sm font-semibold text-fg-secondary">
-                    {locale === "de" ? "aktuell" : "current"}
-                  </span>
-                </div>
-                <p className="mt-3 text-sm leading-6 text-fg-muted">{dominanceCopy.meta}</p>
+                <Stack gap="sm">
+                  <Cluster align="center" gap="sm">
+                    <KpiValue
+                      label={dominanceCopy.label}
+                      value={formatPercentValue(btcDominance, locale)}
+                      size="md"
+                    />
+                    <span className="inline-flex min-h-7 items-center rounded-md bg-elevated px-2.5 text-sm font-semibold text-fg-secondary">
+                      {locale === "de" ? "aktuell" : "current"}
+                    </span>
+                  </Cluster>
+                  <MetaText>{dominanceCopy.meta}</MetaText>
+                </Stack>
               </div>
               <div className="px-2 pb-2">
                 <div className="h-[70px] rounded-lg border border-white/4 bg-[linear-gradient(180deg,rgba(255,255,255,0.015),rgba(255,255,255,0.01))]" />

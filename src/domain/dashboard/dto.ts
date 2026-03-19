@@ -36,6 +36,38 @@ export type NetworkDto = ApiEnvelope & {
     economyFee: number | null;
     minimumFee: number | null;
   };
+  hashrate: {
+    currentEhPerSecond: number | null;
+    changePercent30d: number | null;
+    points: Array<{
+      timestamp: number;
+      ehPerSecond: number;
+    }>;
+    stats: {
+      low30d: number | null;
+      high30d: number | null;
+      average30d: number | null;
+    };
+  };
+  difficulty: {
+    current: number | null;
+    adjustmentPercent: number | null;
+    progressPercent: number | null;
+    remainingBlocks: number | null;
+    nextRetargetHeight: number | null;
+    estimatedRetargetDate: string | null;
+  };
+  mempool: {
+    pendingTransactions: number | null;
+    pendingVirtualSizeMb: number | null;
+    projectedBlocks: Array<{
+      blockIndex: number;
+      transactionCount: number | null;
+      minFeeRate: number | null;
+      maxFeeRate: number | null;
+      medianFeeRate: number | null;
+    }>;
+  };
 };
 
 export type SentimentDto = ApiEnvelope & {

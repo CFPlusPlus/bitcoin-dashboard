@@ -8,6 +8,7 @@ import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import {
+  formatCompactCurrency,
   formatCurrency,
   formatPercent,
 } from "../../lib/format";
@@ -319,7 +320,7 @@ export default function OverviewSection({
               },
               {
                 label: formatMessage(marketContextCopy.volumeLabel, { currency: currencyLabel }),
-                text: formatCurrency(volume24h, currency, locale),
+                text: formatCompactCurrency(volume24h, currency, locale),
                 meta: marketContextCopy.volumeMeta,
                 footnote: marketContextCopy.volumeFootnote,
                 tone: "default" as const,

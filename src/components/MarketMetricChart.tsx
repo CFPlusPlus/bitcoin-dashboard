@@ -1,12 +1,16 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useI18n } from "../i18n/context";
 import type { MarketContextChartPoint } from "../types/dashboard";
+import KpiValue from "./ui/content/KpiValue";
+import MetaText from "./ui/content/MetaText";
+import Cluster from "./ui/layout/Cluster";
+import Stack from "./ui/layout/Stack";
 
 type MarketMetricChartProps = {
   currentValue: ReactNode;
   label: string;
+  meta?: ReactNode;
   points: MarketContextChartPoint[];
   tone?: "accent" | "default";
 };
@@ -14,6 +18,7 @@ type MarketMetricChartProps = {
 export default function MarketMetricChart({
   currentValue,
   label,
+  meta,
   points,
   tone = "default",
 }: MarketMetricChartProps) {
@@ -64,12 +69,9 @@ export default function MarketMetricChart({
   return (
     <div className="overflow-hidden rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))]">
       <div className="px-4 pt-4">
-        <div className="min-w-0">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{label}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <p className="font-mono text-[1.75rem] leading-none tracking-[-0.05em] text-fg sm:text-[1.95rem]">
-              {currentValue}
-            </p>
+        <Stack gap="sm" className="min-w-0">
+          <Cluster align="center" gap="sm">
+            <KpiValue label={label} value={currentValue} size="md" />
             <span
               className={
                 deltaTone === "positive"
@@ -81,8 +83,9 @@ export default function MarketMetricChart({
             >
               {deltaLabel}
             </span>
-          </div>
-        </div>
+          </Cluster>
+          {meta ? <MetaText>{meta}</MetaText> : null}
+        </Stack>
       </div>
 
       <div className="px-2 pb-2 pt-2">

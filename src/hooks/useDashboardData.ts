@@ -358,6 +358,14 @@ export function useDashboardData(locale: AppLocale) {
             network.fees.hourFee,
             network.fees.economyFee,
             network.fees.minimumFee,
+            network.hashrate.currentEhPerSecond,
+            network.hashrate.changePercent30d,
+            network.difficulty.current,
+            network.difficulty.adjustmentPercent,
+            network.difficulty.progressPercent,
+            network.difficulty.remainingBlocks,
+            network.mempool.pendingTransactions,
+            network.mempool.pendingVirtualSizeMb,
           ]
         : [],
     [network]

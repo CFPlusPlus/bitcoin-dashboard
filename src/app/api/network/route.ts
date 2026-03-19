@@ -2,7 +2,10 @@ import { mapNetworkDto } from "../../../domain/dashboard/network.mapper";
 import { getCacheControlHeader, networkCachePolicy } from "../../../server/cache";
 import { errorResponse, getReasonMessage, jsonResponse } from "../../../server/http";
 import {
+  fetchDifficultyAdjustment,
+  fetchHashrateHistory,
   fetchLatestBlockHeight,
+  fetchMempoolBlocks,
   fetchRecommendedFees,
 } from "../../../server/providers/mempool";
 import { isUpstreamError } from "../../../server/upstream";
@@ -12,10 +15,14 @@ function getRejectedReason<T>(result: PromiseSettledResult<T>) {
 }
 
 export async function GET() {
-  const [feesResult, blockHeightResult] = await Promise.allSettled([
-    fetchRecommendedFees(networkCachePolicy),
-    fetchLatestBlockHeight(networkCachePolicy),
-  ]);
+  const [feesResult, blockHeightResult, hashrateResult, difficultyResult, mempoolBlocksResult] =
+    await Promise.allSettled([
+      fetchRecommendedFees(networkCachePolicy),
+      fetchLatestBlockHeight(networkCachePolicy),
+      fetchHashrateHistory(networkCachePolicy),
+      fetchDifficultyAdjustment(networkCachePolicy),
+      fetchMempoolBlocks(networkCachePolicy),
+    ]);
 
   const warnings: string[] = [];
 
@@ -27,10 +34,35 @@ export async function GET() {
     warnings.push(getReasonMessage("Blockhöhe nicht verfügbar", blockHeightResult.reason));
   }
 
-  if (feesResult.status === "rejected" && blockHeightResult.status === "rejected") {
+  if (hashrateResult.status === "rejected") {
+    warnings.push(getReasonMessage("Hashrate nicht verfügbar", hashrateResult.reason));
+  }
+
+  if (difficultyResult.status === "rejected") {
+    warnings.push(
+      getReasonMessage("Difficulty-Anpassung nicht verfügbar", difficultyResult.reason)
+    );
+  }
+
+  if (mempoolBlocksResult.status === "rejected") {
+    warnings.push(getReasonMessage("Mempool-Blöcke nicht verfügbar", mempoolBlocksResult.reason));
+  }
+
+  const rejectedResults = [
+    feesResult,
+    blockHeightResult,
+    hashrateResult,
+    difficultyResult,
+    mempoolBlocksResult,
+  ].filter((result) => result.status === "rejected");
+
+  if (rejectedResults.length === 5) {
     const errors = [
       getRejectedReason(feesResult),
       getRejectedReason(blockHeightResult),
+      getRejectedReason(hashrateResult),
+      getRejectedReason(difficultyResult),
+      getRejectedReason(mempoolBlocksResult),
     ].filter(isUpstreamError);
 
     return errorResponse(502, "Fehler beim Laden der mempool.space-Daten.", warnings.join(" "), {
@@ -44,13 +76,17 @@ export async function GET() {
   const dto = mapNetworkDto({
     fees: feesResult.status === "fulfilled" ? feesResult.value : null,
     latestBlockHeight: blockHeightResult.status === "fulfilled" ? blockHeightResult.value : null,
+    hashrate: hashrateResult.status === "fulfilled" ? hashrateResult.value : null,
+    difficultyAdjustment:
+      difficultyResult.status === "fulfilled" ? difficultyResult.value : null,
+    mempoolBlocks: mempoolBlocksResult.status === "fulfilled" ? mempoolBlocksResult.value : null,
     fetchedAt: new Date().toISOString(),
     warnings,
   });
 
   return jsonResponse(dto, {
     headers: {
-      // Fee estimates and latest block height can move quickly, so keep this window short.
+      // Network metrics and mempool queues move quickly, so keep this window short.
       "cache-control": getCacheControlHeader(networkCachePolicy),
     },
   });

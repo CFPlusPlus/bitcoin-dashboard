@@ -245,6 +245,51 @@ describe("route validation handling", () => {
             headers: { "content-type": "text/plain" },
           })
         )
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              hashrates: [{ timestamp: 1, avgHashrate: 1e18 }],
+              difficulty: [],
+              currentHashrate: 1e18,
+              currentDifficulty: 1,
+            }),
+            {
+              status: 200,
+              headers: { "content-type": "application/json" },
+            }
+          )
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              progressPercent: 80,
+              difficultyChange: -1.2,
+              estimatedRetargetDate: 1774038371386,
+              remainingBlocks: 100,
+              nextRetargetHeight: 900100,
+            }),
+            {
+              status: 200,
+              headers: { "content-type": "application/json" },
+            }
+          )
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify([
+              {
+                blockVSize: 997998.25,
+                nTx: 3459,
+                medianFee: 2,
+                feeRange: [1, 3],
+              },
+            ]),
+            {
+              status: 200,
+              headers: { "content-type": "application/json" },
+            }
+          )
+        )
     );
 
     const { GET } = await import("./network/route");
