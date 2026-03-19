@@ -63,6 +63,11 @@ function buildLinePath(points: Array<{ x: number; y: number }>) {
   return path;
 }
 
+function getTooltipWidth(valueLabel: string, dateLabel: string) {
+  const longestLine = Math.max(valueLabel.length, dateLabel.length);
+  return Math.min(Math.max(longestLine * 7.4 + 20, 96), 150);
+}
+
 function getTooltipY({
   pointY,
   tooltipHeight,
@@ -374,7 +379,13 @@ export default function LivePriceSparkline({
     hoveredTimestamp === null
       ? null
       : hoverablePoints.find((point) => point.timestamp === hoveredTimestamp) ?? null;
-  const tooltipWidth = 142;
+  const tooltipValueLabel = activeHoveredPoint
+    ? formatCurrency(activeHoveredPoint.price, currency, locale)
+    : "";
+  const tooltipDateLabel = activeHoveredPoint
+    ? formatHoverDateLabel(activeHoveredPoint.timestamp, locale)
+    : "";
+  const tooltipWidth = getTooltipWidth(tooltipValueLabel, tooltipDateLabel);
   const tooltipHeight = 46;
   const tooltipX = activeHoveredPoint
     ? Math.min(
@@ -386,7 +397,7 @@ export default function LivePriceSparkline({
     ? getTooltipY({
         pointY: activeHoveredPoint.y,
         tooltipHeight,
-        preferredOffset: 22,
+        preferredOffset: 32,
         fallbackOffset: 18,
         minY: 10,
         maxY: height - paddingBottom - tooltipHeight - 8,
@@ -534,10 +545,10 @@ export default function LivePriceSparkline({
               stroke="rgba(242, 143, 45, 0.28)"
             />
             <text x={tooltipX + 10} y={tooltipY + 18} fill="#f7efe5" fontSize="13" fontWeight="600">
-              {formatCurrency(activeHoveredPoint.price, currency, locale)}
+              {tooltipValueLabel}
             </text>
             <text x={tooltipX + 10} y={tooltipY + 33} fill="#9f968b" fontSize="11.5">
-              {formatHoverDateLabel(activeHoveredPoint.timestamp, locale)}
+              {tooltipDateLabel}
             </text>
           </g>
         ) : null}

@@ -104,6 +104,11 @@ function formatSparklineDate(timestamp: number, locale: "de" | "en") {
   }).format(new Date(timestamp));
 }
 
+function getTooltipWidthPx(valueLabel: string, dateLabel: string) {
+  const longestLine = Math.max(valueLabel.length, dateLabel.length);
+  return Math.min(Math.max(longestLine * 6.8 + 18, 76), 112);
+}
+
 function getTooltipTopPercent({
   pointY,
   chartHeight,
@@ -176,16 +181,23 @@ function Sparkline({
   const areaPath = `${path} L ${width},${height} L 0,${height} Z`;
   const activeHoveredPoint =
     hoveredIndex === null ? null : hoverablePoints[hoveredIndex] ?? null;
+  const tooltipValueLabel = activeHoveredPoint
+    ? formatHashrate(activeHoveredPoint.ehPerSecond, locale === "de" ? "de-DE" : "en-US") ?? "n/a"
+    : "";
+  const tooltipDateLabel = activeHoveredPoint
+    ? formatSparklineDate(activeHoveredPoint.timestamp, locale)
+    : "";
   const tooltipLeftPercent = activeHoveredPoint
     ? Math.min(Math.max((activeHoveredPoint.x / width) * 100, 8), 92)
     : 0;
   const renderedChartHeight = 112;
+  const tooltipWidthPx = getTooltipWidthPx(tooltipValueLabel, tooltipDateLabel);
   const tooltipTopPercent = activeHoveredPoint
     ? getTooltipTopPercent({
         pointY: activeHoveredPoint.y,
         chartHeight: height,
         tooltipHeightPx: 36,
-        preferredOffsetPx: 18,
+        preferredOffsetPx: 28,
         fallbackOffsetPx: 14,
         minPercent: 4,
         maxPercent: 72,
@@ -279,13 +291,14 @@ function Sparkline({
           style={{
             left: `${tooltipLeftPercent}%`,
             top: `${tooltipTopPercent}%`,
+            width: `${tooltipWidthPx}px`,
           }}
         >
           <div className="text-[10.5px] font-semibold leading-none text-fg">
-            {formatHashrate(activeHoveredPoint.ehPerSecond, locale === "de" ? "de-DE" : "en-US") ?? "n/a"}
+            {tooltipValueLabel}
           </div>
           <div className="mt-1 text-[9.5px] leading-none text-fg-muted">
-            {formatSparklineDate(activeHoveredPoint.timestamp, locale)}
+            {tooltipDateLabel}
           </div>
         </div>
       ) : null}

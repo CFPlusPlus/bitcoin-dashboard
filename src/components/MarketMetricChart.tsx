@@ -51,6 +51,11 @@ function getTooltipY({
   return Math.min(pointY + fallbackOffset, maxY);
 }
 
+function getTooltipWidth(valueLabel: string, dateLabel: string) {
+  const longestLine = Math.max(valueLabel.length, dateLabel.length);
+  return Math.min(Math.max(longestLine * 7.2 + 18, 92), 126);
+}
+
 export default function MarketMetricChart({
   currentValue,
   currency,
@@ -61,6 +66,7 @@ export default function MarketMetricChart({
 }: MarketMetricChartProps) {
   const { locale } = useI18n();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoverPointerY, setHoverPointerY] = useState<number | null>(null);
   const width = 640;
   const height = 70;
   const paddingX = 8;
@@ -112,7 +118,13 @@ export default function MarketMetricChart({
   const area = tone === "accent" ? "rgba(242, 143, 45, 0.06)" : "rgba(231, 223, 212, 0.04)";
   const activeHoveredPoint =
     hoveredIndex === null ? null : hoverablePoints[hoveredIndex] ?? null;
-  const tooltipWidth = 140;
+  const tooltipValueLabel = activeHoveredPoint
+    ? formatCompactCurrency(activeHoveredPoint.value, currency, locale, 1)
+    : "";
+  const tooltipDateLabel = activeHoveredPoint
+    ? formatTooltipDate(activeHoveredPoint.timestamp, locale)
+    : "";
+  const tooltipWidth = getTooltipWidth(tooltipValueLabel, tooltipDateLabel);
   const tooltipHeight = 42;
   const tooltipX = activeHoveredPoint
     ? Math.min(
@@ -122,11 +134,11 @@ export default function MarketMetricChart({
     : 0;
   const tooltipY = activeHoveredPoint
     ? getTooltipY({
-        pointY: activeHoveredPoint.y,
+        pointY: hoverPointerY ?? activeHoveredPoint.y,
         tooltipHeight,
-        preferredOffset: 16,
-        fallbackOffset: 12,
-        minY: 4,
+        preferredOffset: 18,
+        fallbackOffset: 16,
+        minY: -tooltipHeight - 10,
         maxY: baseY - tooltipHeight - 4,
       })
     : 0;
@@ -139,18 +151,24 @@ export default function MarketMetricChart({
 
     const pointerX =
       paddingX + ((event.clientX - bounds.left) / bounds.width) * (width - paddingX * 2);
+    const pointerY =
+      paddingTop + ((event.clientY - bounds.top) / bounds.height) * (height - paddingTop - paddingBottom);
     const clampedX = Math.min(Math.max(pointerX, paddingX), width - paddingX);
+    const clampedY = Math.min(Math.max(pointerY, paddingTop), baseY);
     const progress = (clampedX - paddingX) / (width - paddingX * 2 || 1);
     const nextIndex = Math.round(progress * (points.length - 1));
+
     setHoveredIndex(Math.min(Math.max(nextIndex, 0), points.length - 1));
+    setHoverPointerY(clampedY);
   }
 
   function handlePointerLeave() {
     setHoveredIndex(null);
+    setHoverPointerY(null);
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))]">
+    <div className="relative rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))]">
       <div className="px-4 pt-4">
         <Stack gap="sm" className="min-w-0">
           <Cluster align="center" gap="sm">
@@ -172,7 +190,7 @@ export default function MarketMetricChart({
       </div>
 
       <div className="px-2 pb-2 pt-2">
-        <svg viewBox={`0 0 ${width} ${height}`} className="block h-auto w-full" role="img" aria-label={label}>
+        <svg viewBox={`0 0 ${width} ${height}`} className="block h-auto w-full overflow-visible" role="img" aria-label={label}>
           <path d={areaPath} fill={area} />
           <path d={linePath} fill="none" stroke={glow} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           <path d={linePath} fill="none" stroke={stroke} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -214,10 +232,10 @@ export default function MarketMetricChart({
                 stroke={tone === "accent" ? "rgba(242, 143, 45, 0.24)" : "rgba(231, 223, 212, 0.18)"}
               />
               <text x={tooltipX + 9} y={tooltipY + 17} fill="#f7efe5" fontSize="12.5" fontWeight="600">
-                {formatCompactCurrency(activeHoveredPoint.value, currency, locale, 1)}
+                {tooltipValueLabel}
               </text>
               <text x={tooltipX + 9} y={tooltipY + 31} fill="#9f968b" fontSize="11">
-                {formatTooltipDate(activeHoveredPoint.timestamp, locale)}
+                {tooltipDateLabel}
               </text>
             </g>
           ) : null}

@@ -102,6 +102,11 @@ function getTooltipY({
   return Math.min(pointY + fallbackOffset, maxY);
 }
 
+function getTooltipWidth(valueLabel: string, dateLabel: string) {
+  const longestLine = Math.max(valueLabel.length, dateLabel.length);
+  return Math.min(Math.max(longestLine * 7.4 + 20, 96), 146);
+}
+
 export default function PriceChart({ currency, points, range }: PriceChartProps) {
   const { locale, messages } = useI18n();
   const copy = messages.dashboard.chart;
@@ -159,7 +164,13 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   const rangeLabel = getRangeLabel(range, locale, copy);
   const activeHoveredPoint =
     hoveredIndex === null ? null : hoverablePoints[hoveredIndex] ?? null;
-  const tooltipWidth = 136;
+  const tooltipValueLabel = activeHoveredPoint
+    ? formatCurrency(activeHoveredPoint.price, currency, locale)
+    : "";
+  const tooltipDateLabel = activeHoveredPoint
+    ? formatTooltipLabel(activeHoveredPoint.timestamp, range, locale)
+    : "";
+  const tooltipWidth = getTooltipWidth(tooltipValueLabel, tooltipDateLabel);
   const tooltipHeight = 46;
   const tooltipX = activeHoveredPoint
     ? Math.min(
@@ -171,7 +182,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
     ? getTooltipY({
         pointY: activeHoveredPoint.y,
         tooltipHeight,
-        preferredOffset: 20,
+        preferredOffset: 30,
         fallbackOffset: 18,
         minY: 10,
         maxY: baseY - tooltipHeight - 8,
@@ -320,10 +331,10 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
                 stroke="rgba(242, 143, 45, 0.24)"
               />
               <text x={tooltipX + 10} y={tooltipY + 18} fill="#f7efe5" fontSize="13" fontWeight="600">
-                {formatCurrency(activeHoveredPoint.price, currency, locale)}
+                {tooltipValueLabel}
               </text>
               <text x={tooltipX + 10} y={tooltipY + 33} fill="#9f968b" fontSize="11.5">
-                {formatTooltipLabel(activeHoveredPoint.timestamp, range, locale)}
+                {tooltipDateLabel}
               </text>
             </g>
           ) : null}
