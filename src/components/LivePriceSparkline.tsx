@@ -19,15 +19,17 @@ type LivePriceSparklineProps = {
 const LIVE_WINDOW_MS = 30_000;
 const HISTORY_BUFFER_MS = 6_000;
 const AXIS_TICK_MS = 5_000;
-const DISPLAY_PATH_SMOOTHING_ALPHA = 0.24;
-const DISPLAY_PATH_SECONDARY_ALPHA = 0.5;
-const Y_AXIS_PADDING_RATIO = 0.1;
-const Y_AXIS_MIN_PADDING_RATIO = 0.00012;
-const Y_AXIS_MIN_PADDING_ABSOLUTE = 2.5;
-const DISPLAY_EASING = 0.28;
+const Y_AXIS_PADDING_RATIO = 0.055;
+const Y_AXIS_MIN_PADDING_RATIO = 0.00008;
+const Y_AXIS_MIN_PADDING_ABSOLUTE = 1.2;
+const DISPLAY_SPRING_STIFFNESS = 62;
+const DISPLAY_SPRING_DAMPING = 22;
+const DISPLAY_SETTLE_VELOCITY = 0.018;
+const DISPLAY_SETTLE_DISTANCE = 0.08;
 const SAMPLE_INTERVAL_MS = 1000 / 48;
 const LIVE_DOT_RADIUS = 7;
 const MAX_FRAME_GAP_MS = 250;
+const MAX_FRAME_DELTA_SECONDS = 1 / 20;
 
 function formatTimeLabel(timestamp: number, locale: "de" | "en") {
   const code = locale === "de" ? "de-DE" : "en-US";
@@ -38,48 +40,12 @@ function formatTimeLabel(timestamp: number, locale: "de" | "en") {
   }).format(new Date(timestamp));
 }
 
-function buildSmoothPath(points: Array<{ x: number; y: number }>) {
+function buildLinePath(points: Array<{ x: number; y: number }>) {
   if (points.length === 0) return "";
-  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
-
-  if (points.length === 2) {
-    return `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)} L ${points[1].x.toFixed(2)} ${points[1].y.toFixed(2)}`;
-  }
-
-  const slopes: number[] = [];
-  const tangents: number[] = [];
-
-  for (let index = 0; index < points.length - 1; index += 1) {
-    const current = points[index];
-    const next = points[index + 1];
-    const deltaX = next.x - current.x;
-    slopes.push(deltaX === 0 ? 0 : (next.y - current.y) / deltaX);
-  }
-
-  tangents[0] = slopes[0];
-
-  for (let index = 1; index < points.length; index += 1) {
-    const currentSlope = slopes[index - 1];
-    const previousSlope = slopes[index - 2] ?? currentSlope;
-
-    tangents[index] =
-      Math.sign(previousSlope) !== Math.sign(currentSlope)
-        ? currentSlope * 0.3
-        : previousSlope * 0.4 + currentSlope * 0.6;
-  }
-
   let path = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
 
-  for (let index = 0; index < points.length - 1; index += 1) {
-    const current = points[index];
-    const next = points[index + 1];
-    const deltaX = next.x - current.x;
-    const control1X = current.x + deltaX / 3;
-    const control1Y = current.y + (tangents[index] * deltaX) / 3;
-    const control2X = next.x - deltaX / 3;
-    const control2Y = next.y - (tangents[index + 1] * deltaX) / 3;
-
-    path += ` C ${control1X.toFixed(2)} ${control1Y.toFixed(2)}, ${control2X.toFixed(2)} ${control2Y.toFixed(2)}, ${next.x.toFixed(2)} ${next.y.toFixed(2)}`;
+  for (let index = 1; index < points.length; index += 1) {
+    path += ` L ${points[index].x.toFixed(2)} ${points[index].y.toFixed(2)}`;
   }
 
   return path;
@@ -121,50 +87,6 @@ function getChartTheme(performancePercent: number | null) {
   };
 }
 
-function getLatestTimestamp(points: LivePricePoint[]) {
-  const latestPoint = points[points.length - 1];
-  return latestPoint?.timestamp ?? Date.now();
-}
-
-function applyForwardSmoothing(points: LivePricePoint[], alpha: number) {
-  const smoothedPoints: LivePricePoint[] = [];
-
-  for (const point of points) {
-    const previousPoint = smoothedPoints[smoothedPoints.length - 1];
-    const price =
-      previousPoint === undefined
-        ? point.price
-        : previousPoint.price + (point.price - previousPoint.price) * alpha;
-
-    smoothedPoints.push({
-      price,
-      timestamp: point.timestamp,
-    });
-  }
-
-  return smoothedPoints;
-}
-
-function buildDisplayPathPoints(points: LivePricePoint[]) {
-  if (points.length < 3) return points;
-
-  const primarySmoothed = applyForwardSmoothing(points, DISPLAY_PATH_SMOOTHING_ALPHA);
-  const smoothedPoints = applyForwardSmoothing(
-    primarySmoothed,
-    DISPLAY_PATH_SECONDARY_ALPHA
-  );
-  const latestPoint = points[points.length - 1];
-
-  return smoothedPoints.map((point, index) =>
-    index === smoothedPoints.length - 1
-      ? latestPoint
-      : {
-          price: point.price,
-          timestamp: point.timestamp,
-        }
-  );
-}
-
 function buildMovingTimeTicks(now: number, chartWidth: number, paddingLeft: number) {
   const visibleStart = now - LIVE_WINDOW_MS;
   const firstTick = Math.floor(visibleStart / AXIS_TICK_MS) * AXIS_TICK_MS;
@@ -199,8 +121,10 @@ export default function LivePriceSparkline({
   const [renderedPoints, setRenderedPoints] = useState<LivePricePoint[]>([]);
   const animationFrameRef = useRef<number>(0);
   const lastSampleTimeRef = useRef<number>(0);
+  const lastFrameTimeRef = useRef<number | null>(null);
   const targetPriceRef = useRef<number | null>(null);
   const currentRenderedPriceRef = useRef<number | null>(null);
+  const renderedVelocityRef = useRef(0);
   const width = 920;
   const height = 320;
   const paddingLeft = 18;
@@ -217,6 +141,7 @@ export default function LivePriceSparkline({
 
     if (currentRenderedPriceRef.current === null) {
       currentRenderedPriceRef.current = latestSourcePoint.price;
+      renderedVelocityRef.current = 0;
     }
   }, [latestSourcePoint]);
 
@@ -224,14 +149,39 @@ export default function LivePriceSparkline({
     const renderFrame = (frameTime: number) => {
       const targetPrice = targetPriceRef.current;
       const currentPrice = currentRenderedPriceRef.current;
+      const previousFrameTime = lastFrameTimeRef.current;
+      const deltaSeconds =
+        previousFrameTime === null
+          ? SAMPLE_INTERVAL_MS / 1000
+          : Math.min(
+              (frameTime - previousFrameTime) / 1000,
+              MAX_FRAME_DELTA_SECONDS
+            );
 
-      if (targetPrice !== null) {
-        const nextRenderedPrice =
-          currentPrice === null
-            ? targetPrice
-            : currentPrice + (targetPrice - currentPrice) * DISPLAY_EASING;
+      lastFrameTimeRef.current = frameTime;
 
+      if (targetPrice !== null && currentPrice !== null) {
+        const displacement = targetPrice - currentPrice;
+        const springForce = displacement * DISPLAY_SPRING_STIFFNESS;
+        const dampingForce = renderedVelocityRef.current * DISPLAY_SPRING_DAMPING;
+        const acceleration = springForce - dampingForce;
+        const nextVelocity =
+          renderedVelocityRef.current + acceleration * deltaSeconds;
+        const nextRenderedPrice = currentPrice + nextVelocity * deltaSeconds;
+
+        renderedVelocityRef.current = nextVelocity;
         currentRenderedPriceRef.current = nextRenderedPrice;
+
+        if (
+          Math.abs(targetPrice - nextRenderedPrice) <= DISPLAY_SETTLE_DISTANCE &&
+          Math.abs(nextVelocity) <= DISPLAY_SETTLE_VELOCITY
+        ) {
+          currentRenderedPriceRef.current = targetPrice;
+          renderedVelocityRef.current = 0;
+        }
+      } else if (targetPrice !== null) {
+        currentRenderedPriceRef.current = targetPrice;
+        renderedVelocityRef.current = 0;
       }
 
       if (
@@ -243,6 +193,8 @@ export default function LivePriceSparkline({
         const seedStart = frameTime - SAMPLE_INTERVAL_MS * 2;
 
         lastSampleTimeRef.current = frameTime;
+        lastFrameTimeRef.current = frameTime;
+        renderedVelocityRef.current = 0;
         setNow(frameTime);
         setRenderedPoints([
           {
@@ -293,10 +245,13 @@ export default function LivePriceSparkline({
 
     animationFrameRef.current = window.requestAnimationFrame(renderFrame);
 
-    return () => window.cancelAnimationFrame(animationFrameRef.current);
+    return () => {
+      lastFrameTimeRef.current = null;
+      window.cancelAnimationFrame(animationFrameRef.current);
+    };
   }, []);
 
-  const displayPoints = buildDisplayPathPoints(renderedPoints);
+  const displayPoints = renderedPoints;
   const visibleEnd = now;
   const visibleStart = visibleEnd - LIVE_WINDOW_MS;
   const usablePoints = displayPoints.filter(
@@ -366,7 +321,7 @@ export default function LivePriceSparkline({
     x: getX(point.timestamp),
     y: getY(point.price),
   }));
-  const linePath = buildSmoothPath(chartPoints);
+  const linePath = buildLinePath(chartPoints);
   const firstX = chartPoints[0]?.x ?? paddingLeft;
   const lastX = chartPoints[chartPoints.length - 1]?.x ?? (width - paddingRight);
   const lastY = getY(latestPoint.price);
