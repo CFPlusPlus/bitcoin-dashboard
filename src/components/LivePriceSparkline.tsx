@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useI18n } from "../i18n/context";
 import { formatCurrency } from "../lib/format";
 import type { Currency } from "../types/dashboard";
@@ -19,10 +19,12 @@ type LivePriceSparklineProps = {
 const LIVE_WINDOW_MS = 30_000;
 const HISTORY_BUFFER_MS = 6_000;
 const AXIS_TICK_MS = 5_000;
-const PRIMARY_SMOOTHING_ALPHA = 0.2;
-const SECONDARY_SMOOTHING_ALPHA = 0.14;
-const CURVE_SAMPLES_PER_SEGMENT = 12;
-const DISPLAY_EASING = 0.18;
+const DISPLAY_PATH_SMOOTHING_ALPHA = 0.24;
+const DISPLAY_PATH_SECONDARY_ALPHA = 0.5;
+const Y_AXIS_PADDING_RATIO = 0.1;
+const Y_AXIS_MIN_PADDING_RATIO = 0.00012;
+const Y_AXIS_MIN_PADDING_ABSOLUTE = 2.5;
+const DISPLAY_EASING = 0.28;
 const SAMPLE_INTERVAL_MS = 1000 / 48;
 const LIVE_DOT_RADIUS = 7;
 const MAX_FRAME_GAP_MS = 250;
@@ -40,59 +42,47 @@ function buildSmoothPath(points: Array<{ x: number; y: number }>) {
   if (points.length === 0) return "";
   if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
 
+  if (points.length === 2) {
+    return `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)} L ${points[1].x.toFixed(2)} ${points[1].y.toFixed(2)}`;
+  }
+
+  const slopes: number[] = [];
+  const tangents: number[] = [];
+
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const current = points[index];
+    const next = points[index + 1];
+    const deltaX = next.x - current.x;
+    slopes.push(deltaX === 0 ? 0 : (next.y - current.y) / deltaX);
+  }
+
+  tangents[0] = slopes[0];
+
+  for (let index = 1; index < points.length; index += 1) {
+    const currentSlope = slopes[index - 1];
+    const previousSlope = slopes[index - 2] ?? currentSlope;
+
+    tangents[index] =
+      Math.sign(previousSlope) !== Math.sign(currentSlope)
+        ? currentSlope * 0.3
+        : previousSlope * 0.4 + currentSlope * 0.6;
+  }
+
   let path = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
 
   for (let index = 0; index < points.length - 1; index += 1) {
-    const previous = points[index - 1] ?? points[index];
     const current = points[index];
     const next = points[index + 1];
-    const afterNext = points[index + 2] ?? next;
-    const control1X = current.x + (next.x - previous.x) / 6;
-    const control1Y = current.y + (next.y - previous.y) / 6;
-    const control2X = next.x - (afterNext.x - current.x) / 6;
-    const control2Y = next.y - (afterNext.y - current.y) / 6;
+    const deltaX = next.x - current.x;
+    const control1X = current.x + deltaX / 3;
+    const control1Y = current.y + (tangents[index] * deltaX) / 3;
+    const control2X = next.x - deltaX / 3;
+    const control2Y = next.y - (tangents[index + 1] * deltaX) / 3;
 
     path += ` C ${control1X.toFixed(2)} ${control1Y.toFixed(2)}, ${control2X.toFixed(2)} ${control2Y.toFixed(2)}, ${next.x.toFixed(2)} ${next.y.toFixed(2)}`;
   }
 
   return path;
-}
-
-function interpolateCurvePoints(points: Array<{ x: number; y: number }>) {
-  if (points.length < 2) {
-    return points;
-  }
-
-  const curvePoints: Array<{ x: number; y: number }> = [points[0]];
-
-  for (let index = 0; index < points.length - 1; index += 1) {
-    const p0 = points[index - 1] ?? points[index];
-    const p1 = points[index];
-    const p2 = points[index + 1];
-    const p3 = points[index + 2] ?? p2;
-
-    for (let sample = 1; sample <= CURVE_SAMPLES_PER_SEGMENT; sample += 1) {
-      const t = sample / CURVE_SAMPLES_PER_SEGMENT;
-      const t2 = t * t;
-      const t3 = t2 * t;
-      const x =
-        0.5 *
-        ((2 * p1.x) +
-          (-p0.x + p2.x) * t +
-          (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 +
-          (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3);
-      const y =
-        0.5 *
-        ((2 * p1.y) +
-          (-p0.y + p2.y) * t +
-          (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 +
-          (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3);
-
-      curvePoints.push({ x, y });
-    }
-  }
-
-  return curvePoints;
 }
 
 function getChartTheme(performancePercent: number | null) {
@@ -155,10 +145,24 @@ function applyForwardSmoothing(points: LivePricePoint[], alpha: number) {
   return smoothedPoints;
 }
 
-function buildStablePoints(points: LivePricePoint[]) {
-  const sortedPoints = [...points].sort((left, right) => left.timestamp - right.timestamp);
-  const primarySmoothed = applyForwardSmoothing(sortedPoints, PRIMARY_SMOOTHING_ALPHA);
-  return applyForwardSmoothing(primarySmoothed, SECONDARY_SMOOTHING_ALPHA);
+function buildDisplayPathPoints(points: LivePricePoint[]) {
+  if (points.length < 3) return points;
+
+  const primarySmoothed = applyForwardSmoothing(points, DISPLAY_PATH_SMOOTHING_ALPHA);
+  const smoothedPoints = applyForwardSmoothing(
+    primarySmoothed,
+    DISPLAY_PATH_SECONDARY_ALPHA
+  );
+  const latestPoint = points[points.length - 1];
+
+  return smoothedPoints.map((point, index) =>
+    index === smoothedPoints.length - 1
+      ? latestPoint
+      : {
+          price: point.price,
+          timestamp: point.timestamp,
+        }
+  );
 }
 
 function buildMovingTimeTicks(now: number, chartWidth: number, paddingLeft: number) {
@@ -187,7 +191,6 @@ function buildMovingTimeTicks(now: number, chartWidth: number, paddingLeft: numb
 
 export default function LivePriceSparkline({
   currency,
-  performancePercent,
   points,
 }: LivePriceSparklineProps) {
   const { locale, messages } = useI18n();
@@ -204,10 +207,8 @@ export default function LivePriceSparkline({
   const paddingRight = 108;
   const paddingTop = 16;
   const paddingBottom = 40;
-  const theme = getChartTheme(performancePercent);
 
-  const stablePoints = useMemo(() => buildStablePoints(points), [points]);
-  const latestSourcePoint = stablePoints[stablePoints.length - 1] ?? null;
+  const latestSourcePoint = points[points.length - 1] ?? null;
 
   useEffect(() => {
     if (!latestSourcePoint) return;
@@ -295,9 +296,10 @@ export default function LivePriceSparkline({
     return () => window.cancelAnimationFrame(animationFrameRef.current);
   }, []);
 
+  const displayPoints = buildDisplayPathPoints(renderedPoints);
   const visibleEnd = now;
   const visibleStart = visibleEnd - LIVE_WINDOW_MS;
-  const usablePoints = renderedPoints.filter(
+  const usablePoints = displayPoints.filter(
     (point) =>
       point.timestamp >= visibleStart - AXIS_TICK_MS &&
       point.timestamp <= visibleEnd
@@ -311,15 +313,25 @@ export default function LivePriceSparkline({
     );
   }
 
-  const axisSourcePoints = renderedPoints.length > 0 ? renderedPoints : usablePoints;
+  const axisSourcePoints = displayPoints.length > 0 ? displayPoints : usablePoints;
   const prices = axisSourcePoints.length > 0
     ? axisSourcePoints.map((point) => point.price)
     : [0];
+  const firstVisiblePoint = usablePoints[0];
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
   const latestPoint = usablePoints[usablePoints.length - 1];
+  const visiblePerformancePercent =
+    firstVisiblePoint.price === 0
+      ? 0
+      : ((latestPoint.price - firstVisiblePoint.price) / firstVisiblePoint.price) * 100;
+  const theme = getChartTheme(visiblePerformancePercent);
   const rawDelta = maxPrice - minPrice;
-  const paddedDelta = Math.max(rawDelta * 0.22, maxPrice * 0.00035, 8);
+  const paddedDelta = Math.max(
+    rawDelta * Y_AXIS_PADDING_RATIO,
+    maxPrice * Y_AXIS_MIN_PADDING_RATIO,
+    Y_AXIS_MIN_PADDING_ABSOLUTE
+  );
   const axisMin = minPrice - paddedDelta;
   const axisMax = maxPrice + paddedDelta;
   const axisDelta = axisMax - axisMin || 1;
@@ -345,7 +357,7 @@ export default function LivePriceSparkline({
     return height - paddingBottom - normalized * chartHeight;
   };
 
-  const pathSourcePoints = renderedPoints.filter(
+  const pathSourcePoints = displayPoints.filter(
     (point) =>
       point.timestamp >= visibleStart - AXIS_TICK_MS &&
       point.timestamp <= visibleEnd + AXIS_TICK_MS
@@ -354,10 +366,9 @@ export default function LivePriceSparkline({
     x: getX(point.timestamp),
     y: getY(point.price),
   }));
-  const interpolatedChartPoints = interpolateCurvePoints(chartPoints);
-  const linePath = buildSmoothPath(interpolatedChartPoints);
-  const firstX = interpolatedChartPoints[0]?.x ?? paddingLeft;
-  const lastX = interpolatedChartPoints[interpolatedChartPoints.length - 1]?.x ?? (width - paddingRight);
+  const linePath = buildSmoothPath(chartPoints);
+  const firstX = chartPoints[0]?.x ?? paddingLeft;
+  const lastX = chartPoints[chartPoints.length - 1]?.x ?? (width - paddingRight);
   const lastY = getY(latestPoint.price);
   const baseY = height - paddingBottom;
   const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(2)} ${baseY.toFixed(2)} Z`;
