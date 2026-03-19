@@ -1,8 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AppLocale } from "../i18n/config";
 import { getDictionary } from "../i18n/dictionaries";
 import { fetchJson } from "../lib/api";
-import { normalizeDashboardWarningMessage, sanitizeDashboardErrorMessage } from "../lib/dashboard-state-copy";
+import {
+  normalizeDashboardWarningMessage,
+  sanitizeDashboardErrorMessage,
+} from "../lib/dashboard-state-copy";
 import { getLatestSuccessfulUpdate, resolveAsyncDataState } from "../lib/data-state";
 import type {
   ChartData,
@@ -24,6 +28,7 @@ const STORAGE_KEYS = {
 
 const DASHBOARD_REFRESH_INTERVAL_MS = 60_000;
 const NETWORK_BLOCK_POLL_INTERVAL_MS = 15_000;
+const QUERY_RETRY_COUNT = 1;
 
 function isCurrency(value: unknown): value is Currency {
   return value === "usd" || value === "eur";
@@ -58,14 +63,13 @@ async function fetchPerformance(currency: Currency, locale: AppLocale) {
 }
 
 async function fetchMarketContextChart(currency: Currency, locale: AppLocale) {
-  return fetchJson<MarketContextChartData>(`/api/market-context-chart?currency=${currency}`, locale);
+  return fetchJson<MarketContextChartData>(
+    `/api/market-context-chart?currency=${currency}`,
+    locale
+  );
 }
 
-function getSectionErrorMessage(
-  fallback: string,
-  error: unknown,
-  locale: AppLocale
-) {
+function getSectionErrorMessage(fallback: string, error: unknown, locale: AppLocale) {
   if (!(error instanceof Error)) {
     return fallback;
   }
@@ -78,13 +82,7 @@ export function useDashboardData(locale: AppLocale) {
   const chartRangeStateOptions = useMemo(() => ({ validator: isChartRange }), []);
   const currencyStateOptions = useMemo(() => ({ validator: isCurrency }), []);
   const autoRefreshStateOptions = useMemo(() => ({ validator: isBoolean }), []);
-
-  const [overview, setOverview] = useState<Overview | null>(null);
-  const [network, setNetwork] = useState<Network | null>(null);
-  const [sentiment, setSentiment] = useState<Sentiment | null>(null);
-  const [chart, setChart] = useState<ChartData | null>(null);
-  const [performance, setPerformance] = useState<Performance | null>(null);
-  const [marketContextChart, setMarketContextChart] = useState<MarketContextChartData | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const [range, setRange] = usePersistentState<ChartRange>(
     STORAGE_KEYS.range,
@@ -102,214 +100,191 @@ export function useDashboardData(locale: AppLocale) {
     autoRefreshStateOptions
   );
 
-  const [overviewError, setOverviewError] = useState("");
-  const [networkError, setNetworkError] = useState("");
-  const [chartError, setChartError] = useState("");
-  const [sentimentError, setSentimentError] = useState("");
-  const [performanceError, setPerformanceError] = useState("");
-  const [marketContextChartError, setMarketContextChartError] = useState("");
+  const overviewQuery = useQuery({
+    queryKey: ["dashboard", "overview", locale],
+    queryFn: () => fetchOverview(locale),
+    retry: QUERY_RETRY_COUNT,
+  });
+  const networkQuery = useQuery({
+    queryKey: ["dashboard", "network", locale],
+    queryFn: () => fetchNetwork(locale),
+    retry: QUERY_RETRY_COUNT,
+  });
+  const sentimentQuery = useQuery({
+    queryKey: ["dashboard", "sentiment", locale],
+    queryFn: () => fetchSentiment(locale),
+    retry: QUERY_RETRY_COUNT,
+  });
+  const chartQuery = useQuery({
+    queryKey: ["dashboard", "chart", range, currency, locale],
+    queryFn: () => fetchChart(range, currency, locale),
+    retry: QUERY_RETRY_COUNT,
+    placeholderData: (previousData) => previousData,
+  });
+  const performanceQuery = useQuery({
+    queryKey: ["dashboard", "performance", currency, locale],
+    queryFn: () => fetchPerformance(currency, locale),
+    retry: QUERY_RETRY_COUNT,
+    placeholderData: (previousData) => previousData,
+  });
+  const marketContextChartQuery = useQuery({
+    queryKey: ["dashboard", "market-context-chart", currency, locale],
+    queryFn: () => fetchMarketContextChart(currency, locale),
+    retry: QUERY_RETRY_COUNT,
+    placeholderData: (previousData) => previousData,
+  });
 
-  const [overviewLoading, setOverviewLoading] = useState(true);
-  const [networkLoading, setNetworkLoading] = useState(true);
-  const [chartLoading, setChartLoading] = useState(true);
-  const [sentimentLoading, setSentimentLoading] = useState(true);
-  const [performanceLoading, setPerformanceLoading] = useState(true);
-  const [marketContextChartLoading, setMarketContextChartLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const overview = overviewQuery.data ?? null;
+  const network = networkQuery.data ?? null;
+  const sentiment = sentimentQuery.data ?? null;
+  const chart = chartQuery.data ?? null;
+  const performance = performanceQuery.data ?? null;
+  const marketContextChart = marketContextChartQuery.data ?? null;
+  const refetchOverview = overviewQuery.refetch;
+  const refetchNetwork = networkQuery.refetch;
+  const refetchSentiment = sentimentQuery.refetch;
+  const refetchChart = chartQuery.refetch;
+  const refetchPerformance = performanceQuery.refetch;
+  const refetchMarketContextChart = marketContextChartQuery.refetch;
 
-  const initialChartHandledRef = useRef(false);
-  const initialPerformanceHandledRef = useRef(false);
-  const initialMarketContextChartHandledRef = useRef(false);
-  const initialRefreshHandledRef = useRef(false);
-
-  const loadOverviewData = useCallback(async () => {
-    setOverviewError("");
-    setOverviewLoading(true);
-
-    try {
-      const overviewData = await fetchOverview(locale);
-      setOverview(overviewData);
-      return overviewData.fetchedAt;
-    } catch (error) {
-      setOverviewError(
-        getSectionErrorMessage(
-          copy.stateCopy.fallbacks.overviewUnavailable,
-          error,
-          locale
-        )
-      );
-      return null;
-    } finally {
-      setOverviewLoading(false);
-    }
-  }, [copy.stateCopy.fallbacks.overviewUnavailable, locale]);
-
-  const loadNetworkData = useCallback(async (options?: { silent?: boolean }) => {
-    const silent = options?.silent ?? false;
-
-    setNetworkError("");
-    if (!silent) {
-      setNetworkLoading(true);
-    }
-
-    try {
-      const networkData = await fetchNetwork(locale);
-      setNetwork(networkData);
-      return networkData.fetchedAt;
-    } catch (error) {
-      setNetworkError(
-        getSectionErrorMessage(
-          copy.stateCopy.fallbacks.networkUnavailable,
-          error,
-          locale
-        )
-      );
-      return null;
-    } finally {
-      if (!silent) {
-        setNetworkLoading(false);
-      }
-    }
-  }, [copy.stateCopy.fallbacks.networkUnavailable, locale]);
-
-  const loadSentimentData = useCallback(async () => {
-    setSentimentError("");
-    setSentimentLoading(true);
-
-    try {
-      const sentimentData = await fetchSentiment(locale);
-      setSentiment(sentimentData);
-      return sentimentData.fetchedAt;
-    } catch (error) {
-      setSentimentError(
-        getSectionErrorMessage(
-          copy.stateCopy.fallbacks.sentimentUnavailable,
-          error,
-          locale
-        )
-      );
-      return null;
-    } finally {
-      setSentimentLoading(false);
-    }
-  }, [copy.stateCopy.fallbacks.sentimentUnavailable, locale]);
-
-  const loadChartData = useCallback(async (selectedRange: ChartRange, selectedCurrency: Currency) => {
-    setChartError("");
-    setChartLoading(true);
-
-    try {
-      const chartData = await fetchChart(selectedRange, selectedCurrency, locale);
-      setChart(chartData);
-      return chartData.fetchedAt;
-    } catch (error) {
-      setChartError(
-        getSectionErrorMessage(
-          copy.stateCopy.fallbacks.chartUnavailable,
-          error,
-          locale
-        )
-      );
-      return null;
-    } finally {
-      setChartLoading(false);
-    }
-  }, [copy.stateCopy.fallbacks.chartUnavailable, locale]);
-
-  const loadPerformanceData = useCallback(async (selectedCurrency: Currency) => {
-    setPerformanceError("");
-    setPerformanceLoading(true);
-
-    try {
-      const performanceData = await fetchPerformance(selectedCurrency, locale);
-      setPerformance(performanceData);
-      return performanceData.fetchedAt;
-    } catch (error) {
-      setPerformanceError(
-        getSectionErrorMessage(
-          copy.stateCopy.fallbacks.performanceUnavailable,
-          error,
-          locale
-        )
-      );
-      return null;
-    } finally {
-      setPerformanceLoading(false);
-    }
-  }, [copy.stateCopy.fallbacks.performanceUnavailable, locale]);
-
-  const loadMarketContextChartData = useCallback(async (selectedCurrency: Currency) => {
-    setMarketContextChartError("");
-    setMarketContextChartLoading(true);
-
-    try {
-      const marketContextChartData = await fetchMarketContextChart(selectedCurrency, locale);
-      setMarketContextChart(marketContextChartData);
-      return marketContextChartData.fetchedAt;
-    } catch (error) {
-      setMarketContextChartError(
-        getSectionErrorMessage(
-          copy.stateCopy.fallbacks.chartUnavailable,
-          error,
-          locale
-        )
-      );
-      return null;
-    } finally {
-      setMarketContextChartLoading(false);
-    }
-  }, [copy.stateCopy.fallbacks.chartUnavailable, locale]);
-
-  const refreshAll = useCallback(
-    async (selectedRange: ChartRange, selectedCurrency: Currency) => {
-      setRefreshing(true);
-
-      await Promise.all([
-        loadOverviewData(),
-        loadNetworkData(),
-        loadChartData(selectedRange, selectedCurrency),
-        loadSentimentData(),
-        loadPerformanceData(selectedCurrency),
-        loadMarketContextChartData(selectedCurrency),
-      ]);
-
-      setRefreshing(false);
-    },
-    [loadChartData, loadMarketContextChartData, loadNetworkData, loadOverviewData, loadPerformanceData, loadSentimentData]
+  const overviewError = useMemo(
+    () =>
+      overviewQuery.error
+        ? getSectionErrorMessage(
+            copy.stateCopy.fallbacks.overviewUnavailable,
+            overviewQuery.error,
+            locale
+          )
+        : "",
+    [copy.stateCopy.fallbacks.overviewUnavailable, locale, overviewQuery.error]
+  );
+  const networkError = useMemo(
+    () =>
+      networkQuery.error
+        ? getSectionErrorMessage(
+            copy.stateCopy.fallbacks.networkUnavailable,
+            networkQuery.error,
+            locale
+          )
+        : "",
+    [copy.stateCopy.fallbacks.networkUnavailable, locale, networkQuery.error]
+  );
+  const chartError = useMemo(
+    () =>
+      chartQuery.error
+        ? getSectionErrorMessage(copy.stateCopy.fallbacks.chartUnavailable, chartQuery.error, locale)
+        : "",
+    [chartQuery.error, copy.stateCopy.fallbacks.chartUnavailable, locale]
+  );
+  const sentimentError = useMemo(
+    () =>
+      sentimentQuery.error
+        ? getSectionErrorMessage(
+            copy.stateCopy.fallbacks.sentimentUnavailable,
+            sentimentQuery.error,
+            locale
+          )
+        : "",
+    [copy.stateCopy.fallbacks.sentimentUnavailable, locale, sentimentQuery.error]
+  );
+  const performanceError = useMemo(
+    () =>
+      performanceQuery.error
+        ? getSectionErrorMessage(
+            copy.stateCopy.fallbacks.performanceUnavailable,
+            performanceQuery.error,
+            locale
+          )
+        : "",
+    [copy.stateCopy.fallbacks.performanceUnavailable, locale, performanceQuery.error]
+  );
+  const marketContextChartError = useMemo(
+    () =>
+      marketContextChartQuery.error
+        ? getSectionErrorMessage(
+            copy.stateCopy.fallbacks.chartUnavailable,
+            marketContextChartQuery.error,
+            locale
+          )
+        : "",
+    [copy.stateCopy.fallbacks.chartUnavailable, locale, marketContextChartQuery.error]
   );
 
-  useEffect(() => {
-    if (initialRefreshHandledRef.current) return;
-    initialRefreshHandledRef.current = true;
-    void refreshAll(range, currency);
-  }, [currency, range, refreshAll]);
+  const overviewLoading = overviewQuery.isPending;
+  const networkLoading = networkQuery.isPending;
+  const chartLoading = chartQuery.isPending;
+  const sentimentLoading = sentimentQuery.isPending;
+  const performanceLoading = performanceQuery.isPending;
+  const marketContextChartLoading = marketContextChartQuery.isPending;
 
-  useEffect(() => {
-    if (!initialChartHandledRef.current) {
-      initialChartHandledRef.current = true;
-      return;
-    }
+  const loadOverviewData = useCallback(async () => {
+    const result = await refetchOverview();
+    return result.data?.fetchedAt ?? null;
+  }, [refetchOverview]);
 
-    void loadChartData(range, currency);
-  }, [currency, range, loadChartData]);
+  const loadNetworkData = useCallback(
+    async (_options?: { silent?: boolean }) => {
+      const result = await refetchNetwork();
+      return result.data?.fetchedAt ?? null;
+    },
+    [refetchNetwork]
+  );
 
-  useEffect(() => {
-    if (!initialPerformanceHandledRef.current) {
-      initialPerformanceHandledRef.current = true;
-      return;
-    }
+  const loadSentimentData = useCallback(async () => {
+    const result = await refetchSentiment();
+    return result.data?.fetchedAt ?? null;
+  }, [refetchSentiment]);
 
-    void loadPerformanceData(currency);
-  }, [currency, loadPerformanceData]);
+  const loadChartData = useCallback(
+    async (_selectedRange: ChartRange, _selectedCurrency: Currency) => {
+      const result = await refetchChart();
+      return result.data?.fetchedAt ?? null;
+    },
+    [refetchChart]
+  );
 
-  useEffect(() => {
-    if (!initialMarketContextChartHandledRef.current) {
-      initialMarketContextChartHandledRef.current = true;
-      return;
-    }
+  const loadPerformanceData = useCallback(
+    async (_selectedCurrency: Currency) => {
+      const result = await refetchPerformance();
+      return result.data?.fetchedAt ?? null;
+    },
+    [refetchPerformance]
+  );
 
-    void loadMarketContextChartData(currency);
-  }, [currency, loadMarketContextChartData]);
+  const loadMarketContextChartData = useCallback(
+    async (_selectedCurrency: Currency) => {
+      const result = await refetchMarketContextChart();
+      return result.data?.fetchedAt ?? null;
+    },
+    [refetchMarketContextChart]
+  );
+
+  const refreshAll = useCallback(
+    async (_selectedRange: ChartRange, _selectedCurrency: Currency) => {
+      setRefreshing(true);
+
+      try {
+        await Promise.all([
+          refetchOverview(),
+          refetchNetwork(),
+          refetchChart(),
+          refetchSentiment(),
+          refetchPerformance(),
+          refetchMarketContextChart(),
+        ]);
+      } finally {
+        setRefreshing(false);
+      }
+    },
+    [
+      refetchChart,
+      refetchMarketContextChart,
+      refetchNetwork,
+      refetchOverview,
+      refetchPerformance,
+      refetchSentiment,
+    ]
+  );
 
   useEffect(() => {
     if (!autoRefresh) return;
@@ -527,7 +502,14 @@ export function useDashboardData(locale: AppLocale) {
         performance?.fetchedAt,
         marketContextChart?.fetchedAt,
       ]),
-    [chart?.fetchedAt, marketContextChart?.fetchedAt, network?.fetchedAt, overview?.fetchedAt, performance?.fetchedAt, sentiment?.fetchedAt]
+    [
+      chart?.fetchedAt,
+      marketContextChart?.fetchedAt,
+      network?.fetchedAt,
+      overview?.fetchedAt,
+      performance?.fetchedAt,
+      sentiment?.fetchedAt,
+    ]
   );
 
   const dashboardState = useMemo(

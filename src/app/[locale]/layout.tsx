@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AppProviders from "../../components/AppProviders";
 import SiteFooter from "../../components/SiteFooter";
 import SiteNavigation from "../../components/SiteNavigation";
 import StructuredData from "../../components/StructuredData";
@@ -51,36 +52,38 @@ export default async function LocaleLayout({
   const messages = getDictionary(locale);
 
   return (
-    <I18nProvider locale={locale} messages={messages}>
-      <StructuredData
-        data={serializeJsonLd(createWebsiteSchema({ locale, description: messages.metadata.defaultDescription }))}
-      />
-      <main className="flex min-h-screen flex-col py-0">
-        <header className="w-full border-b border-border-default/80 bg-surface">
-          <div className="flex flex-col gap-3 px-4 py-2.5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-            <Link href={`/${locale}`} className="min-w-0 max-w-fit text-left">
-              <div className="flex flex-col gap-0">
-                <p className="font-serif text-[1.7rem] leading-none tracking-[0.005em] text-fg sm:text-[1.95rem]">
-                  <span className="text-fg">bit</span>
-                  <span className="text-accent">stats</span>
-                  <span className="ml-0.75 inline-block text-[0.56em] text-fg-secondary">.org</span>
-                </p>
-                <p className="-mt-0.5 font-sans text-[0.76rem] leading-[1.1] tracking-[-0.005em] text-fg-muted sm:text-[0.84rem]">
-                  Bitcoin Data, Charts &amp; Tools
-                </p>
-              </div>
-            </Link>
+    <AppProviders>
+      <I18nProvider locale={locale} messages={messages}>
+        <StructuredData
+          data={serializeJsonLd(createWebsiteSchema({ locale, description: messages.metadata.defaultDescription }))}
+        />
+        <main className="flex min-h-screen flex-col py-0">
+          <header className="w-full border-b border-border-default/80 bg-surface">
+            <div className="flex flex-col gap-3 px-4 py-2.5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+              <Link href={`/${locale}`} className="min-w-0 max-w-fit text-left">
+                <div className="flex flex-col gap-0">
+                  <p className="font-serif text-[1.7rem] leading-none tracking-[0.005em] text-fg sm:text-[1.95rem]">
+                    <span className="text-fg">bit</span>
+                    <span className="text-accent">stats</span>
+                    <span className="ml-0.75 inline-block text-[0.56em] text-fg-secondary">.org</span>
+                  </p>
+                  <p className="-mt-0.5 font-sans text-[0.76rem] leading-[1.1] tracking-[-0.005em] text-fg-muted sm:text-[0.84rem]">
+                    Bitcoin Data, Charts &amp; Tools
+                  </p>
+                </div>
+              </Link>
 
-            <SiteNavigation />
-          </div>
-        </header>
+              <SiteNavigation />
+            </div>
+          </header>
 
-        <PageContainer className="flex flex-1 flex-col gap-5 py-4 sm:py-5">
-          {children}
-        </PageContainer>
+          <PageContainer className="flex flex-1 flex-col gap-5 py-4 sm:py-5">
+            {children}
+          </PageContainer>
 
-        <SiteFooter locale={locale} messages={messages.site} />
-      </main>
-    </I18nProvider>
+          <SiteFooter locale={locale} messages={messages.site} />
+        </main>
+      </I18nProvider>
+    </AppProviders>
   );
 }
