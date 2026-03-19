@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type PointerEvent, type ReactNode, useId, useState } from "react";
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Network } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
@@ -48,13 +48,59 @@ function formatHashrate(value: number | null, locale: string) {
   return formatted ? `${formatted} EH/s` : null;
 }
 
+function formatSparklineDate(timestamp: number, locale: "de" | "en") {
+  const code = locale === "de" ? "de-DE" : "en-US";
+  return new Intl.DateTimeFormat(code, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  }).format(new Date(timestamp));
+}
+
+function getTooltipTopPercent({
+  pointY,
+  chartHeight,
+  tooltipHeightPx,
+  preferredOffsetPx,
+  fallbackOffsetPx,
+  minPercent,
+  maxPercent,
+  renderedHeightPx,
+}: {
+  pointY: number;
+  chartHeight: number;
+  tooltipHeightPx: number;
+  preferredOffsetPx: number;
+  fallbackOffsetPx: number;
+  minPercent: number;
+  maxPercent: number;
+  renderedHeightPx: number;
+}) {
+  const pointPercent = (pointY / chartHeight) * 100;
+  const tooltipHeightPercent = (tooltipHeightPx / renderedHeightPx) * 100;
+  const preferredOffsetPercent = (preferredOffsetPx / renderedHeightPx) * 100;
+  const fallbackOffsetPercent = (fallbackOffsetPx / renderedHeightPx) * 100;
+  const abovePercent = pointPercent - tooltipHeightPercent - preferredOffsetPercent;
+
+  if (abovePercent >= minPercent) {
+    return abovePercent;
+  }
+
+  return Math.min(pointPercent + fallbackOffsetPercent, maxPercent);
+}
+
 function Sparkline({
+  locale,
   points,
   strokeClassName,
 }: {
+  locale: "de" | "en";
   points: Array<{ ehPerSecond: number; timestamp: number }>;
   strokeClassName: string;
 }) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const gradientId = `${useId().replace(/:/g, "")}-hashrate-area-gradient`;
+
   if (points.length < 2) {
     return <div className="h-28 rounded-sm border border-border-subtle bg-surface/50" />;
   }
@@ -73,32 +119,130 @@ function Sparkline({
       return `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
     })
     .join(" ");
+  const hoverablePoints = points.map((point, index) => ({
+    ...point,
+    index,
+    x: points.length === 1 ? width / 2 : (index / (points.length - 1)) * width,
+    y: height - ((point.ehPerSecond - min) / range) * height,
+  }));
 
   const areaPath = `${path} L ${width},${height} L 0,${height} Z`;
+  const activeHoveredPoint =
+    hoveredIndex === null ? null : hoverablePoints[hoveredIndex] ?? null;
+  const tooltipLeftPercent = activeHoveredPoint
+    ? Math.min(Math.max((activeHoveredPoint.x / width) * 100, 8), 92)
+    : 0;
+  const renderedChartHeight = 112;
+  const tooltipTopPercent = activeHoveredPoint
+    ? getTooltipTopPercent({
+        pointY: activeHoveredPoint.y,
+        chartHeight: height,
+        tooltipHeightPx: 36,
+        preferredOffsetPx: 18,
+        fallbackOffsetPx: 14,
+        minPercent: 4,
+        maxPercent: 72,
+        renderedHeightPx: renderedChartHeight,
+      })
+    : 0;
+  const markerLeftPercent = activeHoveredPoint
+    ? (activeHoveredPoint.x / width) * 100
+    : 0;
+  const markerTopPercent = activeHoveredPoint
+    ? (activeHoveredPoint.y / height) * 100
+    : 0;
+
+  function handlePointerMove(event: PointerEvent<SVGRectElement>) {
+    if (points.length === 0) return;
+
+    const bounds = event.currentTarget.getBoundingClientRect();
+    if (bounds.width === 0) return;
+
+    const pointerX = ((event.clientX - bounds.left) / bounds.width) * width;
+    const clampedX = Math.min(Math.max(pointerX, 0), width);
+    const nextIndex = Math.round((clampedX / (width || 1)) * (points.length - 1));
+    setHoveredIndex(Math.min(Math.max(nextIndex, 0), points.length - 1));
+  }
+
+  function handlePointerLeave() {
+    setHoveredIndex(null);
+  }
 
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      aria-hidden="true"
-      className="h-28 w-full overflow-visible"
-      preserveAspectRatio="none"
-    >
-      <defs>
-        <linearGradient id="hashrateAreaGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={areaPath} fill="url(#hashrateAreaGradient)" className={strokeClassName} />
-      <path
-        d={path}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        vectorEffect="non-scaling-stroke"
-        className={strokeClassName}
-      />
-    </svg>
+    <div className="relative h-28 w-full">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        aria-hidden="true"
+        className="h-full w-full overflow-visible"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={areaPath} fill={`url(#${gradientId})`} className={strokeClassName} />
+        <path
+          d={path}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          vectorEffect="non-scaling-stroke"
+          className={strokeClassName}
+        />
+        {activeHoveredPoint ? (
+          <>
+            <line
+              x1={activeHoveredPoint.x}
+              y1={0}
+              x2={activeHoveredPoint.x}
+              y2={height}
+              stroke="currentColor"
+              strokeOpacity="0.22"
+              strokeDasharray="4 5"
+              strokeWidth="1"
+              vectorEffect="non-scaling-stroke"
+            />
+          </>
+        ) : null}
+        <rect
+          x="0"
+          y="0"
+          width={width}
+          height={height}
+          fill="transparent"
+          className="cursor-crosshair"
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
+        />
+      </svg>
+      {activeHoveredPoint ? (
+        <div
+          className="pointer-events-none absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent bg-[#17120d]"
+          style={{
+            left: `${markerLeftPercent}%`,
+            top: `${markerTopPercent}%`,
+          }}
+        />
+      ) : null}
+      {activeHoveredPoint ? (
+        <div
+          className="pointer-events-none absolute -translate-x-1/2 rounded-md border border-accent/25 bg-[rgba(14,11,9,0.94)] px-2 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.28)]"
+          style={{
+            left: `${tooltipLeftPercent}%`,
+            top: `${tooltipTopPercent}%`,
+          }}
+        >
+          <div className="text-[10.5px] font-semibold leading-none text-fg">
+            {formatHashrate(activeHoveredPoint.ehPerSecond, locale === "de" ? "de-DE" : "en-US") ?? "n/a"}
+          </div>
+          <div className="mt-1 text-[9.5px] leading-none text-fg-muted">
+            {formatSparklineDate(activeHoveredPoint.timestamp, locale)}
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -308,6 +452,7 @@ export default function NetworkOverviewSection({
 
             <div className="text-accent">
               <Sparkline
+                locale={locale}
                 points={network?.hashrate.points ?? []}
                 strokeClassName="text-accent"
               />

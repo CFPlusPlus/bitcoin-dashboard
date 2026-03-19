@@ -118,6 +118,7 @@ export default function MarketContextSection({
           <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
             {marketCapSeries ? (
               <MarketMetricChart
+                currency={currency}
                 label={formatMessage(copy.marketCapLabel, { currency: currencyLabel })}
                 currentValue={formatCompactCurrency(marketCapSeries.stats.currentValue, currency, locale)}
                 meta={copy.marketCapFootnote}
@@ -127,6 +128,7 @@ export default function MarketContextSection({
             ) : null}
             {volumeSeries ? (
               <MarketMetricChart
+                currency={currency}
                 label={formatMessage(copy.volumeLabel, { currency: currencyLabel })}
                 currentValue={formatCompactCurrency(volumeSeries.stats.currentValue, currency, locale)}
                 meta={copy.volumeFootnote}

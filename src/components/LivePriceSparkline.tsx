@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type PointerEvent, useEffect, useId, useRef, useState } from "react";
 import { useI18n } from "../i18n/context";
 import { formatCurrency } from "../lib/format";
 import type { Currency } from "../types/dashboard";
@@ -40,6 +40,18 @@ function formatTimeLabel(timestamp: number, locale: "de" | "en") {
   }).format(new Date(timestamp));
 }
 
+function formatHoverDateLabel(timestamp: number, locale: "de" | "en") {
+  const code = locale === "de" ? "de-DE" : "en-US";
+  return new Intl.DateTimeFormat(code, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(new Date(timestamp));
+}
+
 function buildLinePath(points: Array<{ x: number; y: number }>) {
   if (points.length === 0) return "";
   let path = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
@@ -49,6 +61,30 @@ function buildLinePath(points: Array<{ x: number; y: number }>) {
   }
 
   return path;
+}
+
+function getTooltipY({
+  pointY,
+  tooltipHeight,
+  preferredOffset,
+  fallbackOffset,
+  minY,
+  maxY,
+}: {
+  pointY: number;
+  tooltipHeight: number;
+  preferredOffset: number;
+  fallbackOffset: number;
+  minY: number;
+  maxY: number;
+}) {
+  const aboveY = pointY - tooltipHeight - preferredOffset;
+
+  if (aboveY >= minY) {
+    return aboveY;
+  }
+
+  return Math.min(pointY + fallbackOffset, maxY);
 }
 
 function getChartTheme(performancePercent: number | null) {
@@ -119,12 +155,14 @@ export default function LivePriceSparkline({
   const copy = messages.dashboard.overview;
   const [now, setNow] = useState(() => Date.now());
   const [renderedPoints, setRenderedPoints] = useState<LivePricePoint[]>([]);
+  const [hoveredTimestamp, setHoveredTimestamp] = useState<number | null>(null);
   const animationFrameRef = useRef<number>(0);
   const lastSampleTimeRef = useRef<number>(0);
   const lastFrameTimeRef = useRef<number | null>(null);
   const targetPriceRef = useRef<number | null>(null);
   const currentRenderedPriceRef = useRef<number | null>(null);
   const renderedVelocityRef = useRef(0);
+  const idPrefix = useId().replace(/:/g, "");
   const width = 920;
   const height = 320;
   const paddingLeft = 18;
@@ -321,12 +359,60 @@ export default function LivePriceSparkline({
     x: getX(point.timestamp),
     y: getY(point.price),
   }));
+  const hoverablePoints = usablePoints.map((point) => ({
+    ...point,
+    x: getX(point.timestamp),
+    y: getY(point.price),
+  }));
   const linePath = buildLinePath(chartPoints);
   const firstX = chartPoints[0]?.x ?? paddingLeft;
   const lastX = chartPoints[chartPoints.length - 1]?.x ?? (width - paddingRight);
   const lastY = getY(latestPoint.price);
   const baseY = height - paddingBottom;
   const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(2)} ${baseY.toFixed(2)} Z`;
+  const activeHoveredPoint =
+    hoveredTimestamp === null
+      ? null
+      : hoverablePoints.find((point) => point.timestamp === hoveredTimestamp) ?? null;
+  const tooltipWidth = 142;
+  const tooltipHeight = 46;
+  const tooltipX = activeHoveredPoint
+    ? Math.min(
+        Math.max(activeHoveredPoint.x - tooltipWidth / 2, 10),
+        width - tooltipWidth - 10
+      )
+    : 0;
+  const tooltipY = activeHoveredPoint
+    ? getTooltipY({
+        pointY: activeHoveredPoint.y,
+        tooltipHeight,
+        preferredOffset: 22,
+        fallbackOffset: 18,
+        minY: 10,
+        maxY: height - paddingBottom - tooltipHeight - 8,
+      })
+    : 0;
+
+  function handlePointerMove(event: PointerEvent<SVGRectElement>) {
+    if (hoverablePoints.length === 0) return;
+
+    const bounds = event.currentTarget.getBoundingClientRect();
+    if (bounds.width === 0) return;
+
+    const pointerX =
+      paddingLeft + ((event.clientX - bounds.left) / bounds.width) * chartWidth;
+    const clampedX = Math.min(Math.max(pointerX, paddingLeft), paddingLeft + chartWidth);
+    const closestPoint = hoverablePoints.reduce((closest, point) =>
+      Math.abs(point.x - clampedX) < Math.abs(closest.x - clampedX) ? point : closest
+    );
+
+    setHoveredTimestamp(closestPoint.timestamp);
+  }
+
+  function handlePointerLeave() {
+    setHoveredTimestamp(null);
+  }
+
   return (
     <div className="overflow-hidden border border-accent/20 bg-[radial-gradient(circle_at_top,_rgba(242,143,45,0.08),_transparent_42%),linear-gradient(180deg,rgba(24,20,18,0.96),rgba(15,13,12,0.98))] p-4 sm:p-5">
       <div className="mb-3 flex items-center justify-between gap-3 text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
@@ -341,7 +427,7 @@ export default function LivePriceSparkline({
         aria-label={copy.liveChartAriaLabel}
       >
         <defs>
-          <clipPath id="live-chart-clip">
+          <clipPath id={`${idPrefix}-live-chart-clip`}>
             <rect
               x={paddingLeft}
               y={paddingTop}
@@ -349,11 +435,11 @@ export default function LivePriceSparkline({
               height={chartHeight}
             />
           </clipPath>
-          <linearGradient id="live-area-fill" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`${idPrefix}-live-area-fill`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={theme.areaStart} />
             <stop offset="100%" stopColor={theme.areaEnd} />
           </linearGradient>
-          <linearGradient id="live-line-stroke" x1="0" y1="0" x2="1" y2="0">
+          <linearGradient id={`${idPrefix}-live-line-stroke`} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stopColor={theme.lineStart} />
             <stop offset="100%" stopColor={theme.lineEnd} />
           </linearGradient>
@@ -404,13 +490,57 @@ export default function LivePriceSparkline({
           strokeWidth="1.2"
           opacity="0.75"
         />
-        <g clipPath="url(#live-chart-clip)">
-          <path d={areaPath} fill="url(#live-area-fill)" />
+        <g clipPath={`url(#${idPrefix}-live-chart-clip)`}>
+          <path d={areaPath} fill={`url(#${idPrefix}-live-area-fill)`} />
           <path d={linePath} fill="none" stroke="rgba(11,17,13,0.45)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={linePath} fill="none" stroke="url(#live-line-stroke)" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={linePath} fill="none" stroke={`url(#${idPrefix}-live-line-stroke)`} strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
+          {activeHoveredPoint ? (
+            <>
+              <line
+                x1={activeHoveredPoint.x}
+                y1={paddingTop}
+                x2={activeHoveredPoint.x}
+                y2={baseY}
+                stroke="rgba(255, 226, 192, 0.22)"
+                strokeDasharray="5 7"
+                strokeWidth="1"
+              />
+              <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="8" fill="rgba(13,18,16,0.92)" stroke={theme.dotStroke} strokeWidth="2.5" />
+              <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="3.5" fill={theme.dot} />
+            </>
+          ) : null}
           <circle cx={chartPoints[chartPoints.length - 1].x} cy={lastY} r={LIVE_DOT_RADIUS} fill="#0d1210" stroke={theme.dotStroke} strokeWidth="3" />
           <circle cx={chartPoints[chartPoints.length - 1].x} cy={lastY} r="3.5" fill={theme.dot} />
         </g>
+        <rect
+          x={paddingLeft}
+          y={paddingTop}
+          width={chartWidth}
+          height={chartHeight}
+          fill="transparent"
+          className="cursor-crosshair"
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
+        />
+        {activeHoveredPoint ? (
+          <g pointerEvents="none">
+            <rect
+              x={tooltipX}
+              y={tooltipY}
+              width={tooltipWidth}
+              height={tooltipHeight}
+              rx="10"
+              fill="rgba(12, 10, 9, 0.92)"
+              stroke="rgba(242, 143, 45, 0.28)"
+            />
+            <text x={tooltipX + 10} y={tooltipY + 18} fill="#f7efe5" fontSize="13" fontWeight="600">
+              {formatCurrency(activeHoveredPoint.price, currency, locale)}
+            </text>
+            <text x={tooltipX + 10} y={tooltipY + 33} fill="#9f968b" fontSize="11.5">
+              {formatHoverDateLabel(activeHoveredPoint.timestamp, locale)}
+            </text>
+          </g>
+        ) : null}
       </svg>
 
       <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/6 pt-3 text-sm text-fg-muted">

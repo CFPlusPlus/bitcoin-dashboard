@@ -50,7 +50,7 @@ export function mapNetworkDto(input: {
             100
           : null,
       points: hashratePoints.map((point) => ({
-        timestamp: point.timestamp,
+        timestamp: point.timestamp * 1000,
         ehPerSecond: point.avgHashrate / 1e18,
       })),
       stats: {

@@ -1,5 +1,6 @@
 "use client";
 
+import { type PointerEvent, useState } from "react";
 import { useI18n } from "../i18n/context";
 import { formatMessage } from "../i18n/template";
 import { formatCurrency, formatPercent } from "../lib/format";
@@ -55,9 +56,56 @@ function formatCoverageLabel(timestamp: number, range: ChartRange, locale: "de" 
   ).format(date);
 }
 
+function formatTooltipLabel(timestamp: number, range: ChartRange, locale: "de" | "en") {
+  const date = new Date(timestamp);
+  const code = locale === "de" ? "de-DE" : "en-US";
+
+  return new Intl.DateTimeFormat(
+    code,
+    range === 1
+      ? {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      : {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }
+  ).format(date);
+}
+
+function getTooltipY({
+  pointY,
+  tooltipHeight,
+  preferredOffset,
+  fallbackOffset,
+  minY,
+  maxY,
+}: {
+  pointY: number;
+  tooltipHeight: number;
+  preferredOffset: number;
+  fallbackOffset: number;
+  minY: number;
+  maxY: number;
+}) {
+  const aboveY = pointY - tooltipHeight - preferredOffset;
+
+  if (aboveY >= minY) {
+    return aboveY;
+  }
+
+  return Math.min(pointY + fallbackOffset, maxY);
+}
+
 export default function PriceChart({ currency, points, range }: PriceChartProps) {
   const { locale, messages } = useI18n();
   const copy = messages.dashboard.chart;
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const width = 900;
   const height = 300;
   const paddingX = 52;
@@ -96,6 +144,12 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   const linePath = points
     .map((point, index) => `${index === 0 ? "M" : "L"} ${getX(index).toFixed(2)} ${getY(point.price).toFixed(2)}`)
     .join(" ");
+  const hoverablePoints = points.map((point, index) => ({
+    ...point,
+    index,
+    x: getX(index),
+    y: getY(point.price),
+  }));
 
   const firstX = getX(0);
   const lastX = getX(points.length - 1);
@@ -103,6 +157,44 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   const baseY = height - paddingY;
   const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(2)} ${baseY.toFixed(2)} Z`;
   const rangeLabel = getRangeLabel(range, locale, copy);
+  const activeHoveredPoint =
+    hoveredIndex === null ? null : hoverablePoints[hoveredIndex] ?? null;
+  const tooltipWidth = 136;
+  const tooltipHeight = 46;
+  const tooltipX = activeHoveredPoint
+    ? Math.min(
+        Math.max(activeHoveredPoint.x - tooltipWidth / 2, 10),
+        width - tooltipWidth - 10
+      )
+    : 0;
+  const tooltipY = activeHoveredPoint
+    ? getTooltipY({
+        pointY: activeHoveredPoint.y,
+        tooltipHeight,
+        preferredOffset: 20,
+        fallbackOffset: 18,
+        minY: 10,
+        maxY: baseY - tooltipHeight - 8,
+      })
+    : 0;
+
+  function handlePointerMove(event: PointerEvent<SVGRectElement>) {
+    if (points.length === 0) return;
+
+    const bounds = event.currentTarget.getBoundingClientRect();
+    if (bounds.width === 0) return;
+
+    const pointerX =
+      paddingX + ((event.clientX - bounds.left) / bounds.width) * (width - paddingX * 2);
+    const clampedX = Math.min(Math.max(pointerX, paddingX), width - paddingX);
+    const progress = (clampedX - paddingX) / (width - paddingX * 2 || 1);
+    const nextIndex = Math.round(progress * (points.length - 1));
+    setHoveredIndex(Math.min(Math.max(nextIndex, 0), points.length - 1));
+  }
+
+  function handlePointerLeave() {
+    setHoveredIndex(null);
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -189,8 +281,52 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           <path d={areaPath} fill="rgba(242, 143, 45, 0.12)" />
           <path d={linePath} fill="none" stroke="#f28f2d" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
           <path d={linePath} fill="none" stroke="rgba(255, 178, 90, 0.55)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          {activeHoveredPoint ? (
+            <>
+              <line
+                x1={activeHoveredPoint.x}
+                y1={paddingY}
+                x2={activeHoveredPoint.x}
+                y2={baseY}
+                stroke="rgba(242, 143, 45, 0.24)"
+                strokeDasharray="5 7"
+                strokeWidth="1"
+              />
+              <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="6" fill="#17120d" stroke="#f28f2d" strokeWidth="2" />
+              <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="2.5" fill="#f6b05d" />
+            </>
+          ) : null}
           <circle cx={lastX} cy={lastY} r="5" fill="#17120d" stroke="#f28f2d" strokeWidth="2" />
           <circle cx={lastX} cy={lastY} r="2.5" fill="#f28f2d" />
+          <rect
+            x={paddingX}
+            y={paddingY}
+            width={width - paddingX * 2}
+            height={height - paddingY * 2}
+            fill="transparent"
+            className="cursor-crosshair"
+            onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
+          />
+          {activeHoveredPoint ? (
+            <g pointerEvents="none">
+              <rect
+                x={tooltipX}
+                y={tooltipY}
+                width={tooltipWidth}
+                height={tooltipHeight}
+                rx="10"
+                fill="rgba(14, 11, 9, 0.94)"
+                stroke="rgba(242, 143, 45, 0.24)"
+              />
+              <text x={tooltipX + 10} y={tooltipY + 18} fill="#f7efe5" fontSize="13" fontWeight="600">
+                {formatCurrency(activeHoveredPoint.price, currency, locale)}
+              </text>
+              <text x={tooltipX + 10} y={tooltipY + 33} fill="#9f968b" fontSize="11.5">
+                {formatTooltipLabel(activeHoveredPoint.timestamp, range, locale)}
+              </text>
+            </g>
+          ) : null}
 
           <text x={paddingX} y={height - 2} fill="#978f84" fontSize="13" textAnchor="start">
             {formatAxisLabel(firstPoint.timestamp, range, locale)}
