@@ -3,12 +3,7 @@
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import {
-  formatCurrency,
-  formatDate,
-  formatNumber,
-  formatPercent,
-} from "../../lib/format";
+import { formatCurrency, formatDate, formatNumber, formatPercent } from "../../lib/format";
 import { useI18n } from "../../i18n/context";
 import { formatMessage } from "../../i18n/template";
 import MetricCard from "../../components/MetricCard";
@@ -54,7 +49,9 @@ export default function AthSection({
   const athDistance = overview?.athChangePercent ?? null;
   const currentPrice = overview?.price ?? null;
   const gapToAth =
-    typeof ath === "number" && typeof currentPrice === "number" ? Math.max(ath - currentPrice, 0) : null;
+    typeof ath === "number" && typeof currentPrice === "number"
+      ? Math.max(ath - currentPrice, 0)
+      : null;
   const daysSinceAth = getDaysSinceAth(athDate, overview?.fetchedAt ?? null);
 
   return (
@@ -92,9 +89,7 @@ export default function AthSection({
             value={formatPercent(athDistance, locale)}
             meta={copy.distanceMeta}
             valueFootnote={copy.distanceFootnote}
-            valueTone={
-              typeof athDistance === "number" && athDistance < 0 ? "negative" : "default"
-            }
+            valueTone={typeof athDistance === "number" && athDistance < 0 ? "negative" : "default"}
             tone="muted"
           />
 

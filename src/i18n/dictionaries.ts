@@ -255,7 +255,8 @@ export const dictionaries = {
           "Das letzte Allzeithoch in {currency}, wie weit Bitcoin aktuell davon entfernt ist und wie lange der Rekord schon steht.",
         lastAthLabel: "Letztes ATH",
         lastAthMeta: "Rekord vom {value}",
-        lastAthFootnote: "Das ist der bisher höchste erreichte Bitcoin-Preis in der aktiven Währung.",
+        lastAthFootnote:
+          "Das ist der bisher höchste erreichte Bitcoin-Preis in der aktiven Währung.",
         distanceLabel: "Abstand zum ATH",
         distanceMeta: "Prozentuale Distanz vom aktuellen Preis zum letzten Rekord.",
         distanceFootnote: "Zeigt, wie nah Bitcoin gerade am historischen Hoch notiert.",
@@ -265,7 +266,8 @@ export const dictionaries = {
         daysSinceLabel: "Seit dem Rekord",
         daysSinceValue: "{value} Tage",
         daysSinceMeta: "So lange liegt das letzte Allzeithoch bereits zurück.",
-        daysSinceFootnote: "Setzt die aktuelle Marktphase zeitlich ins Verhältnis zum letzten Hoch.",
+        daysSinceFootnote:
+          "Setzt die aktuelle Marktphase zeitlich ins Verhältnis zum letzten Hoch.",
       },
       performance: {
         eyebrow: "Performance",
@@ -1196,7 +1198,8 @@ export const dictionaries = {
           },
           partial: {
             title: "ATH context is partially available",
-            description: "Some ATH values are missing in the current fetch. Available hints stay visible.",
+            description:
+              "Some ATH values are missing in the current fetch. Available hints stay visible.",
           },
           stale: {
             title: "Latest ATH context stays visible",

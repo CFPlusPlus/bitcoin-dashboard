@@ -4,7 +4,7 @@
 [![React](https://img.shields.io/badge/React-19-blue?logo=react)](#tech-stack)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](#tech-stack)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange?logo=cloudflare)](#deployment)
-[![Status](https://img.shields.io/badge/status-MVP-yellow)](#project-status)
+[![Status](https://img.shields.io/badge/status-beta-orange)](#project-status)
 
 A lightweight Bitcoin dashboard built with Next.js, React and TypeScript, deployed to Cloudflare Workers via OpenNext.
 

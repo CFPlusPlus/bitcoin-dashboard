@@ -66,9 +66,7 @@ export function mapOverviewDto(input: {
     circulatingSupply: market.circulatingSupply,
     maxSupply: market.maxSupply,
     supplyProgressPercent:
-      market.circulatingSupply !== null &&
-      market.maxSupply !== null &&
-      market.maxSupply > 0
+      market.circulatingSupply !== null && market.maxSupply !== null && market.maxSupply > 0
         ? (market.circulatingSupply / market.maxSupply) * 100
         : null,
     ath: market.ath,
