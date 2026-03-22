@@ -173,18 +173,42 @@ export const dictionaries = {
     },
     home: {
       headerEyebrow: "bitstats.org",
-      headerTitlePrefix: "Bitcoin auf einen",
-      headerTitleAccent: "ruhigen Blick",
-      headerDescription: "Preis, Stimmung und Netzwerk in einer klaren Bitcoin-Ansicht.",
-      introAriaLabel: "Seiteneinordnung und Einstellungen",
+      headerTitlePrefix: "Bitcoin verstehen,",
+      headerTitleAccent: "bevor du weiterklickst",
+      headerDescription:
+        "Die ruhige Startseite für alle, die Bitcoin in wenigen Sekunden einordnen wollen.",
+      introAriaLabel: "Seiteneinstieg und Aktualisierung",
       introBody:
         "Sieh in Sekunden, wo Bitcoin steht, wie der Markt wirkt und ob sich der nächste Klick lohnt.",
+      heroBody:
+        "Preis, Stimmung und Netzwerk in einer klaren Ansicht, damit du sofort erkennst, was gerade wichtig ist und wo sich der nächste Blick lohnt.",
       jumpToChart: "Zum Chart",
-      jumpToTools: "Zu den Werkzeugen",
-      focusLabel: "Im Fokus",
-      focusBody: "Preis zuerst. Kontext direkt danach.",
-      sourcesLabel: "Datenquellen",
-      sourcesBody: "CoinGecko, mempool.space und Alternative.me.",
+      jumpToTools: "Werkzeuge entdecken",
+      benefits: [
+        {
+          title: "Markt auf einen Blick",
+          description: "Spotpreis, 24h-Richtung und Verlauf ohne Umwege erfassen.",
+        },
+        {
+          title: "Bewegung besser einordnen",
+          description:
+            "Stimmung und Marktkontext zeigen, ob der Markt eher nervös oder belastbar wirkt.",
+        },
+        {
+          title: "Tiefer gehen, wenn es sich lohnt",
+          description:
+            "Netzwerkdaten und Werkzeuge warten genau dann, wenn du mehr als nur den Preis brauchst.",
+        },
+      ],
+      snapshotEyebrow: "Schneller Einstieg",
+      snapshotTitle: "Dein täglicher Bitcoin-Check",
+      snapshotDescription:
+        "Keine überladene Trading-Ansicht, sondern ein ruhiger Überblick für den ersten Blick des Tages.",
+      snapshotPoints: [
+        "Preis, Trend und Verlauf sofort sehen",
+        "Stimmung und Marktumfeld ohne Overload einordnen",
+        "Werkzeuge für den nächsten Schritt direkt erreichen",
+      ],
     },
     dashboard: {
       contentAriaLabel: "Dashboard Bereiche",
@@ -933,18 +957,41 @@ export const dictionaries = {
     },
     home: {
       headerEyebrow: "bitstats.org",
-      headerTitlePrefix: "Bitcoin at a",
-      headerTitleAccent: "calmer glance",
-      headerDescription: "Price, sentiment, and network in a focused Bitcoin view.",
-      introAriaLabel: "Page introduction and settings",
+      headerTitlePrefix: "Understand Bitcoin",
+      headerTitleAccent: "before you click further",
+      headerDescription:
+        "A calm starting point for anyone who wants to size up Bitcoin in a few seconds.",
+      introAriaLabel: "Page intro and refresh controls",
       introBody:
         "See in seconds where Bitcoin stands, how the market feels, and whether the next click is worth it.",
+      heroBody:
+        "Price, sentiment, and network in one focused view so you can spot what matters now and decide where to dig deeper.",
       jumpToChart: "Jump to chart",
-      jumpToTools: "Go to tools",
-      focusLabel: "In focus",
-      focusBody: "Price first. Context right after.",
-      sourcesLabel: "Data sources",
-      sourcesBody: "CoinGecko, mempool.space, and Alternative.me.",
+      jumpToTools: "Explore tools",
+      benefits: [
+        {
+          title: "Read the market fast",
+          description: "See spot price, 24h direction, and the latest move without extra noise.",
+        },
+        {
+          title: "Add context right away",
+          description: "Sentiment and market context show whether the move looks shaky or durable.",
+        },
+        {
+          title: "Go deeper when needed",
+          description:
+            "Network data and tools are ready when you want more than just the headline price.",
+        },
+      ],
+      snapshotEyebrow: "Quick start",
+      snapshotTitle: "Your daily Bitcoin check",
+      snapshotDescription:
+        "Not an overloaded trading screen, but a calm overview for the first Bitcoin look of the day.",
+      snapshotPoints: [
+        "See price, trend, and chart instantly",
+        "Place sentiment and market context without overload",
+        "Reach the next-step tools right away",
+      ],
     },
     dashboard: {
       contentAriaLabel: "Dashboard sections",

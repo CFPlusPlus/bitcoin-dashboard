@@ -23,7 +23,7 @@ export default function DashboardControlsSection(props: DashboardControlsSection
       as="section"
       tone="elevated"
       padding="md"
-      className="flex h-full flex-col gap-4 border-border-default/80"
+      className="flex flex-col gap-4 border-border-default/80 xl:h-full"
       aria-label={messages.dashboard.controlsAriaLabel}
     >
       <RefreshStatus autoRefresh={props.autoRefresh} dashboardState={props.dashboardState} />
