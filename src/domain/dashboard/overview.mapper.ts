@@ -26,18 +26,22 @@ function mapCoinGeckoMarketItem(item: CoinGeckoMarketItem): OverviewMarketSlice 
 
 export function mapOverviewDto(input: {
   market: CoinGeckoMarketItem;
+  referenceUsdMarket: CoinGeckoMarketItem | null;
   currency: Currency;
   btcDominance: number | null;
   fetchedAt: string;
   warnings?: string[];
 }): OverviewDto {
   const market = mapCoinGeckoMarketItem(input.market);
+  const usdMarket =
+    input.referenceUsdMarket !== null ? mapCoinGeckoMarketItem(input.referenceUsdMarket) : null;
   const warnings = input.warnings?.filter(Boolean);
 
   return {
     name: "bitcoin-dashboard",
     source: "coingecko",
     currency: input.currency,
+    referenceUsdPrice: usdMarket?.price ?? null,
     price: market.price,
     change24h: market.change24h,
     marketCap: market.marketCap,

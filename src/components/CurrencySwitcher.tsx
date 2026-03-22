@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
 import { Check, ChevronDown, CircleDollarSign, Search } from "lucide-react";
 import { usePersistentState } from "../hooks/usePersistentState";
 import { useI18n } from "../i18n/context";
@@ -229,7 +236,9 @@ export default function CurrencySwitcher() {
 
     if (event.key === "End") {
       event.preventDefault();
-      setHighlightedCurrency(orderedSelectableCurrencies[orderedSelectableCurrencies.length - 1] ?? null);
+      setHighlightedCurrency(
+        orderedSelectableCurrencies[orderedSelectableCurrencies.length - 1] ?? null
+      );
       return;
     }
 
@@ -256,7 +265,7 @@ export default function CurrencySwitcher() {
         aria-controls={menuId}
         aria-expanded={isOpen}
         aria-haspopup="menu"
-      className={cn(
+        className={cn(
           buttonVariants({
             active: isOpen,
             intent: "secondary",

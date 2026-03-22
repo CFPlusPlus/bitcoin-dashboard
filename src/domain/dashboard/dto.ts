@@ -13,6 +13,7 @@ export type ApiEnvelope = {
 
 export type OverviewDto = ApiEnvelope & {
   currency: Currency;
+  referenceUsdPrice: number | null;
   name: string;
   price: number | null;
   change24h: number | null;

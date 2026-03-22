@@ -28,6 +28,7 @@ const overviewFixture = {
   fetchedAt,
   name: "Bitcoin",
   currency: "usd",
+  referenceUsdPrice: 60000,
   price: 60000,
   change24h: 1.2,
   marketCap: 1200000000000,

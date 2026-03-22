@@ -218,10 +218,13 @@ export function useDashboardData(locale: AppLocale) {
   const performanceLoading = performanceQuery.isPending;
   const marketContextChartLoading = marketContextChartQuery.isPending;
 
-  const loadOverviewData = useCallback(async (_selectedCurrency: Currency) => {
-    const result = await refetchOverview();
-    return result.data?.fetchedAt ?? null;
-  }, [refetchOverview]);
+  const loadOverviewData = useCallback(
+    async (_selectedCurrency: Currency) => {
+      const result = await refetchOverview();
+      return result.data?.fetchedAt ?? null;
+    },
+    [refetchOverview]
+  );
 
   const loadNetworkData = useCallback(
     async (_options?: { silent?: boolean }) => {

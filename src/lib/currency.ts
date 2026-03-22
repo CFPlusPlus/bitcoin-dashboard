@@ -293,7 +293,9 @@ export const RECENT_CURRENCIES_STORAGE_KEY = "bitcoin-dashboard:recent-currencie
 export const POPULAR_CURRENCIES: Currency[] = ["eur", "usd", "gbp", "jpy", "chf"].filter(
   (currency) => supportedCurrencySet.has(currency)
 );
-export const FIAT_CURRENCIES = SUPPORTED_CURRENCIES.filter((currency) => fiatCurrencySet.has(currency));
+export const FIAT_CURRENCIES = SUPPORTED_CURRENCIES.filter((currency) =>
+  fiatCurrencySet.has(currency)
+);
 export const NON_FIAT_CURRENCIES = SUPPORTED_CURRENCIES.filter(
   (currency) => !fiatCurrencySet.has(currency)
 );

@@ -5,7 +5,12 @@ import LivePriceSparkline, { type LivePricePoint } from "../../components/LivePr
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import { formatCompactCurrency, formatCurrency, formatDateTime, formatPercent } from "../../lib/format";
+import {
+  formatCompactCurrency,
+  formatCurrency,
+  formatDateTime,
+  formatPercent,
+} from "../../lib/format";
 import { formatMessage } from "../../i18n/template";
 import { useI18n } from "../../i18n/context";
 import MetricCard from "../../components/MetricCard";
@@ -64,7 +69,7 @@ function pruneLivePoints(points: LivePricePoint[], now = Date.now()) {
   return points.filter((point) => now - point.timestamp <= LIVE_WINDOW_MS);
 }
 
-function getLiveProductId(currency: Currency) {
+function getDirectLiveProductId(currency: Currency) {
   if (currency === "eur") {
     return "BTC-EUR";
   }
@@ -146,7 +151,29 @@ export default function OverviewSection({
   const displayedPrice = activeLiveSnapshot?.price ?? price;
   const displayedChange24h = change24h;
   const displayedFetchedAt = activeLiveSnapshot?.updatedAt ?? overview?.fetchedAt ?? null;
-  const liveProductId = getLiveProductId(currency);
+  const directLiveProductId = getDirectLiveProductId(currency);
+  const conversionRate = (() => {
+    if (directLiveProductId) {
+      return 1;
+    }
+
+    const selectedPrice = typeof price === "number" ? price : null;
+    const referenceUsdPrice =
+      typeof overview?.referenceUsdPrice === "number" ? overview.referenceUsdPrice : null;
+
+    if (
+      selectedPrice === null ||
+      selectedPrice <= 0 ||
+      referenceUsdPrice === null ||
+      referenceUsdPrice <= 0
+    ) {
+      return null;
+    }
+
+    return selectedPrice / referenceUsdPrice;
+  })();
+  const liveProductId = directLiveProductId ?? (conversionRate ? "BTC-USD" : null);
+  const isConvertedLive = !directLiveProductId && liveProductId === "BTC-USD";
   const isLiveSparklineSupported = liveProductId !== null;
   const liveConnectionState =
     liveConnection?.currency === currency ? liveConnection.state : "connecting";
@@ -156,6 +183,10 @@ export default function OverviewSection({
     }
 
     if (liveConnectionState === "live") {
+      if (isConvertedLive) {
+        return formatMessage(copy.liveStatusConverted, { currency: currencyLabel });
+      }
+
       return copy.liveStatusActive;
     }
 
@@ -168,7 +199,18 @@ export default function OverviewSection({
     }
 
     return copy.liveStatusConnecting;
-  }, [copy.liveStatusActive, copy.liveStatusConnecting, copy.liveStatusFallback, copy.liveStatusReconnecting, copy.liveStatusUnsupported, currencyLabel, isLiveSparklineSupported, liveConnectionState]);
+  }, [
+    copy.liveStatusActive,
+    copy.liveStatusConnecting,
+    copy.liveStatusConverted,
+    copy.liveStatusFallback,
+    copy.liveStatusReconnecting,
+    copy.liveStatusUnsupported,
+    currencyLabel,
+    isConvertedLive,
+    isLiveSparklineSupported,
+    liveConnectionState,
+  ]);
   const liveUpdatedText =
     isLiveSparklineSupported && displayedFetchedAt
       ? formatMessage(copy.liveUpdated, { value: formatDateTime(displayedFetchedAt, locale) })
@@ -222,10 +264,16 @@ export default function OverviewSection({
         }
 
         const pointTimestamp = getSeedTimestamp(tick.timestamp) || Date.now();
+        const livePrice =
+          isConvertedLive && conversionRate ? tick.price * conversionRate : tick.price;
+
+        if (!Number.isFinite(livePrice)) {
+          return;
+        }
 
         setLiveSnapshot({
           currency,
-          price: tick.price,
+          price: livePrice,
           updatedAt: tick.timestamp,
         });
         setLiveConnection({ currency, state: "live" });
@@ -235,7 +283,7 @@ export default function OverviewSection({
             [
               ...(currentSeries?.currency === currency ? currentSeries.points : []),
               {
-                price: tick.price,
+                price: livePrice,
                 timestamp: pointTimestamp,
               },
             ],
@@ -280,7 +328,7 @@ export default function OverviewSection({
 
       socket?.close();
     };
-  }, [currency, liveProductId]);
+  }, [conversionRate, currency, isConvertedLive, liveProductId]);
 
   return (
     <Card as="section" tone="elevated" padding="md" gap="md" className="overflow-hidden">

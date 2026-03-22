@@ -233,8 +233,10 @@ export const dictionaries = {
         liveStatusReconnecting: "Live-Stream verbindet sich erneut.",
         liveStatusFallback:
           "Live-Preis konnte gerade nicht erneuert werden. Letzter Wert bleibt sichtbar.",
+        liveStatusConverted:
+          "Live-Preis wird ueber BTC-USD bezogen und fortlaufend in {currency} umgerechnet.",
         liveStatusUnsupported:
-          "Live-Ticker ist fuer {currency} deaktiviert, weil der aktuelle Feed nur USD und EUR unterstuetzt.",
+          "Live-Ticker ist fuer {currency} derzeit nicht verfuegbar, weil keine stabile USD-Referenz fuer die Umrechnung vorliegt.",
         liveUpdated: "Live-Stand: {value}",
         highLabel: "24h Tageshoch ({currency})",
         highMeta: "Höchster Preis der letzten 24 Stunden.",
@@ -928,8 +930,10 @@ export const dictionaries = {
         liveStatusReconnecting: "Reconnecting live stream.",
         liveStatusFallback:
           "Live price could not be refreshed right now. The last value stays visible.",
+        liveStatusConverted:
+          "Live price is sourced from BTC-USD and continuously converted into {currency}.",
         liveStatusUnsupported:
-          "Live ticker is disabled for {currency} because the current feed supports USD and EUR only.",
+          "Live ticker is currently unavailable for {currency} because no stable USD reference is available for conversion.",
         liveUpdated: "Live status: {value}",
         highLabel: "24h high ({currency})",
         highMeta: "Highest price in the last 24 hours.",

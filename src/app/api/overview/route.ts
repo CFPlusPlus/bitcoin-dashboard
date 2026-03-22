@@ -31,23 +31,36 @@ export async function GET(request: Request) {
     );
   }
 
-  const [marketResult, globalResult] = await Promise.allSettled([
+  const usdReferencePromise =
+    currency === "usd"
+      ? Promise.resolve(null)
+      : fetchCoinGeckoMarketData("usd", apiKey, overviewCachePolicy);
+
+  const [marketResult, usdReferenceResult, globalResult] = await Promise.allSettled([
     fetchCoinGeckoMarketData(currency, apiKey, overviewCachePolicy),
+    usdReferencePromise,
     fetchCoinGeckoGlobalData(apiKey, overviewCachePolicy),
   ]);
 
   const warnings: string[] = [];
   const market = marketResult.status === "fulfilled" ? marketResult.value : null;
+  const usdReferenceMarket =
+    currency === "usd"
+      ? market
+      : usdReferenceResult.status === "fulfilled"
+        ? usdReferenceResult.value
+        : null;
   const btcDominance =
     globalResult.status === "fulfilled" ? globalResult.value.data.market_cap_percentage.btc : null;
 
   if (marketResult.status === "rejected") {
     warnings.push(
-      getReasonMessage(
-        `${currency.toUpperCase()}-Marktdaten nicht verfuegbar`,
-        marketResult.reason
-      )
+      getReasonMessage(`${currency.toUpperCase()}-Marktdaten nicht verfuegbar`, marketResult.reason)
     );
+  }
+
+  if (currency !== "usd" && usdReferenceResult.status === "rejected") {
+    warnings.push(getReasonMessage("USD-Referenzkurs nicht verfuegbar", usdReferenceResult.reason));
   }
 
   if (globalResult.status === "rejected") {
@@ -67,6 +80,7 @@ export async function GET(request: Request) {
 
   const dto = mapOverviewDto({
     market,
+    referenceUsdMarket: usdReferenceMarket,
     currency,
     btcDominance,
     fetchedAt: new Date().toISOString(),
