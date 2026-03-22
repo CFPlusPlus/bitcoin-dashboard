@@ -405,175 +405,196 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
   }
 
   return (
-    <div className="overflow-hidden border border-accent/20 bg-[radial-gradient(circle_at_top,_rgba(242,143,45,0.08),_transparent_42%),linear-gradient(180deg,rgba(24,20,18,0.96),rgba(15,13,12,0.98))] p-4 sm:p-5">
-      <div className="mb-3 flex items-center justify-between gap-3 text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
-        <span>{copy.liveChartLabel}</span>
-        <span>{copy.liveWindow}</span>
+    <div className="relative isolate overflow-hidden border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.022)_0%,rgba(255,255,255,0.006)_100%),linear-gradient(125deg,rgba(242,143,45,0.048)_0%,rgba(242,143,45,0.018)_18%,rgba(20,17,15,0)_42%),linear-gradient(180deg,rgba(19,17,15,0.985),rgba(12,11,10,0.995))] p-4 sm:p-5">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,244,230,0.2),transparent)]" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,rgba(242,143,45,0.1),transparent)]" />
+        <div className="absolute inset-y-0 left-0 w-px bg-[linear-gradient(180deg,transparent,rgba(255,244,230,0.09),transparent)]" />
+        <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,rgba(255,255,255,0.012)_0,rgba(255,255,255,0.012)_1px,transparent_1px,transparent_72px)] opacity-35" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,rgba(10,9,8,0)_0%,rgba(10,9,8,0.16)_100%)]" />
       </div>
 
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="block h-[17rem] w-full sm:h-[19rem]"
-        role="img"
-        aria-label={copy.liveChartAriaLabel}
-      >
-        <defs>
-          <clipPath id={`${idPrefix}-live-chart-clip`}>
-            <rect
-              x={paddingLeft}
-              y={paddingTop}
-              width={chartWidth + LIVE_DOT_RADIUS + 4}
-              height={chartHeight}
-            />
-          </clipPath>
-          <linearGradient id={`${idPrefix}-live-area-fill`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={theme.areaStart} />
-            <stop offset="100%" stopColor={theme.areaEnd} />
-          </linearGradient>
-          <linearGradient id={`${idPrefix}-live-line-stroke`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={theme.lineStart} />
-            <stop offset="100%" stopColor={theme.lineEnd} />
-          </linearGradient>
-        </defs>
+      <div className="relative z-10">
+        <div className="mb-3 flex items-center justify-between gap-3 text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
+          <span>{copy.liveChartLabel}</span>
+          <span>{copy.liveWindow}</span>
+        </div>
 
-        {yTicks.map((tick) => (
-          <g key={`${tick.value}`}>
-            <line
-              x1={paddingLeft}
-              y1={tick.y}
-              x2={width - paddingRight + 6}
-              y2={tick.y}
-              stroke="rgb(255 245 232 / 0.07)"
-              strokeWidth="1"
-            />
-            <text
-              x={width - paddingRight + 18}
-              y={tick.y + 4}
-              fill="#938b81"
-              fontSize="15"
-              textAnchor="start"
-            >
-              {tick.label}
-            </text>
-          </g>
-        ))}
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="block h-[17rem] w-full sm:h-[19rem]"
+          role="img"
+          aria-label={copy.liveChartAriaLabel}
+        >
+          <defs>
+            <clipPath id={`${idPrefix}-live-chart-clip`}>
+              <rect
+                x={paddingLeft}
+                y={paddingTop}
+                width={chartWidth + LIVE_DOT_RADIUS + 4}
+                height={chartHeight}
+              />
+            </clipPath>
+            <linearGradient id={`${idPrefix}-live-area-fill`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={theme.areaStart} />
+              <stop offset="100%" stopColor={theme.areaEnd} />
+            </linearGradient>
+            <linearGradient id={`${idPrefix}-live-line-stroke`} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={theme.lineStart} />
+              <stop offset="100%" stopColor={theme.lineEnd} />
+            </linearGradient>
+          </defs>
 
-        {xTicks.map((tick) => (
-          <text
-            key={`${tick.timestamp}`}
-            x={tick.x}
-            y={height - 8}
-            fill="#766f66"
-            fontSize="14"
-            textAnchor="middle"
-          >
-            {formatTimeLabel(tick.timestamp, locale)}
-          </text>
-        ))}
-
-        <line
-          x1={paddingLeft}
-          y1={lastY}
-          x2={width - paddingRight + 2}
-          y2={lastY}
-          stroke={theme.guide}
-          strokeDasharray="8 10"
-          strokeWidth="1.2"
-          opacity="0.75"
-        />
-        <g clipPath={`url(#${idPrefix}-live-chart-clip)`}>
-          <path d={areaPath} fill={`url(#${idPrefix}-live-area-fill)`} />
-          <path
-            d={linePath}
-            fill="none"
-            stroke="rgba(11,17,13,0.45)"
-            strokeWidth="7"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d={linePath}
-            fill="none"
-            stroke={`url(#${idPrefix}-live-line-stroke)`}
-            strokeWidth="3.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {activeHoveredPoint ? (
-            <>
+          {yTicks.map((tick) => (
+            <g key={`${tick.value}`}>
               <line
-                x1={activeHoveredPoint.x}
-                y1={paddingTop}
-                x2={activeHoveredPoint.x}
-                y2={baseY}
-                stroke="rgba(255, 226, 192, 0.22)"
-                strokeDasharray="5 7"
+                x1={paddingLeft}
+                y1={tick.y}
+                x2={width - paddingRight + 6}
+                y2={tick.y}
+                stroke="rgb(255 245 232 / 0.07)"
                 strokeWidth="1"
               />
-              <circle
-                cx={activeHoveredPoint.x}
-                cy={activeHoveredPoint.y}
-                r="8"
-                fill="rgba(13,18,16,0.92)"
-                stroke={theme.dotStroke}
-                strokeWidth="2.5"
-              />
-              <circle
-                cx={activeHoveredPoint.x}
-                cy={activeHoveredPoint.y}
-                r="3.5"
-                fill={theme.dot}
-              />
-            </>
-          ) : null}
-          <circle
-            cx={chartPoints[chartPoints.length - 1].x}
-            cy={lastY}
-            r={LIVE_DOT_RADIUS}
-            fill="#0d1210"
-            stroke={theme.dotStroke}
-            strokeWidth="3"
-          />
-          <circle cx={chartPoints[chartPoints.length - 1].x} cy={lastY} r="3.5" fill={theme.dot} />
-        </g>
-        <rect
-          x={paddingLeft}
-          y={paddingTop}
-          width={chartWidth}
-          height={chartHeight}
-          fill="transparent"
-          className="cursor-crosshair"
-          onPointerMove={handlePointerMove}
-          onPointerLeave={handlePointerLeave}
-        />
-        {activeHoveredPoint ? (
-          <g pointerEvents="none">
-            <rect
-              x={tooltipX}
-              y={tooltipY}
-              width={tooltipWidth}
-              height={tooltipHeight}
-              rx="6"
-              fill="#110d0a"
-              stroke="rgba(242, 143, 45, 0.28)"
-            />
-            <text x={tooltipX + 10} y={tooltipY + 18} fill="#f7efe5" fontSize="13" fontWeight="600">
-              {tooltipValueLabel}
-            </text>
-            <text x={tooltipX + 10} y={tooltipY + 33} fill="#9f968b" fontSize="11.5">
-              {tooltipDateLabel}
-            </text>
-          </g>
-        ) : null}
-      </svg>
+              <text
+                x={width - paddingRight + 18}
+                y={tick.y + 4}
+                fill="#938b81"
+                fontSize="15"
+                textAnchor="start"
+              >
+                {tick.label}
+              </text>
+            </g>
+          ))}
 
-      <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/6 pt-3 text-sm text-fg-muted">
-        <span>
-          {copy.liveCoverageStart}: {formatTimeLabel(visibleStart, locale)}
-        </span>
-        <span>
-          {copy.liveCoverageEnd}: {formatTimeLabel(visibleEnd, locale)}
-        </span>
+          {xTicks.map((tick) => (
+            <text
+              key={`${tick.timestamp}`}
+              x={tick.x}
+              y={height - 8}
+              fill="#766f66"
+              fontSize="14"
+              textAnchor="middle"
+            >
+              {formatTimeLabel(tick.timestamp, locale)}
+            </text>
+          ))}
+
+          <line
+            x1={paddingLeft}
+            y1={lastY}
+            x2={width - paddingRight + 2}
+            y2={lastY}
+            stroke={theme.guide}
+            strokeDasharray="8 10"
+            strokeWidth="1.2"
+            opacity="0.75"
+          />
+          <g clipPath={`url(#${idPrefix}-live-chart-clip)`}>
+            <path d={areaPath} fill={`url(#${idPrefix}-live-area-fill)`} />
+            <path
+              d={linePath}
+              fill="none"
+              stroke="rgba(11,17,13,0.45)"
+              strokeWidth="7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d={linePath}
+              fill="none"
+              stroke={`url(#${idPrefix}-live-line-stroke)`}
+              strokeWidth="3.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            {activeHoveredPoint ? (
+              <>
+                <line
+                  x1={activeHoveredPoint.x}
+                  y1={paddingTop}
+                  x2={activeHoveredPoint.x}
+                  y2={baseY}
+                  stroke="rgba(255, 226, 192, 0.22)"
+                  strokeDasharray="5 7"
+                  strokeWidth="1"
+                />
+                <circle
+                  cx={activeHoveredPoint.x}
+                  cy={activeHoveredPoint.y}
+                  r="8"
+                  fill="rgba(13,18,16,0.92)"
+                  stroke={theme.dotStroke}
+                  strokeWidth="2.5"
+                />
+                <circle
+                  cx={activeHoveredPoint.x}
+                  cy={activeHoveredPoint.y}
+                  r="3.5"
+                  fill={theme.dot}
+                />
+              </>
+            ) : null}
+            <circle
+              cx={chartPoints[chartPoints.length - 1].x}
+              cy={lastY}
+              r={LIVE_DOT_RADIUS}
+              fill="#0d1210"
+              stroke={theme.dotStroke}
+              strokeWidth="3"
+            />
+            <circle
+              cx={chartPoints[chartPoints.length - 1].x}
+              cy={lastY}
+              r="3.5"
+              fill={theme.dot}
+            />
+          </g>
+          <rect
+            x={paddingLeft}
+            y={paddingTop}
+            width={chartWidth}
+            height={chartHeight}
+            fill="transparent"
+            className="cursor-crosshair"
+            onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
+          />
+          {activeHoveredPoint ? (
+            <g pointerEvents="none">
+              <rect
+                x={tooltipX}
+                y={tooltipY}
+                width={tooltipWidth}
+                height={tooltipHeight}
+                rx="6"
+                fill="#110d0a"
+                stroke="rgba(242, 143, 45, 0.28)"
+              />
+              <text
+                x={tooltipX + 10}
+                y={tooltipY + 18}
+                fill="#f7efe5"
+                fontSize="13"
+                fontWeight="600"
+              >
+                {tooltipValueLabel}
+              </text>
+              <text x={tooltipX + 10} y={tooltipY + 33} fill="#9f968b" fontSize="11.5">
+                {tooltipDateLabel}
+              </text>
+            </g>
+          ) : null}
+        </svg>
+
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/6 pt-3 text-sm text-fg-muted">
+          <span>
+            {copy.liveCoverageStart}: {formatTimeLabel(visibleStart, locale)}
+          </span>
+          <span>
+            {copy.liveCoverageEnd}: {formatTimeLabel(visibleEnd, locale)}
+          </span>
+        </div>
       </div>
     </div>
   );

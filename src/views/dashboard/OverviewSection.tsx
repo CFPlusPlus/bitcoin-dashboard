@@ -351,52 +351,56 @@ export default function OverviewSection({
         messages={stateMessages}
       >
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(15rem,0.8fr)]">
-          <div className="flex h-full flex-col justify-between gap-5 border border-accent/30 bg-[radial-gradient(circle_at_top,_rgba(242,143,45,0.08),_transparent_32%),linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))] px-4 py-4 sm:px-6 sm:py-5">
-            <div className="flex flex-col gap-4 border-b border-white/6 pb-5">
-              <MetaText className="uppercase tracking-[0.18em]" size="xs">
-                {formatMessage(copy.spotLabel, { currency: currencyLabel })}
-              </MetaText>
+          <div className="flex h-full flex-col justify-between gap-5 overflow-hidden border border-accent/25 bg-[linear-gradient(138deg,rgba(242,143,45,0.045)_0%,rgba(242,143,45,0.018)_16%,rgba(22,19,17,0)_38%),linear-gradient(180deg,rgba(23,20,18,0.99),rgba(15,13,12,0.99))] px-4 py-4 sm:px-6 sm:py-5">
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-4 border-b border-white/6 pb-5">
+                <MetaText className="uppercase tracking-[0.18em]" size="xs">
+                  {formatMessage(copy.spotLabel, { currency: currencyLabel })}
+                </MetaText>
 
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-                <div className="flex flex-col gap-3">
-                  <p className="font-mono text-[2.5rem] font-medium leading-none tracking-[-0.06em] text-fg sm:text-[4rem] xl:text-[4.8rem]">
-                    {formatCurrency(displayedPrice, currency, locale)}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <MetaText>{formatMessage(copy.spotMeta, { currency: currencyLabel })}</MetaText>
-                    <MetaText
-                      className={
-                        typeof displayedChange24h === "number" && displayedChange24h > 0
-                          ? "text-success"
-                          : typeof displayedChange24h === "number" && displayedChange24h < 0
-                            ? "text-danger"
-                            : undefined
-                      }
-                    >
-                      {formatPercent(displayedChange24h, locale)} {copy.liveDeltaLabel}
-                    </MetaText>
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                  <div className="flex flex-col gap-3">
+                    <p className="font-mono text-[2.5rem] font-medium leading-none tracking-[-0.06em] text-fg sm:text-[4rem] xl:text-[4.8rem]">
+                      {formatCurrency(displayedPrice, currency, locale)}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <MetaText>
+                        {formatMessage(copy.spotMeta, { currency: currencyLabel })}
+                      </MetaText>
+                      <MetaText
+                        className={
+                          typeof displayedChange24h === "number" && displayedChange24h > 0
+                            ? "text-success"
+                            : typeof displayedChange24h === "number" && displayedChange24h < 0
+                              ? "text-danger"
+                              : undefined
+                        }
+                      >
+                        {formatPercent(displayedChange24h, locale)} {copy.liveDeltaLabel}
+                      </MetaText>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {isLiveSparklineSupported ? (
-              <LivePriceSparkline
-                key={currency}
-                currency={currency}
-                performancePercent={displayedChange24h}
-                points={livePoints}
-              />
-            ) : (
-              <div className="flex min-h-[9.5rem] items-center justify-center border border-border-subtle bg-muted-surface px-4 py-5">
-                <p className="max-w-xl text-center text-sm leading-6 text-fg-secondary">
-                  {liveStatusText}
-                </p>
+              {isLiveSparklineSupported ? (
+                <LivePriceSparkline
+                  key={currency}
+                  currency={currency}
+                  performancePercent={displayedChange24h}
+                  points={livePoints}
+                />
+              ) : (
+                <div className="flex min-h-[9.5rem] items-center justify-center border border-border-subtle bg-muted-surface px-4 py-5">
+                  <p className="max-w-xl text-center text-sm leading-6 text-fg-secondary">
+                    {liveStatusText}
+                  </p>
+                </div>
+              )}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <MetaText className="text-fg-secondary">{liveStatusText}</MetaText>
+                {liveUpdatedText ? <MetaText>{liveUpdatedText}</MetaText> : null}
               </div>
-            )}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <MetaText className="text-fg-secondary">{liveStatusText}</MetaText>
-              {liveUpdatedText ? <MetaText>{liveUpdatedText}</MetaText> : null}
             </div>
           </div>
 

@@ -269,9 +269,9 @@ export default function CurrencySwitcher() {
           buttonVariants({
             active: isOpen,
             intent: "secondary",
-            size: "sm",
+            size: "md",
           }),
-          "relative z-30 min-w-[8rem] justify-between gap-2 rounded-md border-border-default/90 bg-elevated/40 pr-2.5 text-fg"
+          "relative z-30 min-w-[8rem] justify-between gap-2 border-border-default/90 bg-elevated/40 pr-2.5 text-fg"
         )}
         onClick={() => {
           if (!isOpen && !isFiatCurrency(currency)) {
@@ -299,7 +299,7 @@ export default function CurrencySwitcher() {
         role="menu"
         aria-label={messages.site.currencySwitchLabel}
         className={cn(
-          "fixed inset-x-3 bottom-3 top-[4.5rem] z-30 flex flex-col rounded-lg border border-border-default/80 bg-surface/98 p-1.5 shadow-elevated backdrop-blur-sm transition duration-[var(--motion-fast)] ease-[var(--ease-standard)] sm:absolute sm:inset-auto sm:right-0 sm:top-[calc(100%+0.55rem)] sm:h-auto sm:max-h-[32rem] sm:w-[20.5rem]",
+          "fixed inset-x-3 bottom-3 top-[4.5rem] z-30 flex flex-col rounded-sm border border-border-default/80 bg-surface/98 p-1.5 shadow-elevated backdrop-blur-sm transition duration-[var(--motion-fast)] ease-[var(--ease-standard)] sm:absolute sm:inset-auto sm:right-0 sm:top-[calc(100%+0.55rem)] sm:h-auto sm:max-h-[32rem] sm:w-[20.5rem]",
           isOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none translate-y-1 opacity-0 sm:-translate-y-1"
@@ -324,7 +324,7 @@ export default function CurrencySwitcher() {
               type="text"
               value={searchTerm}
               placeholder={messages.site.currencySearchPlaceholder}
-              className="h-9 w-full rounded-md border border-border-default/80 bg-elevated/65 pl-8 pr-3 text-sm text-fg outline-none transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)] placeholder:text-fg-muted focus:border-accent/50"
+              className="h-9 w-full rounded-sm border border-border-default/80 bg-elevated/65 pl-8 pr-3 text-sm text-fg outline-none transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)] placeholder:text-fg-muted focus:border-accent/50"
               onChange={(event) => setSearchTerm(event.target.value)}
             />
           </div>
@@ -390,7 +390,7 @@ export default function CurrencySwitcher() {
                       aria-checked={isActive}
                       data-currency-option={entry}
                       className={cn(
-                        "flex h-8 items-center justify-center rounded-md border px-2 text-[0.63rem] font-medium uppercase tracking-[0.16em] transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                        "flex h-8 items-center justify-center rounded-sm border px-2 text-[0.63rem] font-medium uppercase tracking-[0.16em] transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                         isActive || activeHighlightedCurrency === entry
                           ? "border-accent/60 bg-accent-soft text-fg"
                           : "border-border-default/70 text-fg-secondary hover:border-accent/45 hover:bg-elevated hover:text-fg"
@@ -422,7 +422,7 @@ export default function CurrencySwitcher() {
                     aria-checked={isActive}
                     data-currency-option={entry}
                     className={cn(
-                      "flex h-8 items-center justify-center rounded-md border px-2 text-[0.64rem] font-medium uppercase tracking-[0.16em] transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                      "flex h-8 items-center justify-center rounded-sm border px-2 text-[0.64rem] font-medium uppercase tracking-[0.16em] transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                       isActive || activeHighlightedCurrency === entry
                         ? "border-accent/60 bg-accent-soft text-fg"
                         : "border-border-default/70 text-fg-secondary hover:border-accent/45 hover:bg-elevated hover:text-fg"
@@ -457,7 +457,7 @@ export default function CurrencySwitcher() {
                       aria-checked={isActive}
                       data-currency-option={entry}
                       className={cn(
-                        "flex w-full items-center justify-between rounded-md px-2.5 py-2 text-left transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                        "flex w-full items-center justify-between rounded-sm px-2.5 py-2 text-left transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                         isActive || activeHighlightedCurrency === entry
                           ? "bg-accent-soft text-fg"
                           : "text-fg-secondary hover:bg-elevated hover:text-fg"

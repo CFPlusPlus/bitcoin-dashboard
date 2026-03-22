@@ -15,7 +15,7 @@ export default function AutoRefreshToggle({ autoRefresh, onChange }: AutoRefresh
     <Button
       active={autoRefresh}
       intent="secondary"
-      size="sm"
+      size="md"
       onClick={() => onChange(!autoRefresh)}
     >
       {autoRefresh
