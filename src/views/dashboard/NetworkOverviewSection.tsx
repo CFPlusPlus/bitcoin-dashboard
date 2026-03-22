@@ -311,7 +311,7 @@ function NetworkPanel({
   return (
     <div
       className={cn(
-        "flex h-full min-h-[18rem] flex-col gap-4 border border-border-subtle bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] px-4 py-4",
+        "flex h-full min-h-[18rem] flex-col gap-4 border border-border-subtle bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] px-4 py-4 sm:px-5 sm:py-5",
         className
       )}
     >
@@ -321,6 +321,10 @@ function NetworkPanel({
       {children}
     </div>
   );
+}
+
+function SafeValueText({ value }: { value: string }) {
+  return <span className="block min-w-0 whitespace-normal [overflow-wrap:anywhere]">{value}</span>;
 }
 
 function StatLabel({
@@ -335,8 +339,15 @@ function StatLabel({
   tone?: "default" | "positive" | "negative";
 }) {
   return (
-    <Stack gap="sm">
-      <KpiValue label={label} value={value} meta={detail} size="md" tone={tone} />
+    <Stack gap="sm" className="min-w-0">
+      <KpiValue
+        className="min-w-0"
+        label={label}
+        value={<SafeValueText value={value} />}
+        meta={detail}
+        size="md"
+        tone={tone}
+      />
     </Stack>
   );
 }
@@ -361,7 +372,7 @@ function DetailRow({
             {label}
           </MetaText>
         </Cluster>
-        <MetaText tone="strong" className="font-mono text-right">
+        <MetaText tone="strong" className="min-w-0 text-right font-mono [overflow-wrap:anywhere]">
           {value}
         </MetaText>
       </Cluster>
@@ -389,7 +400,7 @@ function FeePriorityRow({
         <MetaText size="xs" className="font-mono uppercase tracking-[0.16em]">
           {label}
         </MetaText>
-        <MetaText tone="strong" className="font-mono">
+        <MetaText tone="strong" className="min-w-0 text-right font-mono [overflow-wrap:anywhere]">
           {displayValue}
         </MetaText>
       </Cluster>
@@ -508,9 +519,9 @@ export default function NetworkOverviewSection({
         retryBusy={networkState.isLoading}
         messages={stateMessages}
       >
-        <div className="grid gap-4 xl:grid-cols-4">
-          <NetworkPanel title={copy.statsCardTitle}>
-            <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-12">
+          <NetworkPanel title={copy.statsCardTitle} className="xl:col-span-5">
+            <div className="grid gap-5 sm:grid-cols-2 xl:gap-x-6 xl:gap-y-6">
               <StatLabel
                 label={copy.latestBlock}
                 value={
@@ -549,13 +560,19 @@ export default function NetworkOverviewSection({
             </div>
           </NetworkPanel>
 
-          <NetworkPanel title={copy.hashrateCardTitle}>
+          <NetworkPanel title={copy.hashrateCardTitle} className="xl:col-span-7">
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col gap-2">
                 <KpiValue
                   value={
-                    formatHashrate(network?.hashrate.currentEhPerSecond ?? null, numberLocale) ??
-                    fallback
+                    <SafeValueText
+                      value={
+                        formatHashrate(
+                          network?.hashrate.currentEhPerSecond ?? null,
+                          numberLocale
+                        ) ?? fallback
+                      }
+                    />
                   }
                   size="md"
                 />
@@ -581,7 +598,7 @@ export default function NetworkOverviewSection({
               />
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <StatLabel
                 label={copy.hashrateLowLabel}
                 value={
@@ -604,9 +621,13 @@ export default function NetworkOverviewSection({
             </div>
           </NetworkPanel>
 
-          <NetworkPanel title={copy.difficultyCardTitle}>
+          <NetworkPanel title={copy.difficultyCardTitle} className="xl:col-span-6">
             <KpiValue
-              value={formatPercent(network?.difficulty.adjustmentPercent ?? null, locale)}
+              value={
+                <SafeValueText
+                  value={formatPercent(network?.difficulty.adjustmentPercent ?? null, locale)}
+                />
+              }
               size="md"
               tone={difficultyIsPositive ? "positive" : "negative"}
             />
@@ -631,7 +652,7 @@ export default function NetworkOverviewSection({
               </MetaText>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               <StatLabel
                 label={copy.blocksLeftLabel}
                 value={formatNumber(network?.difficulty.remainingBlocks ?? null, locale)}
@@ -640,19 +661,21 @@ export default function NetworkOverviewSection({
                 label={copy.estimatedDateLabel}
                 value={formatDate(network?.difficulty.estimatedRetargetDate ?? null, locale)}
               />
-              <StatLabel
-                label={copy.retargetLabel}
-                value={
-                  network?.difficulty.nextRetargetHeight === null ||
-                  network?.difficulty.nextRetargetHeight === undefined
-                    ? fallback
-                    : `#${formatNumber(network.difficulty.nextRetargetHeight, locale)}`
-                }
-              />
+              <div className="sm:col-span-2">
+                <StatLabel
+                  label={copy.retargetLabel}
+                  value={
+                    network?.difficulty.nextRetargetHeight === null ||
+                    network?.difficulty.nextRetargetHeight === undefined
+                      ? fallback
+                      : `#${formatNumber(network.difficulty.nextRetargetHeight, locale)}`
+                  }
+                />
+              </div>
             </div>
           </NetworkPanel>
 
-          <NetworkPanel title={copy.feesCardTitle}>
+          <NetworkPanel title={copy.feesCardTitle} className="xl:col-span-6">
             <Stack gap="md">
               {[
                 {
@@ -724,7 +747,7 @@ export default function NetworkOverviewSection({
           </NetworkPanel>
         </div>
 
-        <NetworkPanel title={copy.latestBlocksTitle} className="min-h-0">
+        <NetworkPanel title={copy.latestBlocksTitle} className="mt-2 min-h-0">
           {network?.latestBlocks.length ? (
             <div className="grid gap-2 md:grid-cols-3 xl:grid-cols-6">
               {network.latestBlocks.map((block) => (
