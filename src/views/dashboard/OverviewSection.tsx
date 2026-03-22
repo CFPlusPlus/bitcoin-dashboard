@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import LivePriceSparkline, { type LivePricePoint } from "../../components/LivePriceSparkline";
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import { formatCompactCurrency, formatCurrency, formatPercent } from "../../lib/format";
+import { formatCompactCurrency, formatCurrency, formatDateTime, formatPercent } from "../../lib/format";
 import { formatMessage } from "../../i18n/template";
 import { useI18n } from "../../i18n/context";
 import MetricCard from "../../components/MetricCard";
@@ -146,12 +146,36 @@ export default function OverviewSection({
   const displayedPrice = activeLiveSnapshot?.price ?? price;
   const displayedChange24h = change24h;
   const displayedFetchedAt = activeLiveSnapshot?.updatedAt ?? overview?.fetchedAt ?? null;
+  const liveProductId = getLiveProductId(currency);
+  const isLiveSparklineSupported = liveProductId !== null;
   const liveConnectionState =
     liveConnection?.currency === currency ? liveConnection.state : "connecting";
+  const liveStatusText = useMemo(() => {
+    if (!isLiveSparklineSupported) {
+      return formatMessage(copy.liveStatusUnsupported, { currency: currencyLabel });
+    }
+
+    if (liveConnectionState === "live") {
+      return copy.liveStatusActive;
+    }
+
+    if (liveConnectionState === "reconnecting") {
+      return copy.liveStatusReconnecting;
+    }
+
+    if (liveConnectionState === "fallback") {
+      return copy.liveStatusFallback;
+    }
+
+    return copy.liveStatusConnecting;
+  }, [copy.liveStatusActive, copy.liveStatusConnecting, copy.liveStatusFallback, copy.liveStatusReconnecting, copy.liveStatusUnsupported, currencyLabel, isLiveSparklineSupported, liveConnectionState]);
+  const liveUpdatedText =
+    isLiveSparklineSupported && displayedFetchedAt
+      ? formatMessage(copy.liveUpdated, { value: formatDateTime(displayedFetchedAt, locale) })
+      : null;
 
   useEffect(() => {
-    const productId = getLiveProductId(currency);
-    if (!productId) {
+    if (!liveProductId) {
       return;
     }
 
@@ -176,14 +200,14 @@ export default function OverviewSection({
           JSON.stringify({
             type: "subscribe",
             channel: "heartbeats",
-            product_ids: [productId],
+            product_ids: [liveProductId],
           })
         );
         socket.send(
           JSON.stringify({
             type: "subscribe",
             channel: "ticker",
-            product_ids: [productId],
+            product_ids: [liveProductId],
           })
         );
       });
@@ -191,7 +215,7 @@ export default function OverviewSection({
       socket.addEventListener("message", (event) => {
         if (cancelled) return;
 
-        const tick = parseCoinbaseTickerMessage(String(event.data), productId);
+        const tick = parseCoinbaseTickerMessage(String(event.data), liveProductId);
 
         if (!tick) {
           return;
@@ -256,7 +280,7 @@ export default function OverviewSection({
 
       socket?.close();
     };
-  }, [currency]);
+  }, [currency, liveProductId]);
 
   return (
     <Card as="section" tone="elevated" padding="md" gap="md" className="overflow-hidden">
@@ -303,12 +327,24 @@ export default function OverviewSection({
               </div>
             </div>
 
-            <LivePriceSparkline
-              key={currency}
-              currency={currency}
-              performancePercent={displayedChange24h}
-              points={livePoints}
-            />
+            {isLiveSparklineSupported ? (
+              <LivePriceSparkline
+                key={currency}
+                currency={currency}
+                performancePercent={displayedChange24h}
+                points={livePoints}
+              />
+            ) : (
+              <div className="flex min-h-[9.5rem] items-center justify-center border border-border-subtle bg-muted-surface px-4 py-5">
+                <p className="max-w-xl text-center text-sm leading-6 text-fg-secondary">
+                  {liveStatusText}
+                </p>
+              </div>
+            )}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <MetaText className="text-fg-secondary">{liveStatusText}</MetaText>
+              {liveUpdatedText ? <MetaText>{liveUpdatedText}</MetaText> : null}
+            </div>
           </div>
 
           <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
