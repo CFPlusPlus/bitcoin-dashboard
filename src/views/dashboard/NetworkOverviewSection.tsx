@@ -478,13 +478,17 @@ export default function NetworkOverviewSection({
 
   const highPriorityFee = formatFee(network?.fees.fastestFee ?? null, numberLocale) ?? fallback;
   const mediumPriorityFee = formatFee(network?.fees.halfHourFee ?? null, numberLocale) ?? fallback;
-  const lowPriorityFee = formatFee(network?.fees.minimumFee ?? null, numberLocale) ?? fallback;
+  const patientPriorityFee = formatFee(network?.fees.hourFee ?? null, numberLocale) ?? fallback;
+  const economyPriorityFee = formatFee(network?.fees.economyFee ?? null, numberLocale) ?? fallback;
+  const minimumPriorityFee = formatFee(network?.fees.minimumFee ?? null, numberLocale) ?? fallback;
   const hashrateIsPositive = (network?.hashrate.changePercent30d ?? 0) >= 0;
   const difficultyIsPositive = (network?.difficulty.adjustmentPercent ?? 0) >= 0;
   const nowTimestamp = network?.fetchedAt ? new Date(network.fetchedAt).getTime() : 0;
   const maxFee = Math.max(
     network?.fees.fastestFee ?? 0,
     network?.fees.halfHourFee ?? 0,
+    network?.fees.hourFee ?? 0,
+    network?.fees.economyFee ?? 0,
     network?.fees.minimumFee ?? 0,
     1
   );
@@ -664,9 +668,21 @@ export default function NetworkOverviewSection({
                   barClassName: "bg-accent",
                 },
                 {
-                  label: copy.lowPriorityLabel,
+                  label: copy.hourPriorityLabel,
+                  value: network?.fees.hourFee ?? null,
+                  text: patientPriorityFee,
+                  barClassName: "bg-info",
+                },
+                {
+                  label: copy.economyPriorityLabel,
+                  value: network?.fees.economyFee ?? null,
+                  text: economyPriorityFee,
+                  barClassName: "bg-success/70",
+                },
+                {
+                  label: copy.minimumPriorityLabel,
                   value: network?.fees.minimumFee ?? null,
-                  text: lowPriorityFee,
+                  text: minimumPriorityFee,
                   barClassName: "bg-success",
                 },
               ].map((item) => (

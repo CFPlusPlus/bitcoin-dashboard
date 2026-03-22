@@ -12,10 +12,17 @@ const isoString = z.string().min(1);
 const coinGeckoMarketItemSchema = z.object({
   current_price: finiteNumber.nullable().optional(),
   market_cap: finiteNumber.nullable().optional(),
+  market_cap_rank: finiteNumber.nullable().optional(),
+  fully_diluted_valuation: finiteNumber.nullable().optional(),
   total_volume: finiteNumber.nullable().optional(),
   high_24h: finiteNumber.nullable().optional(),
   low_24h: finiteNumber.nullable().optional(),
   price_change_percentage_24h: finiteNumber.nullable().optional(),
+  circulating_supply: finiteNumber.nullable().optional(),
+  max_supply: finiteNumber.nullable().optional(),
+  ath: finiteNumber.nullable().optional(),
+  ath_change_percentage: finiteNumber.nullable().optional(),
+  ath_date: isoString.nullable().optional(),
   last_updated: isoString.nullable().optional(),
 });
 

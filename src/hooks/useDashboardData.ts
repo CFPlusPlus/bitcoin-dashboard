@@ -333,6 +333,13 @@ export function useDashboardData(locale: AppLocale) {
             overview.change24h,
             overview.volume24h,
             overview.marketCap,
+            overview.marketCapRank,
+            overview.fullyDilutedValuation,
+            overview.circulatingSupply,
+            overview.maxSupply,
+            overview.supplyProgressPercent,
+            overview.ath,
+            overview.athChangePercent,
             overview.high24h,
             overview.low24h,
           ]

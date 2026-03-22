@@ -3,7 +3,7 @@
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency, MarketContextChartData, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import { formatCompactCurrency, formatPercentValue } from "../../lib/format";
+import { formatBtc, formatCompactCurrency, formatPercentValue } from "../../lib/format";
 import { formatMessage } from "../../i18n/template";
 import { useI18n } from "../../i18n/context";
 import MarketMetricChart from "../../components/MarketMetricChart";
@@ -44,6 +44,10 @@ export default function MarketContextSection({
     locale
   );
   const btcDominance = overview?.btcDominance ?? null;
+  const circulatingSupply = overview?.circulatingSupply ?? null;
+  const maxSupply = overview?.maxSupply ?? null;
+  const supplyProgressPercent = overview?.supplyProgressPercent ?? null;
+  const fullyDilutedValuation = overview?.fullyDilutedValuation ?? null;
   const marketCapSeries =
     marketContextChart?.series.find((item) => item.key === "marketCap") ?? null;
   const volumeSeries = marketContextChart?.series.find((item) => item.key === "volume24h") ?? null;
@@ -131,7 +135,7 @@ export default function MarketContextSection({
           retryBusy={marketContextChartState.isLoading}
           messages={chartMessages}
         >
-          <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+          <div className="grid gap-4 xl:grid-cols-2">
             {marketCapSeries ? (
               <MarketMetricChart
                 currency={currency}
@@ -159,24 +163,64 @@ export default function MarketContextSection({
                 points={volumeSeries.points}
               />
             ) : null}
-            <div className="overflow-hidden rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))]">
+            <div className="overflow-hidden rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))] xl:col-span-2">
               <div className="px-4 py-4">
-                <Stack gap="sm">
-                  <Cluster align="center" gap="sm">
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <div className="min-w-0">
+                    <Stack gap="sm">
+                      <Cluster align="center" gap="sm">
+                        <KpiValue
+                          label={dominanceCopy.label}
+                          value={formatPercentValue(btcDominance, locale)}
+                          size="md"
+                        />
+                        <span className="inline-flex min-h-7 items-center rounded-md bg-elevated px-2.5 text-sm font-semibold text-fg-secondary">
+                          {locale === "de" ? "aktuell" : "current"}
+                        </span>
+                      </Cluster>
+                      <MetaText>{dominanceCopy.meta}</MetaText>
+                    </Stack>
+                  </div>
+
+                  <div className="min-w-0 border-t border-white/8 pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
                     <KpiValue
-                      label={dominanceCopy.label}
-                      value={formatPercentValue(btcDominance, locale)}
+                      label={copy.supplyLabel}
+                      value={formatBtc(circulatingSupply, locale)}
+                      meta={copy.supplyMeta}
                       size="md"
                     />
-                    <span className="inline-flex min-h-7 items-center rounded-md bg-elevated px-2.5 text-sm font-semibold text-fg-secondary">
-                      {locale === "de" ? "aktuell" : "current"}
-                    </span>
-                  </Cluster>
-                  <MetaText>{dominanceCopy.meta}</MetaText>
-                </Stack>
-              </div>
-              <div className="px-2 pb-2">
-                <div className="h-[70px] rounded-lg border border-white/4 bg-[linear-gradient(180deg,rgba(255,255,255,0.015),rgba(255,255,255,0.01))]" />
+                    <MetaText tone="strong" size="xs" className="mt-2 leading-snug">
+                      {formatMessage(copy.supplyCap, {
+                        value: formatBtc(maxSupply, locale),
+                      })}
+                    </MetaText>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface">
+                      <div
+                        className="h-full rounded-full bg-accent transition-[width] duration-500"
+                        style={{
+                          width: `${Math.max(0, Math.min(100, supplyProgressPercent ?? 0))}%`,
+                        }}
+                      />
+                    </div>
+                    <MetaText className="mt-2">
+                      {formatMessage(copy.supplyProgress, {
+                        value: formatPercentValue(supplyProgressPercent, locale),
+                      })}
+                    </MetaText>
+                  </div>
+
+                  <div className="min-w-0 border-t border-white/8 pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+                    <KpiValue
+                      label={copy.fdvLabel}
+                      value={formatCompactCurrency(fullyDilutedValuation, currency, locale)}
+                      meta={copy.fdvMeta}
+                      size="md"
+                    />
+                    <MetaText tone="strong" size="xs" className="leading-snug">
+                      {copy.fdvFootnote}
+                    </MetaText>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

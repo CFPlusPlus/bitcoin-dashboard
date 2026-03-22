@@ -6,9 +6,11 @@ import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import {
-  formatCompactCurrency,
+  formatCompactCurrencyValue,
   formatCurrency,
+  formatCurrencyValue,
   formatDateTime,
+  formatNumber,
   formatPercent,
 } from "../../lib/format";
 import { formatMessage } from "../../i18n/template";
@@ -127,7 +129,10 @@ export default function OverviewSection({
   const copy = messages.dashboard.overview;
   const marketContextCopy = messages.dashboard.marketContext;
   const currencyLabel = currency.toUpperCase();
-  const { change24h, high24h, low24h, price, volume24h } = getOverviewValues(overview, currency);
+  const { change24h, high24h, low24h, marketCapRank, price, volume24h } = getOverviewValues(
+    overview,
+    currency
+  );
   const stateMessages = getDashboardSectionStateMessages("overview", overviewState.error, locale);
   const [liveSeries, setLiveSeries] = useState<LivePriceSeries | null>(null);
   const [liveSnapshot, setLiveSnapshot] = useState<LiveSnapshot | null>(null);
@@ -395,28 +400,38 @@ export default function OverviewSection({
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
             {[
               {
                 label: formatMessage(copy.highLabel, { currency: currencyLabel }),
-                text: formatCurrency(high24h, currency, locale),
+                text: formatCurrencyValue(high24h, currency, locale),
                 meta: copy.highMeta,
                 footnote: copy.highFootnote,
                 tone: "default" as const,
               },
               {
                 label: formatMessage(copy.lowLabel, { currency: currencyLabel }),
-                text: formatCurrency(low24h, currency, locale),
+                text: formatCurrencyValue(low24h, currency, locale),
                 meta: copy.lowMeta,
                 footnote: copy.lowFootnote,
                 tone: "muted" as const,
               },
               {
                 label: formatMessage(marketContextCopy.volumeLabel, { currency: currencyLabel }),
-                text: formatCompactCurrency(volume24h, currency, locale),
+                text: formatCompactCurrencyValue(volume24h, currency, locale),
                 meta: marketContextCopy.volumeMeta,
                 footnote: marketContextCopy.volumeFootnote,
                 tone: "default" as const,
+              },
+              {
+                label: copy.rankLabel,
+                text:
+                  marketCapRank === null || marketCapRank === undefined
+                    ? messages.common.unavailable
+                    : `#${formatNumber(marketCapRank, locale)}`,
+                meta: copy.rankMeta,
+                footnote: copy.rankFootnote,
+                tone: "muted" as const,
               },
             ].map((item) => (
               <MetricCard

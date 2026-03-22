@@ -46,6 +46,20 @@ export function formatCurrency(value: number | null, currency: Currency, locale:
   }
 }
 
+export function formatCurrencyValue(
+  value: number | null,
+  currency: Currency,
+  locale: AppLocale = "de"
+) {
+  if (!isFiniteNumber(value)) return getUnavailableText(locale);
+
+  const digits = isFiatCurrency(currency) ? 0 : Math.abs(value) < 100 ? 6 : 2;
+
+  return new Intl.NumberFormat(getNumberLocale(locale, currency), {
+    maximumFractionDigits: digits,
+  }).format(value);
+}
+
 export function formatCompactCurrency(
   value: number | null,
   currency: Currency,
@@ -74,6 +88,20 @@ export function formatCompactCurrency(
       maximumFractionDigits,
     }).format(value)} ${formatCurrencyLabel(currency)}`;
   }
+}
+
+export function formatCompactCurrencyValue(
+  value: number | null,
+  currency: Currency,
+  locale: AppLocale = "de",
+  maximumFractionDigits = 1
+) {
+  if (!isFiniteNumber(value)) return getUnavailableText(locale);
+
+  return new Intl.NumberFormat(getNumberLocale(locale, currency), {
+    notation: "compact",
+    maximumFractionDigits,
+  }).format(value);
 }
 
 export function formatNumber(value: number | null, locale: AppLocale = "de") {

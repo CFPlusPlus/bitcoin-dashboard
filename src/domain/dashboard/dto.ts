@@ -18,8 +18,16 @@ export type OverviewDto = ApiEnvelope & {
   price: number | null;
   change24h: number | null;
   marketCap: number | null;
+  marketCapRank: number | null;
+  fullyDilutedValuation: number | null;
   volume24h: number | null;
   btcDominance: number | null;
+  circulatingSupply: number | null;
+  maxSupply: number | null;
+  supplyProgressPercent: number | null;
+  ath: number | null;
+  athDate: string | null;
+  athChangePercent: number | null;
   high24h: number | null;
   low24h: number | null;
   lastUpdatedAt: string | null;

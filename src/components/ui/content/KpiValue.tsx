@@ -6,7 +6,7 @@ import MetaText from "./MetaText";
 const kpiValueVariants = cva("font-mono font-medium tracking-[-0.045em] text-fg", {
   variants: {
     size: {
-      md: "text-[1.55rem] leading-tight sm:text-[2rem]",
+      md: "text-[clamp(1.75rem,5vw,2rem)] leading-[0.95] sm:text-[clamp(1.9rem,3vw,2.15rem)]",
       lg: "text-[2.2rem] leading-none sm:text-[3.35rem]",
     },
     tone: {
@@ -46,7 +46,7 @@ export default function KpiValue({
           {label}
         </MetaText>
       ) : null}
-      <div className={cn(kpiValueVariants({ size, tone }))}>{value}</div>
+      <div className={cn("min-w-0", kpiValueVariants({ size, tone }))}>{value}</div>
       {delta ? <MetaText tone={tone === "default" ? "default" : tone}>{delta}</MetaText> : null}
       {meta ? <MetaText>{meta}</MetaText> : null}
     </div>

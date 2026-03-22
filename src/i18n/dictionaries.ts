@@ -244,12 +244,37 @@ export const dictionaries = {
         lowLabel: "24h Tagestief ({currency})",
         lowMeta: "Niedrigster Preis der letzten 24 Stunden.",
         lowFootnote: "Zeigt, wie tief BTC heute schon gefallen ist.",
+        rankLabel: "Marktrang",
+        rankMeta: "Position nach Marktkapitalisierung unter allen Coins.",
+        rankFootnote: "Ordnet Bitcoin gegen den restlichen Kryptomarkt ein.",
+      },
+      ath: {
+        eyebrow: "ATH-Kontext",
+        title: "Der letzte Rekord als Referenz",
+        description:
+          "Das letzte Allzeithoch in {currency}, wie weit Bitcoin aktuell davon entfernt ist und wie lange der Rekord schon steht.",
+        lastAthLabel: "Letztes ATH",
+        lastAthMeta: "Rekord vom {value}",
+        lastAthFootnote: "Das ist der bisher höchste erreichte Bitcoin-Preis in der aktiven Währung.",
+        distanceLabel: "Abstand zum ATH",
+        distanceMeta: "Prozentuale Distanz vom aktuellen Preis zum letzten Rekord.",
+        distanceFootnote: "Zeigt, wie nah Bitcoin gerade am historischen Hoch notiert.",
+        gapLabel: "Fehlt bis ATH",
+        gapMeta: "Preisstrecke, die zum Erreichen des Rekords noch fehlt.",
+        gapFootnote: "Hilft beim schnellen Einordnen der absoluten Distanz in der aktiven Währung.",
+        daysSinceLabel: "Seit dem Rekord",
+        daysSinceValue: "{value} Tage",
+        daysSinceMeta: "So lange liegt das letzte Allzeithoch bereits zurück.",
+        daysSinceFootnote: "Setzt die aktuelle Marktphase zeitlich ins Verhältnis zum letzten Hoch.",
       },
       performance: {
         eyebrow: "Performance",
         title: "Bitcoin über mehrere Zeiträume",
         description:
           "Die prozentuale BTC-Performance in {currency} für wichtige Vergleichsfenster.",
+        athDistanceLabel: "Abstand zum ATH",
+        athDate: "ATH am {value}",
+        athPrice: "ATH: {value}",
         referenceDate: "Seit {value}",
         referencePrice: "Referenz: {value}",
         periods: {
@@ -291,13 +316,20 @@ export const dictionaries = {
       marketContext: {
         eyebrow: "Marktkontext",
         title: "Marktgröße im Blick",
-        description: "Zwei Zahlen, die zeigen, wie groß und aktiv der Markt gerade ist.",
+        description: "Marktgröße, Angebotsfortschritt und Bewertung in einem ruhigen Überblick.",
         marketCapLabel: "Marktkapitalisierung ({currency})",
         marketCapMeta: "Wert aller umlaufenden BTC.",
         marketCapFootnote: "Zeigt die Größe des Bitcoin-Markts.",
         volumeLabel: "24h Volumen ({currency})",
         volumeMeta: "Geschätztes Handelsvolumen der letzten 24 Stunden.",
         volumeFootnote: "Mehr Volumen heißt meist mehr echte Marktaktivität.",
+        supplyLabel: "Umlaufende Menge",
+        supplyMeta: "Bereits geminte BTC, die aktuell im Umlauf sind.",
+        supplyCap: "Obergrenze: {value} BTC",
+        supplyProgress: "{value} der maximalen Bitcoin-Menge sind im Umlauf.",
+        fdvLabel: "Fully Diluted Valuation",
+        fdvMeta: "Bewertung auf Basis der maximalen Bitcoin-Menge.",
+        fdvFootnote: "Hilft, Marktwert und feste Angebotsgrenze zusammen zu lesen.",
       },
       network: {
         eyebrow: "Netzwerk",
@@ -334,7 +366,9 @@ export const dictionaries = {
         retargetLabel: "Nächste Anpassung",
         highPriorityLabel: "Hoch",
         mediumPriorityLabel: "Mittel",
-        lowPriorityLabel: "Niedrig",
+        hourPriorityLabel: "60 Min",
+        economyPriorityLabel: "Sparsam",
+        minimumPriorityLabel: "Minimum",
         latestBlocksTitle: "Letzte Blöcke",
         latestBlocksEmpty: "Keine letzten Blöcke verfügbar.",
         blockAgeLabel: "Gefunden",
@@ -391,6 +425,31 @@ export const dictionaries = {
             title: "Letzte Marktdaten bleiben sichtbar",
             description:
               "Die letzte Aktualisierung ist fehlgeschlagen. Die angezeigten Werte können inzwischen überholt sein.",
+          },
+        },
+        ath: {
+          loading: {
+            title: "ATH-Kontext wird geladen",
+            description: "Rekordpreis, Abstand und Zeitkontext werden vorbereitet.",
+          },
+          empty: {
+            title: "Kein ATH-Kontext verfügbar",
+            description:
+              "Der Abruf war erfolgreich, liefert aktuell aber keine verwertbaren ATH-Daten.",
+          },
+          error: {
+            title: "ATH-Kontext ist gerade nicht verfügbar",
+            fallbackDescription: "Es konnten noch keine verlässlichen ATH-Daten geladen werden.",
+          },
+          partial: {
+            title: "ATH-Kontext ist teilweise verfügbar",
+            description:
+              "Einzelne ATH-Werte fehlen im aktuellen Abruf. Verfügbare Hinweise bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzter ATH-Kontext bleibt sichtbar",
+            description:
+              "Die Aktualisierung ist fehlgeschlagen. Die angezeigten ATH-Hinweise können inzwischen überholt sein.",
           },
         },
         performance: {
@@ -941,12 +1000,37 @@ export const dictionaries = {
         lowLabel: "24h low ({currency})",
         lowMeta: "Lowest price in the last 24 hours.",
         lowFootnote: "Shows how far BTC has already dropped today.",
+        rankLabel: "Market rank",
+        rankMeta: "Position by market cap across all tracked coins.",
+        rankFootnote: "Places Bitcoin against the broader crypto market.",
+      },
+      ath: {
+        eyebrow: "ATH context",
+        title: "The last record as a reference",
+        description:
+          "The last all-time high in {currency}, how far Bitcoin currently sits below it, and how long that record has been standing.",
+        lastAthLabel: "Latest ATH",
+        lastAthMeta: "Record from {value}",
+        lastAthFootnote: "This is the highest Bitcoin price reached so far in the active currency.",
+        distanceLabel: "Distance to ATH",
+        distanceMeta: "Percentage distance from the current price to the last record.",
+        distanceFootnote: "Shows how close Bitcoin is currently trading to its historical high.",
+        gapLabel: "Needed for ATH",
+        gapMeta: "Price distance still missing to reclaim the record.",
+        gapFootnote: "Helps frame the absolute gap in the active currency.",
+        daysSinceLabel: "Since the record",
+        daysSinceValue: "{value} days",
+        daysSinceMeta: "How long ago the latest all-time high was set.",
+        daysSinceFootnote: "Places the current market phase in time relative to the last peak.",
       },
       performance: {
         eyebrow: "Performance",
         title: "Bitcoin across key timeframes",
         description:
           "BTC percentage performance in {currency} across the comparison windows that matter most.",
+        athDistanceLabel: "Distance to ATH",
+        athDate: "ATH on {value}",
+        athPrice: "ATH: {value}",
         referenceDate: "Since {value}",
         referencePrice: "Reference: {value}",
         periods: {
@@ -988,13 +1072,20 @@ export const dictionaries = {
       marketContext: {
         eyebrow: "Market context",
         title: "Market size at a glance",
-        description: "Two numbers that show how large and active the market is right now.",
+        description: "A calm read on market size, supply progress, and valuation.",
         marketCapLabel: "Market cap ({currency})",
         marketCapMeta: "Value of all circulating BTC.",
         marketCapFootnote: "Shows the size of the Bitcoin market.",
         volumeLabel: "24h volume ({currency})",
         volumeMeta: "Estimated trading volume over the last 24 hours.",
         volumeFootnote: "More volume usually means more real market activity.",
+        supplyLabel: "Circulating supply",
+        supplyMeta: "BTC already mined and currently in circulation.",
+        supplyCap: "Cap: {value} BTC",
+        supplyProgress: "{value} of Bitcoin's maximum supply is already circulating.",
+        fdvLabel: "Fully diluted valuation",
+        fdvMeta: "Valuation based on Bitcoin's maximum supply.",
+        fdvFootnote: "Adds supply context to the current market value.",
       },
       network: {
         eyebrow: "Network",
@@ -1031,7 +1122,9 @@ export const dictionaries = {
         retargetLabel: "Retarget",
         highPriorityLabel: "High",
         mediumPriorityLabel: "Med",
-        lowPriorityLabel: "Low",
+        hourPriorityLabel: "60m",
+        economyPriorityLabel: "Economy",
+        minimumPriorityLabel: "Minimum",
         latestBlocksTitle: "Latest blocks",
         latestBlocksEmpty: "No recent blocks available.",
         blockAgeLabel: "Found",
@@ -1086,6 +1179,28 @@ export const dictionaries = {
           stale: {
             title: "Latest market data stays visible",
             description: "The latest refresh failed. The visible values may now be outdated.",
+          },
+        },
+        ath: {
+          loading: {
+            title: "Loading ATH context",
+            description: "Record price, distance, and time context are being prepared.",
+          },
+          empty: {
+            title: "No ATH context available",
+            description: "The fetch succeeded, but there is no usable ATH data right now.",
+          },
+          error: {
+            title: "ATH context is currently unavailable",
+            fallbackDescription: "No reliable ATH data could be loaded yet.",
+          },
+          partial: {
+            title: "ATH context is partially available",
+            description: "Some ATH values are missing in the current fetch. Available hints stay visible.",
+          },
+          stale: {
+            title: "Latest ATH context stays visible",
+            description: "The refresh failed. The displayed ATH hints may now be outdated.",
           },
         },
         performance: {

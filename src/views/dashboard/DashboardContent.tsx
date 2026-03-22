@@ -11,6 +11,7 @@ import type {
   Performance,
   Sentiment,
 } from "../../types/dashboard";
+import AthSection from "./AthSection";
 import ChartSection from "../../components/ChartSection";
 import MetadataSection from "../../components/MetadataSection";
 import Section from "../../components/ui/layout/Section";
@@ -62,6 +63,13 @@ export default function DashboardContent(props: DashboardContentProps) {
         onRetry={props.onOverviewRetry}
       />
 
+      <AthSection
+        currency={props.currency}
+        overview={props.overview}
+        overviewState={props.overviewState}
+        onRetry={props.onOverviewRetry}
+      />
+
       <PerformanceSection
         currency={props.currency}
         performance={props.performance}
@@ -85,7 +93,7 @@ export default function DashboardContent(props: DashboardContentProps) {
           description={copy.marketAndSentimentDescription}
         />
 
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="grid gap-4 2xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <SentimentSection
             sentiment={props.sentiment}
             sentimentState={props.sentimentState}
