@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AppLocale } from "../i18n/config";
 import { getDictionary } from "../i18n/dictionaries";
 import { fetchJson } from "../lib/api";
+import { CURRENCY_STORAGE_KEY, DEFAULT_CURRENCY, isCurrency } from "../lib/currency";
 import {
   normalizeDashboardWarningMessage,
   sanitizeDashboardErrorMessage,
@@ -22,17 +23,13 @@ import { usePersistentState } from "./usePersistentState";
 
 const STORAGE_KEYS = {
   autoRefresh: "bitcoin-dashboard:auto-refresh",
-  currency: "bitcoin-dashboard:currency",
+  currency: CURRENCY_STORAGE_KEY,
   range: "bitcoin-dashboard:range",
 } as const;
 
 const DASHBOARD_REFRESH_INTERVAL_MS = 60_000;
 const NETWORK_BLOCK_POLL_INTERVAL_MS = 15_000;
 const QUERY_RETRY_COUNT = 1;
-
-function isCurrency(value: unknown): value is Currency {
-  return value === "usd" || value === "eur";
-}
 
 function isChartRange(value: unknown): value is ChartRange {
   return value === 1 || value === 7 || value === 30;
@@ -42,8 +39,8 @@ function isBoolean(value: unknown): value is boolean {
   return typeof value === "boolean";
 }
 
-async function fetchOverview(locale: AppLocale) {
-  return fetchJson<Overview>("/api/overview", locale);
+async function fetchOverview(currency: Currency, locale: AppLocale) {
+  return fetchJson<Overview>(`/api/overview?currency=${currency}`, locale);
 }
 
 async function fetchNetwork(locale: AppLocale) {
@@ -91,7 +88,7 @@ export function useDashboardData(locale: AppLocale) {
   );
   const [currency, setCurrency] = usePersistentState<Currency>(
     STORAGE_KEYS.currency,
-    "usd",
+    DEFAULT_CURRENCY,
     currencyStateOptions
   );
   const [autoRefresh, setAutoRefresh] = usePersistentState<boolean>(
@@ -101,8 +98,8 @@ export function useDashboardData(locale: AppLocale) {
   );
 
   const overviewQuery = useQuery({
-    queryKey: ["dashboard", "overview", locale],
-    queryFn: () => fetchOverview(locale),
+    queryKey: ["dashboard", "overview", currency, locale],
+    queryFn: () => fetchOverview(currency, locale),
     retry: QUERY_RETRY_COUNT,
   });
   const networkQuery = useQuery({
@@ -221,7 +218,7 @@ export function useDashboardData(locale: AppLocale) {
   const performanceLoading = performanceQuery.isPending;
   const marketContextChartLoading = marketContextChartQuery.isPending;
 
-  const loadOverviewData = useCallback(async () => {
+  const loadOverviewData = useCallback(async (_selectedCurrency: Currency) => {
     const result = await refetchOverview();
     return result.data?.fetchedAt ?? null;
   }, [refetchOverview]);
@@ -329,18 +326,12 @@ export function useDashboardData(locale: AppLocale) {
     () =>
       overview
         ? [
-            overview.priceUsd,
-            overview.priceEur,
-            overview.change24hUsd,
-            overview.change24hEur,
-            overview.volume24hUsd,
-            overview.volume24hEur,
-            overview.marketCapUsd,
-            overview.marketCapEur,
-            overview.high24hUsd,
-            overview.high24hEur,
-            overview.low24hUsd,
-            overview.low24hEur,
+            overview.price,
+            overview.change24h,
+            overview.volume24h,
+            overview.marketCap,
+            overview.high24h,
+            overview.low24h,
           ]
         : [],
     [overview]

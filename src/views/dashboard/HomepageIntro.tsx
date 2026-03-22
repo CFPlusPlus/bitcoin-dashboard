@@ -11,15 +11,12 @@ import { getLocalizedPathname } from "../../i18n/config";
 import { useI18n } from "../../i18n/context";
 import { cn } from "../../lib/cn";
 import type { AsyncDataState } from "../../lib/data-state";
-import type { Currency } from "../../types/dashboard";
 import DashboardControlsSection from "./DashboardControlsSection";
 
 type HomepageIntroProps = {
   autoRefresh: boolean;
-  currency: Currency;
   dashboardState: AsyncDataState<{ lastRefreshAt: string }>;
   onAutoRefreshChange: (value: boolean) => void;
-  onCurrencyChange: (value: Currency) => void;
   onRefresh: () => void;
   refreshing: boolean;
   warnings: string[];
@@ -27,10 +24,8 @@ type HomepageIntroProps = {
 
 export default function HomepageIntro({
   autoRefresh,
-  currency,
   dashboardState,
   onAutoRefreshChange,
-  onCurrencyChange,
   onRefresh,
   refreshing,
   warnings,
@@ -96,11 +91,9 @@ export default function HomepageIntro({
 
         <DashboardControlsSection
           autoRefresh={autoRefresh}
-          currency={currency}
           dashboardState={dashboardState}
           refreshing={refreshing}
           onAutoRefreshChange={onAutoRefreshChange}
-          onCurrencyChange={onCurrencyChange}
           onRefresh={onRefresh}
         />
       </div>

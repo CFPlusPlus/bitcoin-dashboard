@@ -26,7 +26,7 @@ export type DcaEntry = {
   note: string;
 };
 
-export type DcaEntryStore = Record<Currency, DcaEntry[]>;
+export type DcaEntryStore = Partial<Record<Currency, DcaEntry[]>>;
 
 export type DcaEntrySnapshot = DcaEntry & {
   bitcoinAmount: number;

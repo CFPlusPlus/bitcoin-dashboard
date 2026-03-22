@@ -1,4 +1,5 @@
 import { mapOverviewDto } from "../../../domain/dashboard/overview.mapper";
+import { DEFAULT_CURRENCY, parseCurrency } from "../../../lib/currency";
 import { getCacheControlHeader, overviewCachePolicy } from "../../../server/cache";
 import { getAppEnv } from "../../../server/env";
 import { errorResponse, getReasonMessage, jsonResponse } from "../../../server/http";
@@ -12,41 +13,49 @@ function getRejectedReason<T>(result: PromiseSettledResult<T>) {
   return result.status === "rejected" ? result.reason : null;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const apiKey = getAppEnv().COINGECKO_DEMO_API_KEY;
 
   if (!apiKey) {
     return errorResponse(500, "COINGECKO_DEMO_API_KEY fehlt.");
   }
 
-  const [usdResult, eurResult, globalResult] = await Promise.allSettled([
-    fetchCoinGeckoMarketData("usd", apiKey, overviewCachePolicy),
-    fetchCoinGeckoMarketData("eur", apiKey, overviewCachePolicy),
+  const url = new URL(request.url);
+  const currencyParam = url.searchParams.get("currency");
+  const currency = currencyParam === null ? DEFAULT_CURRENCY : parseCurrency(currencyParam);
+
+  if (!currency) {
+    return errorResponse(
+      400,
+      "Ungueltiger currency-Parameter. Bitte nutze einen unterstuetzten Waehrungscode wie usd, eur oder jpy."
+    );
+  }
+
+  const [marketResult, globalResult] = await Promise.allSettled([
+    fetchCoinGeckoMarketData(currency, apiKey, overviewCachePolicy),
     fetchCoinGeckoGlobalData(apiKey, overviewCachePolicy),
   ]);
 
   const warnings: string[] = [];
-  const usd = usdResult.status === "fulfilled" ? usdResult.value : null;
-  const eur = eurResult.status === "fulfilled" ? eurResult.value : null;
+  const market = marketResult.status === "fulfilled" ? marketResult.value : null;
   const btcDominance =
     globalResult.status === "fulfilled" ? globalResult.value.data.market_cap_percentage.btc : null;
 
-  if (usdResult.status === "rejected") {
-    warnings.push(getReasonMessage("USD-Marktdaten nicht verfügbar", usdResult.reason));
-  }
-
-  if (eurResult.status === "rejected") {
-    warnings.push(getReasonMessage("EUR-Marktdaten nicht verfügbar", eurResult.reason));
+  if (marketResult.status === "rejected") {
+    warnings.push(
+      getReasonMessage(
+        `${currency.toUpperCase()}-Marktdaten nicht verfuegbar`,
+        marketResult.reason
+      )
+    );
   }
 
   if (globalResult.status === "rejected") {
-    warnings.push(getReasonMessage("Globale Marktdaten nicht verfÃ¼gbar", globalResult.reason));
+    warnings.push(getReasonMessage("Globale Marktdaten nicht verfuegbar", globalResult.reason));
   }
 
-  if (!usd && !eur) {
-    const errors = [getRejectedReason(usdResult), getRejectedReason(eurResult)].filter(
-      isUpstreamError
-    );
+  if (!market) {
+    const errors = [getRejectedReason(marketResult)].filter(isUpstreamError);
 
     return errorResponse(502, "Fehler beim Laden der Overview-Daten.", warnings.join(" "), {
       ...(errors.length > 0 ? { codes: [...new Set(errors.map((error) => error.code))] } : {}),
@@ -57,8 +66,8 @@ export async function GET() {
   }
 
   const dto = mapOverviewDto({
-    usd,
-    eur,
+    market,
+    currency,
     btcDominance,
     fetchedAt: new Date().toISOString(),
     warnings,

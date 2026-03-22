@@ -1,4 +1,6 @@
-export type Currency = "usd" | "eur";
+import type { Currency } from "../../lib/currency";
+
+export type { Currency };
 export type ChartRange = 1 | 7 | 30;
 export type PerformanceWindowKey = "7d" | "30d" | "1y" | "ytd";
 
@@ -10,20 +12,15 @@ export type ApiEnvelope = {
 };
 
 export type OverviewDto = ApiEnvelope & {
+  currency: Currency;
   name: string;
-  priceUsd: number | null;
-  priceEur: number | null;
-  change24hUsd: number | null;
-  change24hEur: number | null;
-  marketCapUsd: number | null;
-  marketCapEur: number | null;
-  volume24hUsd: number | null;
-  volume24hEur: number | null;
+  price: number | null;
+  change24h: number | null;
+  marketCap: number | null;
+  volume24h: number | null;
   btcDominance: number | null;
-  high24hUsd: number | null;
-  high24hEur: number | null;
-  low24hUsd: number | null;
-  low24hEur: number | null;
+  high24h: number | null;
+  low24h: number | null;
   lastUpdatedAt: string | null;
 };
 

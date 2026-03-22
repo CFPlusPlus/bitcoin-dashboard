@@ -6,6 +6,17 @@ export const dictionaries = {
       name: "bitstats.org",
       tagline: "Bitcoin in ruhigerem Fokus",
       languageSwitchLabel: "Sprache wechseln",
+      currencySwitchLabel: "Währung wechseln",
+      currencySearchLabel: "Währung suchen",
+      currencySearchPlaceholder: "Code oder Name eingeben",
+      currencyCloseLabel: "Währungsauswahl schließen",
+      currencyRecentLabel: "Zuletzt genutzt",
+      currencyScopeLabel: "Anzeigen",
+      currencyScopeFiatOnly: "Nur Fiat",
+      currencyScopeAllQuotes: "Alle inkl. Krypto",
+      currencyPopularLabel: "Beliebt",
+      currencyAllLabel: "Alle verfügbaren Währungen",
+      currencyNoResults: "Keine passende Währung gefunden.",
       footer: {
         description:
           "Ein ruhiger Bitcoin-Blick auf Markt, Netzwerk, Sentiment und fokussierte Werkzeuge.",
@@ -623,7 +634,7 @@ export const dictionaries = {
       formEyebrow: "Neuer Kauf",
       formTitle: "Kauf eintragen",
       formDescription:
-        "Einträge werden automatisch nur in diesem Browser gespeichert. USD und EUR bleiben bewusst getrennt, damit deine Reihen sauber vergleichbar bleiben.",
+        "Einträge werden automatisch nur in diesem Browser gespeichert. Jede Währung bleibt getrennt, damit deine Reihen sauber vergleichbar bleiben.",
       fields: {
         date: "Kaufdatum",
         dateHint: "Nutze das Datum, an dem der Kauf ausgeführt wurde.",
@@ -692,6 +703,17 @@ export const dictionaries = {
       name: "bitstats.org",
       tagline: "Bitcoin with calmer focus",
       languageSwitchLabel: "Switch language",
+      currencySwitchLabel: "Switch currency",
+      currencySearchLabel: "Search currency",
+      currencySearchPlaceholder: "Enter code or name",
+      currencyCloseLabel: "Close currency menu",
+      currencyRecentLabel: "Recently used",
+      currencyScopeLabel: "Show",
+      currencyScopeFiatOnly: "Fiat only",
+      currencyScopeAllQuotes: "All incl. crypto",
+      currencyPopularLabel: "Popular",
+      currencyAllLabel: "All available currencies",
+      currencyNoResults: "No matching currency found.",
       footer: {
         description: "A calmer Bitcoin view of market, network, sentiment, and focused tools.",
         navigation: "Navigation",
@@ -1287,7 +1309,7 @@ export const dictionaries = {
       formEyebrow: "New buy",
       formTitle: "Add buy",
       formDescription:
-        "Entries are stored automatically only in this browser. USD and EUR stay separate on purpose so your series remains cleanly comparable.",
+        "Entries are stored automatically only in this browser. Each currency stays separate so your series remains cleanly comparable.",
       fields: {
         date: "Buy date",
         dateHint: "Use the date on which the buy was executed.",

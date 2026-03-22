@@ -300,17 +300,22 @@ describe("dca view helpers", () => {
 
   it("returns the current market price for the selected currency only when valid", () => {
     const overview: Overview = {
+      currency: "usd",
       fetchedAt: "2026-03-17T12:00:00.000Z",
       btcDominance: 58.42,
-      marketCapUsd: 1,
-      priceEur: 45000,
-      priceUsd: 50000,
-      volume24hUsd: 1,
+      marketCap: 1,
+      price: 50000,
+      change24h: 1,
+      volume24h: 1,
+      high24h: 51000,
+      low24h: 49000,
+      lastUpdatedAt: "2026-03-17T12:00:00.000Z",
       warnings: [],
     };
 
     expect(getCurrentPrice(overview, "usd")).toBe(50000);
-    expect(getCurrentPrice({ ...overview, priceEur: 0 }, "eur")).toBeNull();
+    expect(getCurrentPrice({ ...overview, price: 0 }, "usd")).toBeNull();
+    expect(getCurrentPrice({ ...overview, currency: "eur", price: 45000 }, "usd")).toBeNull();
   });
 
   it("derives UI-friendly defaults for date and pnl tone", () => {

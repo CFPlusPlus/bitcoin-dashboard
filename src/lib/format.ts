@@ -1,5 +1,6 @@
 import type { AppLocale } from "../i18n/config";
 import { localeMeta } from "../i18n/config";
+import { formatCurrencyLabel, isFiatCurrency } from "./currency";
 import { getUnavailableText } from "./dashboard-state-copy";
 import type { Currency } from "../types/dashboard";
 
@@ -24,11 +25,25 @@ function getNumberLocale(locale: AppLocale, currency?: Currency) {
 export function formatCurrency(value: number | null, currency: Currency, locale: AppLocale = "de") {
   if (!isFiniteNumber(value)) return getUnavailableText(locale);
 
-  return new Intl.NumberFormat(getNumberLocale(locale, currency), {
-    style: "currency",
-    currency: currency.toUpperCase(),
-    maximumFractionDigits: 0,
-  }).format(value);
+  if (!isFiatCurrency(currency)) {
+    const digits = Math.abs(value) < 100 ? 6 : 2;
+
+    return `${new Intl.NumberFormat(getNumberLocale(locale), {
+      maximumFractionDigits: digits,
+    }).format(value)} ${formatCurrencyLabel(currency)}`;
+  }
+
+  try {
+    return new Intl.NumberFormat(getNumberLocale(locale, currency), {
+      style: "currency",
+      currency: currency.toUpperCase(),
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${new Intl.NumberFormat(getNumberLocale(locale), {
+      maximumFractionDigits: 2,
+    }).format(value)} ${formatCurrencyLabel(currency)}`;
+  }
 }
 
 export function formatCompactCurrency(
@@ -39,12 +54,26 @@ export function formatCompactCurrency(
 ) {
   if (!isFiniteNumber(value)) return getUnavailableText(locale);
 
-  return new Intl.NumberFormat(getNumberLocale(locale, currency), {
-    style: "currency",
-    currency: currency.toUpperCase(),
-    notation: "compact",
-    maximumFractionDigits,
-  }).format(value);
+  if (!isFiatCurrency(currency)) {
+    return `${new Intl.NumberFormat(getNumberLocale(locale), {
+      notation: "compact",
+      maximumFractionDigits,
+    }).format(value)} ${formatCurrencyLabel(currency)}`;
+  }
+
+  try {
+    return new Intl.NumberFormat(getNumberLocale(locale, currency), {
+      style: "currency",
+      currency: currency.toUpperCase(),
+      notation: "compact",
+      maximumFractionDigits,
+    }).format(value);
+  } catch {
+    return `${new Intl.NumberFormat(getNumberLocale(locale), {
+      notation: "compact",
+      maximumFractionDigits,
+    }).format(value)} ${formatCurrencyLabel(currency)}`;
+  }
 }
 
 export function formatNumber(value: number | null, locale: AppLocale = "de") {

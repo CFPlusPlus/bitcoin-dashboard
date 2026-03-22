@@ -8,6 +8,7 @@ import type {
 } from "../types/dashboard";
 import type { AppLocale } from "../i18n/config";
 import { getDictionary } from "../i18n/dictionaries";
+import { isCurrency as isSupportedCurrency } from "./currency";
 
 export type DcaFormInput = {
   amountInvested: string;
@@ -29,10 +30,7 @@ export type DcaValidationResult =
       value: DcaDraftEntry;
     };
 
-export const EMPTY_DCA_ENTRY_STORE: DcaEntryStore = {
-  eur: [],
-  usd: [],
-};
+export const EMPTY_DCA_ENTRY_STORE: DcaEntryStore = {};
 
 function isFiniteNumber(value: number | null | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value);
@@ -66,9 +64,7 @@ function normalizeDcaEntry(entry: DcaEntry): DcaEntry {
   };
 }
 
-export function isCurrency(value: unknown): value is Currency {
-  return value === "usd" || value === "eur";
-}
+export const isCurrency = isSupportedCurrency;
 
 export function isDcaEntry(value: unknown): value is DcaEntry {
   if (typeof value !== "object" || value === null) {
@@ -94,10 +90,17 @@ export function normalizeDcaEntryStore(value: unknown, initialValue = EMPTY_DCA_
   }
 
   const store = value as Record<string, unknown>;
-  const usd = Array.isArray(store.usd) ? store.usd.filter(isDcaEntry).map(normalizeDcaEntry) : [];
-  const eur = Array.isArray(store.eur) ? store.eur.filter(isDcaEntry).map(normalizeDcaEntry) : [];
+  const normalizedStore: DcaEntryStore = {};
 
-  return { usd, eur };
+  for (const [currency, entries] of Object.entries(store)) {
+    if (!isSupportedCurrency(currency) || !Array.isArray(entries)) {
+      continue;
+    }
+
+    normalizedStore[currency] = entries.filter(isDcaEntry).map(normalizeDcaEntry);
+  }
+
+  return normalizedStore;
 }
 
 export function isDcaEntryStore(value: unknown): value is DcaEntryStore {
@@ -106,11 +109,9 @@ export function isDcaEntryStore(value: unknown): value is DcaEntryStore {
   }
 
   const store = value as Record<string, unknown>;
-  return (
-    Array.isArray(store.usd) &&
-    Array.isArray(store.eur) &&
-    store.usd.every(isDcaEntry) &&
-    store.eur.every(isDcaEntry)
+  return Object.entries(store).every(
+    ([currency, entries]) =>
+      isSupportedCurrency(currency) && Array.isArray(entries) && entries.every(isDcaEntry)
   );
 }
 
@@ -119,11 +120,11 @@ export function createDcaEntryId(now = Date.now(), random = Math.random()) {
 }
 
 export function getCurrentPrice(overview: Overview | null, currency: Currency) {
-  if (!overview) {
+  if (!overview || overview.currency !== currency) {
     return null;
   }
 
-  const price = currency === "usd" ? overview.priceUsd : overview.priceEur;
+  const price = overview.price;
   return isPositiveNumber(price) ? price : null;
 }
 
@@ -241,9 +242,11 @@ export function addDcaEntry(
   currency: Currency,
   entry: DcaEntry
 ): DcaEntryStore {
+  const currentEntries = store[currency] ?? [];
+
   return {
     ...store,
-    [currency]: [normalizeDcaEntry(entry), ...store[currency]],
+    [currency]: [normalizeDcaEntry(entry), ...currentEntries],
   };
 }
 
@@ -252,9 +255,11 @@ export function removeDcaEntry(
   currency: Currency,
   entryId: string
 ): DcaEntryStore {
+  const currentEntries = store[currency] ?? [];
+
   return {
     ...store,
-    [currency]: store[currency].filter((entry) => entry.id !== entryId),
+    [currency]: currentEntries.filter((entry) => entry.id !== entryId),
   };
 }
 

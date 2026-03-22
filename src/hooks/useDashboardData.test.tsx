@@ -27,19 +27,14 @@ const overviewFixture = {
   source: "test",
   fetchedAt,
   name: "Bitcoin",
-  priceUsd: 60000,
-  priceEur: 55000,
-  change24hUsd: 1.2,
-  change24hEur: 1.1,
-  marketCapUsd: 1200000000000,
-  marketCapEur: 1100000000000,
-  volume24hUsd: 20000000000,
-  volume24hEur: 18000000000,
+  currency: "usd",
+  price: 60000,
+  change24h: 1.2,
+  marketCap: 1200000000000,
+  volume24h: 20000000000,
   btcDominance: 56,
-  high24hUsd: 61000,
-  high24hEur: 56000,
-  low24hUsd: 59000,
-  low24hEur: 54000,
+  high24h: 61000,
+  low24h: 59000,
   lastUpdatedAt: fetchedAt,
   warnings: [],
 };
@@ -240,7 +235,7 @@ describe("useDashboardData", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.overview?.priceUsd).toBe(60000);
+      expect(result.current.overview?.price).toBe(60000);
       expect(result.current.network?.latestBlockHeight).toBe(900001);
       expect(result.current.chart?.points.length).toBe(2);
       expect(result.current.performance?.periods[0]?.key).toBe("7d");

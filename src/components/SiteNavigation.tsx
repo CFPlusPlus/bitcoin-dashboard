@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { getLocalizedPathname } from "../i18n/config";
 import { useI18n } from "../i18n/context";
 import { cn } from "../lib/cn";
+import CurrencySwitcher from "./CurrencySwitcher";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { buttonVariants } from "./ui/Button";
 
@@ -44,6 +45,7 @@ export default function SiteNavigation() {
           );
         })}
       </nav>
+      <CurrencySwitcher />
       <LanguageSwitcher />
     </div>
   );

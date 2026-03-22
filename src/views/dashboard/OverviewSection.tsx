@@ -65,7 +65,15 @@ function pruneLivePoints(points: LivePricePoint[], now = Date.now()) {
 }
 
 function getLiveProductId(currency: Currency) {
-  return currency === "eur" ? "BTC-EUR" : "BTC-USD";
+  if (currency === "eur") {
+    return "BTC-EUR";
+  }
+
+  if (currency === "usd") {
+    return "BTC-USD";
+  }
+
+  return null;
 }
 
 function parseCoinbaseTickerMessage(raw: string, productId: string) {
@@ -143,6 +151,10 @@ export default function OverviewSection({
 
   useEffect(() => {
     const productId = getLiveProductId(currency);
+    if (!productId) {
+      return;
+    }
+
     let socket: WebSocket | null = null;
     let cancelled = false;
 

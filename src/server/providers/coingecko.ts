@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Currency } from "../../lib/currency";
 import type { CachePolicy } from "../cache";
 import { readUpstreamJson, requestUpstream } from "../provider-fetch";
 import { invalidUpstreamShape, missingUpstreamData } from "../upstream";
@@ -38,7 +39,7 @@ export type CoinGeckoMarketItem = z.infer<typeof coinGeckoMarketItemSchema>;
 export type CoinGeckoMarketChartResponse = z.infer<typeof coinGeckoChartResponseSchema>;
 export type CoinGeckoGlobalResponse = z.infer<typeof coinGeckoGlobalResponseSchema>;
 
-function ensureMarketItemCompleteness(item: CoinGeckoMarketItem, currency: "usd" | "eur") {
+function ensureMarketItemCompleteness(item: CoinGeckoMarketItem, currency: Currency) {
   const requiredFields = [
     "current_price",
     "market_cap",
@@ -60,7 +61,7 @@ function ensureMarketItemCompleteness(item: CoinGeckoMarketItem, currency: "usd"
 }
 
 export async function fetchCoinGeckoMarketData(
-  currency: "usd" | "eur",
+  currency: Currency,
   apiKey: string,
   cachePolicy?: CachePolicy
 ) {
@@ -110,7 +111,7 @@ export async function fetchCoinGeckoMarketData(
 
 export async function fetchCoinGeckoMarketChart(input: {
   apiKey: string;
-  currency: "usd" | "eur";
+  currency: Currency;
   days: number;
   cachePolicy?: CachePolicy;
 }) {

@@ -1,14 +1,10 @@
 import { mapMarketContextChartDto } from "../../../domain/dashboard/market-context-chart.mapper";
-import type { Currency } from "../../../domain/dashboard/dto";
+import { DEFAULT_CURRENCY, parseCurrency } from "../../../lib/currency";
 import { getCacheControlHeader, getChartCachePolicy } from "../../../server/cache";
 import { getAppEnv } from "../../../server/env";
 import { errorResponse, jsonResponse } from "../../../server/http";
 import { fetchCoinGeckoMarketChart } from "../../../server/providers/coingecko";
 import { upstreamErrorResponse } from "../../../server/upstream";
-
-function isValidCurrency(value: string | null): value is Currency {
-  return value === "usd" || value === "eur";
-}
 
 export async function GET(request: Request) {
   const apiKey = getAppEnv().COINGECKO_DEMO_API_KEY;
@@ -18,13 +14,16 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const currencyParam = url.searchParams.get("currency") ?? "usd";
+  const currencyParam = url.searchParams.get("currency");
+  const currency = currencyParam === null ? DEFAULT_CURRENCY : parseCurrency(currencyParam);
 
-  if (!isValidCurrency(currencyParam)) {
-    return errorResponse(400, "UngÃ¼ltiger currency-Parameter. Erlaubt sind nur usd oder eur.");
+  if (!currency) {
+    return errorResponse(
+      400,
+      "Ungueltiger currency-Parameter. Bitte nutze einen unterstuetzten Waehrungscode wie usd, eur oder jpy."
+    );
   }
 
-  const currency = currencyParam as Currency;
   const cachePolicy = getChartCachePolicy(30);
 
   try {

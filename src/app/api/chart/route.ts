@@ -1,5 +1,6 @@
 import { mapChartDto } from "../../../domain/dashboard/chart.mapper";
-import type { ChartRange, Currency } from "../../../domain/dashboard/dto";
+import type { ChartRange } from "../../../domain/dashboard/dto";
+import { DEFAULT_CURRENCY, parseCurrency } from "../../../lib/currency";
 import { getCacheControlHeader, getChartCachePolicy } from "../../../server/cache";
 import { getAppEnv } from "../../../server/env";
 import { errorResponse, jsonResponse } from "../../../server/http";
@@ -8,10 +9,6 @@ import { upstreamErrorResponse } from "../../../server/upstream";
 
 function isValidRange(value: string | null): value is `${ChartRange}` {
   return value === "1" || value === "7" || value === "30";
-}
-
-function isValidCurrency(value: string | null): value is Currency {
-  return value === "usd" || value === "eur";
 }
 
 export async function GET(request: Request) {
@@ -23,18 +20,22 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const daysParam = url.searchParams.get("days");
-  const currencyParam = url.searchParams.get("currency") ?? "usd";
+  const currencyParam = url.searchParams.get("currency");
 
   if (!isValidRange(daysParam)) {
-    return errorResponse(400, "Ungültiger days-Parameter. Erlaubt sind nur 1, 7 oder 30.");
+    return errorResponse(400, "Ungueltiger days-Parameter. Erlaubt sind nur 1, 7 oder 30.");
   }
 
-  if (!isValidCurrency(currencyParam)) {
-    return errorResponse(400, "Ungültiger currency-Parameter. Erlaubt sind nur usd oder eur.");
+  const currency = currencyParam === null ? DEFAULT_CURRENCY : parseCurrency(currencyParam);
+
+  if (!currency) {
+    return errorResponse(
+      400,
+      "Ungueltiger currency-Parameter. Bitte nutze einen unterstuetzten Waehrungscode wie usd, eur oder jpy."
+    );
   }
 
   const days = Number(daysParam) as ChartRange;
-  const currency = currencyParam as Currency;
   const cachePolicy = getChartCachePolicy(days);
 
   try {

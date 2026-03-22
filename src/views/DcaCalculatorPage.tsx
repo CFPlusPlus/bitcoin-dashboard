@@ -14,6 +14,7 @@ import { useI18n } from "../i18n/context";
 import { formatMessage } from "../i18n/template";
 import { cn } from "../lib/cn";
 import { fetchJson } from "../lib/api";
+import { CURRENCY_STORAGE_KEY, DEFAULT_CURRENCY, isCurrency } from "../lib/currency";
 import { resolveAsyncDataState } from "../lib/data-state";
 import {
   addDcaEntry,
@@ -24,7 +25,6 @@ import {
   getCurrentPrice,
   getDcaTone,
   getDefaultDcaDate,
-  isCurrency,
   normalizeDcaEntryStore,
   removeDcaEntry,
 } from "../lib/dca";
@@ -32,7 +32,7 @@ import { formatBtc, formatCurrency, formatDate, formatPercent } from "../lib/for
 import type { Currency, DcaEntryStore, Overview } from "../types/dashboard";
 
 const STORAGE_KEYS = {
-  currency: "bitcoin-dashboard:currency",
+  currency: CURRENCY_STORAGE_KEY,
   dcaEntries: "bitcoin-dashboard:dca-entries",
 } as const;
 
@@ -105,9 +105,9 @@ export default function DcaCalculatorPage() {
   const currencyStateOptions = useMemo(() => ({ validator: isCurrency }), []);
   const entryStoreStateOptions = useMemo(() => ({ normalize: normalizeDcaEntryStore }), []);
 
-  const [currency, setCurrency] = usePersistentState<Currency>(
+  const [currency] = usePersistentState<Currency>(
     STORAGE_KEYS.currency,
-    "usd",
+    DEFAULT_CURRENCY,
     currencyStateOptions
   );
   const [entryStore, setEntryStore] = usePersistentState<DcaEntryStore>(
@@ -133,7 +133,7 @@ export default function DcaCalculatorPage() {
     setMarketError("");
 
     try {
-      const overviewData = await fetchJson<Overview>("/api/overview", locale);
+      const overviewData = await fetchJson<Overview>(`/api/overview?currency=${currency}`, locale);
       setOverview(overviewData);
     } catch (error) {
       const message = error instanceof Error ? error.message : copy.marketState.loadError;
@@ -141,7 +141,7 @@ export default function DcaCalculatorPage() {
     } finally {
       setMarketLoading(false);
     }
-  }, [copy.marketState.loadError, locale]);
+  }, [copy.marketState.loadError, currency, locale]);
 
   useEffect(() => {
     void loadMarketOverview();
@@ -151,7 +151,7 @@ export default function DcaCalculatorPage() {
     setDate((currentDate) => currentDate || getDefaultDcaDate());
   }, []);
 
-  const entries = entryStore[currency];
+  const entries = useMemo(() => entryStore[currency] ?? [], [currency, entryStore]);
   const currentPrice = getCurrentPrice(overview, currency);
   const dcaView = useMemo(() => buildDcaView(entries, currentPrice), [currentPrice, entries]);
   const summaryTone = getDcaTone(dcaView.summary.pnlAbsolute);
@@ -284,22 +284,6 @@ export default function DcaCalculatorPage() {
         </div>
 
         <div className="dca-toolbar__actions">
-          <div className="flex flex-wrap gap-2" role="tablist" aria-label={copy.currencyAriaLabel}>
-            {(["usd", "eur"] as const).map((value) => (
-              <Button
-                key={value}
-                type="button"
-                active={currency === value}
-                intent="secondary"
-                size="sm"
-                className="min-w-[5rem]"
-                onClick={() => setCurrency(value)}
-              >
-                {value.toUpperCase()}
-              </Button>
-            ))}
-          </div>
-
           <Button
             type="button"
             intent="primary"
@@ -398,7 +382,7 @@ export default function DcaCalculatorPage() {
                   step="0.01"
                   value={amountInvested}
                   onChange={(event) => setAmountInvested(event.target.value)}
-                  placeholder={currency === "usd" ? "250" : "200"}
+                  placeholder="250"
                 />
                 <small className="dca-input-hint">{copy.fields.amountHint}</small>
               </label>
@@ -415,7 +399,7 @@ export default function DcaCalculatorPage() {
                   step="0.01"
                   value={bitcoinPrice}
                   onChange={(event) => setBitcoinPrice(event.target.value)}
-                  placeholder={currency === "usd" ? "50000" : "46000"}
+                  placeholder="50000"
                 />
                 <small className="dca-input-hint">{copy.fields.bitcoinPriceHint}</small>
               </label>

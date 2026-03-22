@@ -1,16 +1,27 @@
 import type { Currency, Overview } from "../../types/dashboard";
 
+const EMPTY_OVERVIEW_VALUES = {
+  price: null,
+  change24h: null,
+  volume24h: null,
+  marketCap: null,
+  btcDominance: null,
+  high24h: null,
+  low24h: null,
+};
+
 export function getOverviewValues(overview: Overview | null, currency: Currency) {
+  if (!overview || overview.currency !== currency) {
+    return EMPTY_OVERVIEW_VALUES;
+  }
+
   return {
-    price: currency === "usd" ? (overview?.priceUsd ?? null) : (overview?.priceEur ?? null),
-    change24h:
-      currency === "usd" ? (overview?.change24hUsd ?? null) : (overview?.change24hEur ?? null),
-    volume24h:
-      currency === "usd" ? (overview?.volume24hUsd ?? null) : (overview?.volume24hEur ?? null),
-    marketCap:
-      currency === "usd" ? (overview?.marketCapUsd ?? null) : (overview?.marketCapEur ?? null),
-    btcDominance: overview?.btcDominance ?? null,
-    high24h: currency === "usd" ? (overview?.high24hUsd ?? null) : (overview?.high24hEur ?? null),
-    low24h: currency === "usd" ? (overview?.low24hUsd ?? null) : (overview?.low24hEur ?? null),
+    price: overview.price,
+    change24h: overview.change24h,
+    volume24h: overview.volume24h,
+    marketCap: overview.marketCap,
+    btcDominance: overview.btcDominance,
+    high24h: overview.high24h,
+    low24h: overview.low24h,
   };
 }

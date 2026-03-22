@@ -71,25 +71,6 @@ describe("route validation handling", () => {
         )
         .mockResolvedValueOnce(
           new Response(
-            JSON.stringify([
-              {
-                current_price: 62000,
-                market_cap: 1,
-                total_volume: 1,
-                high_24h: 1,
-                low_24h: 1,
-                price_change_percentage_24h: 1,
-                last_updated: "2026-03-17T00:00:00.000Z",
-              },
-            ]),
-            {
-              status: 200,
-              headers: { "content-type": "application/json" },
-            }
-          )
-        )
-        .mockResolvedValueOnce(
-          new Response(
             JSON.stringify({
               data: {
                 market_cap_percentage: {
@@ -106,7 +87,7 @@ describe("route validation handling", () => {
     );
 
     const { GET } = await import("./overview/route");
-    const response = await GET();
+    const response = await GET(new Request("https://example.com/api/overview?currency=usd"));
 
     expect(response.headers.get("cache-control")).toBe(getCacheControlHeader(overviewCachePolicy));
   });

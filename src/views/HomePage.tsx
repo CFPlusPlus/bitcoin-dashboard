@@ -35,7 +35,6 @@ export default function HomePage() {
     warnings,
     refreshAll,
     setAutoRefresh,
-    setCurrency,
     setRange,
   } = useDashboardData(locale);
 
@@ -43,11 +42,9 @@ export default function HomePage() {
     <Stack gap="xl">
       <HomepageIntro
         autoRefresh={autoRefresh}
-        currency={currency}
         dashboardState={dashboardState}
         refreshing={refreshing}
         onAutoRefreshChange={setAutoRefresh}
-        onCurrencyChange={setCurrency}
         onRefresh={() => void refreshAll(range, currency)}
         warnings={warnings}
       />
@@ -72,7 +69,7 @@ export default function HomePage() {
         onDashboardRetry={() => void refreshAll(range, currency)}
         onMarketContextChartRetry={() => void loadMarketContextChartData(currency)}
         onNetworkRetry={() => void loadNetworkData()}
-        onOverviewRetry={() => void loadOverviewData()}
+        onOverviewRetry={() => void loadOverviewData(currency)}
         onPerformanceRetry={() => void loadPerformanceData(currency)}
         onSentimentRetry={() => void loadSentimentData()}
         onRangeChange={setRange}
