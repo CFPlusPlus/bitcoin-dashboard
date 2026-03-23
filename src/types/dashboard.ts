@@ -9,6 +9,7 @@ export type {
   MarketContextChartSeriesDto as MarketContextChartSeries,
   MarketContextMetricKey,
   NetworkDto as Network,
+  OnChainActivityDto as OnChainActivity,
   OverviewDto as Overview,
   PerformanceDto as Performance,
   PerformanceWindowDto as PerformanceWindow,

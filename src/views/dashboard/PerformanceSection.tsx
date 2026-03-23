@@ -126,10 +126,7 @@ export default function PerformanceSection({
               value={formatCurrency(stats?.movingAverage200d ?? null, currency, locale)}
               meta={copy.movingAverageMeta}
               valueFootnote={formatMessage(copy.movingAverageFootnote, {
-                value: formatPercent(
-                  stats?.distanceFromMovingAverage200dPercent ?? null,
-                  locale
-                ),
+                value: formatPercent(stats?.distanceFromMovingAverage200dPercent ?? null, locale),
               })}
               valueTone={getValueTone(stats?.distanceFromMovingAverage200dPercent ?? null)}
               tone="default"

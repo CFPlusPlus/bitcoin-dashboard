@@ -6,6 +6,9 @@ type OverviewMarketSlice = {
   ath: number | null;
   athChangePercent: number | null;
   athDate: string | null;
+  atl: number | null;
+  atlChangePercent: number | null;
+  atlDate: string | null;
   change24h: number | null;
   circulatingSupply: number | null;
   fullyDilutedValuation: number | null;
@@ -13,6 +16,8 @@ type OverviewMarketSlice = {
   lastUpdatedAt: string | null;
   low24h: number | null;
   marketCap: number | null;
+  marketCapChange24h: number | null;
+  marketCapChange24hPercent: number | null;
   marketCapRank: number | null;
   maxSupply: number | null;
   price: number | null;
@@ -24,6 +29,8 @@ function mapCoinGeckoMarketItem(item: CoinGeckoMarketItem): OverviewMarketSlice 
     price: item.current_price ?? null,
     change24h: item.price_change_percentage_24h ?? null,
     marketCap: item.market_cap ?? null,
+    marketCapChange24h: item.market_cap_change_24h ?? null,
+    marketCapChange24hPercent: item.market_cap_change_percentage_24h ?? null,
     marketCapRank: item.market_cap_rank ?? null,
     fullyDilutedValuation: item.fully_diluted_valuation ?? null,
     volume24h: item.total_volume ?? null,
@@ -32,6 +39,9 @@ function mapCoinGeckoMarketItem(item: CoinGeckoMarketItem): OverviewMarketSlice 
     ath: item.ath ?? null,
     athChangePercent: item.ath_change_percentage ?? null,
     athDate: item.ath_date ?? null,
+    atl: item.atl ?? null,
+    atlChangePercent: item.atl_change_percentage ?? null,
+    atlDate: item.atl_date ?? null,
     high24h: item.high_24h ?? null,
     low24h: item.low_24h ?? null,
     lastUpdatedAt: item.last_updated ?? null,
@@ -59,9 +69,15 @@ export function mapOverviewDto(input: {
     price: market.price,
     change24h: market.change24h,
     marketCap: market.marketCap,
+    marketCapChange24h: market.marketCapChange24h,
+    marketCapChange24hPercent: market.marketCapChange24hPercent,
     marketCapRank: market.marketCapRank,
     fullyDilutedValuation: market.fullyDilutedValuation,
     volume24h: market.volume24h,
+    volumeMarketCapRatio:
+      market.volume24h !== null && market.marketCap !== null && market.marketCap > 0
+        ? market.volume24h / market.marketCap
+        : null,
     btcDominance: input.btcDominance,
     circulatingSupply: market.circulatingSupply,
     maxSupply: market.maxSupply,
@@ -72,6 +88,9 @@ export function mapOverviewDto(input: {
     ath: market.ath,
     athDate: market.athDate,
     athChangePercent: market.athChangePercent,
+    atl: market.atl,
+    atlDate: market.atlDate,
+    atlChangePercent: market.atlChangePercent,
     high24h: market.high24h,
     low24h: market.low24h,
     lastUpdatedAt: market.lastUpdatedAt,

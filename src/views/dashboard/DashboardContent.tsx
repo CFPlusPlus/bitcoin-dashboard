@@ -7,6 +7,7 @@ import type {
   Currency,
   MarketContextChartData,
   Network,
+  OnChainActivity,
   Overview,
   Performance,
   Sentiment,
@@ -24,6 +25,7 @@ import PerformanceSection from "./PerformanceSection";
 import SentimentSection from "./SentimentSection";
 import HalvingSection from "./HalvingSection";
 import ToolsPreviewSection from "./ToolsPreviewSection";
+import OnChainActivitySection from "./OnChainActivitySection";
 
 type DashboardContentProps = {
   chart: ChartData | null;
@@ -35,10 +37,13 @@ type DashboardContentProps = {
   marketContextChartState: AsyncDataState<MarketContextChartData>;
   network: Network | null;
   networkState: AsyncDataState<Network>;
+  onChainActivity: OnChainActivity | null;
+  onChainActivityState: AsyncDataState<OnChainActivity>;
   onChartRetry: () => void;
   onDashboardRetry: () => void;
   onMarketContextChartRetry: () => void;
   onNetworkRetry: () => void;
+  onOnChainActivityRetry: () => void;
   onOverviewRetry: () => void;
   onPerformanceRetry: () => void;
   onRangeChange: (value: ChartRange) => void;
@@ -113,6 +118,12 @@ export default function DashboardContent(props: DashboardContentProps) {
           />
         </div>
       </Section>
+
+      <OnChainActivitySection
+        onChainActivity={props.onChainActivity}
+        onChainActivityState={props.onChainActivityState}
+        onRetry={props.onOnChainActivityRetry}
+      />
 
       <NetworkOverviewSection
         network={props.network}

@@ -9,6 +9,7 @@ type MetricCardProps = {
   label: string;
   meta?: ReactNode;
   valueFootnote?: ReactNode;
+  valueClassName?: string;
   tone?: "default" | "elevated" | "muted" | "interactive";
   value: ReactNode;
   valueTone?: "default" | "positive" | "negative";
@@ -21,6 +22,7 @@ export default function MetricCard({
   meta,
   tone = "muted",
   value,
+  valueClassName,
   valueFootnote,
   valueTone = "default",
 }: MetricCardProps) {
@@ -40,7 +42,15 @@ export default function MetricCard({
         toneClassName
       )}
     >
-      <KpiValue label={label} value={value} delta={delta} meta={meta} size="md" tone={valueTone} />
+      <KpiValue
+        label={label}
+        value={value}
+        valueClassName={valueClassName}
+        delta={delta}
+        meta={meta}
+        size="md"
+        tone={valueTone}
+      />
       <div className="mt-auto flex flex-col gap-2">
         {valueFootnote ? (
           <MetaText tone="strong" size="xs" className="leading-snug">

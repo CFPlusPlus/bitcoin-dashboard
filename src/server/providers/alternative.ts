@@ -47,11 +47,11 @@ function ensurePrimaryItem(response: AlternativeMeFearAndGreedResponse) {
   return response;
 }
 
-export async function fetchFearAndGreedIndex(cachePolicy?: CachePolicy) {
+export async function fetchFearAndGreedIndex(limit = 1, cachePolicy?: CachePolicy) {
   const response = await requestUpstream({
     provider,
     resource: "Fear and Greed",
-    url: "https://api.alternative.me/fng/?limit=1",
+    url: `https://api.alternative.me/fng/?limit=${limit}`,
     accept: "application/json",
     timeoutMs: 6000,
     cachePolicy,

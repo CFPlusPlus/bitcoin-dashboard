@@ -54,6 +54,12 @@ export const sentimentCachePolicy: CachePolicy = {
   browserMaxAgeSeconds: 300,
 };
 
+export const onChainActivityCachePolicy: CachePolicy = {
+  revalidateSeconds: 1800,
+  staleWhileRevalidateSeconds: 7200,
+  browserMaxAgeSeconds: 300,
+};
+
 export function getCacheControlHeader(policy: CachePolicy) {
   return (
     `public, max-age=${policy.browserMaxAgeSeconds}, ` +

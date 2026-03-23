@@ -3,6 +3,7 @@ import {
   getCacheControlHeader,
   getChartCachePolicy,
   networkCachePolicy,
+  onChainActivityCachePolicy,
   overviewCachePolicy,
   performanceCachePolicy,
   sentimentCachePolicy,
@@ -345,5 +346,42 @@ describe("route validation handling", () => {
     const response = await GET();
 
     expect(response.headers.get("cache-control")).toBe(getCacheControlHeader(sentimentCachePolicy));
+  });
+
+  it("sets the on-chain activity cache header explicitly", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            data: [
+              {
+                asset: "btc",
+                time: "2026-03-16T00:00:00.000Z",
+                AdrActCnt: "586709",
+                TxCnt: "490235",
+              },
+              {
+                asset: "btc",
+                time: "2026-03-22T00:00:00.000Z",
+                AdrActCnt: "545348",
+                TxCnt: "639039",
+              },
+            ],
+          }),
+          {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          }
+        )
+      )
+    );
+
+    const { GET } = await import("./onchain-activity/route");
+    const response = await GET();
+
+    expect(response.headers.get("cache-control")).toBe(
+      getCacheControlHeader(onChainActivityCachePolicy)
+    );
   });
 });

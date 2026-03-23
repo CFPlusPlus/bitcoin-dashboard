@@ -27,6 +27,7 @@ type KpiValueProps = HTMLAttributes<HTMLDivElement> &
     label?: ReactNode;
     meta?: ReactNode;
     value: ReactNode;
+    valueClassName?: string;
   };
 
 export default function KpiValue({
@@ -37,6 +38,7 @@ export default function KpiValue({
   size,
   tone,
   value,
+  valueClassName,
   ...props
 }: KpiValueProps) {
   return (
@@ -46,7 +48,7 @@ export default function KpiValue({
           {label}
         </MetaText>
       ) : null}
-      <div className={cn("min-w-0", kpiValueVariants({ size, tone }))}>{value}</div>
+      <div className={cn("min-w-0", kpiValueVariants({ size, tone }), valueClassName)}>{value}</div>
       {delta ? <MetaText tone={tone === "default" ? "default" : tone}>{delta}</MetaText> : null}
       {meta ? <MetaText>{meta}</MetaText> : null}
     </div>

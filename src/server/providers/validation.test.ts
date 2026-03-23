@@ -277,7 +277,7 @@ describe("provider validation", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    await fetchFearAndGreedIndex(sentimentCachePolicy);
+    await fetchFearAndGreedIndex(1, sentimentCachePolicy);
 
     expect(fetchMock).toHaveBeenCalledWith(
       expect.any(String),

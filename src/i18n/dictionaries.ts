@@ -388,6 +388,39 @@ export const dictionaries = {
         fdvLabel: "Fully Diluted Valuation",
         fdvMeta: "Bewertung auf Basis der maximalen Bitcoin-Menge.",
         fdvFootnote: "Hilft, Marktwert und feste Angebotsgrenze zusammen zu lesen.",
+        atlLabel: "ATL",
+        atlMeta: "Tief vom {value}",
+        atlFootnote: "Das markiert das bisherige Mehrjahrestief in der aktiven Währung.",
+        atlDistanceLabel: "Abstand zum ATL",
+        atlDistanceMeta: "Prozentuale Distanz vom aktuellen Preis zum Allzeittief.",
+        atlDistanceFootnote:
+          "Hilft einzuordnen, wie weit Bitcoin seit dem tiefsten Punkt gestiegen ist.",
+        volumeMarketCapRatioLabel: "Volumen / Market Cap",
+        volumeMarketCapRatioMeta: "24h Volumen relativ zur aktuellen Marktkapitalisierung.",
+        volumeMarketCapRatioFootnote:
+          "Gibt ein Gefühl dafür, wie viel Handelsaktivität relativ zur Marktgröße stattfindet.",
+      },
+      onChainActivity: {
+        eyebrow: "On-Chain Aktivität",
+        title: "Nutzung auf der Kette",
+        description:
+          "Aktive Adressen und Transaktionen ergänzen Fees und Mempool um reale Netzwerknutzung.",
+        activeAddressesLabel: "Aktive Adressen",
+        activeAddressesMeta: "Letzter Tageswert aus der Coin Metrics Community API.",
+        activeAddressesFootnote:
+          "Zeigt, wie viele Adressen zuletzt aktiv am Netzwerk beteiligt waren.",
+        activeAddressesChangeLabel: "Aktive Adressen 7d",
+        activeAddressesChangeMeta: "Veränderung des letzten Tageswerts gegenüber vor 7 Tagen.",
+        activeAddressesChangeFootnote:
+          "Hilft, die aktuelle Nutzung gegen die jüngste Vorwoche zu lesen.",
+        transactionCountLabel: "Transaktionsanzahl",
+        transactionCountMeta: "Letzter Tageswert aus der Coin Metrics Community API.",
+        transactionCountFootnote:
+          "Zeigt, wie viele Transaktionen zuletzt on-chain bestätigt wurden.",
+        transactionCountChangeLabel: "Transaktionen 7d",
+        transactionCountChangeMeta: "Veränderung des letzten Tageswerts gegenüber vor 7 Tagen.",
+        transactionCountChangeFootnote:
+          "Hilft beim schnellen Blick, ob die Aktivität gerade zunimmt oder abnimmt.",
       },
       network: {
         eyebrow: "Netzwerk",
@@ -463,8 +496,7 @@ export const dictionaries = {
         averageBlockSizeLabelSafe: "Ø Blockgröße",
         averageBlockSizeMetaSafe: "Hilft beim Einordnen der aktuellen Blockauslastung.",
         backlogBlocksLabelSafe: "Backlog",
-        backlogBlocksMetaSafe:
-          "Unbestätigter Rückstau als ungefähre Anzahl voller Blöcke.",
+        backlogBlocksMetaSafe: "Unbestätigter Rückstau als ungefähre Anzahl voller Blöcke.",
         backlogBlocksSuffixSafe: "Blöcke",
         feeSpreadTitleSafe: "Fee-Spreads",
         feeSpreadDescriptionSafe: "Absolute Abstandsmaße zwischen den sichtbaren Fee-Stufen.",
@@ -481,6 +513,12 @@ export const dictionaries = {
         description: "Fear & Greed zeigt, ob der Markt gerade eher nervös oder gierig ist.",
         indexLabel: "Fear & Greed Index",
         indexMeta: "Stimmungsindikator für das aktuelle Marktumfeld",
+        average7dLabel: "Fear & Greed 7d",
+        average7dMeta: "Durchschnitt der letzten 7 gemeldeten Indexwerte.",
+        average7dFootnote: "Glättet Tagesausschläge und zeigt die jüngste Grundstimmung.",
+        change7dLabel: "Fear & Greed 7d Delta",
+        change7dMeta: "Veränderung des aktuellen Werts gegenüber vor 7 Tagen.",
+        change7dFootnote: "Positiv heißt: der Markt ist zuletzt gieriger geworden.",
         nextUpdate: "Nächste Aktualisierung",
         nextUpdateHint: "Dann kommt der nächste Stimmungscheck.",
         sourceLabel: "Datenquelle",
@@ -657,6 +695,32 @@ export const dictionaries = {
               "Die Aktualisierung ist fehlgeschlagen. Die angezeigten Kennzahlen können inzwischen überholt sein.",
           },
         },
+        onChainActivity: {
+          loading: {
+            title: "On-Chain Aktivität wird geladen",
+            description: "Aktive Adressen und Transaktionszahlen werden vorbereitet.",
+          },
+          empty: {
+            title: "Keine On-Chain Aktivität verfügbar",
+            description:
+              "Der Abruf war erfolgreich, liefert aktuell aber keine verwertbaren Aktivitätswerte.",
+          },
+          error: {
+            title: "On-Chain Aktivität ist gerade nicht verfügbar",
+            fallbackDescription:
+              "Es konnten noch keine verlässlichen Aktivitätsdaten geladen werden.",
+          },
+          partial: {
+            title: "On-Chain Aktivität ist teilweise verfügbar",
+            description:
+              "Einzelne Aktivitätswerte fehlen im aktuellen Abruf. Verfügbare Werte bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzte On-Chain Aktivität bleibt sichtbar",
+            description:
+              "Die Aktualisierung ist fehlgeschlagen. Die angezeigten Aktivitätswerte können inzwischen überholt sein.",
+          },
+        },
         network: {
           loading: {
             title: "Netzwerkdaten werden geladen",
@@ -759,6 +823,8 @@ export const dictionaries = {
             "Performance-Daten sind gerade nicht verfügbar. Bitte später erneut laden.",
           networkUnavailable:
             "Netzwerkdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
+          onChainActivityUnavailable:
+            "On-Chain Aktivität ist gerade nicht verfügbar. Bitte später erneut laden.",
           sentimentUnavailable:
             "Sentimentdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
           chartUnavailable: "Chartdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
@@ -1212,8 +1278,7 @@ export const dictionaries = {
         volatility30dFootnote: "Shows how strongly BTC moved over the last 30 days.",
         volatility90dLabel: "90d volatility",
         volatility90dMeta: "Realized and annualized.",
-        volatility90dFootnote:
-          "Useful for comparing shorter-term and broader market turbulence.",
+        volatility90dFootnote: "Useful for comparing shorter-term and broader market turbulence.",
         periods: {
           "7d": "7 days",
           "30d": "30 days",
@@ -1268,6 +1333,36 @@ export const dictionaries = {
         fdvLabel: "Fully diluted valuation",
         fdvMeta: "Valuation based on Bitcoin's maximum supply.",
         fdvFootnote: "Adds supply context to the current market value.",
+        atlLabel: "ATL",
+        atlMeta: "Low on {value}",
+        atlFootnote: "Marks the lowest historically recorded BTC price in the active currency.",
+        atlDistanceLabel: "Distance to ATL",
+        atlDistanceMeta: "Percentage distance from the current price to the all-time low.",
+        atlDistanceFootnote:
+          "Useful for framing how far Bitcoin has moved away from its deepest low.",
+        volumeMarketCapRatioLabel: "Volume / market cap",
+        volumeMarketCapRatioMeta: "24h volume relative to the current market capitalization.",
+        volumeMarketCapRatioFootnote:
+          "Gives quick context for trading activity relative to market size.",
+      },
+      onChainActivity: {
+        eyebrow: "On-chain activity",
+        title: "Usage on the chain",
+        description:
+          "Active addresses and transaction count complement fees and mempool pressure with real usage.",
+        activeAddressesLabel: "Active addresses",
+        activeAddressesMeta: "Latest daily value from the Coin Metrics Community API.",
+        activeAddressesFootnote: "Shows how many addresses were recently active on the network.",
+        activeAddressesChangeLabel: "Active addresses 7d",
+        activeAddressesChangeMeta: "Change from the latest daily value versus 7 days ago.",
+        activeAddressesChangeFootnote: "Helps compare current usage against the recent week.",
+        transactionCountLabel: "Transaction count",
+        transactionCountMeta: "Latest daily value from the Coin Metrics Community API.",
+        transactionCountFootnote: "Shows how many transactions were recently confirmed on-chain.",
+        transactionCountChangeLabel: "Transactions 7d",
+        transactionCountChangeMeta: "Change from the latest daily value versus 7 days ago.",
+        transactionCountChangeFootnote:
+          "Helpful for spotting whether on-chain activity is picking up or cooling off.",
       },
       network: {
         eyebrow: "Network",
@@ -1325,8 +1420,7 @@ export const dictionaries = {
         averageBlockSizeLabel: "Avg block size",
         averageBlockSizeMeta: "Helps frame the current level of block utilization.",
         backlogBlocksLabel: "Backlog",
-        backlogBlocksMeta:
-          "Unconfirmed queue expressed as an approximate number of full blocks.",
+        backlogBlocksMeta: "Unconfirmed queue expressed as an approximate number of full blocks.",
         backlogBlocksSuffix: "blocks",
         feeSpreadTitle: "Fee spreads",
         feeSpreadDescription: "Absolute spacing between the visible fee lanes.",
@@ -1362,6 +1456,12 @@ export const dictionaries = {
         description: "Fear & Greed shows whether the market is currently more nervous or greedy.",
         indexLabel: "Fear & Greed Index",
         indexMeta: "Sentiment indicator for the current market backdrop",
+        average7dLabel: "Fear & Greed 7d",
+        average7dMeta: "Average across the last 7 reported index values.",
+        average7dFootnote: "Smooths out day-to-day noise and shows the recent baseline mood.",
+        change7dLabel: "Fear & Greed 7d delta",
+        change7dMeta: "Change from the current value versus 7 days ago.",
+        change7dFootnote: "Positive means the market turned greedier over the last week.",
         nextUpdate: "Next update",
         nextUpdateHint: "That is when the next sentiment check arrives.",
         sourceLabel: "Data source",
@@ -1524,6 +1624,29 @@ export const dictionaries = {
             description: "The refresh failed. The displayed metrics may now be outdated.",
           },
         },
+        onChainActivity: {
+          loading: {
+            title: "Loading on-chain activity",
+            description: "Active addresses and transaction counts are being prepared.",
+          },
+          empty: {
+            title: "No on-chain activity available",
+            description: "The fetch succeeded, but there are no usable activity metrics right now.",
+          },
+          error: {
+            title: "On-chain activity is currently unavailable",
+            fallbackDescription: "No reliable on-chain activity data could be loaded yet.",
+          },
+          partial: {
+            title: "On-chain activity is partially available",
+            description:
+              "Some activity metrics are missing in the current fetch. Available values stay visible.",
+          },
+          stale: {
+            title: "Latest on-chain activity stays visible",
+            description: "The refresh failed. The displayed activity metrics may now be outdated.",
+          },
+        },
         network: {
           loading: {
             title: "Loading network data",
@@ -1618,6 +1741,8 @@ export const dictionaries = {
           performanceUnavailable:
             "Performance data is currently unavailable. Please try again later.",
           networkUnavailable: "Network data is currently unavailable. Please try again later.",
+          onChainActivityUnavailable:
+            "On-chain activity is currently unavailable. Please try again later.",
           sentimentUnavailable: "Sentiment data is currently unavailable. Please try again later.",
           chartUnavailable: "Chart data is currently unavailable. Please try again later.",
         },

@@ -6,7 +6,7 @@ import { upstreamErrorResponse } from "../../../server/upstream";
 
 export async function GET() {
   try {
-    const payload = await fetchFearAndGreedIndex(sentimentCachePolicy);
+    const payload = await fetchFearAndGreedIndex(7, sentimentCachePolicy);
 
     const dto = mapSentimentDto({
       payload,

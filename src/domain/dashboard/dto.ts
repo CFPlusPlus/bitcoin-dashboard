@@ -18,9 +18,12 @@ export type OverviewDto = ApiEnvelope & {
   price: number | null;
   change24h: number | null;
   marketCap: number | null;
+  marketCapChange24h: number | null;
+  marketCapChange24hPercent: number | null;
   marketCapRank: number | null;
   fullyDilutedValuation: number | null;
   volume24h: number | null;
+  volumeMarketCapRatio: number | null;
   btcDominance: number | null;
   circulatingSupply: number | null;
   maxSupply: number | null;
@@ -28,6 +31,9 @@ export type OverviewDto = ApiEnvelope & {
   ath: number | null;
   athDate: string | null;
   athChangePercent: number | null;
+  atl: number | null;
+  atlDate: string | null;
+  atlChangePercent: number | null;
   high24h: number | null;
   low24h: number | null;
   lastUpdatedAt: string | null;
@@ -107,9 +113,32 @@ export type SentimentDto = ApiEnvelope & {
   value: number | null;
   classification: string | null;
   timestamp: string | null;
+  average7d: number | null;
+  change7d: number | null;
   timeUntilUpdateSeconds: number | null;
   nextUpdateAt: string | null;
   attribution: string;
+};
+
+export type OnChainActivityDto = ApiEnvelope & {
+  activeAddresses: {
+    current: number | null;
+    change7dPercent: number | null;
+    average7d: number | null;
+    points: Array<{
+      timestamp: string;
+      value: number;
+    }>;
+  };
+  transactionCount: {
+    current: number | null;
+    change7dPercent: number | null;
+    average7d: number | null;
+    points: Array<{
+      timestamp: string;
+      value: number;
+    }>;
+  };
 };
 
 export type ChartPointDto = {

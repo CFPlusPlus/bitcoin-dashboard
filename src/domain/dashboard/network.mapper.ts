@@ -183,7 +183,9 @@ export function mapNetworkDto(input: {
       .filter((value): value is number => value !== null && Number.isFinite(value))
   );
   const backlogBlocks =
-    pendingVirtualSizeMb === null ? null : round((pendingVirtualSizeMb * 1_000_000) / BYTES_PER_FULL_BLOCK, 1);
+    pendingVirtualSizeMb === null
+      ? null
+      : round((pendingVirtualSizeMb * 1_000_000) / BYTES_PER_FULL_BLOCK, 1);
 
   return {
     source: "mempool.space",

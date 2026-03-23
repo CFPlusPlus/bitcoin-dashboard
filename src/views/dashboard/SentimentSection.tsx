@@ -3,7 +3,7 @@
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Sentiment } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import { formatCountdown } from "../../lib/format";
+import { formatCountdown, formatNumber, formatPercent } from "../../lib/format";
 import { useI18n } from "../../i18n/context";
 import { cn } from "../../lib/cn";
 import Card from "../../components/ui/Card";
@@ -13,6 +13,7 @@ import KpiValue from "../../components/ui/content/KpiValue";
 import MetaText from "../../components/ui/content/MetaText";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
 import Stack from "../../components/ui/layout/Stack";
+import MetricCard from "../../components/MetricCard";
 
 type SentimentSectionProps = {
   onRetry: () => void;
@@ -110,6 +111,29 @@ export default function SentimentSection({
               <p className="text-base font-medium text-fg">{sentiment?.attribution ?? fallback}</p>
               <MetaText>{copy.sourceHint}</MetaText>
             </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <MetricCard
+              label={copy.average7dLabel}
+              value={formatNumber(sentiment?.average7d ?? null, locale)}
+              meta={copy.average7dMeta}
+              valueFootnote={copy.average7dFootnote}
+              tone="default"
+            />
+            <MetricCard
+              label={copy.change7dLabel}
+              value={formatPercent(sentiment?.change7d ?? null, locale)}
+              meta={copy.change7dMeta}
+              valueFootnote={copy.change7dFootnote}
+              valueTone={
+                typeof sentiment?.change7d === "number" && sentiment.change7d < 0
+                  ? "negative"
+                  : typeof sentiment?.change7d === "number" && sentiment.change7d > 0
+                    ? "positive"
+                    : "default"
+              }
+            />
           </div>
         </Stack>
       </DataState>

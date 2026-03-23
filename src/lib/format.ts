@@ -140,6 +140,23 @@ export function formatPercentValue(value: number | null, locale: AppLocale = "de
   );
 }
 
+export function formatSignedPercentValue(value: number | null, locale: AppLocale = "de") {
+  if (!isFiniteNumber(value)) return getUnavailableText(locale);
+
+  const absoluteValue = Math.abs(value);
+  const maximumFractionDigits = absoluteValue >= 1000 ? 0 : absoluteValue >= 100 ? 1 : 2;
+  const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+
+  return (
+    sign +
+    new Intl.NumberFormat(getNumberLocale(locale), {
+      minimumFractionDigits: 0,
+      maximumFractionDigits,
+    }).format(absoluteValue) +
+    "%"
+  );
+}
+
 export function formatDateTime(value: string | null, locale: AppLocale = "de") {
   if (!value) return getUnavailableText(locale);
 

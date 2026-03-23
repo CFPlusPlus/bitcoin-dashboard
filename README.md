@@ -18,15 +18,18 @@ The app currently includes:
 - 24h change
 - 24h volume
 - Market cap
+- Volume / market cap ratio
 - 24h high / low
+- ATH and ATL distance context
 - 7d / 30d / 90d / 1y / YTD performance
 - 52-week high / low and 200-day average
 - 30d / 90d volatility context
 - Price chart for 1D / 7D / 30D
+- Fear & Greed Index with 7-day average context
 - Latest block height
 - Recommended network fees
 - Recent block flow, backlog and fee spread context
-- Fear & Greed Index
+- On-chain activity metrics for active addresses and transaction count
 - Fully working DCA calculator with local persistence
 - Auto-refresh every 60 seconds
 - Manual refresh button
@@ -51,6 +54,7 @@ The app currently includes:
 - CoinGecko for market and chart data
 - mempool.space for Bitcoin network data
 - Alternative.me for Fear & Greed
+- Coin Metrics Community API for free on-chain activity data
 
 ## Architecture
 
@@ -70,6 +74,7 @@ This project is a single-repo full-stack Next.js app:
 - `/api/overview` - market overview proxy
 - `/api/chart` - chart proxy
 - `/api/network` - network proxy
+- `/api/onchain-activity` - on-chain activity proxy
 - `/api/sentiment` - sentiment proxy
 
 ## Getting Started
@@ -199,6 +204,7 @@ bitcoin-dashboard/
 |   |   |-- api/
 |   |   |   |-- chart/
 |   |   |   |-- network/
+|   |   |   |-- onchain-activity/
 |   |   |   |-- overview/
 |   |   |   `-- sentiment/
 |   |   |-- tools/

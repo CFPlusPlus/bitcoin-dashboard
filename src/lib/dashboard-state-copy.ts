@@ -8,6 +8,7 @@ type DashboardSectionKey =
   | "performance"
   | "chart"
   | "marketContext"
+  | "onChainActivity"
   | "network"
   | "sentiment"
   | "metadata";

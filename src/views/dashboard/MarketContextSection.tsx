@@ -3,7 +3,15 @@
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Currency, MarketContextChartData, Overview } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import { formatBtc, formatCompactCurrency, formatPercentValue } from "../../lib/format";
+import {
+  formatBtc,
+  formatCompactCurrency,
+  formatCurrency,
+  formatDate,
+  formatPercent,
+  formatSignedPercentValue,
+  formatPercentValue,
+} from "../../lib/format";
 import { formatMessage } from "../../i18n/template";
 import { useI18n } from "../../i18n/context";
 import MarketMetricChart from "../../components/MarketMetricChart";
@@ -15,6 +23,7 @@ import MetaText from "../../components/ui/content/MetaText";
 import Cluster from "../../components/ui/layout/Cluster";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
 import Stack from "../../components/ui/layout/Stack";
+import MetricCard from "../../components/MetricCard";
 
 type MarketContextSectionProps = {
   currency: Currency;
@@ -48,6 +57,10 @@ export default function MarketContextSection({
   const maxSupply = overview?.maxSupply ?? null;
   const supplyProgressPercent = overview?.supplyProgressPercent ?? null;
   const fullyDilutedValuation = overview?.fullyDilutedValuation ?? null;
+  const volumeMarketCapRatio = overview?.volumeMarketCapRatio ?? null;
+  const atl = overview?.atl ?? null;
+  const atlDate = overview?.atlDate ?? null;
+  const atlDistance = overview?.atlChangePercent ?? null;
   const marketCapSeries =
     marketContextChart?.series.find((item) => item.key === "marketCap") ?? null;
   const volumeSeries = marketContextChart?.series.find((item) => item.key === "volume24h") ?? null;
@@ -222,6 +235,37 @@ export default function MarketContextSection({
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="grid gap-3 xl:col-span-2 sm:grid-cols-2 lg:grid-cols-3">
+              <MetricCard
+                label={copy.atlLabel}
+                value={formatCurrency(atl, currency, locale)}
+                meta={formatMessage(copy.atlMeta, {
+                  value: formatDate(atlDate, locale),
+                })}
+                valueFootnote={copy.atlFootnote}
+              />
+              <MetricCard
+                label={copy.atlDistanceLabel}
+                value={formatSignedPercentValue(atlDistance, locale)}
+                meta={copy.atlDistanceMeta}
+                valueFootnote={copy.atlDistanceFootnote}
+                valueClassName="max-w-full break-words text-[clamp(1.45rem,3vw,1.85rem)] leading-[0.98]"
+                valueTone={
+                  typeof atlDistance === "number" && atlDistance > 0 ? "positive" : "default"
+                }
+                tone="default"
+              />
+              <MetricCard
+                label={copy.volumeMarketCapRatioLabel}
+                value={formatPercentValue(
+                  volumeMarketCapRatio !== null ? volumeMarketCapRatio * 100 : null,
+                  locale
+                )}
+                meta={copy.volumeMarketCapRatioMeta}
+                valueFootnote={copy.volumeMarketCapRatioFootnote}
+              />
             </div>
           </div>
         </DataState>

@@ -18,6 +18,7 @@ export default function HomePage() {
     loadChartData,
     loadMarketContextChartData,
     loadNetworkData,
+    loadOnChainActivityData,
     loadOverviewData,
     loadPerformanceData,
     marketContextChart,
@@ -25,6 +26,8 @@ export default function HomePage() {
     loadSentimentData,
     network,
     networkState,
+    onChainActivity,
+    onChainActivityState,
     overview,
     overviewState,
     performance,
@@ -60,6 +63,8 @@ export default function HomePage() {
         marketContextChartState={marketContextChartState}
         network={network}
         networkState={networkState}
+        onChainActivity={onChainActivity}
+        onChainActivityState={onChainActivityState}
         overview={overview}
         overviewState={overviewState}
         performance={performance}
@@ -71,6 +76,7 @@ export default function HomePage() {
         onDashboardRetry={() => void refreshAll(range, currency)}
         onMarketContextChartRetry={() => void loadMarketContextChartData(currency)}
         onNetworkRetry={() => void loadNetworkData()}
+        onOnChainActivityRetry={() => void loadOnChainActivityData()}
         onOverviewRetry={() => void loadOverviewData(currency)}
         onPerformanceRetry={() => void loadPerformanceData(currency)}
         onSentimentRetry={() => void loadSentimentData()}

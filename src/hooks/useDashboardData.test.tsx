@@ -32,9 +32,12 @@ const overviewFixture = {
   price: 60000,
   change24h: 1.2,
   marketCap: 1200000000000,
+  marketCapChange24h: 18000000000,
+  marketCapChange24hPercent: 1.5,
   marketCapRank: 1,
   fullyDilutedValuation: 1260000000000,
   volume24h: 20000000000,
+  volumeMarketCapRatio: 0.0167,
   btcDominance: 56,
   circulatingSupply: 19850000,
   maxSupply: 21000000,
@@ -42,6 +45,9 @@ const overviewFixture = {
   ath: 73000,
   athDate: "2026-03-14T00:00:00.000Z",
   athChangePercent: -17.81,
+  atl: 67.81,
+  atlDate: "2013-07-06T00:00:00.000Z",
+  atlChangePercent: 88500,
   high24h: 61000,
   low24h: 59000,
   lastUpdatedAt: fetchedAt,
@@ -128,9 +134,35 @@ const sentimentFixture = {
   value: 62,
   classification: "Greed",
   timestamp: fetchedAt,
+  average7d: 54.3,
+  change7d: 14,
   timeUntilUpdateSeconds: 3600,
   nextUpdateAt: fetchedAt,
   attribution: "Alternative.me",
+  warnings: [],
+};
+
+const onChainActivityFixture = {
+  source: "coinmetrics",
+  fetchedAt,
+  activeAddresses: {
+    current: 545348,
+    change7dPercent: -7.05,
+    average7d: 560000,
+    points: [
+      { timestamp: "2026-03-16T00:00:00.000Z", value: 586709 },
+      { timestamp: "2026-03-22T00:00:00.000Z", value: 545348 },
+    ],
+  },
+  transactionCount: {
+    current: 639039,
+    change7dPercent: 30.35,
+    average7d: 560000,
+    points: [
+      { timestamp: "2026-03-16T00:00:00.000Z", value: 490235 },
+      { timestamp: "2026-03-22T00:00:00.000Z", value: 639039 },
+    ],
+  },
   warnings: [],
 };
 
@@ -252,6 +284,10 @@ function setupHandlers(counter: Record<string, number>) {
       counter.chart += 1;
       return HttpResponse.json(chartFixture);
     }),
+    http.get("/api/onchain-activity", () => {
+      counter.onChainActivity += 1;
+      return HttpResponse.json(onChainActivityFixture);
+    }),
     http.get("/api/performance", () => {
       counter.performance += 1;
       return HttpResponse.json(performanceFixture);
@@ -275,6 +311,7 @@ describe("useDashboardData", () => {
       network: 0,
       sentiment: 0,
       chart: 0,
+      onChainActivity: 0,
       performance: 0,
       marketContextChart: 0,
     };
@@ -288,6 +325,7 @@ describe("useDashboardData", () => {
       expect(result.current.overview?.price).toBe(60000);
       expect(result.current.network?.latestBlockHeight).toBe(900001);
       expect(result.current.chart?.points.length).toBe(2);
+      expect(result.current.onChainActivity?.activeAddresses.current).toBe(545348);
       expect(result.current.performance?.periods[0]?.key).toBe("7d");
       expect(result.current.marketContextChart?.series[0]?.key).toBe("marketCap");
     });
@@ -298,6 +336,7 @@ describe("useDashboardData", () => {
     expect(counter.network).toBe(1);
     expect(counter.sentiment).toBe(1);
     expect(counter.chart).toBe(1);
+    expect(counter.onChainActivity).toBe(1);
     expect(counter.performance).toBe(1);
     expect(counter.marketContextChart).toBe(1);
   });
@@ -309,6 +348,7 @@ describe("useDashboardData", () => {
       network: 0,
       sentiment: 0,
       chart: 0,
+      onChainActivity: 0,
       performance: 0,
       marketContextChart: 0,
     };
@@ -331,6 +371,7 @@ describe("useDashboardData", () => {
       expect(counter.network).toBe(2);
       expect(counter.sentiment).toBe(2);
       expect(counter.chart).toBe(2);
+      expect(counter.onChainActivity).toBe(2);
       expect(counter.performance).toBe(2);
       expect(counter.marketContextChart).toBe(2);
     });

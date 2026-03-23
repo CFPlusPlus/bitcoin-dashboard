@@ -15,6 +15,7 @@ import type {
   Currency,
   MarketContextChartData,
   Network,
+  OnChainActivity,
   Overview,
   Performance,
   Sentiment,
@@ -49,6 +50,10 @@ async function fetchNetwork(locale: AppLocale) {
 
 async function fetchSentiment(locale: AppLocale) {
   return fetchJson<Sentiment>("/api/sentiment", locale);
+}
+
+async function fetchOnChainActivity(locale: AppLocale) {
+  return fetchJson<OnChainActivity>("/api/onchain-activity", locale);
 }
 
 async function fetchChart(range: ChartRange, currency: Currency, locale: AppLocale) {
@@ -112,6 +117,11 @@ export function useDashboardData(locale: AppLocale) {
     queryFn: () => fetchSentiment(locale),
     retry: QUERY_RETRY_COUNT,
   });
+  const onChainActivityQuery = useQuery({
+    queryKey: ["dashboard", "onchain-activity", locale],
+    queryFn: () => fetchOnChainActivity(locale),
+    retry: QUERY_RETRY_COUNT,
+  });
   const chartQuery = useQuery({
     queryKey: ["dashboard", "chart", range, currency, locale],
     queryFn: () => fetchChart(range, currency, locale),
@@ -134,12 +144,14 @@ export function useDashboardData(locale: AppLocale) {
   const overview = overviewQuery.data ?? null;
   const network = networkQuery.data ?? null;
   const sentiment = sentimentQuery.data ?? null;
+  const onChainActivity = onChainActivityQuery.data ?? null;
   const chart = chartQuery.data ?? null;
   const performance = performanceQuery.data ?? null;
   const marketContextChart = marketContextChartQuery.data ?? null;
   const refetchOverview = overviewQuery.refetch;
   const refetchNetwork = networkQuery.refetch;
   const refetchSentiment = sentimentQuery.refetch;
+  const refetchOnChainActivity = onChainActivityQuery.refetch;
   const refetchChart = chartQuery.refetch;
   const refetchPerformance = performanceQuery.refetch;
   const refetchMarketContextChart = marketContextChartQuery.refetch;
@@ -210,11 +222,23 @@ export function useDashboardData(locale: AppLocale) {
         : "",
     [copy.stateCopy.fallbacks.chartUnavailable, locale, marketContextChartQuery.error]
   );
+  const onChainActivityError = useMemo(
+    () =>
+      onChainActivityQuery.error
+        ? getSectionErrorMessage(
+            copy.stateCopy.fallbacks.onChainActivityUnavailable,
+            onChainActivityQuery.error,
+            locale
+          )
+        : "",
+    [copy.stateCopy.fallbacks.onChainActivityUnavailable, locale, onChainActivityQuery.error]
+  );
 
   const overviewLoading = overviewQuery.isPending;
   const networkLoading = networkQuery.isPending;
   const chartLoading = chartQuery.isPending;
   const sentimentLoading = sentimentQuery.isPending;
+  const onChainActivityLoading = onChainActivityQuery.isPending;
   const performanceLoading = performanceQuery.isPending;
   const marketContextChartLoading = marketContextChartQuery.isPending;
 
@@ -238,6 +262,11 @@ export function useDashboardData(locale: AppLocale) {
     const result = await refetchSentiment();
     return result.data?.fetchedAt ?? null;
   }, [refetchSentiment]);
+
+  const loadOnChainActivityData = useCallback(async () => {
+    const result = await refetchOnChainActivity();
+    return result.data?.fetchedAt ?? null;
+  }, [refetchOnChainActivity]);
 
   const loadChartData = useCallback(
     async (_selectedRange: ChartRange, _selectedCurrency: Currency) => {
@@ -271,6 +300,7 @@ export function useDashboardData(locale: AppLocale) {
         await Promise.all([
           refetchOverview(),
           refetchNetwork(),
+          refetchOnChainActivity(),
           refetchChart(),
           refetchSentiment(),
           refetchPerformance(),
@@ -284,6 +314,7 @@ export function useDashboardData(locale: AppLocale) {
       refetchChart,
       refetchMarketContextChart,
       refetchNetwork,
+      refetchOnChainActivity,
       refetchOverview,
       refetchPerformance,
       refetchSentiment,
@@ -314,6 +345,7 @@ export function useDashboardData(locale: AppLocale) {
     const items = [
       ...(overview?.warnings ?? []),
       ...(network?.warnings ?? []),
+      ...(onChainActivity?.warnings ?? []),
       ...(sentiment?.warnings ?? []),
       ...(chart?.warnings ?? []),
       ...(performance?.warnings ?? []),
@@ -323,7 +355,16 @@ export function useDashboardData(locale: AppLocale) {
       .filter(Boolean);
 
     return [...new Set(items)];
-  }, [chart, locale, marketContextChart, network, overview, performance, sentiment]);
+  }, [
+    chart,
+    locale,
+    marketContextChart,
+    network,
+    onChainActivity,
+    overview,
+    performance,
+    sentiment,
+  ]);
 
   const overviewMetrics = useMemo(
     () =>
@@ -340,8 +381,13 @@ export function useDashboardData(locale: AppLocale) {
             overview.supplyProgressPercent,
             overview.ath,
             overview.athChangePercent,
+            overview.atl,
+            overview.atlChangePercent,
             overview.high24h,
             overview.low24h,
+            overview.marketCapChange24h,
+            overview.marketCapChange24hPercent,
+            overview.volumeMarketCapRatio,
           ]
         : [],
     [overview]
@@ -397,6 +443,8 @@ export function useDashboardData(locale: AppLocale) {
       sentiment
         ? [
             sentiment.value,
+            sentiment.average7d,
+            sentiment.change7d,
             sentiment.classification,
             sentiment.timeUntilUpdateSeconds,
             sentiment.nextUpdateAt,
@@ -404,11 +452,26 @@ export function useDashboardData(locale: AppLocale) {
         : [],
     [sentiment]
   );
+  const onChainActivityMetrics = useMemo(
+    () =>
+      onChainActivity
+        ? [
+            onChainActivity.activeAddresses.current,
+            onChainActivity.activeAddresses.change7dPercent,
+            onChainActivity.activeAddresses.average7d,
+            onChainActivity.transactionCount.current,
+            onChainActivity.transactionCount.change7dPercent,
+            onChainActivity.transactionCount.average7d,
+          ]
+        : [],
+    [onChainActivity]
+  );
 
   const hasOverviewData = overviewMetrics.some((value) => value !== null);
   const hasNetworkData = networkMetrics.some((value) => value !== null);
   const hasHalvingData = halvingMetrics.some((value) => value !== null);
   const hasSentimentData = sentimentMetrics.some((value) => value !== null);
+  const hasOnChainActivityData = onChainActivityMetrics.some((value) => value !== null);
   const hasChartData = chart !== null && chart.points.length > 0;
   const performanceMetrics = useMemo(
     () =>
@@ -509,6 +572,28 @@ export function useDashboardData(locale: AppLocale) {
     [chart, chartError, chartLoading, hasChartData]
   );
 
+  const onChainActivityState = useMemo(
+    () =>
+      resolveAsyncDataState({
+        data: onChainActivity,
+        error: onChainActivityError,
+        hasUsableData: hasOnChainActivityData,
+        isEmpty: onChainActivity !== null && !hasOnChainActivityData,
+        isLoading: onChainActivityLoading,
+        isPartial:
+          Boolean(onChainActivity?.partial) ||
+          (hasOnChainActivityData && onChainActivityMetrics.some((value) => value === null)),
+        lastUpdatedAt: onChainActivity?.fetchedAt ?? null,
+      }),
+    [
+      hasOnChainActivityData,
+      onChainActivity,
+      onChainActivityError,
+      onChainActivityLoading,
+      onChainActivityMetrics,
+    ]
+  );
+
   const performanceState = useMemo(
     () =>
       resolveAsyncDataState({
@@ -552,6 +637,7 @@ export function useDashboardData(locale: AppLocale) {
         overview?.fetchedAt,
         network?.fetchedAt,
         sentiment?.fetchedAt,
+        onChainActivity?.fetchedAt,
         chart?.fetchedAt,
         performance?.fetchedAt,
         marketContextChart?.fetchedAt,
@@ -560,6 +646,7 @@ export function useDashboardData(locale: AppLocale) {
       chart?.fetchedAt,
       marketContextChart?.fetchedAt,
       network?.fetchedAt,
+      onChainActivity?.fetchedAt,
       overview?.fetchedAt,
       performance?.fetchedAt,
       sentiment?.fetchedAt,
@@ -573,6 +660,7 @@ export function useDashboardData(locale: AppLocale) {
         error: [
           overviewError,
           networkError,
+          onChainActivityError,
           sentimentError,
           chartError,
           performanceError,
@@ -582,6 +670,7 @@ export function useDashboardData(locale: AppLocale) {
           overviewState.hasUsableData ||
           halvingState.hasUsableData ||
           networkState.hasUsableData ||
+          onChainActivityState.hasUsableData ||
           sentimentState.hasUsableData ||
           chartState.hasUsableData ||
           performanceState.hasUsableData ||
@@ -591,6 +680,7 @@ export function useDashboardData(locale: AppLocale) {
           overviewState.status === "partial" ||
           halvingState.status === "partial" ||
           networkState.status === "partial" ||
+          onChainActivityState.status === "partial" ||
           sentimentState.status === "partial" ||
           chartState.status === "partial" ||
           performanceState.status === "partial" ||
@@ -611,6 +701,9 @@ export function useDashboardData(locale: AppLocale) {
       networkError,
       networkState.hasUsableData,
       networkState.status,
+      onChainActivityError,
+      onChainActivityState.hasUsableData,
+      onChainActivityState.status,
       overviewError,
       overviewState.hasUsableData,
       overviewState.status,
@@ -640,6 +733,8 @@ export function useDashboardData(locale: AppLocale) {
     networkError,
     networkLoading,
     networkState,
+    onChainActivity,
+    onChainActivityState,
     overview,
     overviewError,
     overviewLoading,
@@ -659,6 +754,7 @@ export function useDashboardData(locale: AppLocale) {
     setCurrency,
     setRange,
     loadNetworkData,
+    loadOnChainActivityData,
     loadOverviewData,
     loadPerformanceData,
     loadSentimentData,
