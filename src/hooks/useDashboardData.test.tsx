@@ -163,6 +163,38 @@ const onChainActivityFixture = {
       { timestamp: "2026-03-22T00:00:00.000Z", value: 639039 },
     ],
   },
+  transferCount: {
+    current: 885419,
+    change7dPercent: 26.49,
+    average7d: 771488,
+    points: [
+      { timestamp: "2026-03-16T00:00:00.000Z", value: 700000 },
+      { timestamp: "2026-03-22T00:00:00.000Z", value: 885419 },
+    ],
+  },
+  nonZeroAddresses: {
+    current: 56519257,
+    change7dPercent: 0.93,
+    average7d: 56185608,
+    points: [
+      { timestamp: "2026-03-16T00:00:00.000Z", value: 56000000 },
+      { timestamp: "2026-03-22T00:00:00.000Z", value: 56519257 },
+    ],
+  },
+  dailyFeesBtc: {
+    current: 2.74078545,
+    change7dPercent: 52.27,
+    average7d: 2.19154078,
+    points: [
+      { timestamp: "2026-03-16T00:00:00.000Z", value: 1.8 },
+      { timestamp: "2026-03-22T00:00:00.000Z", value: 2.74078545 },
+    ],
+  },
+  derived: {
+    transfersPerTransaction: 1.39,
+    nonZeroAddressesChange7dPercent: 0.93,
+    averageDailyFees7dBtc: 2.19154078,
+  },
   warnings: [],
 };
 
@@ -326,6 +358,8 @@ describe("useDashboardData", () => {
       expect(result.current.network?.latestBlockHeight).toBe(900001);
       expect(result.current.chart?.points.length).toBe(2);
       expect(result.current.onChainActivity?.activeAddresses.current).toBe(545348);
+      expect(result.current.onChainActivity?.transferCount.current).toBe(885419);
+      expect(result.current.onChainActivity?.derived.transfersPerTransaction).toBe(1.39);
       expect(result.current.performance?.periods[0]?.key).toBe("7d");
       expect(result.current.marketContextChart?.series[0]?.key).toBe("marketCap");
     });

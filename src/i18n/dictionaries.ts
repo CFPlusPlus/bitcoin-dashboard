@@ -402,7 +402,7 @@ export const dictionaries = {
       },
       onChainActivity: {
         eyebrow: "On-Chain Aktivität",
-        title: "Nutzung auf der Kette",
+        title: "Nutzung auf der Blockchain",
         description:
           "Aktive Adressen und Transaktionen ergänzen Fees und Mempool um reale Netzwerknutzung.",
         activeAddressesLabel: "Aktive Adressen",
@@ -418,6 +418,31 @@ export const dictionaries = {
         transactionCountFootnote:
           "Zeigt, wie viele Transaktionen zuletzt on-chain bestätigt wurden.",
         transactionCountChangeLabel: "Transaktionen 7d",
+        transferCountLabel: "Transfer Count",
+        transferCountMeta: "Letzter Tageswert aus der Coin Metrics Community API.",
+        transferCountFootnote:
+          "Zeigt, wie viele Transfers zuletzt zwischen Entitäten auf der Kette stattfanden.",
+        transfersPerTransactionLabel: "Transfers pro Transaktion",
+        transfersPerTransactionMeta:
+          "Verhältnis aus aktuellem Transfer Count zur aktuellen Transaktionsanzahl.",
+        transfersPerTransactionFootnote:
+          "Hilft einzuschätzen, wie viel tatsächliche Transferaktivität in einer Transaktion steckt.",
+        nonZeroAddressesLabel: "Adressen mit Guthaben",
+        nonZeroAddressesMeta: "Anzahl der Adressen mit positivem BTC-Bestand.",
+        nonZeroAddressesFootnote:
+          "Gibt einen einfachen Blick auf Verteilung und langfristige Nutzung.",
+        nonZeroAddressesChangeLabel: "Non-zero Adressen 7d",
+        nonZeroAddressesChangeMeta: "Veränderung der Adressen mit Guthaben gegenüber vor 7 Tagen.",
+        nonZeroAddressesChangeFootnote:
+          "Zeigt, ob die Zahl der gehaltenen Bestände zuletzt wächst oder sinkt.",
+        dailyFeesLabel: "Fees pro Tag",
+        dailyFeesMeta: "Gesamte bestätigte On-Chain-Fees des letzten Tages in BTC.",
+        dailyFeesFootnote:
+          "Ergänzt Fee-Empfehlungen um die tatsächlich bezahlten Tagesgebühren im Netzwerk.",
+        dailyFeesAverage7dLabel: "Fees Ø 7d",
+        dailyFeesAverage7dMeta: "7-Tage-Durchschnitt der bestätigten Tagesfees in BTC.",
+        dailyFeesAverage7dFootnote:
+          "Glättet Ausreißer und zeigt, auf welchem Gebührensockel das Netzwerk zuletzt lief.",
         transactionCountChangeMeta: "Veränderung des letzten Tageswerts gegenüber vor 7 Tagen.",
         transactionCountChangeFootnote:
           "Hilft beim schnellen Blick, ob die Aktivität gerade zunimmt oder abnimmt.",
@@ -511,18 +536,57 @@ export const dictionaries = {
         eyebrow: "Sentiment",
         title: "Marktstimmung",
         description: "Fear & Greed zeigt, ob der Markt gerade eher nervös oder gierig ist.",
+        scaleLabel: "Stimmungsskala",
+        scaleHint: "Links liegt defensives Sentiment, rechts nimmt Risikoappetit und Euphorie zu.",
         indexLabel: "Fear & Greed Index",
         indexMeta: "Stimmungsindikator für das aktuelle Marktumfeld",
+        currentZoneLabel: "Aktuelle Einordnung",
         average7dLabel: "Fear & Greed 7d",
         average7dMeta: "Durchschnitt der letzten 7 gemeldeten Indexwerte.",
         average7dFootnote: "Glättet Tagesausschläge und zeigt die jüngste Grundstimmung.",
         change7dLabel: "Fear & Greed 7d Delta",
         change7dMeta: "Veränderung des aktuellen Werts gegenüber vor 7 Tagen.",
         change7dFootnote: "Positiv heißt: der Markt ist zuletzt gieriger geworden.",
+        weekContextLabel: "Wochenkontext",
+        weekAboveAverage: "Aktuell über dem 7-Tage-Schnitt von {value}.",
+        weekBelowAverage: "Aktuell unter dem 7-Tage-Schnitt von {value}.",
+        weekNearAverage: "Aktuell nahe am 7-Tage-Schnitt von {value}.",
         nextUpdate: "Nächste Aktualisierung",
         nextUpdateHint: "Dann kommt der nächste Stimmungscheck.",
         sourceLabel: "Datenquelle",
         sourceHint: "Quelle des angezeigten Index.",
+        zones: {
+          extremeFear: {
+            label: "Extreme Angst",
+            description:
+              "Der Markt wirkt sehr defensiv. Risiko wird gemieden und Unsicherheit dominiert.",
+          },
+          fear: {
+            label: "Angst",
+            description:
+              "Das Umfeld bleibt vorsichtig. Marktteilnehmer reagieren zurückhaltender auf neue Impulse.",
+          },
+          neutral: {
+            label: "Neutral",
+            description:
+              "Aktuell gibt es kein starkes emotionales Übergewicht. Der Markt wirkt vergleichsweise ausgeglichen.",
+          },
+          greed: {
+            label: "Gier",
+            description:
+              "Optimismus ist vorhanden und Risikoappetit steigt, ohne zwingend schon extrem zu sein.",
+          },
+          extremeGreed: {
+            label: "Extreme Gier",
+            description:
+              "Das Sentiment ist sehr heiß gelaufen. Euphorie dominiert und Rücksetzer werden oft leichter ausgeblendet.",
+          },
+          unknown: {
+            label: "Ohne Einordnung",
+            description:
+              "Für den aktuellen Sentimentwert ist gerade keine eindeutige Einordnung verfügbar.",
+          },
+        },
       },
       metadata: {
         eyebrow: "Quellen und Zeitstempel",
@@ -1347,7 +1411,7 @@ export const dictionaries = {
       },
       onChainActivity: {
         eyebrow: "On-chain activity",
-        title: "Usage on the chain",
+        title: "Usage on the blockchain",
         description:
           "Active addresses and transaction count complement fees and mempool pressure with real usage.",
         activeAddressesLabel: "Active addresses",
@@ -1360,6 +1424,29 @@ export const dictionaries = {
         transactionCountMeta: "Latest daily value from the Coin Metrics Community API.",
         transactionCountFootnote: "Shows how many transactions were recently confirmed on-chain.",
         transactionCountChangeLabel: "Transactions 7d",
+        transferCountLabel: "Transfer count",
+        transferCountMeta: "Latest daily value from the Coin Metrics Community API.",
+        transferCountFootnote: "Shows how many transfers recently moved between entities on-chain.",
+        transfersPerTransactionLabel: "Transfers per transaction",
+        transfersPerTransactionMeta:
+          "Ratio of the latest transfer count to the latest transaction count.",
+        transfersPerTransactionFootnote:
+          "Helps estimate how much underlying transfer activity each transaction currently carries.",
+        nonZeroAddressesLabel: "Addresses with balance",
+        nonZeroAddressesMeta: "Number of addresses currently holding a positive BTC balance.",
+        nonZeroAddressesFootnote: "A simple read on distribution and longer-term usage breadth.",
+        nonZeroAddressesChangeLabel: "Non-zero addresses 7d",
+        nonZeroAddressesChangeMeta: "Change in funded addresses compared with 7 days ago.",
+        nonZeroAddressesChangeFootnote:
+          "Shows whether the count of funded addresses has recently been expanding or shrinking.",
+        dailyFeesLabel: "Daily fees",
+        dailyFeesMeta: "Total confirmed on-chain fees from the latest day in BTC.",
+        dailyFeesFootnote:
+          "Complements fee recommendations with the total fees users actually paid.",
+        dailyFeesAverage7dLabel: "Fees avg 7d",
+        dailyFeesAverage7dMeta: "7-day average of confirmed daily fees in BTC.",
+        dailyFeesAverage7dFootnote:
+          "Smooths out spikes and shows the recent fee baseline of the network.",
         transactionCountChangeMeta: "Change from the latest daily value versus 7 days ago.",
         transactionCountChangeFootnote:
           "Helpful for spotting whether on-chain activity is picking up or cooling off.",
@@ -1454,18 +1541,58 @@ export const dictionaries = {
         eyebrow: "Sentiment",
         title: "Market mood",
         description: "Fear & Greed shows whether the market is currently more nervous or greedy.",
+        scaleLabel: "Sentiment scale",
+        scaleHint:
+          "The left side reflects caution, while the right side points to stronger risk appetite.",
         indexLabel: "Fear & Greed Index",
         indexMeta: "Sentiment indicator for the current market backdrop",
+        currentZoneLabel: "Current zone",
         average7dLabel: "Fear & Greed 7d",
         average7dMeta: "Average across the last 7 reported index values.",
         average7dFootnote: "Smooths out day-to-day noise and shows the recent baseline mood.",
         change7dLabel: "Fear & Greed 7d delta",
         change7dMeta: "Change from the current value versus 7 days ago.",
         change7dFootnote: "Positive means the market turned greedier over the last week.",
+        weekContextLabel: "Weekly context",
+        weekAboveAverage: "Currently above the 7-day average of {value}.",
+        weekBelowAverage: "Currently below the 7-day average of {value}.",
+        weekNearAverage: "Currently close to the 7-day average of {value}.",
         nextUpdate: "Next update",
         nextUpdateHint: "That is when the next sentiment check arrives.",
         sourceLabel: "Data source",
         sourceHint: "Source of the displayed index.",
+        zones: {
+          extremeFear: {
+            label: "Extreme fear",
+            description:
+              "The market is deeply defensive right now. Risk appetite is low and uncertainty is in control.",
+          },
+          fear: {
+            label: "Fear",
+            description:
+              "The backdrop stays cautious. Market participants react more carefully to fresh upside.",
+          },
+          neutral: {
+            label: "Neutral",
+            description:
+              "There is no clear emotional bias at the moment. The market looks comparatively balanced.",
+          },
+          greed: {
+            label: "Greed",
+            description:
+              "Optimism is building and traders are leaning into risk, without necessarily looking overheated yet.",
+          },
+          extremeGreed: {
+            label: "Extreme greed",
+            description:
+              "Sentiment is running hot. Euphoria leads and pullback risk is easier to underestimate.",
+          },
+          unknown: {
+            label: "Unclassified",
+            description:
+              "There is not enough reliable context right now to place the current reading.",
+          },
+        },
       },
       metadata: {
         eyebrow: "Sources and timestamps",

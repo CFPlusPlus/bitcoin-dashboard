@@ -178,7 +178,7 @@ export default function MarketContextSection({
             ) : null}
             <div className="overflow-hidden rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))] xl:col-span-2">
               <div className="px-4 py-4">
-                <div className="grid gap-4 lg:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2">
                   <div className="min-w-0">
                     <Stack gap="sm">
                       <Cluster align="center" gap="sm">
@@ -195,12 +195,13 @@ export default function MarketContextSection({
                     </Stack>
                   </div>
 
-                  <div className="min-w-0 border-t border-white/8 pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+                  <div className="min-w-0 border-t border-white/8 pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
                     <KpiValue
                       label={copy.supplyLabel}
                       value={formatBtc(circulatingSupply, locale)}
                       meta={copy.supplyMeta}
                       size="md"
+                      valueClassName="max-w-full break-words text-[clamp(1.9rem,3.5vw,2.5rem)] leading-[0.94]"
                     />
                     <MetaText tone="strong" size="xs" className="mt-2 leading-snug">
                       {formatMessage(copy.supplyCap, {
@@ -222,12 +223,13 @@ export default function MarketContextSection({
                     </MetaText>
                   </div>
 
-                  <div className="min-w-0 border-t border-white/8 pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0">
+                  <div className="min-w-0 border-t border-white/8 pt-4 md:col-span-2 md:pl-0">
                     <KpiValue
                       label={copy.fdvLabel}
                       value={formatCompactCurrency(fullyDilutedValuation, currency, locale)}
                       meta={copy.fdvMeta}
                       size="md"
+                      valueClassName="max-w-full break-words text-[clamp(1.85rem,3.2vw,2.35rem)] leading-[0.94]"
                     />
                     <MetaText tone="strong" size="xs" className="leading-snug">
                       {copy.fdvFootnote}
@@ -237,7 +239,7 @@ export default function MarketContextSection({
               </div>
             </div>
 
-            <div className="grid gap-3 xl:col-span-2 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 xl:col-span-2 sm:grid-cols-2">
               <MetricCard
                 label={copy.atlLabel}
                 value={formatCurrency(atl, currency, locale)}
@@ -251,13 +253,14 @@ export default function MarketContextSection({
                 value={formatSignedPercentValue(atlDistance, locale)}
                 meta={copy.atlDistanceMeta}
                 valueFootnote={copy.atlDistanceFootnote}
-                valueClassName="max-w-full break-words text-[clamp(1.45rem,3vw,1.85rem)] leading-[0.98]"
+                valueClassName="max-w-full break-words text-[clamp(1.45rem,2.6vw,1.85rem)] leading-[0.98]"
                 valueTone={
                   typeof atlDistance === "number" && atlDistance > 0 ? "positive" : "default"
                 }
                 tone="default"
               />
               <MetricCard
+                tone="default"
                 label={copy.volumeMarketCapRatioLabel}
                 value={formatPercentValue(
                   volumeMarketCapRatio !== null ? volumeMarketCapRatio * 100 : null,
@@ -265,6 +268,7 @@ export default function MarketContextSection({
                 )}
                 meta={copy.volumeMarketCapRatioMeta}
                 valueFootnote={copy.volumeMarketCapRatioFootnote}
+                valueClassName="max-w-full break-words text-[clamp(1.55rem,2.8vw,1.95rem)] leading-[0.98] sm:text-[clamp(1.7rem,2.7vw,2.05rem)]"
               />
             </div>
           </div>

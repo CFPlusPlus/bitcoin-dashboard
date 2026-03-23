@@ -130,6 +130,15 @@ export type OnChainActivityDto = ApiEnvelope & {
       value: number;
     }>;
   };
+  nonZeroAddresses: {
+    current: number | null;
+    change7dPercent: number | null;
+    average7d: number | null;
+    points: Array<{
+      timestamp: string;
+      value: number;
+    }>;
+  };
   transactionCount: {
     current: number | null;
     change7dPercent: number | null;
@@ -138,6 +147,29 @@ export type OnChainActivityDto = ApiEnvelope & {
       timestamp: string;
       value: number;
     }>;
+  };
+  transferCount: {
+    current: number | null;
+    change7dPercent: number | null;
+    average7d: number | null;
+    points: Array<{
+      timestamp: string;
+      value: number;
+    }>;
+  };
+  dailyFeesBtc: {
+    current: number | null;
+    change7dPercent: number | null;
+    average7d: number | null;
+    points: Array<{
+      timestamp: string;
+      value: number;
+    }>;
+  };
+  derived: {
+    transfersPerTransaction: number | null;
+    nonZeroAddressesChange7dPercent: number | null;
+    averageDailyFees7dBtc: number | null;
   };
 };
 

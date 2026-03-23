@@ -29,7 +29,7 @@ The app currently includes:
 - Latest block height
 - Recommended network fees
 - Recent block flow, backlog and fee spread context
-- On-chain activity metrics for active addresses and transaction count
+- On-chain activity metrics for active addresses, transfers, funded addresses and daily fees
 - Fully working DCA calculator with local persistence
 - Auto-refresh every 60 seconds
 - Manual refresh button

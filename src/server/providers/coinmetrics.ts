@@ -9,7 +9,10 @@ const coinMetricsItemSchema = z.object({
   asset: z.string(),
   time: z.string(),
   AdrActCnt: z.string().optional(),
+  AdrBalCnt: z.string().optional(),
+  FeeTotNtv: z.string().optional(),
   TxCnt: z.string().optional(),
+  TxTfrCnt: z.string().optional(),
 });
 
 const coinMetricsResponseSchema = z.object({
@@ -24,7 +27,7 @@ export async function fetchCoinMetricsActivityHistory(cachePolicy?: CachePolicy)
     resource: "BTC on-chain activity",
     url:
       "https://community-api.coinmetrics.io/v4/timeseries/asset-metrics" +
-      "?assets=btc&metrics=AdrActCnt,TxCnt&frequency=1d&limit_per_asset=7",
+      "?assets=btc&metrics=AdrActCnt,AdrBalCnt,TxCnt,TxTfrCnt,FeeTotNtv&frequency=1d&limit_per_asset=7",
     accept: "application/json",
     timeoutMs: 8000,
     cachePolicy,

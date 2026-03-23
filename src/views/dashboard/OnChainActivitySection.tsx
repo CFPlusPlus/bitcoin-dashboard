@@ -3,7 +3,7 @@
 import type { AsyncDataState } from "../../lib/data-state";
 import type { OnChainActivity } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
-import { formatCompactNumber, formatPercent } from "../../lib/format";
+import { formatCompactNumber, formatCurrency, formatPercent } from "../../lib/format";
 import { useI18n } from "../../i18n/context";
 import MetricCard from "../../components/MetricCard";
 import Card from "../../components/ui/Card";
@@ -16,6 +16,19 @@ type OnChainActivitySectionProps = {
   onChainActivityState: AsyncDataState<OnChainActivity>;
   onRetry: () => void;
 };
+
+function formatRatio(value: number | null, locale: "de" | "en") {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return "—";
+  }
+
+  const formatted = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(value);
+
+  return `${formatted}x`;
+}
 
 function getValueTone(value: number | null) {
   if (typeof value !== "number") return "default" as const;
@@ -52,7 +65,7 @@ export default function OnChainActivitySection({
         retryBusy={onChainActivityState.isLoading}
         messages={stateMessages}
       >
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
           <MetricCard
             label={copy.activeAddressesLabel}
             value={formatCompactNumber(onChainActivity?.activeAddresses.current ?? null, locale)}
@@ -80,6 +93,56 @@ export default function OnChainActivitySection({
             meta={copy.transactionCountChangeMeta}
             valueFootnote={copy.transactionCountChangeFootnote}
             valueTone={getValueTone(onChainActivity?.transactionCount.change7dPercent ?? null)}
+          />
+          <MetricCard
+            label={copy.transferCountLabel}
+            value={formatCompactNumber(onChainActivity?.transferCount.current ?? null, locale)}
+            meta={copy.transferCountMeta}
+            valueFootnote={copy.transferCountFootnote}
+            tone="default"
+          />
+          <MetricCard
+            label={copy.transfersPerTransactionLabel}
+            value={formatRatio(onChainActivity?.derived.transfersPerTransaction ?? null, locale)}
+            meta={copy.transfersPerTransactionMeta}
+            valueFootnote={copy.transfersPerTransactionFootnote}
+            tone="default"
+          />
+          <MetricCard
+            label={copy.nonZeroAddressesLabel}
+            value={formatCompactNumber(onChainActivity?.nonZeroAddresses.current ?? null, locale)}
+            meta={copy.nonZeroAddressesMeta}
+            valueFootnote={copy.nonZeroAddressesFootnote}
+          />
+          <MetricCard
+            label={copy.nonZeroAddressesChangeLabel}
+            value={formatPercent(
+              onChainActivity?.derived.nonZeroAddressesChange7dPercent ?? null,
+              locale
+            )}
+            meta={copy.nonZeroAddressesChangeMeta}
+            valueFootnote={copy.nonZeroAddressesChangeFootnote}
+            valueTone={getValueTone(
+              onChainActivity?.derived.nonZeroAddressesChange7dPercent ?? null
+            )}
+          />
+          <MetricCard
+            label={copy.dailyFeesLabel}
+            value={formatCurrency(onChainActivity?.dailyFeesBtc.current ?? null, "btc", locale)}
+            meta={copy.dailyFeesMeta}
+            valueFootnote={copy.dailyFeesFootnote}
+            tone="default"
+          />
+          <MetricCard
+            label={copy.dailyFeesAverage7dLabel}
+            value={formatCurrency(
+              onChainActivity?.derived.averageDailyFees7dBtc ?? null,
+              "btc",
+              locale
+            )}
+            meta={copy.dailyFeesAverage7dMeta}
+            valueFootnote={copy.dailyFeesAverage7dFootnote}
+            tone="default"
           />
         </div>
       </DataState>
