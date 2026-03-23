@@ -38,6 +38,11 @@ function formatFee(value: number | null, locale: string) {
   return formatted ? `${formatted} sat/vB` : null;
 }
 
+function formatMinutes(value: number | null, locale: string) {
+  const formatted = formatDecimal(value, locale, 1);
+  return formatted ? `${formatted} min` : null;
+}
+
 function formatDifficulty(value: number | null, locale: string) {
   const formatted = formatDecimal(value ? value / 1e12 : null, locale, 1);
   return formatted ? `${formatted} T` : null;
@@ -58,6 +63,11 @@ function formatFileSize(value: number | null, locale: string) {
   }
 
   return `${formatDecimal(value / 1_000, locale, 0)} KB`;
+}
+
+function formatBlockEquivalent(value: number | null, locale: string, suffix: string) {
+  const formatted = formatDecimal(value, locale, 1);
+  return formatted ? `${formatted} ${suffix}` : null;
 }
 
 function formatRelativeTimestamp(timestamp: number, locale: "de" | "en", now = Date.now()) {
@@ -744,6 +754,73 @@ export default function NetworkOverviewSection({
                 ))}
               </Stack>
             </Stack>
+
+            <Stack gap="md">
+              <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
+                {copy.feeSpreadTitleSafe}
+              </MetaText>
+              <MetaText>{copy.feeSpreadDescriptionSafe}</MetaText>
+              <Stack gap="sm">
+                {[
+                  {
+                    label: copy.fastestToHourSpreadLabelSafe,
+                    value: formatFee(network?.feeSpread.fastestToHour ?? null, numberLocale),
+                  },
+                  {
+                    label: copy.hourToMinimumSpreadLabelSafe,
+                    value: formatFee(network?.feeSpread.hourToMinimum ?? null, numberLocale),
+                  },
+                  {
+                    label: copy.fastestToMinimumSpreadLabelSafe,
+                    value: formatFee(network?.feeSpread.fastestToMinimum ?? null, numberLocale),
+                  },
+                ].map((item) => (
+                  <DetailRow
+                    key={item.label}
+                    label={item.label}
+                    value={item.value ?? fallback}
+                    detail={copy.feeSpreadDetailSafe}
+                  />
+                ))}
+              </Stack>
+            </Stack>
+          </NetworkPanel>
+
+          <NetworkPanel title={copy.activityCardTitleSafe} className="xl:col-span-12 min-h-0">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <StatLabel
+                label={copy.averageBlockTimeLabelSafe}
+                value={
+                  formatMinutes(network?.activity.averageBlockTimeMinutes ?? null, numberLocale) ??
+                  fallback
+                }
+                detail={copy.averageBlockTimeMetaSafe}
+              />
+              <StatLabel
+                label={copy.averageTransactionsPerBlockLabelSafe}
+                value={formatNumber(network?.activity.averageTransactionsPerBlock ?? null, locale)}
+                detail={copy.averageTransactionsPerBlockMetaSafe}
+              />
+              <StatLabel
+                label={copy.averageBlockSizeLabelSafe}
+                value={
+                  formatFileSize(network?.activity.averageBlockSizeBytes ?? null, numberLocale) ??
+                  fallback
+                }
+                detail={copy.averageBlockSizeMetaSafe}
+              />
+              <StatLabel
+                label={copy.backlogBlocksLabelSafe}
+                value={
+                  formatBlockEquivalent(
+                    network?.mempool.backlogBlocks ?? null,
+                    numberLocale,
+                    copy.backlogBlocksSuffixSafe
+                  ) ?? fallback
+                }
+                detail={copy.backlogBlocksMetaSafe}
+              />
+            </div>
           </NetworkPanel>
         </div>
 

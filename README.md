@@ -19,9 +19,13 @@ The app currently includes:
 - 24h volume
 - Market cap
 - 24h high / low
+- 7d / 30d / 90d / 1y / YTD performance
+- 52-week high / low and 200-day average
+- 30d / 90d volatility context
 - Price chart for 1D / 7D / 30D
 - Latest block height
 - Recommended network fees
+- Recent block flow, backlog and fee spread context
 - Fear & Greed Index
 - Fully working DCA calculator with local persistence
 - Auto-refresh every 60 seconds

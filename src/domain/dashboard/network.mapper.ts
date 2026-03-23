@@ -10,9 +10,37 @@ import type { NetworkDto } from "./dto";
 const HALVING_INTERVAL = 210_000;
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const INITIAL_BLOCK_REWARD = 50;
+const BYTES_PER_FULL_BLOCK = 1_000_000;
 
 function getBlockReward(halvingIndex: number) {
   return INITIAL_BLOCK_REWARD / 2 ** halvingIndex;
+}
+
+function round(value: number, digits = 2) {
+  return Number(value.toFixed(digits));
+}
+
+function average(values: number[]) {
+  if (values.length === 0) {
+    return null;
+  }
+
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function getSpread(higher: number | null | undefined, lower: number | null | undefined) {
+  if (
+    higher === null ||
+    higher === undefined ||
+    lower === null ||
+    lower === undefined ||
+    !Number.isFinite(higher) ||
+    !Number.isFinite(lower)
+  ) {
+    return null;
+  }
+
+  return round(Math.max(higher - lower, 0), 1);
 }
 
 function getEstimatedHalvingDate(input: {
@@ -131,6 +159,31 @@ export function mapNetworkDto(input: {
     transactionCount: block.tx_count ?? null,
     sizeBytes: block.size ?? null,
   }));
+  const blockIntervalsMinutes = latestBlocks
+    .slice(0, -1)
+    .map((block, index) => {
+      const nextBlockTimestamp = latestBlocks[index + 1]?.timestamp ?? null;
+
+      if (nextBlockTimestamp === null) {
+        return null;
+      }
+
+      return Math.abs(block.timestamp - nextBlockTimestamp) / 60_000;
+    })
+    .filter((value): value is number => value !== null && Number.isFinite(value));
+  const averageBlockTimeMinutes = average(blockIntervalsMinutes);
+  const averageTransactionsPerBlock = average(
+    latestBlocks
+      .map((block) => block.transactionCount)
+      .filter((value): value is number => value !== null && Number.isFinite(value))
+  );
+  const averageBlockSizeBytes = average(
+    latestBlocks
+      .map((block) => block.sizeBytes)
+      .filter((value): value is number => value !== null && Number.isFinite(value))
+  );
+  const backlogBlocks =
+    pendingVirtualSizeMb === null ? null : round((pendingVirtualSizeMb * 1_000_000) / BYTES_PER_FULL_BLOCK, 1);
 
   return {
     source: "mempool.space",
@@ -146,6 +199,11 @@ export function mapNetworkDto(input: {
       hourFee: input.fees?.hourFee ?? null,
       economyFee: input.fees?.economyFee ?? null,
       minimumFee: input.fees?.minimumFee ?? null,
+    },
+    feeSpread: {
+      fastestToHour: getSpread(input.fees?.fastestFee, input.fees?.hourFee),
+      hourToMinimum: getSpread(input.fees?.hourFee, input.fees?.minimumFee),
+      fastestToMinimum: getSpread(input.fees?.fastestFee, input.fees?.minimumFee),
     },
     hashrate: {
       currentEhPerSecond: input.hashrate ? input.hashrate.currentHashrate / 1e18 : null,
@@ -177,9 +235,18 @@ export function mapNetworkDto(input: {
         ? new Date(input.difficultyAdjustment.estimatedRetargetDate).toISOString()
         : null,
     },
+    activity: {
+      averageBlockTimeMinutes:
+        averageBlockTimeMinutes === null ? null : round(averageBlockTimeMinutes, 1),
+      averageTransactionsPerBlock:
+        averageTransactionsPerBlock === null ? null : round(averageTransactionsPerBlock, 0),
+      averageBlockSizeBytes:
+        averageBlockSizeBytes === null ? null : round(averageBlockSizeBytes, 0),
+    },
     mempool: {
       pendingTransactions,
       pendingVirtualSizeMb,
+      backlogBlocks,
       projectedBlocks,
     },
     latestBlocks,

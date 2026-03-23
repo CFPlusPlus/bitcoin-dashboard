@@ -2,7 +2,7 @@ import type { Currency } from "../../lib/currency";
 
 export type { Currency };
 export type ChartRange = 1 | 7 | 30;
-export type PerformanceWindowKey = "7d" | "30d" | "1y" | "ytd";
+export type PerformanceWindowKey = "7d" | "30d" | "90d" | "1y" | "ytd";
 
 export type ApiEnvelope = {
   source: string;
@@ -51,6 +51,11 @@ export type NetworkDto = ApiEnvelope & {
     economyFee: number | null;
     minimumFee: number | null;
   };
+  feeSpread: {
+    fastestToHour: number | null;
+    hourToMinimum: number | null;
+    fastestToMinimum: number | null;
+  };
   hashrate: {
     currentEhPerSecond: number | null;
     changePercent30d: number | null;
@@ -72,9 +77,15 @@ export type NetworkDto = ApiEnvelope & {
     nextRetargetHeight: number | null;
     estimatedRetargetDate: string | null;
   };
+  activity: {
+    averageBlockTimeMinutes: number | null;
+    averageTransactionsPerBlock: number | null;
+    averageBlockSizeBytes: number | null;
+  };
   mempool: {
     pendingTransactions: number | null;
     pendingVirtualSizeMb: number | null;
+    backlogBlocks: number | null;
     projectedBlocks: Array<{
       blockIndex: number;
       transactionCount: number | null;
@@ -151,4 +162,19 @@ export type PerformanceDto = ApiEnvelope & {
   currency: Currency;
   currentPrice: number | null;
   periods: PerformanceWindowDto[];
+  stats: {
+    high52w: {
+      price: number | null;
+      timestamp: number | null;
+    };
+    low52w: {
+      price: number | null;
+      timestamp: number | null;
+    };
+    distanceFromHigh52wPercent: number | null;
+    movingAverage200d: number | null;
+    distanceFromMovingAverage200dPercent: number | null;
+    volatility30dPercent: number | null;
+    volatility90dPercent: number | null;
+  };
 };

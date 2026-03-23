@@ -68,6 +68,11 @@ const networkFixture = {
     economyFee: 2,
     minimumFee: 1,
   },
+  feeSpread: {
+    fastestToHour: 4,
+    hourToMinimum: 3,
+    fastestToMinimum: 7,
+  },
   hashrate: {
     currentEhPerSecond: 650,
     changePercent30d: 3.5,
@@ -86,9 +91,15 @@ const networkFixture = {
     nextRetargetHeight: 900400,
     estimatedRetargetDate: fetchedAt,
   },
+  activity: {
+    averageBlockTimeMinutes: 9.8,
+    averageTransactionsPerBlock: 2480,
+    averageBlockSizeBytes: 1360000,
+  },
   mempool: {
     pendingTransactions: 12345,
     pendingVirtualSizeMb: 52,
+    backlogBlocks: 52,
     projectedBlocks: [
       {
         blockIndex: 0,
@@ -159,6 +170,12 @@ const performanceFixture = {
       changePercent: 11.1,
     },
     {
+      key: "90d" as const,
+      referencePrice: 51000,
+      referenceTimestamp: 1701475200,
+      changePercent: 17.6,
+    },
+    {
       key: "1y" as const,
       referencePrice: 34000,
       referenceTimestamp: 1678500000,
@@ -171,6 +188,21 @@ const performanceFixture = {
       changePercent: 20.0,
     },
   ],
+  stats: {
+    high52w: {
+      price: 68000,
+      timestamp: 1710003600,
+    },
+    low52w: {
+      price: 31000,
+      timestamp: 1678500000,
+    },
+    distanceFromHigh52wPercent: -11.8,
+    movingAverage200d: 54000,
+    distanceFromMovingAverage200dPercent: 11.1,
+    volatility30dPercent: 42.6,
+    volatility90dPercent: 55.3,
+  },
   warnings: [],
 };
 

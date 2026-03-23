@@ -365,6 +365,13 @@ export function useDashboardData(locale: AppLocale) {
             network.difficulty.remainingBlocks,
             network.mempool.pendingTransactions,
             network.mempool.pendingVirtualSizeMb,
+            network.mempool.backlogBlocks,
+            network.activity.averageBlockTimeMinutes,
+            network.activity.averageTransactionsPerBlock,
+            network.activity.averageBlockSizeBytes,
+            network.feeSpread.fastestToHour,
+            network.feeSpread.hourToMinimum,
+            network.feeSpread.fastestToMinimum,
           ]
         : [],
     [network]
@@ -403,9 +410,23 @@ export function useDashboardData(locale: AppLocale) {
   const hasHalvingData = halvingMetrics.some((value) => value !== null);
   const hasSentimentData = sentimentMetrics.some((value) => value !== null);
   const hasChartData = chart !== null && chart.points.length > 0;
-  const hasPerformanceData = Boolean(
-    performance?.periods.some((period) => period.changePercent !== null)
+  const performanceMetrics = useMemo(
+    () =>
+      performance
+        ? [
+            ...performance.periods.map((period) => period.changePercent),
+            performance.stats.high52w.price,
+            performance.stats.low52w.price,
+            performance.stats.distanceFromHigh52wPercent,
+            performance.stats.movingAverage200d,
+            performance.stats.distanceFromMovingAverage200dPercent,
+            performance.stats.volatility30dPercent,
+            performance.stats.volatility90dPercent,
+          ]
+        : [],
+    [performance]
   );
+  const hasPerformanceData = performanceMetrics.some((value) => value !== null);
   const hasMarketContextChartData = Boolean(
     marketContextChart?.series.some((series) => series.points.length > 0)
   );
@@ -498,14 +519,10 @@ export function useDashboardData(locale: AppLocale) {
         isLoading: performanceLoading,
         isPartial:
           Boolean(performance?.partial) ||
-          Boolean(
-            performance &&
-            performance.periods.length > 0 &&
-            performance.periods.some((period) => period.changePercent === null)
-          ),
+          (hasPerformanceData && performanceMetrics.some((value) => value === null)),
         lastUpdatedAt: performance?.fetchedAt ?? null,
       }),
-    [hasPerformanceData, performance, performanceError, performanceLoading]
+    [hasPerformanceData, performance, performanceError, performanceLoading, performanceMetrics]
   );
 
   const marketContextChartState = useMemo(
