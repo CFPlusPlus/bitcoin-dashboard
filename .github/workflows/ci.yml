@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -13,7 +15,7 @@ permissions:
 
 jobs:
   verify:
-    name: Lint, test, build, and deployment sanity check
+    name: Quality Gate
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
