@@ -134,7 +134,7 @@ First-pass caching policy:
 
 Guidance:
 
-- One minute is a reasonable balance between freshness and CoinGecko demo-key limits.
+- Five minutes is a reasonable balance between freshness and CoinGecko demo-key limits.
 - Overview cards are read as a snapshot, so brief staleness is acceptable.
 - Stale-but-safe data is acceptable here as long as the response still includes `fetchedAt` and any partial-state warnings.
 
@@ -151,7 +151,7 @@ First-pass caching policy:
 Guidance:
 
 - Chart interactions can trigger repeated requests as users switch range or currency, so caching should suppress duplicate provider traffic.
-- One minute is acceptable because the chart is for lightweight context, not tick-level trading decisions.
+- Five minutes is acceptable because the chart is for lightweight context, not tick-level trading decisions.
 - Stale-but-safe data is acceptable when the app still returns the requested range/currency and marks any dropped points via warnings.
 
 ### Network data

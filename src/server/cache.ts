@@ -7,17 +7,17 @@ export type CachePolicy = {
 };
 
 export const overviewCachePolicy: CachePolicy = {
-  revalidateSeconds: 120,
-  staleWhileRevalidateSeconds: 300,
-  browserMaxAgeSeconds: 30,
+  revalidateSeconds: 300,
+  staleWhileRevalidateSeconds: 900,
+  browserMaxAgeSeconds: 60,
 };
 
 export function getChartCachePolicy(range: ChartRange): CachePolicy {
   if (range === 1) {
     return {
-      revalidateSeconds: 120,
-      staleWhileRevalidateSeconds: 300,
-      browserMaxAgeSeconds: 30,
+      revalidateSeconds: 300,
+      staleWhileRevalidateSeconds: 900,
+      browserMaxAgeSeconds: 60,
     };
   }
 

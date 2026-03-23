@@ -31,7 +31,8 @@ The app currently includes:
 - Recent block flow, backlog and fee spread context
 - On-chain activity metrics for active addresses, transfers, funded addresses and daily fees
 - Fully working DCA calculator with local persistence
-- Auto-refresh every 60 seconds
+- Core dashboard auto-refresh every 60 seconds
+- Performance and market-context sections auto-refresh every 15 minutes
 - Manual refresh button
 - Persisted dashboard preferences on the current device
 

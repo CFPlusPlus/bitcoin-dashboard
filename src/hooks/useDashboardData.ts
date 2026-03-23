@@ -29,6 +29,7 @@ const STORAGE_KEYS = {
 } as const;
 
 const DASHBOARD_REFRESH_INTERVAL_MS = 60_000;
+const SLOW_SECTIONS_REFRESH_INTERVAL_MS = 15 * 60_000;
 const NETWORK_BLOCK_POLL_INTERVAL_MS = 15_000;
 const QUERY_RETRY_COUNT = 1;
 
@@ -292,6 +293,26 @@ export function useDashboardData(locale: AppLocale) {
     [refetchMarketContextChart]
   );
 
+  const refreshCoreSections = useCallback(async () => {
+    setRefreshing(true);
+
+    try {
+      await Promise.all([
+        refetchOverview(),
+        refetchNetwork(),
+        refetchOnChainActivity(),
+        refetchChart(),
+        refetchSentiment(),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchChart, refetchNetwork, refetchOnChainActivity, refetchOverview, refetchSentiment]);
+
+  const refreshSlowSections = useCallback(async () => {
+    await Promise.all([refetchPerformance(), refetchMarketContextChart()]);
+  }, [refetchMarketContextChart, refetchPerformance]);
+
   const refreshAll = useCallback(
     async (_selectedRange: ChartRange, _selectedCurrency: Currency) => {
       setRefreshing(true);
@@ -325,11 +346,21 @@ export function useDashboardData(locale: AppLocale) {
     if (!autoRefresh) return;
 
     const timerId = window.setInterval(() => {
-      void refreshAll(range, currency);
+      void refreshCoreSections();
     }, DASHBOARD_REFRESH_INTERVAL_MS);
 
     return () => window.clearInterval(timerId);
-  }, [autoRefresh, currency, range, refreshAll]);
+  }, [autoRefresh, refreshCoreSections]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+
+    const timerId = window.setInterval(() => {
+      void refreshSlowSections();
+    }, SLOW_SECTIONS_REFRESH_INTERVAL_MS);
+
+    return () => window.clearInterval(timerId);
+  }, [autoRefresh, refreshSlowSections]);
 
   useEffect(() => {
     if (!autoRefresh) return;

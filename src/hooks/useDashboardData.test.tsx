@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { HttpResponse, http } from "msw";
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { server } from "../test/msw/server";
 import { useDashboardData } from "./useDashboardData";
 
@@ -334,6 +334,8 @@ function setupHandlers(counter: Record<string, number>) {
 describe("useDashboardData", () => {
   afterEach(() => {
     window.localStorage.clear();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   it("loads all dashboard sections and returns success states", async () => {
@@ -409,5 +411,51 @@ describe("useDashboardData", () => {
       expect(counter.performance).toBe(2);
       expect(counter.marketContextChart).toBe(2);
     });
+  });
+
+  it("keeps performance and market-context on a slower auto-refresh cadence", async () => {
+    window.localStorage.setItem("bitcoin-dashboard:auto-refresh", JSON.stringify(false));
+    const counter = {
+      overview: 0,
+      network: 0,
+      sentiment: 0,
+      chart: 0,
+      onChainActivity: 0,
+      performance: 0,
+      marketContextChart: 0,
+    };
+    setupHandlers(counter);
+
+    const { result } = renderHook(() => useDashboardData("de"), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.dashboardState.status).toBe("success");
+    });
+    expect(counter.performance).toBe(1);
+    expect(counter.marketContextChart).toBe(1);
+
+    vi.useFakeTimers();
+
+    await act(async () => {
+      result.current.setAutoRefresh(true);
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(60_000);
+    });
+
+    expect(counter.overview).toBeGreaterThanOrEqual(2);
+    expect(counter.chart).toBeGreaterThanOrEqual(2);
+    expect(counter.performance).toBe(1);
+    expect(counter.marketContextChart).toBe(1);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(15 * 60_000);
+    });
+
+    expect(counter.performance).toBeGreaterThanOrEqual(2);
+    expect(counter.marketContextChart).toBeGreaterThanOrEqual(2);
   });
 });
