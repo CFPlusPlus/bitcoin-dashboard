@@ -138,6 +138,12 @@ In practice this means:
 - `npm run cf:dev` and `npm run cf:preview` are better run in WSL when you want Cloudflare parity
 - rerunning OpenNext preview on native Windows can also hit `.open-next` file-lock errors
 
+### Next.js compatibility note
+
+`@opennextjs/cloudflare@1.17.1` currently crashes with `next@16.2.0` on Cloudflare Workers during server startup (`Unexpected loadManifest(/.next/server/prefetch-hints.json) call!`).
+
+Until the upstream OpenNext fix is released, keep `next` pinned to `16.1.6` instead of a caret range.
+
 ```bash
 npm run deploy
 ```
