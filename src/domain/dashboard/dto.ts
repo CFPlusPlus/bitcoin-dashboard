@@ -35,6 +35,15 @@ export type OverviewDto = ApiEnvelope & {
 
 export type NetworkDto = ApiEnvelope & {
   latestBlockHeight: number | null;
+  halving: {
+    progressPercent: number | null;
+    estimatedDaysUntil: number | null;
+    remainingBlocks: number | null;
+    nextHalvingHeight: number | null;
+    estimatedDate: string | null;
+    currentReward: number | null;
+    nextReward: number | null;
+  };
   fees: {
     fastestFee: number | null;
     halfHourFee: number | null;

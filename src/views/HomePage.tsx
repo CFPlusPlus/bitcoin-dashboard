@@ -14,6 +14,7 @@ export default function HomePage() {
     chartState,
     currency,
     dashboardState,
+    halvingState,
     loadChartData,
     loadMarketContextChartData,
     loadNetworkData,
@@ -54,6 +55,7 @@ export default function HomePage() {
         chartState={chartState}
         currency={currency}
         dashboardState={dashboardState}
+        halvingState={halvingState}
         marketContextChart={marketContextChart}
         marketContextChartState={marketContextChartState}
         network={network}

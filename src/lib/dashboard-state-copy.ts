@@ -4,6 +4,7 @@ import { getDictionary } from "../i18n/dictionaries";
 type DashboardSectionKey =
   | "overview"
   | "ath"
+  | "halving"
   | "performance"
   | "chart"
   | "marketContext"

@@ -293,6 +293,19 @@ export const dictionaries = {
         daysSinceFootnote:
           "Setzt die aktuelle Marktphase zeitlich ins Verhältnis zum letzten Hoch.",
       },
+      halving: {
+        eyebrow: "Halving",
+        title: "Countdown bis zum nächsten Halving",
+        description:
+          "Ein eigener Blick auf den aktuellen Halving-Zyklus mit Restblöcken, Fortschritt und dem Zielblock.",
+        countdownLabel: "Halving Countdown",
+        blocksSuffix: "Blöcke",
+        daysRemainingValue: "ca. {value} Tage verbleibend",
+        progressValue: "{value} des Zyklus abgeschlossen",
+        currentBlockLabel: "Aktueller Block",
+        rewardChangeLabel: "Blockbelohnung",
+        nextHalvingLabel: "Halving bei Block",
+      },
       performance: {
         eyebrow: "Performance",
         title: "Bitcoin über mehrere Zeiträume",
@@ -365,6 +378,7 @@ export const dictionaries = {
         statsCardTitle: "Netzwerk-Status",
         hashrateCardTitle: "Hashrate",
         difficultyCardTitle: "Schwierigkeit",
+        halvingCardTitle: "Nächstes Halving",
         feesCardTitle: "Mempool-Gebühren",
         latestBlock: "Letzter Block",
         latestBlockMeta: "Zuletzt gesehene Blockhöhe.",
@@ -387,9 +401,12 @@ export const dictionaries = {
         hashrateHighLabel: "30d Hoch",
         hashrateAverageLabel: "30d Schnitt",
         epochCompleteLabel: "der Epoche abgeschlossen",
+        halvingDaysRemainingLabel: "Tage bis Halving",
+        halvingCycleCompleteLabel: "des aktuellen Zyklus geschafft",
         blocksLeftLabel: "Blöcke offen",
         estimatedDateLabel: "Geschätztes Datum",
         retargetLabel: "Nächste Anpassung",
+        nextHalvingLabel: "Nächstes Halving",
         highPriorityLabel: "Hoch",
         mediumPriorityLabel: "Mittel",
         hourPriorityLabel: "60 Min",
@@ -476,6 +493,33 @@ export const dictionaries = {
             title: "Letzter ATH-Kontext bleibt sichtbar",
             description:
               "Die Aktualisierung ist fehlgeschlagen. Die angezeigten ATH-Hinweise können inzwischen überholt sein.",
+          },
+        },
+        halving: {
+          loading: {
+            title: "Halving-Countdown wird geladen",
+            description:
+              "Restblöcke, Fortschritt und die nächste Blockbelohnung werden vorbereitet.",
+          },
+          empty: {
+            title: "Kein Halving-Kontext verfügbar",
+            description:
+              "Der Abruf war erfolgreich, liefert aktuell aber keine verwertbaren Halving-Werte.",
+          },
+          error: {
+            title: "Halving-Kontext ist gerade nicht verfügbar",
+            fallbackDescription:
+              "Es konnten noch keine verlässlichen Halving-Daten geladen werden.",
+          },
+          partial: {
+            title: "Halving-Kontext ist teilweise verfügbar",
+            description:
+              "Einzelne Halving-Werte fehlen im aktuellen Abruf. Verfügbare Hinweise bleiben sichtbar.",
+          },
+          stale: {
+            title: "Letzter Halving-Kontext bleibt sichtbar",
+            description:
+              "Die Aktualisierung ist fehlgeschlagen. Der angezeigte Countdown kann inzwischen ueberholt sein.",
           },
         },
         performance: {
@@ -1072,6 +1116,19 @@ export const dictionaries = {
         daysSinceMeta: "How long ago the latest all-time high was set.",
         daysSinceFootnote: "Places the current market phase in time relative to the last peak.",
       },
+      halving: {
+        eyebrow: "Halving",
+        title: "Countdown to the next halving",
+        description:
+          "A dedicated read on the current halving cycle with remaining blocks, progress, and the target block.",
+        countdownLabel: "Halving Countdown",
+        blocksSuffix: "blocks",
+        daysRemainingValue: "about {value} days remaining",
+        progressValue: "{value} complete",
+        currentBlockLabel: "Current block",
+        rewardChangeLabel: "Reward",
+        nextHalvingLabel: "Next halving",
+      },
       performance: {
         eyebrow: "Performance",
         title: "Bitcoin across key timeframes",
@@ -1144,6 +1201,7 @@ export const dictionaries = {
         statsCardTitle: "Network Status",
         hashrateCardTitle: "Hashrate",
         difficultyCardTitle: "Difficulty",
+        halvingCardTitle: "Next halving",
         feesCardTitle: "Mempool Fees",
         latestBlock: "Latest block",
         latestBlockMeta: "Most recently seen block height.",
@@ -1166,9 +1224,12 @@ export const dictionaries = {
         hashrateHighLabel: "30d high",
         hashrateAverageLabel: "30d avg",
         epochCompleteLabel: "of epoch complete",
+        halvingDaysRemainingLabel: "Days to halving",
+        halvingCycleCompleteLabel: "of the current cycle complete",
         blocksLeftLabel: "Blocks left",
         estimatedDateLabel: "Est. date",
         retargetLabel: "Retarget",
+        nextHalvingLabel: "Next halving",
         highPriorityLabel: "High",
         mediumPriorityLabel: "Med",
         hourPriorityLabel: "60m",
@@ -1251,6 +1312,29 @@ export const dictionaries = {
           stale: {
             title: "Latest ATH context stays visible",
             description: "The refresh failed. The displayed ATH hints may now be outdated.",
+          },
+        },
+        halving: {
+          loading: {
+            title: "Loading halving countdown",
+            description: "Remaining blocks, progress, and the reward change are being prepared.",
+          },
+          empty: {
+            title: "No halving context available",
+            description: "The fetch succeeded, but there is no usable halving data right now.",
+          },
+          error: {
+            title: "Halving context is currently unavailable",
+            fallbackDescription: "No reliable halving data could be loaded yet.",
+          },
+          partial: {
+            title: "Halving context is partially available",
+            description:
+              "Some halving values are missing in the current fetch. Available hints stay visible.",
+          },
+          stale: {
+            title: "Latest halving context stays visible",
+            description: "The refresh failed. The displayed halving countdown may now be outdated.",
           },
         },
         performance: {

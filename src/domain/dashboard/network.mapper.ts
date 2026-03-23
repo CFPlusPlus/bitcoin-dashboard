@@ -7,6 +7,98 @@ import type {
 } from "../../server/providers/mempool";
 import type { NetworkDto } from "./dto";
 
+const HALVING_INTERVAL = 210_000;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const INITIAL_BLOCK_REWARD = 50;
+
+function getBlockReward(halvingIndex: number) {
+  return INITIAL_BLOCK_REWARD / 2 ** halvingIndex;
+}
+
+function getEstimatedHalvingDate(input: {
+  difficultyAdjustment: MempoolDifficultyAdjustment | null;
+  fetchedAt: string;
+  halvingBlocksRemaining: number;
+}) {
+  const retargetTimestamp = input.difficultyAdjustment?.estimatedRetargetDate ?? null;
+  const retargetBlocksRemaining = input.difficultyAdjustment?.remainingBlocks ?? null;
+  const fetchedAtTimestamp = new Date(input.fetchedAt).getTime();
+
+  if (
+    retargetTimestamp === null ||
+    retargetBlocksRemaining === null ||
+    !Number.isFinite(retargetTimestamp) ||
+    !Number.isFinite(retargetBlocksRemaining) ||
+    retargetBlocksRemaining <= 0 ||
+    Number.isNaN(fetchedAtTimestamp)
+  ) {
+    return null;
+  }
+
+  const millisecondsUntilRetarget = retargetTimestamp - fetchedAtTimestamp;
+
+  if (!Number.isFinite(millisecondsUntilRetarget) || millisecondsUntilRetarget <= 0) {
+    return null;
+  }
+
+  const millisecondsPerBlock = millisecondsUntilRetarget / retargetBlocksRemaining;
+
+  if (!Number.isFinite(millisecondsPerBlock) || millisecondsPerBlock <= 0) {
+    return null;
+  }
+
+  return fetchedAtTimestamp + input.halvingBlocksRemaining * millisecondsPerBlock;
+}
+
+function mapHalving(input: {
+  latestBlockHeight: number | null;
+  difficultyAdjustment: MempoolDifficultyAdjustment | null;
+  fetchedAt: string;
+}): NetworkDto["halving"] {
+  const { latestBlockHeight } = input;
+
+  if (latestBlockHeight === null || latestBlockHeight === undefined) {
+    return {
+      progressPercent: null,
+      estimatedDaysUntil: null,
+      remainingBlocks: null,
+      nextHalvingHeight: null,
+      estimatedDate: null,
+      currentReward: null,
+      nextReward: null,
+    };
+  }
+
+  const nextHalvingHeight =
+    (Math.floor(latestBlockHeight / HALVING_INTERVAL) + 1) * HALVING_INTERVAL;
+  const lastHalvingHeight = Math.floor(latestBlockHeight / HALVING_INTERVAL) * HALVING_INTERVAL;
+  const remainingBlocks = Math.max(nextHalvingHeight - latestBlockHeight, 0);
+  const progressBlocks = Math.max(latestBlockHeight - lastHalvingHeight, 0);
+  const halvingIndex = Math.floor(latestBlockHeight / HALVING_INTERVAL);
+  const fetchedAtTimestamp = new Date(input.fetchedAt).getTime();
+  const estimatedTimestamp = getEstimatedHalvingDate({
+    difficultyAdjustment: input.difficultyAdjustment,
+    fetchedAt: input.fetchedAt,
+    halvingBlocksRemaining: remainingBlocks,
+  });
+
+  return {
+    progressPercent: (progressBlocks / HALVING_INTERVAL) * 100,
+    estimatedDaysUntil:
+      estimatedTimestamp === null || Number.isNaN(fetchedAtTimestamp)
+        ? null
+        : Math.max(0, Math.round((estimatedTimestamp - fetchedAtTimestamp) / MS_PER_DAY)),
+    remainingBlocks,
+    nextHalvingHeight,
+    estimatedDate:
+      estimatedTimestamp === null || Number.isNaN(estimatedTimestamp)
+        ? null
+        : new Date(estimatedTimestamp).toISOString(),
+    currentReward: getBlockReward(halvingIndex),
+    nextReward: getBlockReward(halvingIndex + 1),
+  };
+}
+
 export function mapNetworkDto(input: {
   fees: MempoolRecommendedFees | null;
   latestBlockHeight: number | null;
@@ -43,6 +135,11 @@ export function mapNetworkDto(input: {
   return {
     source: "mempool.space",
     latestBlockHeight: input.latestBlockHeight,
+    halving: mapHalving({
+      latestBlockHeight: input.latestBlockHeight,
+      difficultyAdjustment: input.difficultyAdjustment,
+      fetchedAt: input.fetchedAt,
+    }),
     fees: {
       fastestFee: input.fees?.fastestFee ?? null,
       halfHourFee: input.fees?.halfHourFee ?? null,

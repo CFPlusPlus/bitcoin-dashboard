@@ -22,6 +22,7 @@ import NetworkOverviewSection from "./NetworkOverviewSection";
 import OverviewSection from "./OverviewSection";
 import PerformanceSection from "./PerformanceSection";
 import SentimentSection from "./SentimentSection";
+import HalvingSection from "./HalvingSection";
 import ToolsPreviewSection from "./ToolsPreviewSection";
 
 type DashboardContentProps = {
@@ -29,6 +30,7 @@ type DashboardContentProps = {
   chartState: AsyncDataState<ChartData>;
   currency: Currency;
   dashboardState: AsyncDataState<{ lastRefreshAt: string }>;
+  halvingState: AsyncDataState<Network>;
   marketContextChart: MarketContextChartData | null;
   marketContextChartState: AsyncDataState<MarketContextChartData>;
   network: Network | null;
@@ -115,6 +117,12 @@ export default function DashboardContent(props: DashboardContentProps) {
       <NetworkOverviewSection
         network={props.network}
         networkState={props.networkState}
+        onRetry={props.onNetworkRetry}
+      />
+
+      <HalvingSection
+        network={props.network}
+        halvingState={props.halvingState}
         onRetry={props.onNetworkRetry}
       />
 

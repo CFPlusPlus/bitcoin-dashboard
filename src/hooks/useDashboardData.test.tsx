@@ -52,6 +52,15 @@ const networkFixture = {
   source: "test",
   fetchedAt,
   latestBlockHeight: 900001,
+  halving: {
+    progressPercent: 28.57,
+    estimatedDaysUntil: 1042,
+    remainingBlocks: 149999,
+    nextHalvingHeight: 1050000,
+    estimatedDate: "2029-01-25T09:50:00.000Z",
+    currentReward: 3.125,
+    nextReward: 1.5625,
+  },
   fees: {
     fastestFee: 8,
     halfHourFee: 6,

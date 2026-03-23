@@ -370,6 +370,21 @@ export function useDashboardData(locale: AppLocale) {
     [network]
   );
 
+  const halvingMetrics = useMemo(
+    () =>
+      network
+        ? [
+            network.halving.progressPercent,
+            network.halving.estimatedDaysUntil,
+            network.halving.remainingBlocks,
+            network.halving.nextHalvingHeight,
+            network.halving.currentReward,
+            network.halving.nextReward,
+          ]
+        : [],
+    [network]
+  );
+
   const sentimentMetrics = useMemo(
     () =>
       sentiment
@@ -385,6 +400,7 @@ export function useDashboardData(locale: AppLocale) {
 
   const hasOverviewData = overviewMetrics.some((value) => value !== null);
   const hasNetworkData = networkMetrics.some((value) => value !== null);
+  const hasHalvingData = halvingMetrics.some((value) => value !== null);
   const hasSentimentData = sentimentMetrics.some((value) => value !== null);
   const hasChartData = chart !== null && chart.points.length > 0;
   const hasPerformanceData = Boolean(
@@ -424,6 +440,22 @@ export function useDashboardData(locale: AppLocale) {
         lastUpdatedAt: network?.fetchedAt ?? null,
       }),
     [hasNetworkData, network, networkError, networkLoading, networkMetrics]
+  );
+
+  const halvingState = useMemo(
+    () =>
+      resolveAsyncDataState({
+        data: network,
+        error: networkError,
+        hasUsableData: hasHalvingData,
+        isEmpty: network !== null && !hasHalvingData,
+        isLoading: networkLoading,
+        isPartial:
+          Boolean(network?.partial) ||
+          (hasHalvingData && halvingMetrics.some((value) => value === null)),
+        lastUpdatedAt: network?.fetchedAt ?? null,
+      }),
+    [halvingMetrics, hasHalvingData, network, networkError, networkLoading]
   );
 
   const sentimentState = useMemo(
@@ -531,6 +563,7 @@ export function useDashboardData(locale: AppLocale) {
         ].find(Boolean),
         hasUsableData:
           overviewState.hasUsableData ||
+          halvingState.hasUsableData ||
           networkState.hasUsableData ||
           sentimentState.hasUsableData ||
           chartState.hasUsableData ||
@@ -539,6 +572,7 @@ export function useDashboardData(locale: AppLocale) {
         isLoading: refreshing && !lastRefreshAt,
         isPartial:
           overviewState.status === "partial" ||
+          halvingState.status === "partial" ||
           networkState.status === "partial" ||
           sentimentState.status === "partial" ||
           chartState.status === "partial" ||
@@ -551,6 +585,8 @@ export function useDashboardData(locale: AppLocale) {
       chartError,
       chartState.hasUsableData,
       chartState.status,
+      halvingState.hasUsableData,
+      halvingState.status,
       lastRefreshAt,
       marketContextChartError,
       marketContextChartState.hasUsableData,
@@ -579,6 +615,7 @@ export function useDashboardData(locale: AppLocale) {
     chartState,
     currency,
     dashboardState,
+    halvingState,
     lastRefreshAt,
     marketContextChart,
     marketContextChartState,
