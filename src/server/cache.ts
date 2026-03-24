@@ -60,6 +60,18 @@ export const onChainActivityCachePolicy: CachePolicy = {
   browserMaxAgeSeconds: 300,
 };
 
+export const dashboardCoreCachePolicy: CachePolicy = {
+  revalidateSeconds: 120,
+  staleWhileRevalidateSeconds: 240,
+  browserMaxAgeSeconds: 30,
+};
+
+export const dashboardSlowCachePolicy: CachePolicy = {
+  revalidateSeconds: 900,
+  staleWhileRevalidateSeconds: 3600,
+  browserMaxAgeSeconds: 300,
+};
+
 export function getCacheControlHeader(policy: CachePolicy) {
   return (
     `public, max-age=${policy.browserMaxAgeSeconds}, ` +

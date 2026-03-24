@@ -1,11 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AppLocale } from "../i18n/config";
 import { getDictionary } from "../i18n/dictionaries";
-import {
-  getDashboardNoticeCandidates,
-  PERSISTENT_NOTICE_DELAY_MS,
-} from "../lib/dashboard-notices";
+import { getDashboardNoticeCandidates, PERSISTENT_NOTICE_DELAY_MS } from "../lib/dashboard-notices";
 import { fetchJson } from "../lib/api";
 import { CURRENCY_STORAGE_KEY, DEFAULT_CURRENCY, isCurrency } from "../lib/currency";
 import { sanitizeDashboardErrorMessage } from "../lib/dashboard-state-copy";
@@ -14,6 +11,9 @@ import type {
   ChartData,
   ChartRange,
   Currency,
+  DashboardBundleSectionError,
+  DashboardCoreBundle,
+  DashboardSlowBundle,
   MarketContextChartData,
   Network,
   OnChainActivity,
@@ -21,6 +21,7 @@ import type {
   Performance,
   Sentiment,
 } from "../types/dashboard";
+import { useDashboardPollingLeader } from "./useDashboardPollingLeader";
 import { usePersistentNoticeMessages } from "./usePersistentNoticeMessages";
 import { usePersistentState } from "./usePersistentState";
 
@@ -30,9 +31,8 @@ const STORAGE_KEYS = {
   range: "bitcoin-dashboard:range",
 } as const;
 
-const DASHBOARD_REFRESH_INTERVAL_MS = 60_000;
-const SLOW_SECTIONS_REFRESH_INTERVAL_MS = 15 * 60_000;
-const NETWORK_BLOCK_POLL_INTERVAL_MS = 30_000;
+const DASHBOARD_CORE_REFRESH_INTERVAL_MS = 2 * 60_000;
+const DASHBOARD_SLOW_REFRESH_INTERVAL_MS = 30 * 60_000;
 const QUERY_RETRY_COUNT = 1;
 
 function isChartRange(value: unknown): value is ChartRange {
@@ -43,35 +43,15 @@ function isBoolean(value: unknown): value is boolean {
   return typeof value === "boolean";
 }
 
-async function fetchOverview(currency: Currency, locale: AppLocale) {
-  return fetchJson<Overview>(`/api/overview?currency=${currency}`, locale);
-}
-
-async function fetchNetwork(locale: AppLocale) {
-  return fetchJson<Network>("/api/network", locale);
-}
-
-async function fetchSentiment(locale: AppLocale) {
-  return fetchJson<Sentiment>("/api/sentiment", locale);
-}
-
-async function fetchOnChainActivity(locale: AppLocale) {
-  return fetchJson<OnChainActivity>("/api/onchain-activity", locale);
-}
-
-async function fetchChart(range: ChartRange, currency: Currency, locale: AppLocale) {
-  return fetchJson<ChartData>(`/api/chart?days=${range}&currency=${currency}`, locale);
-}
-
-async function fetchPerformance(currency: Currency, locale: AppLocale) {
-  return fetchJson<Performance>(`/api/performance?currency=${currency}`, locale);
-}
-
-async function fetchMarketContextChart(currency: Currency, locale: AppLocale) {
-  return fetchJson<MarketContextChartData>(
-    `/api/market-context-chart?currency=${currency}`,
+async function fetchDashboardCore(range: ChartRange, currency: Currency, locale: AppLocale) {
+  return fetchJson<DashboardCoreBundle>(
+    `/api/dashboard-core?days=${range}&currency=${currency}`,
     locale
   );
+}
+
+async function fetchDashboardSlow(currency: Currency, locale: AppLocale) {
+  return fetchJson<DashboardSlowBundle>(`/api/dashboard-slow?currency=${currency}`, locale);
 }
 
 function getSectionErrorMessage(fallback: string, error: unknown, locale: AppLocale) {
@@ -82,12 +62,38 @@ function getSectionErrorMessage(fallback: string, error: unknown, locale: AppLoc
   return sanitizeDashboardErrorMessage(error.message, fallback, locale);
 }
 
+function getBundledSectionErrorMessage(
+  fallback: string,
+  sectionError: DashboardBundleSectionError | null | undefined,
+  queryError: unknown,
+  locale: AppLocale
+) {
+  if (sectionError?.message) {
+    return sanitizeDashboardErrorMessage(sectionError.message, fallback, locale);
+  }
+
+  if (queryError) {
+    return getSectionErrorMessage(fallback, queryError, locale);
+  }
+
+  return "";
+}
+
+function getDocumentVisibility() {
+  if (typeof document === "undefined") {
+    return true;
+  }
+
+  return !document.hidden;
+}
+
 export function useDashboardData(locale: AppLocale) {
   const copy = getDictionary(locale).dashboard;
   const chartRangeStateOptions = useMemo(() => ({ validator: isChartRange }), []);
   const currencyStateOptions = useMemo(() => ({ validator: isCurrency }), []);
   const autoRefreshStateOptions = useMemo(() => ({ validator: isBoolean }), []);
   const [refreshing, setRefreshing] = useState(false);
+  const [isDocumentVisible, setIsDocumentVisible] = useState(getDocumentVisibility);
 
   const [range, setRange] = usePersistentState<ChartRange>(
     STORAGE_KEYS.range,
@@ -105,274 +111,258 @@ export function useDashboardData(locale: AppLocale) {
     autoRefreshStateOptions
   );
 
-  const overviewQuery = useQuery({
-    queryKey: ["dashboard", "overview", currency, locale],
-    queryFn: () => fetchOverview(currency, locale),
-    retry: QUERY_RETRY_COUNT,
-  });
-  const networkQuery = useQuery({
-    queryKey: ["dashboard", "network", locale],
-    queryFn: () => fetchNetwork(locale),
-    retry: QUERY_RETRY_COUNT,
-  });
-  const sentimentQuery = useQuery({
-    queryKey: ["dashboard", "sentiment", locale],
-    queryFn: () => fetchSentiment(locale),
-    retry: QUERY_RETRY_COUNT,
-  });
-  const onChainActivityQuery = useQuery({
-    queryKey: ["dashboard", "onchain-activity", locale],
-    queryFn: () => fetchOnChainActivity(locale),
-    retry: QUERY_RETRY_COUNT,
-  });
-  const chartQuery = useQuery({
-    queryKey: ["dashboard", "chart", range, currency, locale],
-    queryFn: () => fetchChart(range, currency, locale),
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return () => undefined;
+    }
+
+    const handleVisibilityChange = () => {
+      setIsDocumentVisible(getDocumentVisibility());
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  const isActivePollingTab = useDashboardPollingLeader(autoRefresh && isDocumentVisible);
+
+  const coreQuery = useQuery({
+    queryKey: ["dashboard", "core", range, currency, locale],
+    queryFn: () => fetchDashboardCore(range, currency, locale),
     retry: QUERY_RETRY_COUNT,
     placeholderData: (previousData) => previousData,
   });
-  const performanceQuery = useQuery({
-    queryKey: ["dashboard", "performance", currency, locale],
-    queryFn: () => fetchPerformance(currency, locale),
-    retry: QUERY_RETRY_COUNT,
-    placeholderData: (previousData) => previousData,
-  });
-  const marketContextChartQuery = useQuery({
-    queryKey: ["dashboard", "market-context-chart", currency, locale],
-    queryFn: () => fetchMarketContextChart(currency, locale),
+  const slowQuery = useQuery({
+    queryKey: ["dashboard", "slow", currency, locale],
+    queryFn: () => fetchDashboardSlow(currency, locale),
     retry: QUERY_RETRY_COUNT,
     placeholderData: (previousData) => previousData,
   });
 
-  const overview = overviewQuery.data ?? null;
-  const network = networkQuery.data ?? null;
-  const sentiment = sentimentQuery.data ?? null;
-  const onChainActivity = onChainActivityQuery.data ?? null;
-  const chart = chartQuery.data ?? null;
-  const performance = performanceQuery.data ?? null;
-  const marketContextChart = marketContextChartQuery.data ?? null;
-  const refetchOverview = overviewQuery.refetch;
-  const refetchNetwork = networkQuery.refetch;
-  const refetchSentiment = sentimentQuery.refetch;
-  const refetchOnChainActivity = onChainActivityQuery.refetch;
-  const refetchChart = chartQuery.refetch;
-  const refetchPerformance = performanceQuery.refetch;
-  const refetchMarketContextChart = marketContextChartQuery.refetch;
+  const overviewSection = coreQuery.data?.sections.overview ?? null;
+  const chartSection = coreQuery.data?.sections.chart ?? null;
+  const networkSection = coreQuery.data?.sections.network ?? null;
+  const onChainActivitySection = slowQuery.data?.sections.onChainActivity ?? null;
+  const sentimentSection = slowQuery.data?.sections.sentiment ?? null;
+  const performanceSection = slowQuery.data?.sections.performance ?? null;
+  const marketContextChartSection = slowQuery.data?.sections.marketContextChart ?? null;
+
+  const overview = overviewSection?.data ?? null;
+  const network = networkSection?.data ?? null;
+  const sentiment = sentimentSection?.data ?? null;
+  const onChainActivity = onChainActivitySection?.data ?? null;
+  const chart = chartSection?.data ?? null;
+  const performance = performanceSection?.data ?? null;
+  const marketContextChart = marketContextChartSection?.data ?? null;
+  const refetchCore = coreQuery.refetch;
+  const refetchSlow = slowQuery.refetch;
 
   const overviewError = useMemo(
     () =>
-      overviewQuery.error
-        ? getSectionErrorMessage(
-            copy.stateCopy.fallbacks.overviewUnavailable,
-            overviewQuery.error,
-            locale
-          )
-        : "",
-    [copy.stateCopy.fallbacks.overviewUnavailable, locale, overviewQuery.error]
+      getBundledSectionErrorMessage(
+        copy.stateCopy.fallbacks.overviewUnavailable,
+        overviewSection?.error,
+        coreQuery.error,
+        locale
+      ),
+    [copy.stateCopy.fallbacks.overviewUnavailable, coreQuery.error, locale, overviewSection?.error]
   );
   const networkError = useMemo(
     () =>
-      networkQuery.error
-        ? getSectionErrorMessage(
-            copy.stateCopy.fallbacks.networkUnavailable,
-            networkQuery.error,
-            locale
-          )
-        : "",
-    [copy.stateCopy.fallbacks.networkUnavailable, locale, networkQuery.error]
+      getBundledSectionErrorMessage(
+        copy.stateCopy.fallbacks.networkUnavailable,
+        networkSection?.error,
+        coreQuery.error,
+        locale
+      ),
+    [copy.stateCopy.fallbacks.networkUnavailable, coreQuery.error, locale, networkSection?.error]
   );
   const chartError = useMemo(
     () =>
-      chartQuery.error
-        ? getSectionErrorMessage(
-            copy.stateCopy.fallbacks.chartUnavailable,
-            chartQuery.error,
-            locale
-          )
-        : "",
-    [chartQuery.error, copy.stateCopy.fallbacks.chartUnavailable, locale]
+      getBundledSectionErrorMessage(
+        copy.stateCopy.fallbacks.chartUnavailable,
+        chartSection?.error,
+        coreQuery.error,
+        locale
+      ),
+    [chartSection?.error, copy.stateCopy.fallbacks.chartUnavailable, coreQuery.error, locale]
   );
   const sentimentError = useMemo(
     () =>
-      sentimentQuery.error
-        ? getSectionErrorMessage(
-            copy.stateCopy.fallbacks.sentimentUnavailable,
-            sentimentQuery.error,
-            locale
-          )
-        : "",
-    [copy.stateCopy.fallbacks.sentimentUnavailable, locale, sentimentQuery.error]
+      getBundledSectionErrorMessage(
+        copy.stateCopy.fallbacks.sentimentUnavailable,
+        sentimentSection?.error,
+        slowQuery.error,
+        locale
+      ),
+    [
+      copy.stateCopy.fallbacks.sentimentUnavailable,
+      locale,
+      sentimentSection?.error,
+      slowQuery.error,
+    ]
   );
   const performanceError = useMemo(
     () =>
-      performanceQuery.error
-        ? getSectionErrorMessage(
-            copy.stateCopy.fallbacks.performanceUnavailable,
-            performanceQuery.error,
-            locale
-          )
-        : "",
-    [copy.stateCopy.fallbacks.performanceUnavailable, locale, performanceQuery.error]
+      getBundledSectionErrorMessage(
+        copy.stateCopy.fallbacks.performanceUnavailable,
+        performanceSection?.error,
+        slowQuery.error,
+        locale
+      ),
+    [
+      copy.stateCopy.fallbacks.performanceUnavailable,
+      locale,
+      performanceSection?.error,
+      slowQuery.error,
+    ]
   );
   const marketContextChartError = useMemo(
     () =>
-      marketContextChartQuery.error
-        ? getSectionErrorMessage(
-            copy.stateCopy.fallbacks.chartUnavailable,
-            marketContextChartQuery.error,
-            locale
-          )
-        : "",
-    [copy.stateCopy.fallbacks.chartUnavailable, locale, marketContextChartQuery.error]
+      getBundledSectionErrorMessage(
+        copy.stateCopy.fallbacks.chartUnavailable,
+        marketContextChartSection?.error,
+        slowQuery.error,
+        locale
+      ),
+    [
+      copy.stateCopy.fallbacks.chartUnavailable,
+      locale,
+      marketContextChartSection?.error,
+      slowQuery.error,
+    ]
   );
   const onChainActivityError = useMemo(
     () =>
-      onChainActivityQuery.error
-        ? getSectionErrorMessage(
-            copy.stateCopy.fallbacks.onChainActivityUnavailable,
-            onChainActivityQuery.error,
-            locale
-          )
-        : "",
-    [copy.stateCopy.fallbacks.onChainActivityUnavailable, locale, onChainActivityQuery.error]
+      getBundledSectionErrorMessage(
+        copy.stateCopy.fallbacks.onChainActivityUnavailable,
+        onChainActivitySection?.error,
+        slowQuery.error,
+        locale
+      ),
+    [
+      copy.stateCopy.fallbacks.onChainActivityUnavailable,
+      locale,
+      onChainActivitySection?.error,
+      slowQuery.error,
+    ]
   );
 
-  const overviewLoading = overviewQuery.isPending;
-  const networkLoading = networkQuery.isPending;
-  const chartLoading = chartQuery.isPending;
-  const sentimentLoading = sentimentQuery.isPending;
-  const onChainActivityLoading = onChainActivityQuery.isPending;
-  const performanceLoading = performanceQuery.isPending;
-  const marketContextChartLoading = marketContextChartQuery.isPending;
+  const overviewLoading = coreQuery.isPending;
+  const networkLoading = coreQuery.isPending;
+  const chartLoading = coreQuery.isPending;
+  const sentimentLoading = slowQuery.isPending;
+  const onChainActivityLoading = slowQuery.isPending;
+  const performanceLoading = slowQuery.isPending;
+  const marketContextChartLoading = slowQuery.isPending;
 
   const loadOverviewData = useCallback(
     async (_selectedCurrency: Currency) => {
-      const result = await refetchOverview();
-      return result.data?.fetchedAt ?? null;
+      const result = await refetchCore();
+      return result.data?.sections.overview.data?.fetchedAt ?? null;
     },
-    [refetchOverview]
+    [refetchCore]
   );
 
   const loadNetworkData = useCallback(
     async (_options?: { silent?: boolean }) => {
-      const result = await refetchNetwork();
-      return result.data?.fetchedAt ?? null;
+      const result = await refetchCore();
+      return result.data?.sections.network.data?.fetchedAt ?? null;
     },
-    [refetchNetwork]
+    [refetchCore]
   );
 
   const loadSentimentData = useCallback(async () => {
-    const result = await refetchSentiment();
-    return result.data?.fetchedAt ?? null;
-  }, [refetchSentiment]);
+    const result = await refetchSlow();
+    return result.data?.sections.sentiment.data?.fetchedAt ?? null;
+  }, [refetchSlow]);
 
   const loadOnChainActivityData = useCallback(async () => {
-    const result = await refetchOnChainActivity();
-    return result.data?.fetchedAt ?? null;
-  }, [refetchOnChainActivity]);
+    const result = await refetchSlow();
+    return result.data?.sections.onChainActivity.data?.fetchedAt ?? null;
+  }, [refetchSlow]);
 
   const loadChartData = useCallback(
     async (_selectedRange: ChartRange, _selectedCurrency: Currency) => {
-      const result = await refetchChart();
-      return result.data?.fetchedAt ?? null;
+      const result = await refetchCore();
+      return result.data?.sections.chart.data?.fetchedAt ?? null;
     },
-    [refetchChart]
+    [refetchCore]
   );
 
   const loadPerformanceData = useCallback(
     async (_selectedCurrency: Currency) => {
-      const result = await refetchPerformance();
-      return result.data?.fetchedAt ?? null;
+      const result = await refetchSlow();
+      return result.data?.sections.performance.data?.fetchedAt ?? null;
     },
-    [refetchPerformance]
+    [refetchSlow]
   );
 
   const loadMarketContextChartData = useCallback(
     async (_selectedCurrency: Currency) => {
-      const result = await refetchMarketContextChart();
-      return result.data?.fetchedAt ?? null;
+      const result = await refetchSlow();
+      return result.data?.sections.marketContextChart.data?.fetchedAt ?? null;
     },
-    [refetchMarketContextChart]
+    [refetchSlow]
   );
 
   const refreshCoreSections = useCallback(async () => {
     setRefreshing(true);
 
     try {
-      await Promise.all([
-        refetchOverview(),
-        refetchNetwork(),
-        refetchOnChainActivity(),
-        refetchChart(),
-        refetchSentiment(),
-      ]);
+      await refetchCore();
     } finally {
       setRefreshing(false);
     }
-  }, [refetchChart, refetchNetwork, refetchOnChainActivity, refetchOverview, refetchSentiment]);
+  }, [refetchCore]);
 
   const refreshSlowSections = useCallback(async () => {
-    await Promise.all([refetchPerformance(), refetchMarketContextChart()]);
-  }, [refetchMarketContextChart, refetchPerformance]);
+    setRefreshing(true);
+
+    try {
+      await refetchSlow();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchSlow]);
 
   const refreshAll = useCallback(
     async (_selectedRange: ChartRange, _selectedCurrency: Currency) => {
       setRefreshing(true);
 
       try {
-        await Promise.all([
-          refetchOverview(),
-          refetchNetwork(),
-          refetchOnChainActivity(),
-          refetchChart(),
-          refetchSentiment(),
-          refetchPerformance(),
-          refetchMarketContextChart(),
-        ]);
+        await Promise.all([refetchCore(), refetchSlow()]);
       } finally {
         setRefreshing(false);
       }
     },
-    [
-      refetchChart,
-      refetchMarketContextChart,
-      refetchNetwork,
-      refetchOnChainActivity,
-      refetchOverview,
-      refetchPerformance,
-      refetchSentiment,
-    ]
+    [refetchCore, refetchSlow]
   );
 
+  const pollingEnabled = autoRefresh && isDocumentVisible && isActivePollingTab;
+
   useEffect(() => {
-    if (!autoRefresh) return;
+    if (!pollingEnabled) return;
 
     const timerId = window.setInterval(() => {
       void refreshCoreSections();
-    }, DASHBOARD_REFRESH_INTERVAL_MS);
+    }, DASHBOARD_CORE_REFRESH_INTERVAL_MS);
 
     return () => window.clearInterval(timerId);
-  }, [autoRefresh, refreshCoreSections]);
+  }, [pollingEnabled, refreshCoreSections]);
 
   useEffect(() => {
-    if (!autoRefresh) return;
+    if (!pollingEnabled) return;
 
     const timerId = window.setInterval(() => {
       void refreshSlowSections();
-    }, SLOW_SECTIONS_REFRESH_INTERVAL_MS);
+    }, DASHBOARD_SLOW_REFRESH_INTERVAL_MS);
 
     return () => window.clearInterval(timerId);
-  }, [autoRefresh, refreshSlowSections]);
-
-  useEffect(() => {
-    if (!autoRefresh) return;
-
-    const timerId = window.setInterval(() => {
-      void loadNetworkData({ silent: true });
-    }, NETWORK_BLOCK_POLL_INTERVAL_MS);
-
-    return () => window.clearInterval(timerId);
-  }, [autoRefresh, loadNetworkData]);
+  }, [pollingEnabled, refreshSlowSections]);
 
   const overviewMetrics = useMemo(
     () =>
@@ -460,6 +450,7 @@ export function useDashboardData(locale: AppLocale) {
         : [],
     [sentiment]
   );
+
   const onChainActivityMetrics = useMemo(
     () =>
       onChainActivity
@@ -686,6 +677,46 @@ export function useDashboardData(locale: AppLocale) {
       sentiment?.fetchedAt,
     ]
   );
+
+  const pendingVisibilityRefreshRef = useRef(false);
+
+  useEffect(() => {
+    if (!isDocumentVisible) {
+      pendingVisibilityRefreshRef.current = true;
+      return;
+    }
+
+    if (autoRefresh && pendingVisibilityRefreshRef.current && lastRefreshAt !== null) {
+      pendingVisibilityRefreshRef.current = false;
+      void refreshAll(range, currency);
+    }
+  }, [autoRefresh, currency, isDocumentVisible, lastRefreshAt, range, refreshAll]);
+
+  const didMountRef = useRef(false);
+  const previousLeaderRef = useRef(isActivePollingTab);
+
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      previousLeaderRef.current = isActivePollingTab;
+      return;
+    }
+
+    const becamePollingLeader = !previousLeaderRef.current && isActivePollingTab;
+    previousLeaderRef.current = isActivePollingTab;
+
+    if (becamePollingLeader && isDocumentVisible && autoRefresh && lastRefreshAt !== null) {
+      void refreshAll(range, currency);
+    }
+  }, [
+    autoRefresh,
+    currency,
+    isActivePollingTab,
+    isDocumentVisible,
+    lastRefreshAt,
+    range,
+    refreshAll,
+  ]);
 
   const dashboardState = useMemo(
     () =>

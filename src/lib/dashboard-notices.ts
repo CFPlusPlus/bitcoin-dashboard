@@ -10,7 +10,10 @@ export type DashboardNoticeCandidate = {
   message: string;
 };
 
-type NetworkStateForNotices = Pick<AsyncDataState<Network>, "error" | "hasUsableData" | "isLoading">;
+type NetworkStateForNotices = Pick<
+  AsyncDataState<Network>,
+  "error" | "hasUsableData" | "isLoading"
+>;
 
 function areAllValuesMissing(values: Array<number | null | undefined>) {
   return values.every((value) => value === null || value === undefined);

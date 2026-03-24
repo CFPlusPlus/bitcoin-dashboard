@@ -67,4 +67,3 @@ If there is ever a conflict:
 
 - `README.md` and the architecture/product docs describe the current product
 - this file only describes likely next priorities from that current state
-

@@ -74,6 +74,12 @@ Current examples:
 - `src/views/DcaCalculatorPage.tsx` manages local calculator state and persistence
 - `src/components/AppProviders.tsx` sets up the shared React Query client
 
+Dashboard orchestration note:
+
+- `useDashboardData` now prefers bundled internal endpoints for the main homepage fetch cycle
+- hidden tabs do not continue dashboard polling
+- only one visible tab should drive automatic dashboard polling at a time
+
 ## Current Layering
 
 ### `src/app`
@@ -105,6 +111,8 @@ Current endpoints:
 - network
 - onchain-activity
 - sentiment
+- dashboard-core
+- dashboard-slow
 
 Rules:
 
@@ -241,10 +249,11 @@ The current data flow is:
 
 Concrete dashboard example:
 
-1. `useDashboardData` requests `/api/overview`, `/api/chart`, `/api/performance`, `/api/market-context-chart`, `/api/network`, `/api/onchain-activity`, and `/api/sentiment`.
-2. Route handlers call CoinGecko, mempool.space, Alternative.me, or Coin Metrics on the server.
-3. Mappers in `src/domain/dashboard` convert upstream payloads into app DTOs.
-4. Dashboard sections render those DTOs and derive UI state via `resolveAsyncDataState`.
+1. `useDashboardData` requests `/api/dashboard-core` and `/api/dashboard-slow` for the homepage refresh cycle.
+2. Those bundle routes compose the existing route handlers for overview, chart, network, sentiment, on-chain, performance, and market-context data.
+3. Route handlers call CoinGecko, mempool.space, Alternative.me, or Coin Metrics on the server.
+4. Mappers in `src/domain/dashboard` convert upstream payloads into app DTOs.
+5. Dashboard sections render those DTOs and derive UI state via `resolveAsyncDataState`.
 
 ## Current Cross-Cutting Patterns
 

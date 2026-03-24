@@ -14,6 +14,7 @@ Current rules:
 - route handlers are responsible for validation, normalization, cache headers, and error mapping
 - provider-specific request details stay in server code
 - app-facing responses are typed through shared DTO contracts
+- the homepage dashboard prefers bundled endpoints to reduce browser-to-worker request volume
 
 ## Current Provider Map
 
@@ -108,6 +109,12 @@ Normalization rules:
 - attach warnings when only part of the upstream payload is available
 - keep provider names out of UI-facing field names unless they are explicit metadata
 
+Bundled dashboard responses:
+
+- `/api/dashboard-core` groups overview, chart, and network sections for the main dashboard polling cycle
+- `/api/dashboard-slow` groups sentiment, on-chain activity, performance, and market-context sections for the slower dashboard polling cycle
+- bundle routes preserve section-level errors so the client can keep rendering usable sections when sibling sections still succeed
+
 ## Current Endpoint Behavior
 
 ### `/api/overview`
@@ -193,6 +200,30 @@ Behavior:
 - fetches the latest 7 entries
 - currently fails as a whole when no usable provider payload is available
 
+### `/api/dashboard-core`
+
+Purpose:
+
+- reduce homepage request fan-out by bundling overview, chart, and network responses
+
+Behavior:
+
+- accepts the same `currency` and `days` shape needed by the bundled overview and chart sections
+- returns section-level payloads and section-level errors in one response
+- keeps the overall bundle usable when one or two sibling sections fail
+
+### `/api/dashboard-slow`
+
+Purpose:
+
+- bundle slower-moving homepage sections into a single request
+
+Behavior:
+
+- accepts the same `currency` shape needed by the bundled performance and market-context sections
+- returns section-level payloads and section-level errors in one response
+- keeps the overall bundle usable when one or more sibling sections fail
+
 ## Caching Strategy
 
 Caching is defined at the route boundary and mirrored in upstream fetch behavior.
@@ -207,6 +238,8 @@ Caching is defined at the route boundary and mirrored in upstream fetch behavior
 - `network`: browser `5s`, edge revalidate `20s`, stale-while-revalidate `40s`
 - `sentiment`: browser `300s`, edge revalidate `900s`, stale-while-revalidate `3600s`
 - `onchain-activity`: browser `300s`, edge revalidate `1800s`, stale-while-revalidate `7200s`
+- `dashboard-core`: browser `30s`, edge revalidate `120s`, stale-while-revalidate `240s`
+- `dashboard-slow`: browser `300s`, edge revalidate `900s`, stale-while-revalidate `3600s`
 
 ### CoinGecko KV fallback
 
@@ -258,6 +291,7 @@ Rules:
 - set `partial: true` when the payload is incomplete but still useful
 - include warnings that explain what is missing or degraded
 - use `null` for missing values instead of ad hoc shape changes
+- for bundled dashboard routes, preserve per-section errors instead of failing the entire bundle when sibling sections still have usable data
 
 ## Environment And Runtime
 

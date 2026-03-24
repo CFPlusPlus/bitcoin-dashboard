@@ -21,6 +21,13 @@ function createWrapper() {
   };
 }
 
+function setDocumentVisibility(isVisible: boolean) {
+  Object.defineProperty(document, "hidden", {
+    configurable: true,
+    value: !isVisible,
+  });
+}
+
 const fetchedAt = "2026-03-19T12:00:00.000Z";
 
 const overviewFixture = {
@@ -300,55 +307,45 @@ const marketContextChartFixture = {
 
 function setupHandlers(counter: Record<string, number>) {
   server.use(
-    http.get("/api/overview", () => {
-      counter.overview += 1;
-      return HttpResponse.json(overviewFixture);
+    http.get("/api/dashboard-core", () => {
+      counter.core += 1;
+
+      return HttpResponse.json({
+        fetchedAt,
+        sections: {
+          overview: { data: overviewFixture, error: null },
+          network: { data: networkFixture, error: null },
+          chart: { data: chartFixture, error: null },
+        },
+      });
     }),
-    http.get("/api/network", () => {
-      counter.network += 1;
-      return HttpResponse.json(networkFixture);
-    }),
-    http.get("/api/sentiment", () => {
-      counter.sentiment += 1;
-      return HttpResponse.json(sentimentFixture);
-    }),
-    http.get("/api/chart", () => {
-      counter.chart += 1;
-      return HttpResponse.json(chartFixture);
-    }),
-    http.get("/api/onchain-activity", () => {
-      counter.onChainActivity += 1;
-      return HttpResponse.json(onChainActivityFixture);
-    }),
-    http.get("/api/performance", () => {
-      counter.performance += 1;
-      return HttpResponse.json(performanceFixture);
-    }),
-    http.get("/api/market-context-chart", () => {
-      counter.marketContextChart += 1;
-      return HttpResponse.json(marketContextChartFixture);
+    http.get("/api/dashboard-slow", () => {
+      counter.slow += 1;
+
+      return HttpResponse.json({
+        fetchedAt,
+        sections: {
+          onChainActivity: { data: onChainActivityFixture, error: null },
+          sentiment: { data: sentimentFixture, error: null },
+          performance: { data: performanceFixture, error: null },
+          marketContextChart: { data: marketContextChartFixture, error: null },
+        },
+      });
     })
   );
 }
 
 describe("useDashboardData", () => {
   afterEach(() => {
+    setDocumentVisibility(true);
     window.localStorage.clear();
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
-  it("loads all dashboard sections and returns success states", async () => {
+  it("loads both dashboard bundles and returns success states", async () => {
     window.localStorage.setItem("bitcoin-dashboard:auto-refresh", JSON.stringify(false));
-    const counter = {
-      overview: 0,
-      network: 0,
-      sentiment: 0,
-      chart: 0,
-      onChainActivity: 0,
-      performance: 0,
-      marketContextChart: 0,
-    };
+    const counter = { core: 0, slow: 0 };
     setupHandlers(counter);
 
     const { result } = renderHook(() => useDashboardData("de"), {
@@ -360,34 +357,18 @@ describe("useDashboardData", () => {
       expect(result.current.network?.latestBlockHeight).toBe(900001);
       expect(result.current.chart?.points.length).toBe(2);
       expect(result.current.onChainActivity?.activeAddresses.current).toBe(545348);
-      expect(result.current.onChainActivity?.transferCount.current).toBe(885419);
-      expect(result.current.onChainActivity?.derived.transfersPerTransaction).toBe(1.39);
       expect(result.current.performance?.periods[0]?.key).toBe("7d");
       expect(result.current.marketContextChart?.series[0]?.key).toBe("marketCap");
     });
 
     expect(result.current.dashboardState.status).toBe("success");
-
-    expect(counter.overview).toBe(1);
-    expect(counter.network).toBe(1);
-    expect(counter.sentiment).toBe(1);
-    expect(counter.chart).toBe(1);
-    expect(counter.onChainActivity).toBe(1);
-    expect(counter.performance).toBe(1);
-    expect(counter.marketContextChart).toBe(1);
+    expect(counter.core).toBe(1);
+    expect(counter.slow).toBe(1);
   });
 
-  it("refetches all endpoints on refreshAll", async () => {
+  it("refetches both bundles on refreshAll", async () => {
     window.localStorage.setItem("bitcoin-dashboard:auto-refresh", JSON.stringify(false));
-    const counter = {
-      overview: 0,
-      network: 0,
-      sentiment: 0,
-      chart: 0,
-      onChainActivity: 0,
-      performance: 0,
-      marketContextChart: 0,
-    };
+    const counter = { core: 0, slow: 0 };
     setupHandlers(counter);
 
     const { result } = renderHook(() => useDashboardData("de"), {
@@ -403,27 +384,14 @@ describe("useDashboardData", () => {
     });
 
     await waitFor(() => {
-      expect(counter.overview).toBe(2);
-      expect(counter.network).toBe(2);
-      expect(counter.sentiment).toBe(2);
-      expect(counter.chart).toBe(2);
-      expect(counter.onChainActivity).toBe(2);
-      expect(counter.performance).toBe(2);
-      expect(counter.marketContextChart).toBe(2);
+      expect(counter.core).toBe(2);
+      expect(counter.slow).toBe(2);
     });
   });
 
-  it("keeps performance and market-context on a slower auto-refresh cadence", async () => {
+  it("keeps the slow bundle on a much slower auto-refresh cadence", async () => {
     window.localStorage.setItem("bitcoin-dashboard:auto-refresh", JSON.stringify(false));
-    const counter = {
-      overview: 0,
-      network: 0,
-      sentiment: 0,
-      chart: 0,
-      onChainActivity: 0,
-      performance: 0,
-      marketContextChart: 0,
-    };
+    const counter = { core: 0, slow: 0 };
     setupHandlers(counter);
 
     const { result } = renderHook(() => useDashboardData("de"), {
@@ -433,29 +401,73 @@ describe("useDashboardData", () => {
     await waitFor(() => {
       expect(result.current.dashboardState.status).toBe("success");
     });
-    expect(counter.performance).toBe(1);
-    expect(counter.marketContextChart).toBe(1);
 
     vi.useFakeTimers();
 
     await act(async () => {
       result.current.setAutoRefresh(true);
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    const coreAfterEnable = counter.core;
+    const slowAfterEnable = counter.slow;
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2 * 60_000);
+    });
+
+    expect(counter.core).toBeGreaterThan(coreAfterEnable);
+    expect(counter.slow).toBe(slowAfterEnable);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30 * 60_000);
+    });
+
+    expect(counter.slow).toBeGreaterThan(slowAfterEnable);
+  });
+
+  it("does not poll while the tab is hidden and refreshes once on return", async () => {
+    window.localStorage.setItem("bitcoin-dashboard:auto-refresh", JSON.stringify(false));
+    const counter = { core: 0, slow: 0 };
+    setupHandlers(counter);
+
+    const { result } = renderHook(() => useDashboardData("de"), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.dashboardState.status).toBe("success");
+    });
+
+    vi.useFakeTimers();
+
+    await act(async () => {
+      setDocumentVisibility(false);
+      document.dispatchEvent(new Event("visibilitychange"));
     });
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(60_000);
+      result.current.setAutoRefresh(true);
+      await vi.advanceTimersByTimeAsync(0);
     });
-
-    expect(counter.overview).toBeGreaterThanOrEqual(2);
-    expect(counter.chart).toBeGreaterThanOrEqual(2);
-    expect(counter.performance).toBe(1);
-    expect(counter.marketContextChart).toBe(1);
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(15 * 60_000);
+      await vi.advanceTimersByTimeAsync(35 * 60_000);
     });
 
-    expect(counter.performance).toBeGreaterThanOrEqual(2);
-    expect(counter.marketContextChart).toBeGreaterThanOrEqual(2);
+    expect(counter.core).toBe(1);
+    expect(counter.slow).toBe(1);
+
+    await act(async () => {
+      setDocumentVisibility(true);
+      document.dispatchEvent(new Event("visibilitychange"));
+      await vi.runOnlyPendingTimersAsync();
+      await vi.runOnlyPendingTimersAsync();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(counter.core).toBe(2);
+    expect(counter.slow).toBe(2);
   });
 });

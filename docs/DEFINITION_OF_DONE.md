@@ -86,4 +86,3 @@ Use this checklist when closing a task or reviewing a PR:
 ## Working Rule
 
 If a contributor cannot use this document to confidently say "this task is complete," the task is not done yet.
-

@@ -4,9 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { DashboardNoticeCandidate } from "../lib/dashboard-notices";
 
 function areMessageListsEqual(left: string[], right: string[]) {
-  return (
-    left.length === right.length && left.every((message, index) => message === right[index])
-  );
+  return left.length === right.length && left.every((message, index) => message === right[index]);
 }
 
 export function usePersistentNoticeMessages(
@@ -51,9 +49,12 @@ export function usePersistentNoticeMessages(
       return;
     }
 
-    const timerId = window.setTimeout(() => {
-      setTick((value) => value + 1);
-    }, Math.min(...pendingDurations));
+    const timerId = window.setTimeout(
+      () => {
+        setTick((value) => value + 1);
+      },
+      Math.min(...pendingDurations)
+    );
 
     return () => window.clearTimeout(timerId);
   }, [candidates, delayMs, tick]);

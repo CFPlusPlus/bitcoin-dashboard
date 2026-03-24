@@ -9,12 +9,12 @@
     "binding": "ASSETS",
   },
   // Recommended for beta/prod: bind a KV namespace for CoinGecko fallback caching.
-   "kv_namespaces": [
-     {
-       "binding": "BITCOIN_DASHBOARD_CACHE",
-       "id": "2584c606f40649a8ac0737157cb76025"
-     }
-   ],
+  "kv_namespaces": [
+    {
+      "binding": "BITCOIN_DASHBOARD_CACHE",
+      "id": "2584c606f40649a8ac0737157cb76025",
+    },
+  ],
   "observability": {
     "enabled": true,
   },

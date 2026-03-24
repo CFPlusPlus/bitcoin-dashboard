@@ -131,4 +131,3 @@ A change does not fit when it introduces:
 ## Decision Summary
 
 The current V1 scope is intentionally small but already concrete: a localized Bitcoin dashboard plus a focused tools area, shipped on Cloudflare Workers and designed around quick understanding rather than platform breadth.
-

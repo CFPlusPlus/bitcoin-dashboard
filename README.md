@@ -268,4 +268,3 @@ Key project docs:
 - `docs/UI-PRINCIPLES.md`
 - `docs/DEFINITION_OF_DONE.md`
 - `docs/ROADMAP.md`
-

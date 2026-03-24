@@ -1,4 +1,13 @@
-import type { Currency } from "../domain/dashboard/dto";
+import type {
+  ChartDto,
+  Currency,
+  MarketContextChartDto,
+  NetworkDto,
+  OnChainActivityDto,
+  OverviewDto,
+  PerformanceDto,
+  SentimentDto,
+} from "../domain/dashboard/dto";
 
 export type {
   ChartDto as ChartData,
@@ -18,6 +27,35 @@ export type {
 } from "../domain/dashboard/dto";
 
 export type { Currency } from "../domain/dashboard/dto";
+
+export type DashboardBundleSectionError = {
+  message: string;
+  status: number;
+};
+
+export type DashboardBundleSection<T> = {
+  data: T | null;
+  error: DashboardBundleSectionError | null;
+};
+
+export type DashboardCoreBundle = {
+  fetchedAt: string;
+  sections: {
+    overview: DashboardBundleSection<OverviewDto>;
+    chart: DashboardBundleSection<ChartDto>;
+    network: DashboardBundleSection<NetworkDto>;
+  };
+};
+
+export type DashboardSlowBundle = {
+  fetchedAt: string;
+  sections: {
+    onChainActivity: DashboardBundleSection<OnChainActivityDto>;
+    sentiment: DashboardBundleSection<SentimentDto>;
+    performance: DashboardBundleSection<PerformanceDto>;
+    marketContextChart: DashboardBundleSection<MarketContextChartDto>;
+  };
+};
 
 export type DcaEntry = {
   id: string;
