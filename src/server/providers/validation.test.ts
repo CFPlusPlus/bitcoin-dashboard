@@ -140,6 +140,94 @@ describe("provider validation", () => {
     );
   });
 
+  it("serves fresh CoinGecko market data from KV without calling upstream", async () => {
+    const nowEpochSeconds = Math.floor(Date.now() / 1000);
+    const fetchMock = vi.fn();
+    const kv = {
+      get: vi.fn().mockResolvedValue({
+        storedAtEpochSeconds: nowEpochSeconds - 60,
+        payload: {
+          current_price: 67000,
+          market_cap: 1,
+          total_volume: 1,
+          high_24h: 1,
+          low_24h: 1,
+          price_change_percentage_24h: 1,
+          last_updated: "2026-03-17T00:00:00.000Z",
+        },
+      }),
+      put: vi.fn(),
+    };
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await fetchCoinGeckoMarketData("usd", "demo-key", overviewCachePolicy, kv);
+
+    expect(result.cache.source).toBe("kv");
+    expect(result.data.current_price).toBe(67000);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("returns stale CoinGecko chart data from KV when upstream fails", async () => {
+    const nowEpochSeconds = Math.floor(Date.now() / 1000);
+    const kv = {
+      get: vi.fn().mockResolvedValue({
+        storedAtEpochSeconds: nowEpochSeconds - 1800,
+        payload: {
+          prices: [[1, 67000]],
+          market_caps: [[1, 1200000000000]],
+          total_volumes: [[1, 20000000000]],
+        },
+      }),
+      put: vi.fn(),
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockRejectedValue(new Error("CoinGecko temporarily unavailable"))
+    );
+
+    const result = await fetchCoinGeckoMarketChart({
+      apiKey: "demo-key",
+      cachePolicy: overviewCachePolicy,
+      currency: "usd",
+      days: 1,
+      kv,
+    });
+
+    expect(result.cache.source).toBe("stale");
+    expect(result.data.prices.length).toBe(1);
+  });
+
+  it("writes fresh CoinGecko global data back to KV", async () => {
+    const kv = {
+      get: vi.fn().mockResolvedValue(null),
+      put: vi.fn().mockResolvedValue(undefined),
+    };
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            market_cap_percentage: {
+              btc: 58.42,
+            },
+          },
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }
+      )
+    );
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await fetchCoinGeckoGlobalData("demo-key", overviewCachePolicy, kv);
+
+    expect(result.cache.source).toBe("api");
+    expect(kv.put).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects incomplete mempool recommended fees", async () => {
     vi.stubGlobal(
       "fetch",

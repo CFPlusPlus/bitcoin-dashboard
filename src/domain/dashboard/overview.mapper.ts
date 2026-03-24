@@ -1,6 +1,6 @@
 import type { Currency } from "../../lib/currency";
 import type { CoinGeckoMarketItem } from "../../server/providers/coingecko";
-import type { OverviewDto } from "./dto";
+import type { CacheMeta, OverviewDto } from "./dto";
 
 type OverviewMarketSlice = {
   ath: number | null;
@@ -54,6 +54,7 @@ export function mapOverviewDto(input: {
   currency: Currency;
   btcDominance: number | null;
   fetchedAt: string;
+  cache?: CacheMeta;
   warnings?: string[];
 }): OverviewDto {
   const market = mapCoinGeckoMarketItem(input.market);
@@ -97,5 +98,6 @@ export function mapOverviewDto(input: {
     partial: Boolean(warnings?.length),
     warnings: warnings?.length ? warnings : undefined,
     fetchedAt: input.fetchedAt,
+    cache: input.cache,
   };
 }

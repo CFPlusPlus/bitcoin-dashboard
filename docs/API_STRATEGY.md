@@ -113,10 +113,13 @@ Server-side normalization responsibilities include:
 ### General policy
 
 The first-pass strategy is route-level caching through response headers on internal `/api/*` endpoints.
+For CoinGecko-backed routes, a KV-backed snapshot layer is used as an additional resilience and
+rate-limit guard.
 
 Rules:
 
 - Cache at the app-facing route handler boundary, not in UI components.
+- Use KV as a server-only optimization and fallback layer, never as a UI contract boundary.
 - Choose cache windows based on how fast the data changes, provider rate limits, and whether slightly stale data is acceptable for the user experience.
 - Prefer a small amount of safe staleness over aggressive refetching that increases cost or rate-limit risk.
 - When two parts of the UI need the same upstream data, they should reuse the same internal endpoint rather than making separate provider calls.
@@ -198,8 +201,9 @@ Current guidance:
 For Cloudflare Workers deployments:
 
 - internal routes should remain the single place where cache intent is expressed
-- any future use of platform-specific cache layers must preserve the same normalized response contracts
+- platform-specific cache layers must preserve the same normalized response contracts
 - platform-specific caching must remain an optimization, not a new data contract boundary
+- stale-cache fallback is acceptable when upstream fails, but responses should mark this via metadata and warnings
 
 ## Error handling strategy
 
@@ -295,11 +299,14 @@ Practical guidance:
 The project currently uses:
 
 - `COINGECKO_DEMO_API_KEY`
+- `BITCOIN_DASHBOARD_CACHE` (Cloudflare KV binding, recommended for beta/prod resilience)
 
 This key is required for the current CoinGecko integration used by:
 
 - `/api/overview`
 - `/api/chart`
+- `/api/performance`
+- `/api/market-context-chart`
 
 ### Local development
 
@@ -318,6 +325,7 @@ Production should provide the same variable through the Cloudflare Worker enviro
 Rules:
 
 - production config must define `COINGECKO_DEMO_API_KEY`
+- production should bind `BITCOIN_DASHBOARD_CACHE` for CoinGecko cache and stale fallback behavior
 - route handlers should read runtime env values through `src/server/env.ts`
 - env access should remain server-only and not leak into client bundles
 

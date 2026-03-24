@@ -3,10 +3,17 @@ import type { Currency } from "../../lib/currency";
 export type { Currency };
 export type ChartRange = 1 | 7 | 30;
 export type PerformanceWindowKey = "7d" | "30d" | "90d" | "1y" | "ytd";
+export type CacheDataSource = "api" | "kv" | "stale";
+
+export type CacheMeta = {
+  source: CacheDataSource;
+  ageSeconds: number;
+};
 
 export type ApiEnvelope = {
   source: string;
   fetchedAt: string;
+  cache?: CacheMeta;
   partial?: boolean;
   warnings?: string[];
 };

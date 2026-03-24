@@ -104,6 +104,24 @@ Important:
 - do not commit `.dev.vars`
 - set the same variable in your Cloudflare Worker environment for production
 
+### Cloudflare KV binding (beta/prod recommended)
+
+For resilient CoinGecko caching and stale fallback, bind a KV namespace named
+`BITCOIN_DASHBOARD_CACHE` in your Worker config.
+
+Example in `wrangler.jsonc`:
+
+```jsonc
+{
+  "kv_namespaces": [
+    {
+      "binding": "BITCOIN_DASHBOARD_CACHE",
+      "id": "<production-namespace-id>"
+    },
+  ],
+}
+```
+
 ## Development
 
 ```bash

@@ -2,6 +2,7 @@ import { mapChartDto } from "../../../domain/dashboard/chart.mapper";
 import type { ChartRange } from "../../../domain/dashboard/dto";
 import { DEFAULT_CURRENCY, parseCurrency } from "../../../lib/currency";
 import { getCacheControlHeader, getChartCachePolicy } from "../../../server/cache";
+import { getCoinGeckoStaleWarning, toApiCacheMeta } from "../../../server/cache-meta";
 import { getAppEnv } from "../../../server/env";
 import { errorResponse, jsonResponse } from "../../../server/http";
 import { fetchCoinGeckoMarketChart } from "../../../server/providers/coingecko";
@@ -12,7 +13,7 @@ function isValidRange(value: string | null): value is `${ChartRange}` {
 }
 
 export async function GET(request: Request) {
-  const apiKey = getAppEnv().COINGECKO_DEMO_API_KEY;
+  const { COINGECKO_DEMO_API_KEY: apiKey, BITCOIN_DASHBOARD_CACHE: kv } = getAppEnv();
 
   if (!apiKey) {
     return errorResponse(500, "COINGECKO_DEMO_API_KEY fehlt.");
@@ -39,18 +40,22 @@ export async function GET(request: Request) {
   const cachePolicy = getChartCachePolicy(days);
 
   try {
-    const payload = await fetchCoinGeckoMarketChart({
+    const chartProviderResult = await fetchCoinGeckoMarketChart({
       apiKey,
       cachePolicy,
       currency,
       days,
+      kv,
     });
+    const staleWarning = getCoinGeckoStaleWarning("Chartdaten", chartProviderResult.cache);
 
     const dto = mapChartDto({
-      payload,
+      payload: chartProviderResult.data,
       currency,
       range: days,
-      fetchedAt: new Date().toISOString(),
+      fetchedAt: chartProviderResult.cache.fetchedAt,
+      cache: toApiCacheMeta(chartProviderResult.cache),
+      warnings: staleWarning ? [staleWarning] : [],
     });
 
     return jsonResponse(dto, {

@@ -1,5 +1,11 @@
 import type { CoinGeckoMarketChartResponse } from "../../server/providers/coingecko";
-import type { PerformanceDto, PerformanceWindowDto, PerformanceWindowKey, Currency } from "./dto";
+import type {
+  CacheMeta,
+  PerformanceDto,
+  PerformanceWindowDto,
+  PerformanceWindowKey,
+  Currency,
+} from "./dto";
 
 type PricePoint = {
   timestamp: number;
@@ -270,16 +276,21 @@ export function mapPerformanceDto(input: {
   payload: CoinGeckoMarketChartResponse;
   currency: Currency;
   fetchedAt: string;
+  cache?: CacheMeta;
+  warnings?: string[];
 }): PerformanceDto {
   const rawPoints = input.payload.prices;
   const points = rawPoints
     .filter(isPoint)
     .map(toPoint)
     .sort((left, right) => left.timestamp - right.timestamp);
-  const warnings =
-    points.length !== rawPoints.length
+  const warnings = [
+    ...(points.length !== rawPoints.length
       ? ["Einige Performance-Punkte konnten nicht verarbeitet werden."]
-      : [];
+      : []),
+    ...(input.warnings ?? []),
+  ];
+  const dedupedWarnings = [...new Set(warnings)];
   const currentPoint = points[points.length - 1] ?? null;
   const rangeStats = getRangeStats(points);
   const movingAverage200d = getMovingAverage(points, 200);
@@ -303,8 +314,9 @@ export function mapPerformanceDto(input: {
       volatility30dPercent: getAnnualizedVolatility(points, 30),
       volatility90dPercent: getAnnualizedVolatility(points, 90),
     },
-    partial: warnings.length > 0,
-    warnings: warnings.length > 0 ? warnings : undefined,
+    partial: dedupedWarnings.length > 0,
+    warnings: dedupedWarnings.length > 0 ? dedupedWarnings : undefined,
     fetchedAt: input.fetchedAt,
+    cache: input.cache,
   };
 }

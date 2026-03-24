@@ -1,6 +1,7 @@
 import type { CoinGeckoMarketChartResponse } from "../../server/providers/coingecko";
 import { missingUpstreamData } from "../../server/upstream";
 import type {
+  CacheMeta,
   MarketContextChartDto,
   MarketContextChartPointDto,
   MarketContextChartSeriesDto,
@@ -63,7 +64,11 @@ export function mapMarketContextChartDto(input: {
   payload: CoinGeckoMarketChartResponse;
   currency: Currency;
   fetchedAt: string;
+  cache?: CacheMeta;
+  warnings?: string[];
 }): MarketContextChartDto {
+  const warnings = [...new Set(input.warnings?.filter(Boolean) ?? [])];
+
   return {
     source: "coingecko",
     currency: input.currency,
@@ -73,5 +78,8 @@ export function mapMarketContextChartDto(input: {
       mapSeries("volume24h", input.payload.total_volumes),
     ],
     fetchedAt: input.fetchedAt,
+    cache: input.cache,
+    partial: warnings.length > 0,
+    warnings: warnings.length > 0 ? warnings : undefined,
   };
 }

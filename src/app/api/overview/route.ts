@@ -1,6 +1,7 @@
 import { mapOverviewDto } from "../../../domain/dashboard/overview.mapper";
 import { DEFAULT_CURRENCY, parseCurrency } from "../../../lib/currency";
 import { getCacheControlHeader, overviewCachePolicy } from "../../../server/cache";
+import { getCoinGeckoStaleWarning, toApiCacheMeta } from "../../../server/cache-meta";
 import { getAppEnv } from "../../../server/env";
 import { errorResponse, getReasonMessage, jsonResponse } from "../../../server/http";
 import {
@@ -14,7 +15,7 @@ function getRejectedReason<T>(result: PromiseSettledResult<T>) {
 }
 
 export async function GET(request: Request) {
-  const apiKey = getAppEnv().COINGECKO_DEMO_API_KEY;
+  const { COINGECKO_DEMO_API_KEY: apiKey, BITCOIN_DASHBOARD_CACHE: kv } = getAppEnv();
 
   if (!apiKey) {
     return errorResponse(500, "COINGECKO_DEMO_API_KEY fehlt.");
@@ -34,24 +35,27 @@ export async function GET(request: Request) {
   const usdReferencePromise =
     currency === "usd"
       ? Promise.resolve(null)
-      : fetchCoinGeckoMarketData("usd", apiKey, overviewCachePolicy);
+      : fetchCoinGeckoMarketData("usd", apiKey, overviewCachePolicy, kv);
 
   const [marketResult, usdReferenceResult, globalResult] = await Promise.allSettled([
-    fetchCoinGeckoMarketData(currency, apiKey, overviewCachePolicy),
+    fetchCoinGeckoMarketData(currency, apiKey, overviewCachePolicy, kv),
     usdReferencePromise,
-    fetchCoinGeckoGlobalData(apiKey, overviewCachePolicy),
+    fetchCoinGeckoGlobalData(apiKey, overviewCachePolicy, kv),
   ]);
 
   const warnings: string[] = [];
-  const market = marketResult.status === "fulfilled" ? marketResult.value : null;
-  const usdReferenceMarket =
+  const marketProviderResult = marketResult.status === "fulfilled" ? marketResult.value : null;
+  const usdReferenceProviderResult =
     currency === "usd"
-      ? market
+      ? marketProviderResult
       : usdReferenceResult.status === "fulfilled"
         ? usdReferenceResult.value
         : null;
-  const btcDominance =
-    globalResult.status === "fulfilled" ? globalResult.value.data.market_cap_percentage.btc : null;
+  const globalProviderResult = globalResult.status === "fulfilled" ? globalResult.value : null;
+  const market = marketProviderResult?.data ?? null;
+  const usdReferenceMarket =
+    currency === "usd" ? market : (usdReferenceProviderResult?.data ?? null);
+  const btcDominance = globalProviderResult?.data.data.market_cap_percentage.btc ?? null;
 
   if (marketResult.status === "rejected") {
     warnings.push(
@@ -67,7 +71,38 @@ export async function GET(request: Request) {
     warnings.push(getReasonMessage("Globale Marktdaten nicht verfuegbar", globalResult.reason));
   }
 
-  if (!market) {
+  const marketStaleWarning =
+    marketProviderResult !== null
+      ? getCoinGeckoStaleWarning(`${currency.toUpperCase()}-Marktdaten`, marketProviderResult.cache)
+      : null;
+
+  if (marketStaleWarning) {
+    warnings.push(marketStaleWarning);
+  }
+
+  if (currency !== "usd" && usdReferenceProviderResult !== null) {
+    const usdStaleWarning = getCoinGeckoStaleWarning(
+      "USD-Referenzkurs",
+      usdReferenceProviderResult.cache
+    );
+
+    if (usdStaleWarning) {
+      warnings.push(usdStaleWarning);
+    }
+  }
+
+  if (globalProviderResult !== null) {
+    const globalStaleWarning = getCoinGeckoStaleWarning(
+      "Globale Marktdaten",
+      globalProviderResult.cache
+    );
+
+    if (globalStaleWarning) {
+      warnings.push(globalStaleWarning);
+    }
+  }
+
+  if (!marketProviderResult || !market) {
     const errors = [getRejectedReason(marketResult)].filter(isUpstreamError);
 
     return errorResponse(502, "Fehler beim Laden der Overview-Daten.", warnings.join(" "), {
@@ -83,7 +118,8 @@ export async function GET(request: Request) {
     referenceUsdMarket: usdReferenceMarket,
     currency,
     btcDominance,
-    fetchedAt: new Date().toISOString(),
+    fetchedAt: marketProviderResult.cache.fetchedAt,
+    cache: toApiCacheMeta(marketProviderResult.cache),
     warnings,
   });
 

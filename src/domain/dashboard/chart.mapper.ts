@@ -1,5 +1,5 @@
 import type { CoinGeckoMarketChartResponse } from "../../server/providers/coingecko";
-import type { ChartDto, ChartPointDto, ChartRange, Currency } from "./dto";
+import type { CacheMeta, ChartDto, ChartPointDto, ChartRange, Currency } from "./dto";
 
 function isPoint(value: unknown): value is [number, number] {
   return (
@@ -24,13 +24,18 @@ export function mapChartDto(input: {
   currency: Currency;
   range: ChartRange;
   fetchedAt: string;
+  cache?: CacheMeta;
+  warnings?: string[];
 }): ChartDto {
   const rawPoints = input.payload.prices;
   const points = rawPoints.filter(isPoint).map(mapChartPoint);
-  const warnings =
-    points.length !== rawPoints.length
+  const warnings = [
+    ...(points.length !== rawPoints.length
       ? ["Einige Chartpunkte konnten nicht verarbeitet werden."]
-      : undefined;
+      : []),
+    ...(input.warnings ?? []),
+  ];
+  const dedupedWarnings = [...new Set(warnings)];
 
   const prices = points.map((point) => point.price);
   const currentPrice = prices[prices.length - 1] ?? null;
@@ -45,8 +50,9 @@ export function mapChartDto(input: {
       minPrice: prices.length > 0 ? Math.min(...prices) : null,
       maxPrice: prices.length > 0 ? Math.max(...prices) : null,
     },
-    partial: Boolean(warnings),
-    warnings,
+    partial: dedupedWarnings.length > 0,
+    warnings: dedupedWarnings.length > 0 ? dedupedWarnings : undefined,
     fetchedAt: input.fetchedAt,
+    cache: input.cache,
   };
 }

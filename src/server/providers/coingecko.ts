@@ -1,10 +1,14 @@
 import { z } from "zod";
 import type { Currency } from "../../lib/currency";
 import type { CachePolicy } from "../cache";
+import type { KvNamespaceBinding } from "../env";
+import { resolveKvCachedProviderData } from "../kv-cache";
 import { readUpstreamJson, requestUpstream } from "../provider-fetch";
 import { invalidUpstreamShape, missingUpstreamData } from "../upstream";
 
 const provider = "coingecko";
+const KV_KEY_PREFIX = "coingecko:v1";
+const MIN_STALE_FALLBACK_SECONDS = 6 * 60 * 60;
 
 const finiteNumber = z.number().finite();
 const isoString = z.string().min(1);
@@ -50,6 +54,16 @@ const coinGeckoGlobalResponseSchema = z.object({
 export type CoinGeckoMarketItem = z.infer<typeof coinGeckoMarketItemSchema>;
 export type CoinGeckoMarketChartResponse = z.infer<typeof coinGeckoChartResponseSchema>;
 export type CoinGeckoGlobalResponse = z.infer<typeof coinGeckoGlobalResponseSchema>;
+export type CoinGeckoCacheSource = "api" | "kv" | "stale";
+export type CoinGeckoCacheMeta = {
+  source: CoinGeckoCacheSource;
+  ageSeconds: number;
+  fetchedAt: string;
+};
+export type CoinGeckoCachedResult<T> = {
+  data: T;
+  cache: CoinGeckoCacheMeta;
+};
 
 function ensureMarketItemCompleteness(item: CoinGeckoMarketItem, currency: Currency) {
   const requiredFields = [
@@ -72,7 +86,61 @@ function ensureMarketItemCompleteness(item: CoinGeckoMarketItem, currency: Curre
   }
 }
 
-export async function fetchCoinGeckoMarketData(
+function getFreshTtlSeconds(cachePolicy?: CachePolicy) {
+  return cachePolicy?.revalidateSeconds ?? 300;
+}
+
+function getStaleTtlSeconds(cachePolicy?: CachePolicy) {
+  const policyWindow = cachePolicy
+    ? cachePolicy.revalidateSeconds + cachePolicy.staleWhileRevalidateSeconds
+    : 0;
+
+  return Math.max(MIN_STALE_FALLBACK_SECONDS, policyWindow);
+}
+
+function getMarketKey(currency: Currency) {
+  return `${KV_KEY_PREFIX}:market:${currency}`;
+}
+
+function getChartKey(currency: Currency, days: number) {
+  return `${KV_KEY_PREFIX}:chart:${currency}:${days}`;
+}
+
+function getGlobalKey() {
+  return `${KV_KEY_PREFIX}:global`;
+}
+
+function parseMarketCacheEntry(value: unknown, currency: Currency) {
+  const parsed = coinGeckoMarketItemSchema.safeParse(value);
+
+  if (!parsed.success) {
+    return null;
+  }
+
+  try {
+    ensureMarketItemCompleteness(parsed.data, currency);
+    return parsed.data;
+  } catch {
+    return null;
+  }
+}
+
+function parseChartCacheEntry(value: unknown) {
+  const parsed = coinGeckoChartResponseSchema.safeParse(value);
+
+  if (!parsed.success || parsed.data.prices.length === 0) {
+    return null;
+  }
+
+  return parsed.data;
+}
+
+function parseGlobalCacheEntry(value: unknown) {
+  const parsed = coinGeckoGlobalResponseSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+
+async function fetchCoinGeckoMarketDataFromApi(
   currency: Currency,
   apiKey: string,
   cachePolicy?: CachePolicy
@@ -121,7 +189,7 @@ export async function fetchCoinGeckoMarketData(
   return item;
 }
 
-export async function fetchCoinGeckoMarketChart(input: {
+async function fetchCoinGeckoMarketChartFromApi(input: {
   apiKey: string;
   currency: Currency;
   days: number;
@@ -165,7 +233,7 @@ export async function fetchCoinGeckoMarketChart(input: {
   return parsed.data;
 }
 
-export async function fetchCoinGeckoGlobalData(apiKey: string, cachePolicy?: CachePolicy) {
+async function fetchCoinGeckoGlobalDataFromApi(apiKey: string, cachePolicy?: CachePolicy) {
   const url = "https://api.coingecko.com/api/v3/global";
 
   const response = await requestUpstream({
@@ -193,4 +261,52 @@ export async function fetchCoinGeckoGlobalData(apiKey: string, cachePolicy?: Cac
   }
 
   return parsed.data;
+}
+
+export async function fetchCoinGeckoMarketData(
+  currency: Currency,
+  apiKey: string,
+  cachePolicy?: CachePolicy,
+  kv?: KvNamespaceBinding
+): Promise<CoinGeckoCachedResult<CoinGeckoMarketItem>> {
+  return resolveKvCachedProviderData({
+    kv,
+    key: getMarketKey(currency),
+    freshTtlSeconds: getFreshTtlSeconds(cachePolicy),
+    staleTtlSeconds: getStaleTtlSeconds(cachePolicy),
+    fetchFresh: () => fetchCoinGeckoMarketDataFromApi(currency, apiKey, cachePolicy),
+    deserialize: (value) => parseMarketCacheEntry(value, currency),
+  });
+}
+
+export async function fetchCoinGeckoMarketChart(input: {
+  apiKey: string;
+  currency: Currency;
+  days: number;
+  cachePolicy?: CachePolicy;
+  kv?: KvNamespaceBinding;
+}): Promise<CoinGeckoCachedResult<CoinGeckoMarketChartResponse>> {
+  return resolveKvCachedProviderData({
+    kv: input.kv,
+    key: getChartKey(input.currency, input.days),
+    freshTtlSeconds: getFreshTtlSeconds(input.cachePolicy),
+    staleTtlSeconds: getStaleTtlSeconds(input.cachePolicy),
+    fetchFresh: () => fetchCoinGeckoMarketChartFromApi(input),
+    deserialize: parseChartCacheEntry,
+  });
+}
+
+export async function fetchCoinGeckoGlobalData(
+  apiKey: string,
+  cachePolicy?: CachePolicy,
+  kv?: KvNamespaceBinding
+): Promise<CoinGeckoCachedResult<CoinGeckoGlobalResponse>> {
+  return resolveKvCachedProviderData({
+    kv,
+    key: getGlobalKey(),
+    freshTtlSeconds: getFreshTtlSeconds(cachePolicy),
+    staleTtlSeconds: getStaleTtlSeconds(cachePolicy),
+    fetchFresh: () => fetchCoinGeckoGlobalDataFromApi(apiKey, cachePolicy),
+    deserialize: parseGlobalCacheEntry,
+  });
 }
