@@ -100,28 +100,23 @@ User-facing pages are localized under `/{locale}`.
 
 Current public routes:
 
-- `/` redirects to `/de`
+- `/` redirects to the preferred locale, falling back to `/de`
 - `/de` and `/en` render the dashboard
 - `/de/tools` and `/en/tools` render the tools overview
 - `/de/tools/dca-rechner` and `/en/tools/dca-rechner` render the DCA calculator
 - `/de/impressum` and `/en/impressum` render the localized imprint placeholder
 - `/de/datenschutz` and `/en/datenschutz` render the localized privacy placeholder
 
-Unlocalized convenience routes such as `/tools` and `/tools/dca-rechner` redirect to the default locale. Internal API routes remain unlocalized under `/api/*`.
+Localized routes are prerendered statically where possible. Unlocalized convenience routes such as `/tools` and `/tools/dca-rechner` redirect to the preferred locale. Internal API routes remain unlocalized under `/api/*`.
 
 ## Internal API Surface
 
 The dashboard UI currently consumes these internal endpoints:
 
-- `/api/overview`
-- `/api/chart`
-- `/api/performance`
-- `/api/market-context-chart`
-- `/api/network`
-- `/api/onchain-activity`
-- `/api/sentiment`
+- `/api/dashboard-core`
+- `/api/dashboard-slow`
 
-These routes normalize provider payloads into app-level contracts before any data reaches the UI.
+These routes bundle and normalize provider payloads into app-level contracts before any data reaches the UI.
 
 ## Architecture Summary
 

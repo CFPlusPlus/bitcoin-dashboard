@@ -3,10 +3,8 @@ import { NextResponse } from "next/server";
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
-  LOCALES,
   type AppLocale,
   getLocalizedPathname,
-  hasLocalePrefix,
   isValidLocale,
 } from "./src/i18n/config";
 
@@ -46,33 +44,6 @@ function getPreferredLocale(request: NextRequest): AppLocale {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
-    pathname.startsWith("/favicon") ||
-    pathname.startsWith("/robots.txt") ||
-    pathname.startsWith("/sitemap") ||
-    pathname.includes(".")
-  ) {
-    return NextResponse.next();
-  }
-
-  if (hasLocalePrefix(pathname)) {
-    const locale = pathname.split("/")[1];
-
-    if (!isValidLocale(locale)) {
-      return NextResponse.redirect(new URL(`/${DEFAULT_LOCALE}`, request.url));
-    }
-
-    const response = NextResponse.next();
-    response.cookies.set(LOCALE_COOKIE_NAME, locale, {
-      maxAge: 60 * 60 * 24 * 365,
-      path: "/",
-      sameSite: "lax",
-    });
-    return response;
-  }
-
   const locale = getPreferredLocale(request);
   const response = NextResponse.redirect(
     new URL(getLocalizedPathname(locale, pathname), request.url)
@@ -88,5 +59,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/", "/tools", "/tools/dca-rechner"],
 };

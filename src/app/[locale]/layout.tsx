@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AppProviders from "../../components/AppProviders";
+import LocaleDocumentSync from "../../components/LocaleDocumentSync";
 import SiteFooter from "../../components/SiteFooter";
 import SiteNavigation from "../../components/SiteNavigation";
 import StructuredData from "../../components/StructuredData";
@@ -54,6 +55,7 @@ export default async function LocaleLayout({
   return (
     <AppProviders>
       <I18nProvider locale={locale} messages={messages}>
+        <LocaleDocumentSync locale={locale} />
         <StructuredData
           data={serializeJsonLd(
             createWebsiteSchema({ locale, description: messages.metadata.defaultDescription })

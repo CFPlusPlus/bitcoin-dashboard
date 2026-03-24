@@ -30,10 +30,11 @@ Routing is locale-first.
 
 Current behavior:
 
-- `middleware.ts` enforces locale-prefixed page routes
+- localized page routes are served directly under `/{locale}` and are statically prerendered when possible
+- `middleware.ts` is intentionally limited to unlocalized convenience routes such as `/` and `/tools`
 - supported locales are defined in `src/i18n/config.ts`
-- `/` redirects to the default locale (`/de`)
-- unlocalized convenience routes such as `/tools` redirect to the default localized route
+- `/` and unlocalized convenience routes redirect to the preferred localized route
+- the locale cookie is synchronized on the client after localized page navigation
 - internal API routes remain unlocalized under `/api/*`
 
 Route files stay thin and primarily do three things:
@@ -66,6 +67,7 @@ Client-owned responsibilities:
 - dashboard interaction and refresh behavior
 - React Query orchestration for internal endpoints
 - persisted user preferences such as currency, range, and auto-refresh
+- document locale synchronization for statically served localized pages
 - tool-local state such as DCA entries
 
 Current examples:
