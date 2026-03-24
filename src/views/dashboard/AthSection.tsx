@@ -74,8 +74,8 @@ export default function AthSection({
         retryBusy={overviewState.isLoading}
         messages={stateMessages}
       >
-        <div className="grid gap-3 xl:grid-cols-[minmax(0,1.15fr)_repeat(3,minmax(0,1fr))]">
-          <div className="flex min-h-[11.5rem] flex-col gap-3 border border-accent/30 bg-[linear-gradient(180deg,rgba(242,143,45,0.08),rgba(255,255,255,0.015))] px-4 py-4">
+        <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.18fr)_minmax(0,1fr)]">
+          <div className="flex min-h-[13rem] flex-col gap-4 border border-accent/30 bg-[linear-gradient(180deg,rgba(242,143,45,0.08),rgba(255,255,255,0.015))] px-5 py-5">
             <KpiValue
               label={copy.lastAthLabel}
               value={formatCurrency(ath, currency, locale)}
@@ -83,39 +83,46 @@ export default function AthSection({
                 value: formatDate(athDate, locale),
               })}
               size="lg"
+              valueClassName="text-[clamp(2.3rem,4vw,3.15rem)] leading-[0.95]"
             />
-            <MetaText tone="strong" className="mt-auto leading-snug">
+            <MetaText tone="strong" className="mt-auto max-w-[34ch] leading-snug">
               {copy.lastAthFootnote}
             </MetaText>
           </div>
 
-          <MetricCard
-            label={copy.distanceLabel}
-            value={formatSignedPercentValue(athDistance, locale)}
-            meta={copy.distanceMeta}
-            valueFootnote={copy.distanceFootnote}
-            valueClassName="max-w-full break-words text-[clamp(1.45rem,3vw,1.85rem)] leading-[0.98]"
-            valueTone={typeof athDistance === "number" && athDistance < 0 ? "negative" : "default"}
-            tone="muted"
-          />
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-2">
+            <MetricCard
+              label={copy.distanceLabel}
+              value={formatSignedPercentValue(athDistance, locale)}
+              meta={copy.distanceMeta}
+              valueFootnote={copy.distanceFootnote}
+              valueClassName="max-w-full break-words text-[clamp(1.55rem,2.3vw,2rem)] leading-[0.98]"
+              valueTone={
+                typeof athDistance === "number" && athDistance < 0 ? "negative" : "default"
+              }
+              tone="muted"
+            />
 
-          <MetricCard
-            label={copy.gapLabel}
-            value={formatCurrency(gapToAth, currency, locale)}
-            meta={copy.gapMeta}
-            valueFootnote={copy.gapFootnote}
-            tone="default"
-          />
+            <MetricCard
+              label={copy.gapLabel}
+              value={formatCurrency(gapToAth, currency, locale)}
+              meta={copy.gapMeta}
+              valueFootnote={copy.gapFootnote}
+              tone="default"
+            />
 
-          <MetricCard
-            label={copy.daysSinceLabel}
-            value={formatMessage(copy.daysSinceValue, {
-              value: formatNumber(daysSinceAth, locale),
-            })}
-            meta={copy.daysSinceMeta}
-            valueFootnote={copy.daysSinceFootnote}
-            tone="muted"
-          />
+            <div className="sm:col-span-2 xl:col-span-3 2xl:col-span-2">
+              <MetricCard
+                label={copy.daysSinceLabel}
+                value={formatMessage(copy.daysSinceValue, {
+                  value: formatNumber(daysSinceAth, locale),
+                })}
+                meta={copy.daysSinceMeta}
+                valueFootnote={copy.daysSinceFootnote}
+                tone="muted"
+              />
+            </div>
+          </div>
         </div>
       </DataState>
     </Card>

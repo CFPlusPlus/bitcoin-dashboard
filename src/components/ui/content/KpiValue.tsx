@@ -48,7 +48,15 @@ export default function KpiValue({
           {label}
         </MetaText>
       ) : null}
-      <div className={cn("min-w-0", kpiValueVariants({ size, tone }), valueClassName)}>{value}</div>
+      <div
+        className={cn(
+          "min-w-0 whitespace-normal [overflow-wrap:anywhere]",
+          kpiValueVariants({ size, tone }),
+          valueClassName
+        )}
+      >
+        {value}
+      </div>
       {delta ? <MetaText tone={tone === "default" ? "default" : tone}>{delta}</MetaText> : null}
       {meta ? <MetaText>{meta}</MetaText> : null}
     </div>

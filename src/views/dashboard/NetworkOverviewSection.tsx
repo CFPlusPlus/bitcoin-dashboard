@@ -529,8 +529,8 @@ export default function NetworkOverviewSection({
         retryBusy={networkState.isLoading}
         messages={stateMessages}
       >
-        <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-12">
-          <NetworkPanel title={copy.statsCardTitle} className="xl:col-span-5">
+        <div className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-12">
+          <NetworkPanel title={copy.statsCardTitle} className="2xl:col-span-5">
             <div className="grid gap-5 sm:grid-cols-2 xl:gap-x-6 xl:gap-y-6">
               <StatLabel
                 label={copy.latestBlock}
@@ -570,7 +570,7 @@ export default function NetworkOverviewSection({
             </div>
           </NetworkPanel>
 
-          <NetworkPanel title={copy.hashrateCardTitle} className="xl:col-span-7">
+          <NetworkPanel title={copy.hashrateCardTitle} className="2xl:col-span-7">
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col gap-2">
                 <KpiValue
@@ -631,7 +631,7 @@ export default function NetworkOverviewSection({
             </div>
           </NetworkPanel>
 
-          <NetworkPanel title={copy.difficultyCardTitle} className="xl:col-span-6">
+          <NetworkPanel title={copy.difficultyCardTitle} className="2xl:col-span-6">
             <KpiValue
               value={
                 <SafeValueText
@@ -685,7 +685,7 @@ export default function NetworkOverviewSection({
             </div>
           </NetworkPanel>
 
-          <NetworkPanel title={copy.feesCardTitle} className="xl:col-span-6">
+          <NetworkPanel title={copy.feesCardTitle} className="2xl:col-span-6">
             <Stack gap="md">
               {[
                 {
@@ -786,7 +786,7 @@ export default function NetworkOverviewSection({
             </Stack>
           </NetworkPanel>
 
-          <NetworkPanel title={copy.activityCardTitleSafe} className="xl:col-span-12 min-h-0">
+          <NetworkPanel title={copy.activityCardTitleSafe} className="2xl:col-span-12 min-h-0">
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <StatLabel
                 label={copy.averageBlockTimeLabelSafe}
@@ -826,7 +826,7 @@ export default function NetworkOverviewSection({
 
         <NetworkPanel title={copy.latestBlocksTitle} className="mt-2 min-h-0">
           {network?.latestBlocks.length ? (
-            <div className="grid gap-2 md:grid-cols-3 xl:grid-cols-6">
+            <div className="grid gap-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
               {network.latestBlocks.map((block) => (
                 <RecentBlockTile
                   key={block.height}

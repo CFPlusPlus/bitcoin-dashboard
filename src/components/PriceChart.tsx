@@ -116,7 +116,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   const copy = messages.dashboard.chart;
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const width = 900;
-  const height = 300;
+  const height = 340;
   const paddingX = 52;
   const paddingY = 24;
 
@@ -214,8 +214,8 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
-        <div className="border border-accent/30 bg-accent-soft px-3 py-3">
+      <div className="grid gap-3 xl:grid-cols-2 2xl:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
+        <div className="border border-accent/30 bg-accent-soft px-3 py-3 xl:col-span-2 2xl:col-span-1">
           <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
             {copy.contextLabel}
           </p>
@@ -263,7 +263,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
         </div>
       </div>
 
-      <div className="overflow-hidden border border-border-subtle bg-surface p-3 sm:p-4">
+      <div className="overflow-hidden border border-border-subtle bg-surface p-4 sm:p-5">
         <div className="mb-3 flex flex-col gap-2 border-b border-border-subtle/80 pb-3 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
           <p>{copy.direction}</p>
           <p className="font-medium text-fg-secondary">

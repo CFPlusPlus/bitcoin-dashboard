@@ -148,7 +148,7 @@ export default function MarketContextSection({
           retryBusy={marketContextChartState.isLoading}
           messages={chartMessages}
         >
-          <div className="grid gap-4 xl:grid-cols-2">
+          <div className="grid gap-4 2xl:grid-cols-2">
             {marketCapSeries ? (
               <MarketMetricChart
                 currency={currency}
@@ -176,7 +176,7 @@ export default function MarketContextSection({
                 points={volumeSeries.points}
               />
             ) : null}
-            <div className="overflow-hidden rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))] xl:col-span-2">
+            <div className="overflow-hidden rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))] 2xl:col-span-2">
               <div className="px-4 py-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="min-w-0">
@@ -239,7 +239,7 @@ export default function MarketContextSection({
               </div>
             </div>
 
-            <div className="grid gap-3 xl:col-span-2 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 2xl:col-span-2">
               <MetricCard
                 label={copy.atlLabel}
                 value={formatCurrency(atl, currency, locale)}

@@ -48,7 +48,7 @@ export default function ChartSection({
       as="section"
       id="main-chart-zone"
       tone="elevated"
-      padding="md"
+      padding="lg"
       gap="md"
       className="overflow-hidden border-border-default/80"
     >

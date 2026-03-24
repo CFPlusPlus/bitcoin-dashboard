@@ -46,7 +46,7 @@ function HalvingMetaStat({
 }) {
   return (
     <div className={align === "right" ? "text-left sm:text-right" : "text-left"}>
-      <div className="font-mono text-[1.45rem] font-medium leading-none tracking-[-0.05em] text-fg sm:text-[2rem]">
+      <div className="font-mono text-[1.45rem] font-medium leading-none tracking-[-0.05em] text-fg whitespace-normal [overflow-wrap:anywhere] sm:text-[2rem]">
         {value}
       </div>
       <MetaText size="xs" className="mt-2 font-mono uppercase tracking-[0.22em] text-fg-secondary">
@@ -96,7 +96,7 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
     network?.halving.nextReward === null ||
     network?.halving.nextReward === undefined
       ? fallback
-      : `${formatRewardValue(network.halving.currentReward, locale, fallback)} → ${formatRewardValue(network.halving.nextReward, locale, fallback)}`;
+      : `${formatRewardValue(network.halving.currentReward, locale, fallback)} -> ${formatRewardValue(network.halving.nextReward, locale, fallback)}`;
 
   return (
     <Card as="section" tone="default" padding="md" gap="md" className="overflow-hidden">

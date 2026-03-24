@@ -10,7 +10,7 @@ const pageContainerVariants = cva("mx-auto w-full", {
     },
     width: {
       default: "max-w-[var(--container-max-width)]",
-      wide: "max-w-[88rem]",
+      wide: "max-w-[110rem]",
       narrow: "max-w-4xl",
     },
   },

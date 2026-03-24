@@ -65,7 +65,7 @@ export default function OnChainActivitySection({
         retryBusy={onChainActivityState.isLoading}
         messages={stateMessages}
       >
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <MetricCard
             label={copy.activeAddressesLabel}
             value={formatCompactNumber(onChainActivity?.activeAddresses.current ?? null, locale)}

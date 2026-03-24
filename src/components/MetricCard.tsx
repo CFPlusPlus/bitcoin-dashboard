@@ -38,7 +38,7 @@ export default function MetricCard({
   return (
     <div
       className={cn(
-        "flex h-full min-h-[11.5rem] flex-col gap-3 border border-border-subtle px-3 py-3 sm:min-h-[12.25rem]",
+        "flex h-full min-h-[11.25rem] min-w-0 flex-col gap-3.5 border border-border-subtle px-4 py-4 sm:min-h-[12rem]",
         toneClassName
       )}
     >

@@ -83,7 +83,7 @@ export default async function LocaleLayout({
             </div>
           </header>
 
-          <PageContainer className="flex flex-1 flex-col gap-5 py-4 sm:py-5">
+          <PageContainer width="wide" className="flex flex-1 flex-col gap-6 py-4 sm:py-5 lg:py-6">
             {children}
           </PageContainer>
 

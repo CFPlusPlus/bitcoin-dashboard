@@ -62,26 +62,12 @@ export default function DashboardContent(props: DashboardContentProps) {
   const copy = messages.dashboard;
 
   return (
-    <Section aria-label={copy.contentAriaLabel} space="lg">
+    <Section aria-label={copy.contentAriaLabel} space="lg" className="gap-8 xl:gap-9">
       <OverviewSection
         currency={props.currency}
         overview={props.overview}
         overviewState={props.overviewState}
         onRetry={props.onOverviewRetry}
-      />
-
-      <AthSection
-        currency={props.currency}
-        overview={props.overview}
-        overviewState={props.overviewState}
-        onRetry={props.onOverviewRetry}
-      />
-
-      <PerformanceSection
-        currency={props.currency}
-        performance={props.performance}
-        performanceState={props.performanceState}
-        onRetry={props.onPerformanceRetry}
       />
 
       <ChartSection
@@ -93,14 +79,41 @@ export default function DashboardContent(props: DashboardContentProps) {
         onRangeChange={props.onRangeChange}
       />
 
-      <Section as="section" aria-label={copy.marketAndSentimentAriaLabel} space="md">
+      <div className="grid gap-8 xl:grid-cols-2 xl:items-start">
+        <AthSection
+          currency={props.currency}
+          overview={props.overview}
+          overviewState={props.overviewState}
+          onRetry={props.onOverviewRetry}
+        />
+
+        <HalvingSection
+          network={props.network}
+          halvingState={props.halvingState}
+          onRetry={props.onNetworkRetry}
+        />
+      </div>
+
+      <PerformanceSection
+        currency={props.currency}
+        performance={props.performance}
+        performanceState={props.performanceState}
+        onRetry={props.onPerformanceRetry}
+      />
+
+      <Section
+        as="section"
+        aria-label={copy.marketAndSentimentAriaLabel}
+        space="md"
+        className="gap-5"
+      >
         <SectionHeader
           eyebrow={copy.marketAndSentimentEyebrow}
           title={copy.marketAndSentimentTitle}
           description={copy.marketAndSentimentDescription}
         />
 
-        <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] xl:items-start">
           <SentimentSection
             sentiment={props.sentiment}
             sentimentState={props.sentimentState}
@@ -128,12 +141,6 @@ export default function DashboardContent(props: DashboardContentProps) {
       <NetworkOverviewSection
         network={props.network}
         networkState={props.networkState}
-        onRetry={props.onNetworkRetry}
-      />
-
-      <HalvingSection
-        network={props.network}
-        halvingState={props.halvingState}
         onRetry={props.onNetworkRetry}
       />
 
