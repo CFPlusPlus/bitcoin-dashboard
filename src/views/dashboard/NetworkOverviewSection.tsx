@@ -299,7 +299,7 @@ function Sparkline({
             width: `${tooltipWidthPx}px`,
           }}
         >
-          <div className="text-[10.5px] font-semibold leading-none text-fg">
+          <div className="font-numeric tabular-nums text-[10.5px] font-semibold leading-none text-fg">
             {tooltipValueLabel}
           </div>
           <div className="mt-1 text-[9.5px] leading-none text-fg-muted">{tooltipDateLabel}</div>
@@ -469,7 +469,7 @@ function RecentBlockTile({
     >
       <div className="flex h-full flex-col items-center justify-between gap-2 text-center">
         <div className="space-y-1">
-          <div className="font-mono text-[1.05rem] font-semibold leading-none tracking-[-0.04em] text-accent">
+          <div className="font-numeric tabular-nums text-[1.05rem] font-semibold leading-none tracking-[-0.04em] text-accent">
             #{formatNumber(block.height, locale)}
           </div>
           <MetaText size="xs" className="text-[0.74rem]">
@@ -477,7 +477,7 @@ function RecentBlockTile({
           </MetaText>
         </div>
         <div className="space-y-1">
-          <div className="font-mono text-[1.35rem] font-medium leading-none tracking-[-0.04em] text-fg">
+          <div className="font-numeric tabular-nums text-[1.35rem] font-medium leading-none tracking-[-0.04em] text-fg">
             {block.transactionCount === null
               ? fallback
               : formatNumber(block.transactionCount, locale)}
@@ -596,7 +596,7 @@ export default function NetworkOverviewSection({
                 />
                 <div
                   className={cn(
-                    "w-fit rounded-sm px-2 py-1 font-mono text-sm font-medium",
+                    "font-numeric tabular-nums w-fit rounded-sm px-2 py-1 text-sm font-medium",
                     hashrateIsPositive ? "bg-success/12 text-success" : "bg-danger/12 text-danger"
                   )}
                 >

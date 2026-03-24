@@ -46,7 +46,7 @@ function HalvingMetaStat({
 }) {
   return (
     <div className={align === "right" ? "text-left sm:text-right" : "text-left"}>
-      <div className="font-mono text-[1.45rem] font-medium leading-none tracking-[-0.05em] text-fg whitespace-normal [overflow-wrap:anywhere] sm:text-[2rem]">
+      <div className="font-numeric tabular-nums text-[1.45rem] font-medium leading-none tracking-[-0.05em] text-fg whitespace-normal [overflow-wrap:anywhere] sm:text-[2rem]">
         {value}
       </div>
       <MetaText size="xs" className="mt-2 font-mono uppercase tracking-[0.22em] text-fg-secondary">
@@ -134,7 +134,7 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
             </div>
 
             <div className="flex flex-col gap-3">
-              <p className="font-mono text-[2.55rem] font-medium leading-[0.95] tracking-[-0.065em] text-fg sm:text-[4.25rem]">
+              <p className="font-numeric tabular-nums text-[2.55rem] font-medium leading-[0.95] tracking-[-0.065em] text-fg sm:text-[4.25rem]">
                 {blocksRemaining}
               </p>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">

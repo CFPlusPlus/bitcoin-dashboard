@@ -257,7 +257,7 @@ export default function SentimentSection({
                 <div className="pointer-events-none absolute inset-x-0 top-[61%] flex -translate-y-1/2 flex-col items-center px-6 text-center">
                   <p
                     className={cn(
-                      "font-mono text-[clamp(3rem,10vw,4.8rem)] leading-none tracking-[-0.05em]",
+                      "font-numeric tabular-nums text-[clamp(3rem,10vw,4.8rem)] leading-none tracking-[-0.05em]",
                       getValueTone(zoneKey) === "positive"
                         ? "text-success"
                         : getValueTone(zoneKey) === "negative"
@@ -289,7 +289,7 @@ export default function SentimentSection({
                     }}
                   >
                     <p
-                      className="font-mono text-[0.72rem] tracking-[0.12em]"
+                      className="font-mono tabular-nums text-[0.72rem] tracking-[0.12em]"
                       style={{ color: visual.accent }}
                     >
                       {range.min}-{range.max}
@@ -330,7 +330,7 @@ export default function SentimentSection({
               <MetaText size="xs" className="uppercase tracking-[0.16em]">
                 {copy.nextUpdate}
               </MetaText>
-              <p className="font-mono text-[1.2rem] text-fg">
+              <p className="font-numeric tabular-nums text-[1.2rem] text-fg">
                 {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null, locale)}
               </p>
               <MetaText>{copy.nextUpdateHint}</MetaText>

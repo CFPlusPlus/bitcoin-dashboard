@@ -247,7 +247,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
             {copy.lowInWindow}
           </p>
-          <p className="mt-2 font-mono text-base text-fg">
+          <p className="mt-2 font-numeric tabular-nums text-base text-fg">
             {formatCurrency(minPrice, currency, locale)}
           </p>
         </div>
@@ -256,14 +256,14 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
             {copy.highInWindow}
           </p>
-          <p className="mt-2 font-mono text-base text-fg">
+          <p className="mt-2 font-numeric tabular-nums text-base text-fg">
             {formatCurrency(maxPrice, currency, locale)}
           </p>
         </div>
 
         <div className="border border-accent/35 bg-accent-soft px-3 py-2.5">
           <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.latest}</p>
-          <p className="mt-2 font-mono text-base text-fg">
+          <p className="mt-2 font-numeric tabular-nums text-base text-fg">
             {formatCurrency(currentPrice, currency, locale)}
           </p>
           <p className={`mt-2 text-sm font-medium ${changeTone}`}>

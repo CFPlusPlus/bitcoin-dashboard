@@ -56,9 +56,35 @@ The token layer currently uses:
 
 - `Instrument Sans Variable` for UI and body text
 - `Newsreader Variable` for selected serif accents
-- `IBM Plex Mono` for technical and numeric presentation
+- `IBM Plex Mono` for technical labels and compact metadata
+- `Geist Mono Variable` for prominent numeric display values
 
 These token families match the font packages currently installed in `package.json`.
+
+## Typography Role Matrix
+
+Typography should stay calm and role-driven rather than expressive everywhere.
+
+Use the families like this:
+
+- `--token-font-family-sans` / `font-sans`: default UI text, body copy, navigation, buttons, forms, descriptive text
+- `--token-font-family-serif` / `font-serif`: section titles, editorial accents, selected headline moments
+- `--token-font-family-mono` / `font-mono`: eyebrows, labels, compact status text, metadata, small technical annotations
+- `--token-font-family-numeric` / `font-numeric`: prominent values, KPI numbers, prices, countdowns, chart values, numeric callouts
+
+## Typography Usage Rules
+
+Current typography rules for contributors:
+
+- default to sans-serif for standard product UI and reading text
+- use serif sparingly so headline accents remain premium and quiet
+- use mono for technical framing, not for large hero values by default
+- use numeric display type for prominent numbers that should feel precise and technical
+- apply `tabular-nums` to dynamic, comparable, or repeatedly aligned numeric values
+- most components should stay within two explicit typographic roles
+- editorial shell components may combine sans body text, mono metadata, and serif headlines when that hierarchy is intentional
+- avoid using `font-mono` and `font-numeric` for equally emphasized content inside the same small block
+- if a value is the primary focus and a label is secondary, the value should usually use `font-numeric` and the label should usually use `font-mono`
 
 ## Current Color Roles
 

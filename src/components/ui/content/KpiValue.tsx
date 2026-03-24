@@ -3,7 +3,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../../../lib/cn";
 import MetaText from "./MetaText";
 
-const kpiValueVariants = cva("font-mono font-medium tracking-[-0.045em] text-fg", {
+const kpiValueVariants = cva("font-numeric tabular-nums font-medium tracking-[-0.045em] text-fg", {
   variants: {
     size: {
       md: "text-[clamp(1.75rem,5vw,2rem)] leading-[0.95] sm:text-[clamp(1.9rem,3vw,2.15rem)]",

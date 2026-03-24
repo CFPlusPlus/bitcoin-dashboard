@@ -66,6 +66,9 @@
   --token-font-family-mono:
     "IBM Plex Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono",
     monospace;
+  --token-font-family-numeric:
+    "Geist Mono Variable", "Geist Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas,
+    "Liberation Mono", monospace;
 
   --container-max-width: 82rem;
   --container-padding-x: 1rem;

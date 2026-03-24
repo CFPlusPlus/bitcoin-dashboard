@@ -96,3 +96,9 @@
     position: relative;
   }
 }
+
+@layer utilities {
+  .font-numeric {
+    font-family: var(--token-font-family-numeric);
+  }
+}
