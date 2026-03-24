@@ -7,7 +7,6 @@ import { Check, ChevronDown, Languages } from "lucide-react";
 import { DEFAULT_LOCALE, LOCALES, getLocalizedPathname, localeLabels } from "../i18n/config";
 import { useI18n } from "../i18n/context";
 import { cn } from "../lib/cn";
-import { buttonVariants } from "./ui/Button";
 
 export default function LanguageSwitcher() {
   const pathname = usePathname() ?? `/${DEFAULT_LOCALE}`;
@@ -51,22 +50,20 @@ export default function LanguageSwitcher() {
         aria-expanded={isOpen}
         aria-haspopup="menu"
         className={cn(
-          buttonVariants({
-            active: isOpen,
-            intent: "secondary",
-            size: "md",
-          }),
-          "min-w-[7rem] justify-between gap-2 border-border-default/90 bg-elevated/40 pr-2.5 text-fg"
+          "inline-flex h-8 min-w-[5.4rem] items-center justify-between gap-2 rounded-[0.32rem] border px-2.5 text-[0.64rem] font-medium uppercase tracking-[0.18em] transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-app",
+          isOpen
+            ? "border-accent/28 bg-surface/84 text-fg"
+            : "border-border-subtle bg-[color-mix(in_srgb,var(--token-color-bg-surface)_40%,transparent)] text-fg-secondary hover:border-border-default/80 hover:bg-surface/72 hover:text-fg"
         )}
         onClick={() => setIsOpen((current) => !current)}
       >
         <span className="flex items-center gap-2">
-          <Languages className="size-4 text-fg-muted" aria-hidden="true" />
-          <span className="text-[0.72rem] tracking-[0.22em]">{locale.toUpperCase()}</span>
+          <Languages className="size-[0.95rem] text-fg-muted" aria-hidden="true" />
+          <span>{locale.toUpperCase()}</span>
         </span>
         <ChevronDown
           className={cn(
-            "size-4 text-fg-muted transition-transform duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+            "size-[0.95rem] text-fg-muted transition-transform duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
             isOpen && "rotate-180"
           )}
           aria-hidden="true"
@@ -78,7 +75,7 @@ export default function LanguageSwitcher() {
         role="menu"
         aria-label={messages.site.languageSwitchLabel}
         className={cn(
-          "absolute right-0 top-[calc(100%+0.55rem)] z-30 min-w-[12rem] origin-top-right rounded-sm border border-border-default/80 bg-surface/96 p-1.5 shadow-elevated backdrop-blur-sm transition duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+          "absolute right-0 top-[calc(100%+0.5rem)] z-30 min-w-[12rem] origin-top-right rounded-[0.38rem] border border-border-default/80 bg-surface/96 p-1.5 shadow-elevated backdrop-blur-sm transition duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
           isOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-1 opacity-0"
@@ -94,7 +91,7 @@ export default function LanguageSwitcher() {
               href={getLocalizedPathname(entry, pathname)}
               hrefLang={entry}
               className={cn(
-                "flex w-full items-center justify-between rounded-sm px-3 py-2 text-left transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                "flex w-full items-center justify-between rounded-[0.22rem] px-3 py-2 text-left transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                 isActive
                   ? "bg-accent-soft text-fg"
                   : "text-fg-secondary hover:bg-elevated hover:text-fg"

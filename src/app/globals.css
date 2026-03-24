@@ -43,7 +43,7 @@
   }
 
   html {
-    color-scheme: dark;
+    color-scheme: light dark;
   }
 
   body {
@@ -57,7 +57,7 @@
   }
 
   ::selection {
-    background: rgb(247 147 26 / 24%);
+    background: var(--token-color-accent-soft);
     color: var(--token-color-text-primary);
   }
 

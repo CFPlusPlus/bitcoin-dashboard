@@ -62,25 +62,35 @@ export default async function LocaleLayout({
           )}
         />
         <main className="flex min-h-screen flex-col py-0">
-          <header className="w-full border-b border-border-default/80 bg-surface">
-            <div className="flex flex-col gap-3 px-4 py-2.5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+          <header
+            className="w-full border-b border-border-default/80"
+            style={{
+              background:
+                "linear-gradient(180deg, color-mix(in srgb, var(--token-color-text-primary) 1.8%, transparent), transparent 100%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-surface) 94%, transparent), color-mix(in srgb, var(--token-color-bg-app) 92%, transparent))",
+            }}
+          >
+            <PageContainer
+              as="div"
+              width="wide"
+              className="flex flex-col gap-3 py-3 sm:gap-3.5 sm:py-3.5 lg:flex-row lg:items-center lg:justify-between lg:gap-6"
+            >
               <Link href={`/${locale}`} className="min-w-0 max-w-fit text-left">
-                <div className="flex flex-col gap-0">
-                  <p className="font-serif text-[1.7rem] leading-none tracking-[0.005em] text-fg sm:text-[1.95rem]">
+                <div className="flex flex-col gap-1">
+                  <p className="font-serif text-[1.7rem] leading-none tracking-[0.002em] text-fg sm:text-[1.95rem]">
                     <span className="text-fg">bit</span>
                     <span className="text-accent">stats</span>
                     <span className="ml-0.75 inline-block text-[0.56em] text-fg-secondary">
                       .org
                     </span>
                   </p>
-                  <p className="-mt-0.5 font-sans text-[0.76rem] leading-[1.1] tracking-[-0.005em] text-fg-muted sm:text-[0.84rem]">
+                  <p className="font-sans text-[0.76rem] leading-[1.1] tracking-[-0.005em] text-fg-muted sm:text-[0.84rem]">
                     Bitcoin Data, Charts &amp; Tools
                   </p>
                 </div>
               </Link>
 
               <SiteNavigation />
-            </div>
+            </PageContainer>
           </header>
 
           <PageContainer width="wide" className="flex flex-1 flex-col gap-6 py-4 sm:py-5 lg:py-6">

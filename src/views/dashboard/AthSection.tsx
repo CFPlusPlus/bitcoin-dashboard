@@ -75,7 +75,13 @@ export default function AthSection({
         messages={stateMessages}
       >
         <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.18fr)_minmax(0,1fr)]">
-          <div className="flex min-h-[13rem] flex-col gap-4 border border-accent/30 bg-[linear-gradient(180deg,rgba(242,143,45,0.08),rgba(255,255,255,0.015))] px-5 py-5">
+          <div
+            className="flex min-h-[13rem] flex-col gap-4 border border-accent/30 px-5 py-5"
+            style={{
+              background:
+                "linear-gradient(180deg, color-mix(in srgb, var(--token-color-accent-primary) 10%, transparent), color-mix(in srgb, var(--token-color-text-primary) 1.5%, transparent))",
+            }}
+          >
             <KpiValue
               label={copy.lastAthLabel}
               value={formatCurrency(ath, currency, locale)}

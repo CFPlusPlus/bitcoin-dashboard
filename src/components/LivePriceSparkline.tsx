@@ -95,36 +95,40 @@ function getTooltipY({
 function getChartTheme(performancePercent: number | null) {
   if (typeof performancePercent === "number" && performancePercent < 0) {
     return {
-      areaEnd: "rgba(239,68,68,0.02)",
-      areaStart: "rgba(239,68,68,0.24)",
-      dot: "#fb7185",
-      dotStroke: "#ef4444",
-      guide: "#d68c25",
-      lineEnd: "#f97316",
-      lineStart: "#ef4444",
+      areaEnd: "color-mix(in srgb, var(--token-color-danger) 3%, transparent)",
+      areaStart: "color-mix(in srgb, var(--token-color-danger) 24%, transparent)",
+      dot: "color-mix(in srgb, var(--token-color-danger) 68%, white)",
+      dotStroke: "var(--token-color-danger)",
+      guide:
+        "color-mix(in srgb, var(--token-color-accent-primary) 58%, var(--token-color-warning) 42%)",
+      lineEnd:
+        "color-mix(in srgb, var(--token-color-accent-primary) 82%, var(--token-color-danger) 18%)",
+      lineStart: "var(--token-color-danger)",
     };
   }
 
   if (typeof performancePercent === "number" && performancePercent > 0) {
     return {
-      areaEnd: "rgba(34,197,94,0.02)",
-      areaStart: "rgba(34,197,94,0.28)",
-      dot: "#25db77",
-      dotStroke: "#22c55e",
-      guide: "#d68c25",
-      lineEnd: "#34d399",
-      lineStart: "#25db77",
+      areaEnd: "color-mix(in srgb, var(--token-color-success) 3%, transparent)",
+      areaStart: "color-mix(in srgb, var(--token-color-success) 28%, transparent)",
+      dot: "color-mix(in srgb, var(--token-color-success) 72%, white)",
+      dotStroke: "var(--token-color-success)",
+      guide:
+        "color-mix(in srgb, var(--token-color-accent-primary) 58%, var(--token-color-warning) 42%)",
+      lineEnd: "color-mix(in srgb, var(--token-color-info) 24%, var(--token-color-success) 76%)",
+      lineStart: "var(--token-color-success)",
     };
   }
 
   return {
-    areaEnd: "rgba(242,143,45,0.02)",
-    areaStart: "rgba(242,143,45,0.24)",
-    dot: "#f2a64d",
-    dotStroke: "#f28f2d",
-    guide: "#d68c25",
-    lineEnd: "#f6b05d",
-    lineStart: "#f28f2d",
+    areaEnd: "color-mix(in srgb, var(--token-color-accent-primary) 3%, transparent)",
+    areaStart: "color-mix(in srgb, var(--token-color-accent-primary) 24%, transparent)",
+    dot: "var(--token-color-accent-strong)",
+    dotStroke: "var(--token-color-accent-primary)",
+    guide:
+      "color-mix(in srgb, var(--token-color-accent-primary) 62%, var(--token-color-warning) 38%)",
+    lineEnd: "var(--token-color-accent-strong)",
+    lineStart: "var(--token-color-accent-primary)",
   };
 }
 
@@ -405,13 +409,50 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
   }
 
   return (
-    <div className="relative isolate overflow-hidden border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.022)_0%,rgba(255,255,255,0.006)_100%),linear-gradient(125deg,rgba(242,143,45,0.048)_0%,rgba(242,143,45,0.018)_18%,rgba(20,17,15,0)_42%),linear-gradient(180deg,rgba(19,17,15,0.985),rgba(12,11,10,0.995))] p-4 sm:p-5">
+    <div
+      className="relative isolate overflow-hidden border p-4 sm:p-5"
+      style={{
+        borderColor: "color-mix(in srgb, var(--token-color-border-default) 75%, transparent)",
+        background:
+          "linear-gradient(180deg, color-mix(in srgb, var(--token-color-text-primary) 2.2%, transparent) 0%, color-mix(in srgb, var(--token-color-text-primary) 0.6%, transparent) 100%), linear-gradient(125deg, color-mix(in srgb, var(--token-color-accent-primary) 10%, transparent) 0%, color-mix(in srgb, var(--token-color-info) 8%, transparent) 22%, transparent 48%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 86%, black 14%), color-mix(in srgb, var(--token-color-bg-app) 88%, black 12%))",
+      }}
+    >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,244,230,0.2),transparent)]" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-[linear-gradient(90deg,transparent,rgba(242,143,45,0.1),transparent)]" />
-        <div className="absolute inset-y-0 left-0 w-px bg-[linear-gradient(180deg,transparent,rgba(255,244,230,0.09),transparent)]" />
-        <div className="absolute inset-0 bg-[repeating-linear-gradient(90deg,rgba(255,255,255,0.012)_0,rgba(255,255,255,0.012)_1px,transparent_1px,transparent_72px)] opacity-35" />
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,rgba(10,9,8,0)_0%,rgba(10,9,8,0.16)_100%)]" />
+        <div
+          className="absolute inset-x-0 top-0 h-px"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, color-mix(in srgb, var(--token-color-text-primary) 18%, transparent), transparent)",
+          }}
+        />
+        <div
+          className="absolute inset-x-0 bottom-0 h-px"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, color-mix(in srgb, var(--token-color-accent-primary) 22%, transparent), transparent)",
+          }}
+        />
+        <div
+          className="absolute inset-y-0 left-0 w-px"
+          style={{
+            background:
+              "linear-gradient(180deg, transparent, color-mix(in srgb, var(--token-color-text-primary) 10%, transparent), transparent)",
+          }}
+        />
+        <div
+          className="absolute inset-0 opacity-35"
+          style={{
+            background:
+              "repeating-linear-gradient(90deg, color-mix(in srgb, var(--token-color-text-primary) 1.2%, transparent) 0, color-mix(in srgb, var(--token-color-text-primary) 1.2%, transparent) 1px, transparent 1px, transparent 72px)",
+          }}
+        />
+        <div
+          className="absolute inset-x-0 bottom-0 h-24"
+          style={{
+            background:
+              "linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--token-color-bg-app) 18%, transparent) 100%)",
+          }}
+        />
       </div>
 
       <div className="relative z-10">
@@ -452,13 +493,13 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
                 y1={tick.y}
                 x2={width - paddingRight + 6}
                 y2={tick.y}
-                stroke="rgb(255 245 232 / 0.07)"
+                stroke="color-mix(in srgb, var(--token-color-text-primary) 7%, transparent)"
                 strokeWidth="1"
               />
               <text
                 x={width - paddingRight + 18}
                 y={tick.y + 4}
-                fill="#938b81"
+                fill="var(--token-color-text-muted)"
                 fontSize="15"
                 textAnchor="start"
               >
@@ -472,7 +513,7 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
               key={`${tick.timestamp}`}
               x={tick.x}
               y={height - 8}
-              fill="#766f66"
+              fill="var(--token-color-text-muted)"
               fontSize="14"
               textAnchor="middle"
             >
@@ -495,7 +536,7 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
             <path
               d={linePath}
               fill="none"
-              stroke="rgba(11,17,13,0.45)"
+              stroke="color-mix(in srgb, var(--token-color-bg-app) 56%, transparent)"
               strokeWidth="7"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -515,7 +556,7 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
                   y1={paddingTop}
                   x2={activeHoveredPoint.x}
                   y2={baseY}
-                  stroke="rgba(255, 226, 192, 0.22)"
+                  stroke="color-mix(in srgb, var(--token-color-text-primary) 22%, transparent)"
                   strokeDasharray="5 7"
                   strokeWidth="1"
                 />
@@ -523,7 +564,7 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
                   cx={activeHoveredPoint.x}
                   cy={activeHoveredPoint.y}
                   r="8"
-                  fill="rgba(13,18,16,0.92)"
+                  fill="color-mix(in srgb, var(--token-color-bg-app) 86%, black)"
                   stroke={theme.dotStroke}
                   strokeWidth="2.5"
                 />
@@ -539,7 +580,7 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
               cx={chartPoints[chartPoints.length - 1].x}
               cy={lastY}
               r={LIVE_DOT_RADIUS}
-              fill="#0d1210"
+              fill="color-mix(in srgb, var(--token-color-bg-app) 84%, black)"
               stroke={theme.dotStroke}
               strokeWidth="3"
             />
@@ -568,26 +609,31 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
                 width={tooltipWidth}
                 height={tooltipHeight}
                 rx="6"
-                fill="#110d0a"
-                stroke="rgba(242, 143, 45, 0.28)"
+                fill="color-mix(in srgb, var(--token-color-bg-app) 90%, black)"
+                stroke="color-mix(in srgb, var(--token-color-accent-primary) 28%, transparent)"
               />
               <text
                 x={tooltipX + 10}
                 y={tooltipY + 18}
-                fill="#f7efe5"
+                fill="var(--token-color-text-primary)"
                 fontSize="13"
                 fontWeight="600"
               >
                 {tooltipValueLabel}
               </text>
-              <text x={tooltipX + 10} y={tooltipY + 33} fill="#9f968b" fontSize="11.5">
+              <text
+                x={tooltipX + 10}
+                y={tooltipY + 33}
+                fill="var(--token-color-text-muted)"
+                fontSize="11.5"
+              >
                 {tooltipDateLabel}
               </text>
             </g>
           ) : null}
         </svg>
 
-        <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/6 pt-3 text-sm text-fg-muted">
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border-subtle/80 pt-3 text-sm text-fg-muted">
           <span>
             {copy.liveCoverageStart}: {formatTimeLabel(visibleStart, locale)}
           </span>

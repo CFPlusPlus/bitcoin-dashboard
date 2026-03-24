@@ -42,9 +42,9 @@ The current token set uses these naming families:
 
 The implemented token layer currently expresses:
 
-- a dark base surface system
-- warm off-white text instead of stark white-on-black
-- orange as the primary accent color
+- an obsidian-and-ice surface system for both dark and light modes
+- cool high-clarity text tones instead of warm paper neutrals
+- signal orange as the primary accent color
 - restrained semantic colors for success, warning, danger, and info
 - tight radii rather than soft bubble styling
 - almost no heavy shadow elevation

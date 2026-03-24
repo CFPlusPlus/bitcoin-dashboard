@@ -15,7 +15,7 @@
 .dca-input-group select {
   width: 100%;
   border: 1px solid var(--token-color-border-default);
-  background: rgb(255 245 232 / 4%);
+  background: var(--token-color-bg-elevated);
   color: var(--token-color-text-primary);
   padding: 0.75rem 0.875rem;
 }
@@ -27,13 +27,13 @@
 .dca-input-group input:focus,
 .dca-input-group select:focus {
   outline: none;
-  border-color: rgb(242 143 45 / 50%);
+  border-color: var(--token-color-border-strong);
 }
 
 .dca-input-group input[aria-invalid="true"],
 .dca-input-group select[aria-invalid="true"] {
-  border-color: rgb(219 122 114 / 55%);
-  background: rgb(219 122 114 / 8%);
+  border-color: color-mix(in srgb, var(--token-color-danger) 55%, transparent);
+  background: var(--state-error-bg);
 }
 
 .dca-input-hint,

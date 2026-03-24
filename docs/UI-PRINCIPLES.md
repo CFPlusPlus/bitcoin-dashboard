@@ -54,9 +54,9 @@ Desktop may lead the composition, but mobile must preserve the product's full me
 
 The current implementation expresses these decisions:
 
-- dark-mode-first surfaces
-- orange as the main accent
-- warm text tones instead of stark monochrome contrast
+- an obsidian-and-ice base that supports both dark and light system themes
+- signal orange as a focused accent rather than a warm atmospheric wash
+- cooler text tones with cleaner contrast instead of warm paper styling
 - tight radii and crisp surfaces
 - restrained shadows
 - serif accents paired with clean sans-serif UI text

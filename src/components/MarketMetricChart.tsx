@@ -117,9 +117,16 @@ export default function MarketMetricChart({
   const lastY = getY(lastPoint.value);
   const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(2)} ${baseY.toFixed(2)} Z`;
 
-  const stroke = tone === "accent" ? "#f28f2d" : "#e7dfd4";
-  const glow = tone === "accent" ? "rgba(255, 178, 90, 0.18)" : "rgba(231, 223, 212, 0.14)";
-  const area = tone === "accent" ? "rgba(242, 143, 45, 0.06)" : "rgba(231, 223, 212, 0.04)";
+  const stroke =
+    tone === "accent" ? "var(--token-color-accent-primary)" : "var(--token-color-text-secondary)";
+  const glow =
+    tone === "accent"
+      ? "color-mix(in srgb, var(--token-color-accent-strong) 20%, transparent)"
+      : "color-mix(in srgb, var(--token-color-text-secondary) 16%, transparent)";
+  const area =
+    tone === "accent"
+      ? "color-mix(in srgb, var(--token-color-accent-primary) 10%, transparent)"
+      : "color-mix(in srgb, var(--token-color-text-primary) 5%, transparent)";
   const activeHoveredPoint = hoveredIndex === null ? null : (hoverablePoints[hoveredIndex] ?? null);
   const tooltipValueLabel = activeHoveredPoint
     ? formatCompactCurrency(activeHoveredPoint.value, currency, locale, 1)
@@ -169,7 +176,13 @@ export default function MarketMetricChart({
   }
 
   return (
-    <div className="relative rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))]">
+    <div
+      className="relative rounded-xl border border-border-subtle"
+      style={{
+        background:
+          "linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 90%, var(--token-color-info) 10%) 0%, color-mix(in srgb, var(--token-color-bg-surface) 94%, var(--token-color-bg-app) 6%) 100%)",
+      }}
+    >
       <div className="px-4 pt-4">
         <Stack gap="sm" className="min-w-0">
           <Cluster align="center" gap="sm">
@@ -221,7 +234,7 @@ export default function MarketMetricChart({
                 y1={paddingTop}
                 x2={activeHoveredPoint.x}
                 y2={baseY}
-                stroke="rgba(255, 239, 220, 0.18)"
+                stroke="color-mix(in srgb, var(--token-color-text-primary) 18%, transparent)"
                 strokeDasharray="4 5"
                 strokeWidth="1"
               />
@@ -229,14 +242,21 @@ export default function MarketMetricChart({
                 cx={activeHoveredPoint.x}
                 cy={activeHoveredPoint.y}
                 r="4.5"
-                fill="#17120d"
+                fill="var(--token-color-bg-app)"
                 stroke={stroke}
                 strokeWidth="1.4"
               />
               <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="1.9" fill={stroke} />
             </>
           ) : null}
-          <circle cx={lastX} cy={lastY} r="3" fill="#17120d" stroke={stroke} strokeWidth="1.2" />
+          <circle
+            cx={lastX}
+            cy={lastY}
+            r="3"
+            fill="var(--token-color-bg-app)"
+            stroke={stroke}
+            strokeWidth="1.2"
+          />
           <rect
             x={paddingX}
             y={paddingTop}
@@ -255,21 +275,28 @@ export default function MarketMetricChart({
                 width={tooltipWidth}
                 height={tooltipHeight}
                 rx="6"
-                fill="#110d0a"
+                fill="color-mix(in srgb, var(--token-color-bg-app) 90%, black)"
                 stroke={
-                  tone === "accent" ? "rgba(242, 143, 45, 0.24)" : "rgba(231, 223, 212, 0.18)"
+                  tone === "accent"
+                    ? "color-mix(in srgb, var(--token-color-accent-primary) 24%, transparent)"
+                    : "color-mix(in srgb, var(--token-color-text-secondary) 18%, transparent)"
                 }
               />
               <text
                 x={tooltipX + 9}
                 y={tooltipY + 17}
-                fill="#f7efe5"
+                fill="var(--token-color-text-primary)"
                 fontSize="12.5"
                 fontWeight="600"
               >
                 {tooltipValueLabel}
               </text>
-              <text x={tooltipX + 9} y={tooltipY + 31} fill="#9f968b" fontSize="11">
+              <text
+                x={tooltipX + 9}
+                y={tooltipY + 31}
+                fill="var(--token-color-text-muted)"
+                fontSize="11"
+              >
                 {tooltipDateLabel}
               </text>
             </g>

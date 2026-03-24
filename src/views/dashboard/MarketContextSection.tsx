@@ -176,7 +176,13 @@ export default function MarketContextSection({
                 points={volumeSeries.points}
               />
             ) : null}
-            <div className="overflow-hidden rounded-xl border border-border-subtle bg-[linear-gradient(180deg,rgba(22,19,17,0.98),rgba(15,13,12,0.98))] 2xl:col-span-2">
+            <div
+              className="overflow-hidden rounded-xl border border-border-subtle 2xl:col-span-2"
+              style={{
+                background:
+                  "linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 92%, black 8%), color-mix(in srgb, var(--token-color-bg-app) 94%, black 6%))",
+              }}
+            >
               <div className="px-4 py-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="min-w-0">
@@ -195,7 +201,7 @@ export default function MarketContextSection({
                     </Stack>
                   </div>
 
-                  <div className="min-w-0 border-t border-white/8 pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
+                  <div className="min-w-0 border-t border-border-subtle/80 pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
                     <KpiValue
                       label={copy.supplyLabel}
                       value={formatBtc(circulatingSupply, locale)}
@@ -223,7 +229,7 @@ export default function MarketContextSection({
                     </MetaText>
                   </div>
 
-                  <div className="min-w-0 border-t border-white/8 pt-4 md:col-span-2 md:pl-0">
+                  <div className="min-w-0 border-t border-border-subtle/80 pt-4 md:col-span-2 md:pl-0">
                     <KpiValue
                       label={copy.fdvLabel}
                       value={formatCompactCurrency(fullyDilutedValuation, currency, locale)}

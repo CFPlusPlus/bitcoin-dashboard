@@ -4,10 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getLocalizedPathname } from "../i18n/config";
 import { useI18n } from "../i18n/context";
-import { cn } from "../lib/cn";
 import CurrencySwitcher from "./CurrencySwitcher";
 import LanguageSwitcher from "./LanguageSwitcher";
-import { buttonVariants } from "./ui/Button";
+import ThemeToggle from "./ThemeToggle";
 
 export default function SiteNavigation() {
   const pathname = usePathname() ?? "/";
@@ -18,8 +17,11 @@ export default function SiteNavigation() {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 lg:justify-end">
-      <nav className="flex flex-wrap items-center gap-2" aria-label={messages.nav.ariaLabel}>
+    <div className="flex w-full min-w-0 items-center justify-end gap-3 sm:gap-4 lg:w-auto lg:gap-5">
+      <nav
+        className="flex min-w-0 items-center gap-3 sm:gap-4 lg:gap-5"
+        aria-label={messages.nav.ariaLabel}
+      >
         {navItems.map((item) => {
           const localizedHref = getLocalizedPathname(locale, item.href);
           const isActive =
@@ -31,22 +33,23 @@ export default function SiteNavigation() {
             <Link
               key={item.href}
               href={localizedHref}
-              className={cn(
-                buttonVariants({
-                  active: isActive,
-                  intent: "secondary",
-                  size: "md",
-                }),
-                "min-w-[6.5rem] justify-center"
-              )}
+              className={
+                isActive
+                  ? "inline-flex h-8 items-center border-b border-accent pb-px text-[0.69rem] font-medium uppercase tracking-[0.22em] text-fg transition-[border-color,color,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)]"
+                  : "inline-flex h-8 items-center border-b border-transparent pb-px text-[0.69rem] font-medium uppercase tracking-[0.22em] text-fg-secondary transition-[border-color,color,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:text-fg hover:border-border-default/70"
+              }
             >
               {item.label}
             </Link>
           );
         })}
       </nav>
-      <CurrencySwitcher />
-      <LanguageSwitcher />
+
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        <ThemeToggle />
+        <CurrencySwitcher />
+        <LanguageSwitcher />
+      </div>
     </div>
   );
 }

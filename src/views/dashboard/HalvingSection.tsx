@@ -113,7 +113,13 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
         retryBusy={halvingState.isLoading}
         messages={stateMessages}
       >
-        <div className="overflow-hidden border border-border-subtle/90 bg-[radial-gradient(circle_at_top_left,rgba(242,143,45,0.1),rgba(242,143,45,0.015)_30%,transparent_55%),linear-gradient(180deg,rgba(15,13,12,0.985),rgba(11,10,9,0.985))] px-4 py-4 sm:px-6 sm:py-5">
+        <div
+          className="overflow-hidden border border-border-subtle/90 px-4 py-4 sm:px-6 sm:py-5"
+          style={{
+            background:
+              "radial-gradient(circle at top left, color-mix(in srgb, var(--token-color-accent-primary) 14%, transparent), color-mix(in srgb, var(--token-color-accent-primary) 2%, transparent) 30%, transparent 55%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 92%, black 8%), color-mix(in srgb, var(--token-color-bg-app) 94%, black 6%))",
+          }}
+        >
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <MetaText
@@ -140,7 +146,7 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
             </div>
 
             <div className="flex flex-col gap-3">
-              <div className="h-2.5 overflow-hidden rounded-full bg-white/8">
+              <div className="h-2.5 overflow-hidden rounded-full bg-border-subtle">
                 <div
                   className="h-full rounded-full bg-accent transition-[width] duration-500"
                   style={{
@@ -153,7 +159,7 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
               </div>
             </div>
 
-            <div className="grid gap-4 border-t border-white/6 pt-4 sm:grid-cols-2">
+            <div className="grid gap-4 border-t border-border-subtle/80 pt-4 sm:grid-cols-2">
               <HalvingMetaStat
                 label={copy.currentBlockLabel}
                 value={

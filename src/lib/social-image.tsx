@@ -26,8 +26,8 @@ export function createSocialImageResponse({ eyebrow, footer, summary, title }: S
         justifyContent: "space-between",
         padding: "56px",
         background:
-          "radial-gradient(circle at top right, #f59e0b 0, rgba(245, 158, 11, 0.18) 28%, transparent 54%), linear-gradient(135deg, #101828 0%, #172554 55%, #0f172a 100%)",
-        color: "#f8fafc",
+          "radial-gradient(circle at top right, #ff7a1a 0, rgba(255, 122, 26, 0.2) 28%, transparent 54%), linear-gradient(135deg, #09131c 0%, #102332 56%, #0c1a25 100%)",
+        color: "#eaf4ff",
         fontFamily: "sans-serif",
       }}
     >
@@ -53,8 +53,8 @@ export function createSocialImageResponse({ eyebrow, footer, summary, title }: S
               width: "18px",
               height: "18px",
               borderRadius: "999px",
-              backgroundColor: "#f59e0b",
-              boxShadow: "0 0 32px rgba(245, 158, 11, 0.45)",
+              backgroundColor: "#ff7a1a",
+              boxShadow: "0 0 32px rgba(255, 122, 26, 0.45)",
             }}
           />
           <span>{SITE_NAME}</span>
@@ -66,8 +66,8 @@ export function createSocialImageResponse({ eyebrow, footer, summary, title }: S
             border: "1px solid rgba(255, 255, 255, 0.18)",
             borderRadius: "999px",
             padding: "10px 18px",
-            backgroundColor: "rgba(15, 23, 42, 0.35)",
-            color: "#cbd5e1",
+            backgroundColor: "rgba(8, 19, 28, 0.45)",
+            color: "#b4c7d8",
             fontSize: "22px",
           }}
         >
@@ -83,7 +83,7 @@ export function createSocialImageResponse({ eyebrow, footer, summary, title }: S
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.22em",
-            color: "#f59e0b",
+            color: "#ff7a1a",
           }}
         >
           {eyebrow}
@@ -104,7 +104,7 @@ export function createSocialImageResponse({ eyebrow, footer, summary, title }: S
             display: "flex",
             fontSize: "30px",
             lineHeight: 1.35,
-            color: "#cbd5e1",
+            color: "#b4c7d8",
           }}
         >
           {summary}
@@ -116,7 +116,7 @@ export function createSocialImageResponse({ eyebrow, footer, summary, title }: S
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          color: "#94a3b8",
+          color: "#6f8697",
           fontSize: "24px",
         }}
       >

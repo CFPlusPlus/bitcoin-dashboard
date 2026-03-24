@@ -1,28 +1,29 @@
-:root {
+:root,
+:root[data-theme="dark"] {
   color-scheme: dark;
 
-  --token-color-bg-app: #111111;
-  --token-color-bg-surface: #171717;
-  --token-color-bg-elevated: #1c1c1c;
-  --token-color-bg-muted: #141414;
+  --token-color-bg-app: #08131c;
+  --token-color-bg-surface: #0d1a25;
+  --token-color-bg-elevated: #132331;
+  --token-color-bg-muted: #0a1620;
 
-  --token-color-text-primary: #f3eee6;
-  --token-color-text-secondary: #d1c8bb;
-  --token-color-text-muted: #978f84;
-  --token-color-text-inverse: #111213;
+  --token-color-text-primary: #eaf4ff;
+  --token-color-text-secondary: #b4c7d8;
+  --token-color-text-muted: #73879a;
+  --token-color-text-inverse: #08131c;
 
-  --token-color-accent-primary: #f28f2d;
-  --token-color-accent-soft: rgb(242 143 45 / 12%);
-  --token-color-accent-strong: #ffb25a;
+  --token-color-accent-primary: #ff7a1a;
+  --token-color-accent-soft: rgb(255 122 26 / 14%);
+  --token-color-accent-strong: #ff9b4d;
 
-  --token-color-success: #63b68d;
-  --token-color-warning: #d6a15b;
-  --token-color-danger: #db7a72;
-  --token-color-info: #78addb;
+  --token-color-success: #1fc98a;
+  --token-color-warning: #ffbe3d;
+  --token-color-danger: #ff667a;
+  --token-color-info: #4fa8ff;
 
-  --token-color-border-subtle: rgb(255 245 232 / 5%);
-  --token-color-border-default: rgb(255 245 232 / 9%);
-  --token-color-border-strong: rgb(242 143 45 / 28%);
+  --token-color-border-subtle: rgb(210 229 244 / 7%);
+  --token-color-border-default: rgb(210 229 244 / 13%);
+  --token-color-border-strong: rgb(255 122 26 / 34%);
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -48,15 +49,15 @@
   --motion-slow: 280ms;
   --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --state-loading-bg: rgb(255 245 232 / 3%);
+  --state-loading-bg: rgb(210 229 244 / 4%);
   --state-loading-fg: var(--token-color-accent-primary);
-  --state-empty-bg: rgb(255 245 232 / 2%);
+  --state-empty-bg: rgb(210 229 244 / 3%);
   --state-empty-fg: var(--token-color-text-secondary);
-  --state-partial-bg: rgb(120 173 219 / 10%);
+  --state-partial-bg: rgb(79 168 255 / 11%);
   --state-partial-fg: var(--token-color-info);
-  --state-error-bg: rgb(219 122 114 / 10%);
-  --state-error-fg: #ffd5d0;
-  --state-stale-bg: rgb(214 161 91 / 10%);
+  --state-error-bg: rgb(255 102 122 / 12%);
+  --state-error-fg: #ffd8df;
+  --state-stale-bg: rgb(255 190 61 / 12%);
   --state-stale-fg: var(--token-color-warning);
 
   --token-font-family-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
@@ -70,4 +71,74 @@
   --container-padding-x: 1rem;
   --section-gap: 1.25rem;
   --grid-gap: 0.875rem;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --token-color-bg-app: #eff5fa;
+  --token-color-bg-surface: #ffffff;
+  --token-color-bg-elevated: #e5eef6;
+  --token-color-bg-muted: #dbe6ef;
+
+  --token-color-text-primary: #10202d;
+  --token-color-text-secondary: #42586a;
+  --token-color-text-muted: #6e8396;
+  --token-color-text-inverse: #f4f9fc;
+
+  --token-color-accent-primary: #e46000;
+  --token-color-accent-soft: rgb(228 96 0 / 12%);
+  --token-color-accent-strong: #ff8f3d;
+
+  --token-color-success: #0f9362;
+  --token-color-warning: #ad7700;
+  --token-color-danger: #c73d55;
+  --token-color-info: #0d79ca;
+
+  --token-color-border-subtle: rgb(16 32 45 / 8%);
+  --token-color-border-default: rgb(16 32 45 / 14%);
+  --token-color-border-strong: rgb(228 96 0 / 28%);
+
+  --state-loading-bg: rgb(16 32 45 / 4%);
+  --state-empty-bg: rgb(16 32 45 / 3%);
+  --state-partial-bg: rgb(13 121 202 / 10%);
+  --state-error-bg: rgb(199 61 85 / 10%);
+  --state-error-fg: #8b1f33;
+  --state-stale-bg: rgb(173 119 0 / 10%);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+
+    --token-color-bg-app: #eff5fa;
+    --token-color-bg-surface: #ffffff;
+    --token-color-bg-elevated: #e5eef6;
+    --token-color-bg-muted: #dbe6ef;
+
+    --token-color-text-primary: #10202d;
+    --token-color-text-secondary: #42586a;
+    --token-color-text-muted: #6e8396;
+    --token-color-text-inverse: #f4f9fc;
+
+    --token-color-accent-primary: #e46000;
+    --token-color-accent-soft: rgb(228 96 0 / 12%);
+    --token-color-accent-strong: #ff8f3d;
+
+    --token-color-success: #0f9362;
+    --token-color-warning: #ad7700;
+    --token-color-danger: #c73d55;
+    --token-color-info: #0d79ca;
+
+    --token-color-border-subtle: rgb(16 32 45 / 8%);
+    --token-color-border-default: rgb(16 32 45 / 14%);
+    --token-color-border-strong: rgb(228 96 0 / 28%);
+
+    --state-loading-bg: rgb(16 32 45 / 4%);
+    --state-empty-bg: rgb(16 32 45 / 3%);
+    --state-partial-bg: rgb(13 121 202 / 10%);
+    --state-error-bg: rgb(199 61 85 / 10%);
+    --state-error-fg: #8b1f33;
+    --state-stale-bg: rgb(173 119 0 / 10%);
+  }
 }

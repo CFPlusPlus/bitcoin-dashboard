@@ -22,7 +22,13 @@ export default function SiteFooter({ locale, messages }: SiteFooterProps) {
   const [taglineLead, ...taglineRest] = messages.tagline.split(" ");
 
   return (
-    <footer className="mt-10 border-t border-border-default/80 bg-[linear-gradient(180deg,rgba(242,143,45,0.06)_0%,rgba(17,17,17,0)_100%),var(--token-color-bg-muted)]">
+    <footer
+      className="mt-10 border-t border-border-default/80"
+      style={{
+        background:
+          "linear-gradient(180deg, color-mix(in srgb, var(--token-color-accent-primary) 7%, transparent) 0%, transparent 100%), var(--token-color-bg-muted)",
+      }}
+    >
       <div className="mx-auto grid w-full max-w-[var(--container-max-width)] gap-8 px-[var(--container-padding-x)] py-8 sm:grid-cols-[minmax(0,1.4fr)_minmax(14rem,0.9fr)] sm:py-10">
         <div className="space-y-3">
           <p className="font-mono text-[0.68rem] uppercase tracking-[0.28em] text-accent">

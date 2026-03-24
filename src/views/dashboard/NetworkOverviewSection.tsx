@@ -283,7 +283,7 @@ function Sparkline({
       </svg>
       {activeHoveredPoint ? (
         <div
-          className="pointer-events-none absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent bg-[#17120d]"
+          className="pointer-events-none absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent bg-app"
           style={{
             left: `${markerLeftPercent}%`,
             top: `${markerTopPercent}%`,
@@ -292,7 +292,7 @@ function Sparkline({
       ) : null}
       {activeHoveredPoint ? (
         <div
-          className="pointer-events-none absolute -translate-x-1/2 rounded-[6px] border border-accent/25 bg-[#110d0a] px-2 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.28)]"
+          className="pointer-events-none absolute -translate-x-1/2 rounded-[6px] border border-accent/25 bg-app px-2 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.28)]"
           style={{
             left: `${tooltipLeftPercent}%`,
             top: `${tooltipTopPercent}%`,
@@ -321,9 +321,13 @@ function NetworkPanel({
   return (
     <div
       className={cn(
-        "flex h-full min-h-[18rem] flex-col gap-4 border border-border-subtle bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] px-4 py-4 sm:px-5 sm:py-5",
+        "flex h-full min-h-[18rem] flex-col gap-4 border border-border-subtle px-4 py-4 sm:px-5 sm:py-5",
         className
       )}
+      style={{
+        background:
+          "linear-gradient(180deg, color-mix(in srgb, var(--token-color-text-primary) 3%, transparent), color-mix(in srgb, var(--token-color-text-primary) 1%, transparent))",
+      }}
     >
       <MetaText size="xs" className="font-mono uppercase tracking-[0.24em]">
         {title}
@@ -457,7 +461,11 @@ function RecentBlockTile({
       href={blockUrl}
       target="_blank"
       rel="noreferrer"
-      className="min-w-0 border border-border-subtle/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.025),rgba(255,255,255,0.01))] px-3 py-3 transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent/45 hover:bg-[linear-gradient(180deg,rgba(242,143,45,0.06),rgba(255,255,255,0.01))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+      className="min-w-0 border border-border-subtle/80 px-3 py-3 transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+      style={{
+        background:
+          "linear-gradient(180deg, color-mix(in srgb, var(--token-color-text-primary) 2.5%, transparent), color-mix(in srgb, var(--token-color-text-primary) 1%, transparent))",
+      }}
     >
       <div className="flex h-full flex-col items-center justify-between gap-2 text-center">
         <div className="space-y-1">

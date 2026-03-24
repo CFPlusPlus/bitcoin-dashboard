@@ -54,9 +54,9 @@ Prefer the existing shared UI primitives when possible:
 
 The current styling system aims for:
 
-- calm, dark surfaces
+- calm, high-contrast surfaces across dark and light system themes
 - clear structure through borders more than shadow
-- orange as a controlled accent
+- signal orange as a controlled accent inside a cooler obsidian-and-ice palette
 - expressive but disciplined typography
 - readable data presentation on both desktop and mobile
 

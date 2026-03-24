@@ -12,7 +12,7 @@ export const buttonVariants = cva(
       },
       intent: {
         primary:
-          "border-accent/60 bg-accent text-[#17120d] hover:border-accent-strong hover:bg-accent-strong",
+          "border-accent/60 bg-accent text-fg-inverse hover:border-accent-strong hover:bg-accent-strong",
         secondary:
           "border-border-default bg-transparent text-fg-secondary hover:border-accent/40 hover:bg-accent-soft hover:text-fg",
         ghost:

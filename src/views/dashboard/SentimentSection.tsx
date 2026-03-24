@@ -221,18 +221,26 @@ export default function SentimentSection({
                       y2="0"
                       gradientUnits="userSpaceOnUse"
                     >
-                      <stop offset="0%" stopColor="#e48779" />
-                      <stop offset="22%" stopColor="#db8f72" />
-                      <stop offset="42%" stopColor="#e5a051" />
-                      <stop offset="58%" stopColor="#d8b35d" />
-                      <stop offset="76%" stopColor="#8fbd80" />
-                      <stop offset="100%" stopColor="#78c79c" />
+                      <stop offset="0%" stopColor="var(--token-color-danger)" />
+                      <stop
+                        offset="28%"
+                        stopColor="color-mix(in srgb, var(--token-color-danger) 62%, var(--token-color-accent-primary) 38%)"
+                      />
+                      <stop
+                        offset="52%"
+                        stopColor="color-mix(in srgb, var(--token-color-accent-primary) 58%, var(--token-color-warning) 42%)"
+                      />
+                      <stop
+                        offset="76%"
+                        stopColor="color-mix(in srgb, var(--token-color-success) 52%, var(--token-color-warning) 48%)"
+                      />
+                      <stop offset="100%" stopColor="var(--token-color-success)" />
                     </linearGradient>
                   </defs>
                   <path
                     d={describeArc(160, 176, 128, 180, 360)}
                     fill="none"
-                    stroke="rgb(255 245 232 / 9%)"
+                    stroke="color-mix(in srgb, var(--token-color-text-primary) 9%, transparent)"
                     strokeWidth="18"
                     strokeLinecap="round"
                   />

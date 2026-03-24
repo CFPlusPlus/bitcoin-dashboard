@@ -172,6 +172,16 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(2)} ${baseY.toFixed(2)} Z`;
   const rangeLabel = getRangeLabel(range, locale, copy);
   const activeHoveredPoint = hoveredIndex === null ? null : (hoverablePoints[hoveredIndex] ?? null);
+  const areaFill = "color-mix(in srgb, var(--token-color-accent-primary) 14%, transparent)";
+  const lineStroke = "var(--token-color-accent-primary)";
+  const lineGlow = "color-mix(in srgb, var(--token-color-accent-strong) 52%, transparent)";
+  const axisStroke = "color-mix(in srgb, var(--token-color-text-primary) 10%, transparent)";
+  const gridStroke = "color-mix(in srgb, var(--token-color-text-primary) 5%, transparent)";
+  const axisLabelFill = "var(--token-color-text-muted)";
+  const tooltipFill = "color-mix(in srgb, var(--token-color-bg-app) 90%, black)";
+  const tooltipStroke = "color-mix(in srgb, var(--token-color-accent-primary) 24%, transparent)";
+  const pointFill = "var(--token-color-bg-app)";
+  const pointInner = "var(--token-color-accent-strong)";
   const tooltipValueLabel = activeHoveredPoint
     ? formatCurrency(activeHoveredPoint.price, currency, locale)
     : "";
@@ -288,7 +298,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
             y1={baseY}
             x2={width - paddingX}
             y2={baseY}
-            stroke="rgb(255 245 232 / 0.1)"
+            stroke={axisStroke}
             strokeWidth="1"
           />
 
@@ -310,22 +320,22 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
                   y1={y}
                   x2={width - paddingX}
                   y2={y}
-                  stroke="rgb(255 245 232 / 0.05)"
+                  stroke={gridStroke}
                   strokeDasharray={item.dashed ? "6 10" : undefined}
                   strokeWidth="1"
                 />
-                <text x={6} y={y + 4} fill="#978f84" fontSize="13" textAnchor="start">
+                <text x={6} y={y + 4} fill={axisLabelFill} fontSize="13" textAnchor="start">
                   {item.label}
                 </text>
               </g>
             );
           })}
 
-          <path d={areaPath} fill="rgba(242, 143, 45, 0.12)" />
+          <path d={areaPath} fill={areaFill} />
           <path
             d={linePath}
             fill="none"
-            stroke="#f28f2d"
+            stroke={lineStroke}
             strokeWidth="1"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -333,7 +343,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           <path
             d={linePath}
             fill="none"
-            stroke="rgba(255, 178, 90, 0.55)"
+            stroke={lineGlow}
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -345,7 +355,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
                 y1={paddingY}
                 x2={activeHoveredPoint.x}
                 y2={baseY}
-                stroke="rgba(242, 143, 45, 0.24)"
+                stroke={tooltipStroke}
                 strokeDasharray="5 7"
                 strokeWidth="1"
               />
@@ -353,15 +363,27 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
                 cx={activeHoveredPoint.x}
                 cy={activeHoveredPoint.y}
                 r="6"
-                fill="#17120d"
-                stroke="#f28f2d"
+                fill={pointFill}
+                stroke={lineStroke}
                 strokeWidth="2"
               />
-              <circle cx={activeHoveredPoint.x} cy={activeHoveredPoint.y} r="2.5" fill="#f6b05d" />
+              <circle
+                cx={activeHoveredPoint.x}
+                cy={activeHoveredPoint.y}
+                r="2.5"
+                fill={pointInner}
+              />
             </>
           ) : null}
-          <circle cx={lastX} cy={lastY} r="5" fill="#17120d" stroke="#f28f2d" strokeWidth="2" />
-          <circle cx={lastX} cy={lastY} r="2.5" fill="#f28f2d" />
+          <circle
+            cx={lastX}
+            cy={lastY}
+            r="5"
+            fill={pointFill}
+            stroke={lineStroke}
+            strokeWidth="2"
+          />
+          <circle cx={lastX} cy={lastY} r="2.5" fill={lineStroke} />
           <rect
             x={paddingX}
             y={paddingY}
@@ -380,31 +402,42 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
                 width={tooltipWidth}
                 height={tooltipHeight}
                 rx="6"
-                fill="#110d0a"
-                stroke="rgba(242, 143, 45, 0.24)"
+                fill={tooltipFill}
+                stroke={tooltipStroke}
               />
               <text
                 x={tooltipX + 10}
                 y={tooltipY + 18}
-                fill="#f7efe5"
+                fill="var(--token-color-text-primary)"
                 fontSize="13"
                 fontWeight="600"
               >
                 {tooltipValueLabel}
               </text>
-              <text x={tooltipX + 10} y={tooltipY + 33} fill="#9f968b" fontSize="11.5">
+              <text
+                x={tooltipX + 10}
+                y={tooltipY + 33}
+                fill="var(--token-color-text-muted)"
+                fontSize="11.5"
+              >
                 {tooltipDateLabel}
               </text>
             </g>
           ) : null}
 
-          <text x={paddingX} y={height - 2} fill="#978f84" fontSize="13" textAnchor="start">
+          <text x={paddingX} y={height - 2} fill={axisLabelFill} fontSize="13" textAnchor="start">
             {formatAxisLabel(firstPoint.timestamp, range, locale)}
           </text>
-          <text x={width / 2} y={height - 2} fill="#978f84" fontSize="13" textAnchor="middle">
+          <text x={width / 2} y={height - 2} fill={axisLabelFill} fontSize="13" textAnchor="middle">
             {formatAxisLabel(middlePoint.timestamp, range, locale)}
           </text>
-          <text x={width - paddingX} y={height - 2} fill="#978f84" fontSize="13" textAnchor="end">
+          <text
+            x={width - paddingX}
+            y={height - 2}
+            fill={axisLabelFill}
+            fontSize="13"
+            textAnchor="end"
+          >
             {formatAxisLabel(latestPoint.timestamp, range, locale)}
           </text>
         </svg>

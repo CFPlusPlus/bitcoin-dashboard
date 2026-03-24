@@ -6,6 +6,7 @@ import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import { SITE_NAME, metadataBase } from "../lib/seo";
 import { DEFAULT_LOCALE, localeMeta } from "../i18n/config";
+import { getThemeInitScript } from "../lib/theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang={localeMeta[DEFAULT_LOCALE].bcp47} suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/manifest.webmanifest" crossOrigin="use-credentials" />
+        <script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />
       </head>
       <body className="min-h-screen bg-app text-fg antialiased">{children}</body>
     </html>
