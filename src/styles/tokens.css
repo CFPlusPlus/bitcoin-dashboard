@@ -2,28 +2,28 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --token-color-bg-app: #08131c;
-  --token-color-bg-surface: #0d1a25;
-  --token-color-bg-elevated: #132331;
-  --token-color-bg-muted: #0a1620;
+  --token-color-bg-app: #080b0f;
+  --token-color-bg-surface: #10151b;
+  --token-color-bg-elevated: #171d24;
+  --token-color-bg-muted: #0c1015;
 
-  --token-color-text-primary: #eaf4ff;
-  --token-color-text-secondary: #b4c7d8;
-  --token-color-text-muted: #73879a;
-  --token-color-text-inverse: #08131c;
+  --token-color-text-primary: #edf2f7;
+  --token-color-text-secondary: #afbac5;
+  --token-color-text-muted: #737e8a;
+  --token-color-text-inverse: #080b0f;
 
-  --token-color-accent-primary: #ff7a1a;
-  --token-color-accent-soft: rgb(255 122 26 / 14%);
-  --token-color-accent-strong: #ff9b4d;
+  --token-color-accent-primary: #f7931a;
+  --token-color-accent-soft: rgb(247 147 26 / 12%);
+  --token-color-accent-strong: #ffb14d;
 
-  --token-color-success: #1fc98a;
-  --token-color-warning: #ffbe3d;
-  --token-color-danger: #ff667a;
-  --token-color-info: #4fa8ff;
+  --token-color-success: #4d9575;
+  --token-color-warning: #d3a14a;
+  --token-color-danger: #c9737c;
+  --token-color-info: #7393b4;
 
-  --token-color-border-subtle: rgb(210 229 244 / 7%);
-  --token-color-border-default: rgb(210 229 244 / 13%);
-  --token-color-border-strong: rgb(255 122 26 / 34%);
+  --token-color-border-subtle: rgb(237 242 247 / 6%);
+  --token-color-border-default: rgb(237 242 247 / 11%);
+  --token-color-border-strong: rgb(247 147 26 / 32%);
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -49,15 +49,15 @@
   --motion-slow: 280ms;
   --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
 
-  --state-loading-bg: rgb(210 229 244 / 4%);
+  --state-loading-bg: rgb(237 242 247 / 4%);
   --state-loading-fg: var(--token-color-accent-primary);
-  --state-empty-bg: rgb(210 229 244 / 3%);
+  --state-empty-bg: rgb(237 242 247 / 3%);
   --state-empty-fg: var(--token-color-text-secondary);
-  --state-partial-bg: rgb(79 168 255 / 11%);
+  --state-partial-bg: rgb(115 147 180 / 10%);
   --state-partial-fg: var(--token-color-info);
-  --state-error-bg: rgb(255 102 122 / 12%);
-  --state-error-fg: #ffd8df;
-  --state-stale-bg: rgb(255 190 61 / 12%);
+  --state-error-bg: rgb(201 115 124 / 10%);
+  --state-error-fg: #f6d9dd;
+  --state-stale-bg: rgb(211 161 74 / 10%);
   --state-stale-fg: var(--token-color-warning);
 
   --token-font-family-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
@@ -76,69 +76,69 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --token-color-bg-app: #eff5fa;
+  --token-color-bg-app: #f4f7f9;
   --token-color-bg-surface: #ffffff;
-  --token-color-bg-elevated: #e5eef6;
-  --token-color-bg-muted: #dbe6ef;
+  --token-color-bg-elevated: #edf2f5;
+  --token-color-bg-muted: #e4ebf0;
 
-  --token-color-text-primary: #10202d;
-  --token-color-text-secondary: #42586a;
-  --token-color-text-muted: #6e8396;
-  --token-color-text-inverse: #f4f9fc;
+  --token-color-text-primary: #121921;
+  --token-color-text-secondary: #4b5967;
+  --token-color-text-muted: #73808d;
+  --token-color-text-inverse: #f7fafc;
 
-  --token-color-accent-primary: #e46000;
-  --token-color-accent-soft: rgb(228 96 0 / 12%);
-  --token-color-accent-strong: #ff8f3d;
+  --token-color-accent-primary: #ef8f1a;
+  --token-color-accent-soft: rgb(239 143 26 / 10%);
+  --token-color-accent-strong: #ffab45;
 
-  --token-color-success: #0f9362;
-  --token-color-warning: #ad7700;
-  --token-color-danger: #c73d55;
-  --token-color-info: #0d79ca;
+  --token-color-success: #3f8468;
+  --token-color-warning: #b38334;
+  --token-color-danger: #b3626a;
+  --token-color-info: #5f7fa0;
 
-  --token-color-border-subtle: rgb(16 32 45 / 8%);
-  --token-color-border-default: rgb(16 32 45 / 14%);
-  --token-color-border-strong: rgb(228 96 0 / 28%);
+  --token-color-border-subtle: rgb(18 25 33 / 7%);
+  --token-color-border-default: rgb(18 25 33 / 12%);
+  --token-color-border-strong: rgb(239 143 26 / 26%);
 
-  --state-loading-bg: rgb(16 32 45 / 4%);
-  --state-empty-bg: rgb(16 32 45 / 3%);
-  --state-partial-bg: rgb(13 121 202 / 10%);
-  --state-error-bg: rgb(199 61 85 / 10%);
-  --state-error-fg: #8b1f33;
-  --state-stale-bg: rgb(173 119 0 / 10%);
+  --state-loading-bg: rgb(18 25 33 / 4%);
+  --state-empty-bg: rgb(18 25 33 / 3%);
+  --state-partial-bg: rgb(95 127 160 / 10%);
+  --state-error-bg: rgb(179 98 106 / 10%);
+  --state-error-fg: #7d2f38;
+  --state-stale-bg: rgb(179 131 52 / 10%);
 }
 
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
     color-scheme: light;
 
-    --token-color-bg-app: #eff5fa;
+    --token-color-bg-app: #f4f7f9;
     --token-color-bg-surface: #ffffff;
-    --token-color-bg-elevated: #e5eef6;
-    --token-color-bg-muted: #dbe6ef;
+    --token-color-bg-elevated: #edf2f5;
+    --token-color-bg-muted: #e4ebf0;
 
-    --token-color-text-primary: #10202d;
-    --token-color-text-secondary: #42586a;
-    --token-color-text-muted: #6e8396;
-    --token-color-text-inverse: #f4f9fc;
+    --token-color-text-primary: #121921;
+    --token-color-text-secondary: #4b5967;
+    --token-color-text-muted: #73808d;
+    --token-color-text-inverse: #f7fafc;
 
-    --token-color-accent-primary: #e46000;
-    --token-color-accent-soft: rgb(228 96 0 / 12%);
-    --token-color-accent-strong: #ff8f3d;
+    --token-color-accent-primary: #ef8f1a;
+    --token-color-accent-soft: rgb(239 143 26 / 10%);
+    --token-color-accent-strong: #ffab45;
 
-    --token-color-success: #0f9362;
-    --token-color-warning: #ad7700;
-    --token-color-danger: #c73d55;
-    --token-color-info: #0d79ca;
+    --token-color-success: #3f8468;
+    --token-color-warning: #b38334;
+    --token-color-danger: #b3626a;
+    --token-color-info: #5f7fa0;
 
-    --token-color-border-subtle: rgb(16 32 45 / 8%);
-    --token-color-border-default: rgb(16 32 45 / 14%);
-    --token-color-border-strong: rgb(228 96 0 / 28%);
+    --token-color-border-subtle: rgb(18 25 33 / 7%);
+    --token-color-border-default: rgb(18 25 33 / 12%);
+    --token-color-border-strong: rgb(239 143 26 / 26%);
 
-    --state-loading-bg: rgb(16 32 45 / 4%);
-    --state-empty-bg: rgb(16 32 45 / 3%);
-    --state-partial-bg: rgb(13 121 202 / 10%);
-    --state-error-bg: rgb(199 61 85 / 10%);
-    --state-error-fg: #8b1f33;
-    --state-stale-bg: rgb(173 119 0 / 10%);
+    --state-loading-bg: rgb(18 25 33 / 4%);
+    --state-empty-bg: rgb(18 25 33 / 3%);
+    --state-partial-bg: rgb(95 127 160 / 10%);
+    --state-error-bg: rgb(179 98 106 / 10%);
+    --state-error-fg: #7d2f38;
+    --state-stale-bg: rgb(179 131 52 / 10%);
   }
 }
