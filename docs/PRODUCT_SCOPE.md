@@ -1,167 +1,134 @@
-# Product Scope: Bitcoin Dashboard V1
+# Product Scope: Current V1
 
-## Product vision
+## Product Definition
 
-### What the Bitcoin Dashboard is
+Bitcoin Dashboard is a Bitcoin-only web application for checking market conditions, network state, sentiment, and a small set of practical tools in one place.
 
-The Bitcoin Dashboard is a focused web application for viewing essential Bitcoin market, chart, network, and sentiment information in one place, with a small set of practical Bitcoin-specific tools.
+The current product is intentionally narrow:
 
-### What problem it solves
+- Bitcoin only
+- public and unauthenticated
+- data-first rather than social or portfolio-driven
+- focused on quick orientation plus a small tool surface
 
-Bitcoin information is often split across multiple sites, each optimized for a single use case such as price tracking, charting, mempool data, or sentiment. This product reduces that fragmentation by giving users a fast, single-purpose dashboard for everyday Bitcoin monitoring and simple decision support.
+## Current User Value
 
-### Why a user would choose it
+The product helps users:
 
-A user should choose the Bitcoin Dashboard when they want:
+- understand the current Bitcoin picture without jumping between multiple sites
+- read market direction, performance, and sentiment quickly
+- add network and on-chain context when needed
+- use a focused calculator without creating an account
 
-- a Bitcoin-only experience instead of a broad crypto platform
-- a quick overview of price, market, network, and sentiment signals
-- lightweight tools without account creation or setup friction
-- a clear, mobile-friendly interface for repeat daily use
+## Current Audience
 
-## Target audience
+Primary audience:
 
-### Primary audience
+- Bitcoin users who want a calm, reliable daily dashboard
 
-Retail Bitcoin users who want a simple, reliable way to check the current Bitcoin market situation and use a small set of supporting tools.
+Secondary audience:
 
-### Secondary audience
+- beginners who want a simpler entry point than full trading platforms
+- regular Bitcoin followers who want one place for market, sentiment, and network context
+- DCA users who want a lightweight calculator instead of portfolio software
 
-- Bitcoin beginners who want an easier entry point than advanced trading platforms
-- regular Bitcoin followers who want a cleaner overview than switching between multiple sources
-- content consumers, hobby investors, and DCA users who check Bitcoin frequently but do not need portfolio software
+## Current V1 Scope
 
-### Expected usage patterns
+### Dashboard
 
-Expected V1 usage is lightweight and recurring:
+The home route is the product center. It currently includes:
 
-- users open the dashboard to check the latest BTC price, recent trend, network state, and sentiment
-- users switch chart ranges and currency display for quick context
-- users visit the tools area when they want to calculate DCA-related values
-- users return multiple times per day or week rather than spending long continuous sessions in the app
+- overview metrics for price and market structure
+- performance context for multiple windows
+- a price chart with short-range switching
+- sentiment context via Fear & Greed
+- market-context charts for market cap and volume
+- on-chain activity context
+- network and fee context
+- halving countdown context
+- a preview entry point into the tools area
 
-## V1 goals
+### Tools
 
-The first stable version must:
+The tools section currently includes:
 
-- provide a dependable Bitcoin overview page with current market, chart, network, and sentiment data
-- include a working tools section with at least one complete utility: the DCA calculator
-- work well on desktop and mobile without requiring authentication
-- make core data understandable at a glance with low interaction cost
-- be narrow in scope, with clear refusal of unrelated platform features
+- a tools overview page
+- a DCA calculator as the first supported utility
 
-## V1 feature scope
+The DCA calculator currently supports:
 
-### Dashboard overview
+- entering dated purchase rows
+- calculating total invested amount, BTC amount, average buy price, current value, and PnL
+- comparing entries against the current BTC market price
+- storing entries locally on the current device
 
-V1 includes a homepage that acts as the main entry point for the product. It must present the most relevant Bitcoin information in a way that is immediately useful without onboarding or configuration.
+### Localization
 
-### Data cards
+The public product currently supports:
 
-V1 dashboard data cards must cover the core snapshot metrics already supported by the app, including:
+- German (`de`)
+- English (`en`)
 
-- BTC price
-- 24h change
-- market cap
-- 24h volume
-- 24h high and low
-- latest block height
-- recommended network fees
+Locale-prefixed routing is part of the shipped product behavior.
 
-These cards should support quick scanning and basic state handling for loading, refresh, and unavailable data.
+### SEO And Discoverability
 
-### Charting
+The current V1 product already includes:
 
-V1 includes Bitcoin price chart views for short and medium-range inspection. The scope is:
+- localized page metadata
+- canonical and alternate locale metadata
+- Open Graph and X images
+- JSON-LD structured data for key public pages
 
-- BTC-only chart data
-- range switching for supported periods already in the product
-- currency-aware chart display where supported by the dashboard
-- simple trend reading, not advanced technical analysis
+### Legal Pages
 
-Charting is included to support overview and context, not deep trading workflows.
+The product currently ships localized placeholder pages for:
 
-### Sentiment and network insights
+- imprint
+- privacy
 
-V1 includes lightweight insight sections for:
+These routes are present and indexable, but their content is still placeholder content.
 
-- Bitcoin network status
-- fee conditions
-- market sentiment indicators such as Fear & Greed
+## Product Boundaries
 
-These insights should help users interpret current conditions, but they are informational only and should not attempt to act as trading advice or predictive analytics.
+The current V1 product is not:
 
-### Tools section
+- a portfolio tracker
+- an account-based product
+- a watchlist or alerting system
+- a multi-asset crypto platform
+- a trading terminal
+- an admin or back-office system
 
-V1 includes a dedicated tools area that organizes practical Bitcoin utilities separate from the main dashboard. For V1, this section does not need a broad tool catalog, but it must provide a stable home for included tools and make their scope obvious.
+## Current Non-Goals
 
-### DCA calculator
+The following remain out of scope for V1:
 
-The DCA calculator is part of V1 and is the first fully supported tool. V1 scope for this tool includes:
+- user authentication
+- saved cloud profiles
+- holdings or portfolio tracking
+- notifications or automation
+- non-Bitcoin expansion as a primary product direction
+- advanced trading workflows or technical-analysis tooling
 
-- entering DCA purchase data
-- calculating average buy price and related summary metrics
-- using current BTC market data for context where applicable
-- local, device-level persistence if available in the current implementation
+## Scope Test For New Work
 
-The DCA calculator is a personal calculation tool, not a portfolio management system.
+A change fits the current product when it does at least one of these things:
 
-### Responsive behavior
+- improves the existing dashboard experience
+- strengthens the current DCA calculator or tools area
+- improves reliability, responsiveness, localization, or clarity of the existing V1 surface
+- improves deployment, caching, or operational quality without changing the product category
 
-V1 must be usable across modern desktop and mobile screen sizes. Responsive behavior in scope means:
+A change does not fit when it introduces:
 
-- core dashboard information remains readable on mobile
-- chart and card layouts adapt without breaking the information hierarchy
-- tools pages remain usable without requiring desktop-only interactions
+- identity/account systems
+- portfolio or long-term holdings management
+- alerting or automation systems
+- feature sprawl that weakens the Bitcoin-only focus
+- raw provider concepts leaking directly into the UI contract
 
-Responsive polish should prioritize clarity and function over animation or advanced layout behavior.
+## Decision Summary
 
-### Basic SEO expectations
+The current V1 scope is intentionally small but already concrete: a localized Bitcoin dashboard plus a focused tools area, shipped on Cloudflare Workers and designed around quick understanding rather than platform breadth.
 
-V1 should meet basic discoverability and page-quality expectations, including:
-
-- meaningful page titles and descriptions
-- indexable public pages
-- sensible semantic structure for main content
-- no requirement for advanced content marketing or programmatic SEO
-
-SEO in V1 is foundational, not a growth program.
-
-## Non-goals for V1
-
-The following are explicitly out of scope for V1:
-
-- portfolio tracking
-- user authentication or accounts
-- watchlists
-- alerts, push notifications, email notifications, or automation
-- expansion into a multi-asset or general crypto platform
-- admin dashboards or internal management systems
-
-Features that mainly support retained user identity, long-term account state, or broad platform expansion should be treated as out of scope unless this document is updated.
-
-## Success criteria
-
-V1 is successful if all of the following are true:
-
-- the dashboard clearly delivers Bitcoin market, chart, network, and sentiment overview in one place
-- the tools area exists and the DCA calculator is complete and usable
-- the application works reliably on common desktop and mobile sizes
-- the feature set remains intentionally narrow and does not drift into portfolio, account, or multi-asset functionality
-- a contributor can evaluate a proposed feature by asking whether it directly strengthens the Bitcoin overview or the small V1 toolset without expanding the product category
-
-## Scope test for future tickets
-
-A feature belongs in V1 only if it fits at least one of these conditions:
-
-- it improves the Bitcoin dashboard overview already defined above
-- it improves the DCA calculator or the small tools area without introducing account-based product complexity
-- it improves usability, responsiveness, reliability, or baseline discoverability of the existing V1 feature set
-
-A feature does not belong in V1 if it introduces:
-
-- user-specific account systems
-- ongoing tracking of holdings or portfolios
-- proactive monitoring or alerting
-- support for non-Bitcoin assets as a primary product direction
-- operational back-office functionality outside the public product

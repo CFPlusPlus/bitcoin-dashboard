@@ -1,246 +1,115 @@
-# UI Principles & Vision
+# UI Principles
 
 ## Purpose
 
-This document defines the design guardrails for the Bitcoin Dashboard.
-It does not describe the final visual design in full detail. Instead, it defines the principles that should guide layout, components, typography, states, and later redesign decisions.
+This document captures the current UI direction of the Bitcoin Dashboard. It is not a speculative design brief; it reflects the principles already visible in the shipped V1 product and should guide future UI changes.
 
----
+## Product Character
 
-## 1. Vision
+The product should read as:
 
-The Bitcoin Dashboard should feel like a modern, calm, and trustworthy Bitcoin information product — not like a trading casino.
-
-V1 is a focused Bitcoin information product:
-
-- with market overview
-- with selected Bitcoin metrics
-- with a small set of useful tools
-- with clear visual hierarchy
-- with clean responsive behavior
-
-The product is **not** a portfolio tracker, **not** a general crypto platform, and **not** a loud trading interface.
-
----
-
-## 2. Product Promise
-
-The site should allow users to understand the current Bitcoin situation within a few seconds and then go deeper into specific areas when needed.
-
-The experience should feel:
-
-- fast
-- trustworthy
+- Bitcoin-first
 - calm
-- high quality
-- technically clean
-- reliable
-
----
-
-## 3. Main Users
-
-### Primary audience
-
-- Bitcoin-interested end users
-- mixed experience level: beginners to more advanced users
-
-### Usage context
-
-- primarily a quick daily check
-- secondarily longer analysis sessions
-
-### Device focus
-
-- desktop-first in design
-- mobile-complete in usage
-- mobile must not be treated as a reduced secondary experience
-
----
-
-## 4. Core Principles
-
-### 4.1 Bitcoin-first
-
-The site is clearly focused on Bitcoin.
-No distractions from multi-coin logic, unnecessary market breadth, or features outside the core value proposition.
-
-### 4.2 Data-first, not decorative
-
-Data and orientation come first.
-Visual design should support the content, not overpower it.
-
-### 4.3 Scannable, not text-heavy
-
-The most important information must be easy to understand at a glance.
-Users should be able to find price, 24h change, chart, sentiment, and tool access without effort.
-
-### 4.4 Calm, not crowded
-
-The interface should be informative, but never hectic.
-Less visual friction, clearer grouping, and intentionally placed accents.
-
-### 4.5 Serious, not hype-crypto
-
-The product should feel factual, stable, and trustworthy.
-No meme aesthetics, no artificial market hype, no casino associations.
-
-### 4.6 A few strong components, not many one-offs
-
-The system should consist of reusable, consistent UI building blocks.
-Avoid visual fragmentation caused by too many custom patterns.
-
-### 4.7 Desktop-first, mobile-complete
-
-Desktop can be the main stage.
-Mobile must still preserve all core information and all important interactions.
-
-### 4.8 Character without noise
-
-The site should have a recognizable identity, but must not become loud.
-Character should come from typography, proportions, rhythm, materiality, and disciplined use of color.
-
----
-
-## 5. Anti-Goals
-
-The following should be explicitly avoided:
-
-- trading terminal / casino look
-- exaggerated neon or meme-crypto aesthetics
-- generic SaaS admin UI with no identity
-- overcrowded KPI walls
-- colorful and restless surfaces
-- playful-looking components
-- visual effects without functional value
-
----
-
-## 6. Visual Direction for V1
-
-### Style direction
-
-- dark
-- minimal
-- calm
+- serious
+- data-focused
 - modern
-- slightly premium-tech
-- neutral and factual, but still distinctive
-- flat surfaces, not glassy material effects
-- tighter radii, not soft bubble-like shapes
+- slightly premium
+- usable on desktop and mobile
 
-### Product character
+It should not read as:
 
-The product should feel more like a distinct premium Bitcoin product
-than like a generic dashboard template.
+- a trading casino
+- a meme-crypto product
+- a generic admin template
+- an overcrowded KPI wall
+- a playful dashboard with no point of view
 
----
+## Core Principles
 
-## 7. Typography Direction
+### Bitcoin-First
 
-### Text
+The product stays focused on Bitcoin. It should not drift toward a broad crypto-market identity.
 
-- sans-serif typeface for body copy and UI text
-- strong readability and technical cleanliness
+### Data-First
 
-### Accents
+Content comes before decoration. Visual styling should support reading and orientation.
 
-- serif typeface for selected headings or highlights
-- use sparingly, not everywhere
+### Fast Orientation
 
-### Numbers
+A user should understand the current Bitcoin picture within seconds.
 
-- technically precise number styling
-- values should feel stable, exact, and clear
-- suitable for price, percentages, and network metrics
+### Calm Density
 
----
+The UI can be information-rich, but not frantic. Grouping, spacing, and emphasis matter more than adding more cards.
 
-## 8. Color & Mood Direction
+### Reusable System
 
-### Base
+A small set of strong shared patterns is better than many disconnected one-offs.
 
-- dark mode as the starting point for V1
-- dark, calm surfaces
-- strong contrast without aggressive harshness
-- no gradients as a foundational surface treatment
+### Mobile-Complete
 
-### Accent
+Desktop may lead the composition, but mobile must preserve the product's full meaning and core actions.
 
-- orange as the central brand / signal accent color
-- use it sparingly and deliberately
-- not as dominant full-surface color, but as a focus color
+## Current Visual Direction
 
-### Materiality
+The current implementation expresses these decisions:
 
-- solid fills instead of translucent glass effects
-- borders should define structure more than shadows
-- surfaces should feel crisp and stable, not floating
+- dark-mode-first surfaces
+- orange as the main accent
+- warm text tones instead of stark monochrome contrast
+- tight radii and crisp surfaces
+- restrained shadows
+- serif accents paired with clean sans-serif UI text
+- mono treatment for many technical values and metrics
 
----
+## Motion Principles
 
-## 9. Motion Principles
+Motion should stay supportive.
 
-Animation is allowed, but only in a supportive role.
-
-### Allowed
+Allowed:
 
 - subtle hover reactions
 - soft transitions
-- discreet loading / refresh feedback
-- light entrance animations with functional value
+- refresh feedback
+- quiet state transitions
 
-### Not desired
+Avoid:
 
-- excessive motion
-- showcase animations without purpose
-- harsh, hectic, or gamified effects
+- constant motion
+- showpiece animation
+- gamified or noisy effects
 
----
+## State Principles
 
-## 10. Implementation Consequences
+Async states are part of the design system, not edge cases.
 
-These principles imply the following for implementation:
+The UI should:
 
-- shared design tokens instead of ad-hoc values
-- shared layout primitives instead of one-off solutions
-- consistent card and section patterns
-- unified loading / error / empty / partial / stale states
-- clear information hierarchy before visual polish
-- no new features that weaken the target direction
+- preserve useful content during refresh
+- communicate stale and partial states clearly
+- keep retry behavior calm and consistent
+- avoid dramatic failure language
 
----
+## Product Boundaries Reflected In UI
 
-## 11. Review Questions for Future UI Decisions
+The UI should keep reinforcing that this product is:
 
-Every new UI decision should be checked against these questions:
+- a dashboard for understanding Bitcoin
+- a small tools surface for practical calculations
+- not a portfolio manager
+- not a multi-asset product
+- not a trading terminal
 
-1. Does it improve fast understanding of the core data?
-2. Does it feel calm, serious, and trustworthy?
-3. Does it support Bitcoin-first instead of feature sprawl?
-4. Is it fully usable on mobile?
-5. Is it part of a system, or just a one-off solution?
-6. Does it add character without becoming loud or playful?
+## Review Questions
 
----
+Before shipping a UI change, check:
 
-## 12. Summary
+1. Does it improve understanding of the current Bitcoin picture?
+2. Does it fit the existing calm and serious tone?
+3. Does it reuse or strengthen the current component system?
+4. Does it remain usable on mobile?
+5. Does it keep the Bitcoin-only focus intact?
 
-The Bitcoin Dashboard should feel:
+## Decision Summary
 
-- calm
-- serious
-- modern
-- premium
-- data-focused
-- dark-mode-first
-- Bitcoin-first
-
-It should **not** feel:
-
-- loud
-- playful
-- neon-heavy
-- overcrowded
-- generic
-- casino-like
+The current UI direction is already clear in the codebase: calm, dark, typographic, Bitcoin-only, and intentionally more focused than broad crypto dashboards.

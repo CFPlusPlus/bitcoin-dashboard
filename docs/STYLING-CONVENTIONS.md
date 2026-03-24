@@ -1,36 +1,65 @@
-# Styling Conventions (V1)
+# Styling Conventions
 
 ## Purpose
 
-This document defines the practical styling rules for the V1 UI foundation.
+This document describes the styling conventions used by the current V1 codebase.
 
-## Rules
+## Current Styling Stack
 
-- Tailwind utilities are the default choice for component styling.
-- `src/app/globals.css` is reserved for app-wide base concerns only.
-- Legacy feature styling that has not been migrated yet lives outside `globals.css`.
-- Semantic tokens from `src/styles/tokens.css` should be used instead of repeating raw design values.
-- Shared primitives and helpers such as `cn()`, `Button`, and `Surface` should be preferred over one-off wrappers.
-- CSS Modules are allowed only when utility classes are a poor fit for the problem.
-- New UI code should not introduce fresh hard-coded color, radius, shadow, or motion values when an existing token or utility already covers the need.
+The app currently uses:
 
-## Token Scope
+- Tailwind CSS 4 for most component styling
+- `src/styles/tokens.css` for semantic design tokens
+- app-wide global styles in `src/app/globals.css`
+- targeted feature CSS in `src/styles/*.css` where the current implementation still needs it
 
-The current token layer covers:
+## Current Defaults
 
-- app, surface, elevated, and muted backgrounds
-- primary, secondary, muted, and inverse text
-- accent, success, warning, danger, and info roles
-- border roles
-- spacing scale
-- radius scale
-- shadow roles
-- motion timings
-- async state roles
-- font roles for sans, serif, and mono
+The default styling approach is:
 
-## Migration Approach
+- build layout and component styling with Tailwind utilities
+- use token-backed classes and CSS variables instead of repeating raw values
+- rely on shared primitives such as `Button`, `Surface`, layout components, and `cn()` before creating one-off wrappers
+- keep global CSS focused on app-wide concerns rather than page-specific styling
 
-- Migrate shared primitives first.
-- Keep proof migrations intentionally small.
-- Avoid mixing styling foundation work with data or API refactors.
+## Current Exceptions
+
+Some feature styling still lives outside utility-first component files.
+
+Current example:
+
+- the DCA calculator imports dedicated stylesheets for its layout and form presentation
+
+This is acceptable when the feature already exists in that form, but new shared UI should still prefer the token-plus-Tailwind path.
+
+## Token Usage Rules
+
+Contributors should currently:
+
+- use `src/styles/tokens.css` as the first stop for shared visual values
+- avoid introducing fresh hard-coded color, radius, shadow, or motion values when an existing token already covers the need
+- extend tokens only when the value is meaningfully reusable
+
+## Primitive Reuse Rules
+
+Prefer the existing shared UI primitives when possible:
+
+- `Button`
+- `Surface`
+- layout primitives under `src/components/ui/layout`
+- content primitives under `src/components/ui/content`
+- async-state primitives under `src/components/ui/data-state`
+
+## Current Visual Character
+
+The current styling system aims for:
+
+- calm, dark surfaces
+- clear structure through borders more than shadow
+- orange as a controlled accent
+- expressive but disciplined typography
+- readable data presentation on both desktop and mobile
+
+## Review Rule
+
+When adding or changing UI, the question is not only whether it looks fine in isolation, but whether it still feels like the same product system already present in the app.

@@ -866,20 +866,11 @@ export const dictionaries = {
           timeout: "Der Datendienst antwortet im Moment zu langsam. Bitte gleich erneut laden.",
           emptyResponse: "Der Datendienst liefert im Moment noch keine verwertbaren Angaben.",
         },
-        warningNormalization: {
-          usdDelayed:
-            "USD-Marktdaten kommen gerade verzögert an. Vorhandene Werte bleiben sichtbar.",
-          eurDelayed:
-            "EUR-Marktdaten kommen gerade verzögert an. Vorhandene Werte bleiben sichtbar.",
-          feeDelayed:
-            "Fee-Schätzungen werden gerade nicht vollständig erneuert. Vorhandene Werte bleiben sichtbar.",
-          blockHeightMissing:
-            "Die letzte Blockhöhe ist gerade nicht vollständig verfügbar. Vorhandene Angaben bleiben sichtbar.",
-          chartPointsMissing:
-            "Ein Teil der Chartpunkte fehlt im aktuellen Abruf. Der Verlauf bleibt trotzdem lesbar.",
-          sentimentUpdateMissing:
-            "Die Zeit bis zur nächsten Sentiment-Aktualisierung ist gerade nicht verfügbar.",
-          fallbackSuffix: "Verfügbare Daten bleiben sichtbar.",
+        persistentNotices: {
+          networkCriticalLoss:
+            "Wichtige Netzwerkdaten sind seit einigen Minuten nur eingeschränkt verfügbar. Vorhandene Kennzahlen bleiben sichtbar.",
+          networkUnavailable:
+            "Netzwerkdaten sind seit einigen Minuten nicht verlässlich verfügbar. Bitte später erneut laden.",
         },
         fallbacks: {
           overviewUnavailable: "Marktdaten sind gerade nicht verfügbar. Bitte später erneut laden.",
@@ -1850,18 +1841,11 @@ export const dictionaries = {
             "The data service is responding too slowly right now. Please try again in a moment.",
           emptyResponse: "The data service is currently not returning usable details.",
         },
-        warningNormalization: {
-          usdDelayed: "USD market data is arriving with a delay. Available values stay visible.",
-          eurDelayed: "EUR market data is arriving with a delay. Available values stay visible.",
-          feeDelayed:
-            "Fee estimates are not being fully refreshed right now. Available values stay visible.",
-          blockHeightMissing:
-            "The latest block height is not fully available right now. Available details stay visible.",
-          chartPointsMissing:
-            "Some chart points are missing in the current fetch. The chart remains readable.",
-          sentimentUpdateMissing:
-            "The time until the next sentiment update is not available right now.",
-          fallbackSuffix: "Available data stays visible.",
+        persistentNotices: {
+          networkCriticalLoss:
+            "Important network data has only been partially available for the last few minutes. Available metrics stay visible.",
+          networkUnavailable:
+            "Network data has not been reliably available for the last few minutes. Please try again later.",
         },
         fallbacks: {
           overviewUnavailable: "Market data is currently unavailable. Please try again later.",

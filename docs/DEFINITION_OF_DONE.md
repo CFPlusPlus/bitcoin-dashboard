@@ -2,96 +2,88 @@
 
 ## Purpose
 
-This document defines the minimum bar for considering implementation work complete in this repository.
+This document defines the minimum bar for considering work complete in this repository.
 
-It exists to keep future work consistent across human and AI-assisted contributions. A task is not done when code merely "works once." It is done when it meets the quality, architecture, and verification standards below.
+A task is not done when code only works in isolation. It is done when it fits the current architecture, preserves the V1 product boundaries, and is verified against the runtime model the project actually uses today.
 
-These standards apply to:
+## General Quality
 
-- new features
-- route or API changes
-- UI updates
-- refactors that change behavior or structure
+Every completed change should meet this baseline:
 
-## General quality
+- `npm run build` succeeds
+- `npm run lint` succeeds
+- type safety is preserved
+- existing behavior outside the intended scope is not regressed
+- the change respects the architectural boundaries documented in `docs/ARCHITECTURE.md`
+- no dead code, placeholders, or unexplained abstractions are introduced
+- naming and file placement are clear enough that the change is understandable from the codebase itself
 
-Every completed change should meet the following baseline:
+## UI Work
 
-- the project builds successfully with `npm run build`
-- lint passes with `npm run lint`
-- type safety is preserved and no new TypeScript errors are introduced
-- existing behavior outside the intended change is not regressed
-- code follows the current project structure and architectural boundaries described in [ARCHITECTURE.md](/c:/Users/chris/Documents/GitHub/bitcoin-dashboard/docs/ARCHITECTURE.md)
-- no dead code, unused abstractions, placeholder branches, or commented-out logic are added without a clear purpose
-- naming is clear enough that the change is understandable without excessive explanation
-- new logic is placed in the appropriate layer instead of being mixed across route, UI, and provider concerns
+For any route, component, or interaction change:
 
-## UI work
+- responsive behavior is checked on common desktop and mobile layouts
+- loading, error, and empty states are handled where relevant
+- stale and partial-data behavior is handled where the section can degrade gracefully
+- accessibility basics are respected
+- user-facing copy matches the current product tone and localization setup
+- locale-prefixed routing behavior remains intact for public pages
+- client components only own browser-side concerns that actually belong on the client
 
-For any route, component, or interactive UI change:
-
-- responsive behavior is checked for common mobile and desktop layouts
-- loading states are present where users may need to wait for data or async actions
-- error states are present where data fetching or actions can fail
-- empty states are present where no data is a valid outcome
-- accessibility basics are respected, including semantic markup, accessible labels, keyboard usability where relevant, and sufficient contrast within the existing design direction
-- user-visible copy is clear and consistent with the product language already used in the app
-- client components only own browser-specific state and interaction concerns that belong on the client
-
-## API and server work
+## API And Server Work
 
 For any route handler, server helper, or provider integration change:
 
-- the UI receives a typed and intentional response shape
-- provider data is validated or normalized before it is exposed to the rest of the app
-- errors are handled deliberately and return an application-level response instead of an unstructured provider failure
-- raw provider payload details do not leak directly into UI-facing contracts unless the project explicitly adopts them
-- server-only responsibilities stay in server code and are not pulled into client modules
-- environment variable additions or changes are documented in the relevant docs if setup or deployment behavior changes
-- runtime behavior remains compatible with the current Cloudflare Workers plus OpenNext deployment target
+- the UI continues to receive normalized app-level contracts
+- raw provider schemas do not leak into shared UI types
+- errors are mapped deliberately instead of passed through as unstructured upstream failures
+- cache behavior is reviewed and kept explicit at the route boundary
+- environment changes are documented where contributors will actually see them
+- Cloudflare Workers plus OpenNext compatibility is preserved
 
 ## Testing
 
-Testing expectations should be applied with judgment, but they are not optional.
+Testing expectations are applied with judgment, but not skipped casually.
 
-- meaningful tests are added or updated when the change introduces logic, branching behavior, data shaping, or regression risk
-- existing tests remain green with `npm run test`
-- changes to shared utilities, server helpers, or data transformation logic should normally include direct test coverage
-- if a change is intentionally not covered by tests, the reason should be clear from the scope and risk of the work
+- meaningful tests are added or updated when behavior, mapping logic, or regression risk changes
+- `npm run test` remains green for normal feature work
+- shared utilities, mappers, server helpers, and provider validation should usually have direct coverage
+- if tests are intentionally not updated, the reason should be obvious from the scope and risk of the change
 
-## Docs
+## Documentation
 
-Documentation should stay aligned with the implementation.
+Docs must stay aligned with the implementation.
 
-- `README.md` or relevant docs under `docs/` are updated when behavior, setup, architecture, routes, or operational expectations change
-- new conventions are documented when a contributor would not reasonably infer them from the existing codebase
-- environment setup changes are reflected in the docs that contributors will actually use
+- `README.md` and relevant files under `docs/` are updated when routes, behavior, setup, architecture, or runtime expectations change
+- current-state docs should describe what exists, not drift back into outdated early-stage wording
+- roadmap or follow-up planning docs should remain clearly separate from current-state documentation
+- environment setup changes are reflected in the docs contributors actually use
 
-## Deployment awareness
+## Deployment Awareness
 
-A change is not complete if it works only in an isolated local path but breaks the intended runtime model.
+A change is not complete if it works locally but breaks the intended deployment model.
 
-- the change remains compatible with the current Cloudflare Workers deployment through OpenNext
-- the local development flow still works for normal contributor usage, especially `npm run dev`
-- if the change affects Cloudflare-specific behavior, the impact on `npm run cf:build` or preview flow is considered before closing the task
+- the change remains compatible with Cloudflare Workers through OpenNext
+- `npm run dev` still works for normal contributor workflows
+- if the change affects Cloudflare-specific behavior, the impact on `npm run cf:build`, `npm run cf:preview`, or deployment is considered before closing the task
 
-## Review checklist
+## Review Checklist
 
-Use this checklist when closing an issue or reviewing a PR:
+Use this checklist when closing a task or reviewing a PR:
 
-- [ ] the change solves the stated task completely, not partially
+- [ ] the task is fully solved
 - [ ] `npm run build` succeeds
 - [ ] `npm run lint` succeeds
 - [ ] type safety is preserved
-- [ ] `npm run test` succeeds, or any intentionally skipped coverage is justified by scope
-- [ ] UI changes include appropriate loading, error, and empty states where needed
-- [ ] responsive behavior was checked for UI work
-- [ ] API or server changes return normalized, typed app-level data
+- [ ] `npm run test` succeeds, or any intentional gap is justified by scope
+- [ ] UI work includes the right async states and responsive checks
+- [ ] API work returns normalized app-level data
 - [ ] no provider-specific leakage was introduced into UI contracts
-- [ ] docs were updated if behavior, architecture, routes, or environment setup changed
-- [ ] the change still fits the current Cloudflare/OpenNext deployment target
-- [ ] no obvious dead code, placeholder logic, or unrelated cleanup was left behind
+- [ ] docs were updated where behavior or setup changed
+- [ ] the change still fits the current Cloudflare/OpenNext runtime target
+- [ ] no unrelated cleanup or dead code was left behind
 
-## Working rule
+## Working Rule
 
-If a contributor cannot use this document to confidently say "this task is complete," then the task is not done yet.
+If a contributor cannot use this document to confidently say "this task is complete," the task is not done yet.
+

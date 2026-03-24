@@ -2,356 +2,300 @@
 
 ## Purpose
 
-This document defines how the Bitcoin Dashboard integrates external data providers and how API-related code should handle normalization, caching, resilience, and future provider changes.
+This document describes how the current Bitcoin Dashboard API layer works in production and development. It focuses on what is implemented today: provider ownership, route responsibilities, normalization, caching, fallback behavior, and environment handling.
 
-The app runs on Next.js App Router route handlers and is deployed to Cloudflare Workers through OpenNext. In this architecture, route handlers are the server-side boundary between upstream providers and the UI.
+## API Boundary
 
-This document is meant to guide future implementation work so provider access stays consistent, portable, and predictable as the dashboard grows.
+The app uses Next.js route handlers under `src/app/api` as its internal backend boundary.
 
-## Current providers
+Current rules:
+
+- the UI only consumes internal `/api/*` endpoints
+- route handlers are responsible for validation, normalization, cache headers, and error mapping
+- provider-specific request details stay in server code
+- app-facing responses are typed through shared DTO contracts
+
+## Current Provider Map
 
 ### CoinGecko
 
-Used for Bitcoin market and chart data.
+Owns:
 
-Current domains:
-
-- overview market data for BTC in USD and EUR
-- chart time-series data for the supported ranges
+- overview market data
+- price chart data
+- performance windows and long-range statistics
+- market-context chart data
 
 Current internal endpoints:
-
-- `/api/overview`
-- `/api/chart`
-
-Current auth/environment requirement:
-
-- `COINGECKO_DEMO_API_KEY`
-
-### mempool.space
-
-Used for Bitcoin network data.
-
-Current domains:
-
-- recommended fees
-- latest block height
-
-Current internal endpoint:
-
-- `/api/network`
-
-Current auth/environment requirement:
-
-- none
-
-### Alternative.me
-
-Used for sentiment data.
-
-Current domains:
-
-- Fear & Greed Index
-
-Current internal endpoint:
-
-- `/api/sentiment`
-
-Current auth/environment requirement:
-
-- none
-
-## Provider responsibilities
-
-Each external provider should own a clearly defined data domain inside the app.
-
-Current ownership split:
-
-- CoinGecko owns market snapshot and chart data
-- mempool.space owns Bitcoin network state and fee recommendations
-- Alternative.me owns Fear & Greed sentiment data
-
-Rules:
-
-- A provider should be used for the domain it is already responsible for unless there is a deliberate strategy change.
-- Route handlers may combine multiple upstream requests inside one domain when needed, but the UI should still see one app-facing response.
-- Provider-specific request details, headers, query parameters, parsing, and upstream error interpretation belong in server code only.
-- Shared provider logic should live in `src/server` once it is reused by more than one route or becomes large enough to distract from route readability.
-- UI components, views, and client hooks must not know provider URLs, auth headers, or raw upstream schemas.
-
-## Normalization policy
-
-Normalization must happen server-side before data reaches the UI.
-
-Required rules:
-
-- Route handlers return app-specific response shapes.
-- UI code should consume shared internal contracts from `src/types`, not raw provider objects.
-- Mapping from provider fields to app fields happens in route handlers or extracted server helpers.
-- Provider naming should not leak into UI data structures except in explicit metadata such as `source` or attribution text.
-- Missing or invalid upstream values should be converted to safe app-level values such as `null`, `partial: true`, and `warnings`.
-
-Current normalized response patterns already used by the app:
-
-- a shared envelope with `source`, `fetchedAt`, optional `partial`, and optional `warnings`
-- overview fields mapped to app-friendly names like `priceUsd`, `marketCapEur`, and `lastUpdatedAt`
-- chart data mapped to `points` and computed `stats`
-- network data mapped to `latestBlockHeight` plus a normalized `fees` object
-- sentiment data mapped to `value`, `classification`, `timestamp`, `nextUpdateAt`, and attribution
-
-Server-side normalization responsibilities include:
-
-- renaming fields
-- selecting only the fields the app actually uses
-- converting text or mixed-type upstream values into typed app values
-- filtering malformed records
-- computing lightweight derived fields needed across the UI
-- attaching warnings and partial-state metadata when only part of the upstream payload is usable
-
-## Caching strategy
-
-### General policy
-
-The first-pass strategy is route-level caching through response headers on internal `/api/*` endpoints.
-For CoinGecko-backed routes, a KV-backed snapshot layer is used as an additional resilience and
-rate-limit guard.
-
-Rules:
-
-- Cache at the app-facing route handler boundary, not in UI components.
-- Use KV as a server-only optimization and fallback layer, never as a UI contract boundary.
-- Choose cache windows based on how fast the data changes, provider rate limits, and whether slightly stale data is acceptable for the user experience.
-- Prefer a small amount of safe staleness over aggressive refetching that increases cost or rate-limit risk.
-- When two parts of the UI need the same upstream data, they should reuse the same internal endpoint rather than making separate provider calls.
-- If future features reuse the same provider/domain data across routes, centralize the fetch layer in `src/server` and share the same cache policy.
-
-### Overview data
-
-Domain:
-
-- current BTC market snapshot from CoinGecko
-
-First-pass caching policy:
-
-- `Cache-Control: public, max-age=60`
-
-Guidance:
-
-- Five minutes is a reasonable balance between freshness and CoinGecko demo-key limits.
-- Overview cards are read as a snapshot, so brief staleness is acceptable.
-- Stale-but-safe data is acceptable here as long as the response still includes `fetchedAt` and any partial-state warnings.
-
-### Chart data
-
-Domain:
-
-- BTC chart data from CoinGecko by currency and selected range
-
-First-pass caching policy:
-
-- `Cache-Control: public, max-age=60`
-
-Guidance:
-
-- Chart interactions can trigger repeated requests as users switch range or currency, so caching should suppress duplicate provider traffic.
-- Five minutes is acceptable because the chart is for lightweight context, not tick-level trading decisions.
-- Stale-but-safe data is acceptable when the app still returns the requested range/currency and marks any dropped points via warnings.
-
-### Network data
-
-Domain:
-
-- recommended fees and latest block height from mempool.space
-
-First-pass caching policy:
-
-- `Cache-Control: public, max-age=30`
-
-Guidance:
-
-- Network conditions can change faster than sentiment, so this window should stay shorter than overview and sentiment.
-- Thirty seconds reduces unnecessary polling while keeping fees reasonably current for dashboard use.
-- Slight staleness is acceptable, but this domain should stay the freshest of the current endpoints because fee guidance is more time-sensitive.
-
-### Sentiment data
-
-Domain:
-
-- Fear & Greed data from Alternative.me
-
-First-pass caching policy:
-
-- `Cache-Control: public, max-age=300`
-
-Guidance:
-
-- Sentiment updates much less frequently than market or network data.
-- A five-minute cache window is appropriate and conservative.
-- Stale-but-safe data is clearly acceptable here because the indicator is slow-moving and informational.
-
-### Revalidation and freshness guidance
-
-Current guidance:
-
-- Keep current `max-age` values as the baseline until real usage or provider constraints justify a change.
-- Prefer consistent route-level cache headers over ad hoc fetch behavior scattered across the codebase.
-- If provider pressure increases, extend cache windows before adding more complex behavior.
-- If a future feature becomes more latency-sensitive, revisit the endpoint policy explicitly instead of bypassing the server boundary.
-
-For Cloudflare Workers deployments:
-
-- internal routes should remain the single place where cache intent is expressed
-- platform-specific cache layers must preserve the same normalized response contracts
-- platform-specific caching must remain an optimization, not a new data contract boundary
-- stale-cache fallback is acceptable when upstream fails, but responses should mark this via metadata and warnings
-
-## Error handling strategy
-
-### General policy
-
-Errors should be handled at the route-handler boundary and converted into predictable app-facing responses.
-
-Rules:
-
-- Upstream provider errors must not leak raw response bodies or stack traces directly to the UI.
-- Route handlers should return concise user-safe errors and optional sanitized details.
-- Partial upstream success should return a successful normalized payload with `partial: true` and `warnings`.
-- Total upstream failure for an endpoint should return an error response with an appropriate 5xx status, typically `502` for provider failures.
-- Invalid client input should return `400`.
-- Missing required server configuration should return `500`.
-
-### Upstream outage handling
-
-Expected behavior:
-
-- timeouts, non-2xx responses, parse failures, and malformed payloads are treated as upstream/provider failures
-- these should be translated into app-facing error responses or warnings, depending on whether any useful data remains
-- timeout handling should stay centralized through shared server helpers such as `fetchWithTimeout`
-
-### Partial failure behavior
-
-Partial failure is acceptable when one part of a domain succeeds and another part fails.
-
-Current examples:
-
-- `/api/overview` can return data when either USD or EUR market data succeeds
-- `/api/network` can return data when either fee data or block height succeeds
-- `/api/chart` and `/api/sentiment` currently require a usable primary payload and fail if none is available
-
-Rules:
-
-- If at least one meaningful subsection of the payload can be returned safely, prefer a partial normalized response over a hard failure.
-- Partial responses must explicitly set `partial: true`.
-- Partial responses should include human-readable warnings that explain what is unavailable.
-- Missing fields in partial responses should resolve to `null`, not omitted ad hoc shapes.
-
-### Fallback response expectations
-
-Fallback behavior should be simple and explicit.
-
-Rules:
-
-- Do not silently swap providers inside a route without documenting that strategy.
-- Do not fabricate market, network, or sentiment values when the provider fails.
-- Use `null` for unavailable values when the surrounding response is still meaningful.
-- Include `source` and `fetchedAt` whenever a successful or partial payload is returned.
-
-### User-facing errors vs internal logging
-
-User-facing responses should:
-
-- explain that data could not be loaded
-- avoid provider implementation noise unless it helps diagnose a safe, actionable issue
-- keep wording stable enough for the UI to present clean error states
-
-Internal/server handling should:
-
-- preserve enough sanitized detail to debug provider issues
-- keep timeout and status-code context near the server boundary
-- avoid exposing secrets, raw auth material, or unbounded upstream response bodies
-
-Current implementation note:
-
-- the app already truncates upstream error bodies through shared helpers, which should remain the default pattern
-
-## Rate-limit awareness and portability
-
-The app should assume that external providers can change limits, schemas, or availability at any time.
-
-Required rules:
-
-- avoid unnecessary duplicate provider calls for the same app need
-- centralize provider access patterns so request headers, parsing, and retries are not duplicated
-- keep route handlers as stable app-facing contracts even if the upstream provider changes later
-- do not let UI code depend on provider-specific fields, query conventions, or enum values
-- if a provider needs to be replaced, the change should be mostly isolated to route/server modules and shared types should only change if the app contract truly changes
-
-Practical guidance:
-
-- if multiple routes need the same CoinGecko logic, move it into `src/server`
-- if provider auth, retries, or validation grow more complex, centralize them once rather than copy/pasting route code
-- prefer one well-defined internal endpoint per app domain over multiple slightly different wrappers around the same upstream resource
-
-## Environment variables
-
-### Current state
-
-The project currently uses:
-
-- `COINGECKO_DEMO_API_KEY`
-- `BITCOIN_DASHBOARD_CACHE` (Cloudflare KV binding, recommended for beta/prod resilience)
-
-This key is required for the current CoinGecko integration used by:
 
 - `/api/overview`
 - `/api/chart`
 - `/api/performance`
 - `/api/market-context-chart`
 
-### Local development
+Runtime requirements:
 
-Local development should use `.dev.vars`.
+- `COINGECKO_DEMO_API_KEY`
+- optional KV fallback via `BITCOIN_DASHBOARD_CACHE`
+
+### mempool.space
+
+Owns:
+
+- latest block height
+- fee recommendations
+- hashrate history
+- difficulty adjustment data
+- mempool block backlog
+- recent block flow
+
+Current internal endpoint:
+
+- `/api/network`
+
+Runtime requirements:
+
+- none
+
+### Alternative.me
+
+Owns:
+
+- Fear & Greed sentiment
+
+Current internal endpoint:
+
+- `/api/sentiment`
+
+Runtime requirements:
+
+- none
+
+### Coin Metrics Community API
+
+Owns:
+
+- on-chain activity history used by the dashboard
+
+Current internal endpoint:
+
+- `/api/onchain-activity`
+
+Runtime requirements:
+
+- none
+
+## Response Contracts
+
+The UI consumes normalized app contracts rather than provider payloads.
+
+Current response patterns include:
+
+- shared envelope fields such as `source`, `fetchedAt`, optional `cache`, optional `partial`, and optional `warnings`
+- overview DTOs with market and supply metrics
+- chart DTOs with point arrays and summary stats
+- market-context DTOs with named series for market cap and volume
+- performance DTOs with fixed periods plus 52-week and volatility stats
+- network DTOs with fees, mempool, hashrate, difficulty, recent blocks, and halving data
+- sentiment DTOs with value, classification, timing, and attribution
+- on-chain DTOs with current values, 7-day context, and derived metrics
+
+Normalization rules:
+
+- map upstream names to app-owned names
+- keep only fields the app actually uses
+- convert malformed or unavailable values to `null` when the overall payload is still usable
+- attach warnings when only part of the upstream payload is available
+- keep provider names out of UI-facing field names unless they are explicit metadata
+
+## Current Endpoint Behavior
+
+### `/api/overview`
+
+Purpose:
+
+- normalized market snapshot for the selected currency
+- USD reference price for cross-currency context
+- BTC dominance from CoinGecko global data
+
+Behavior:
+
+- requires a valid `currency` query param when supplied
+- returns partial warnings if secondary upstream pieces fail
+- uses CoinGecko KV fallback metadata when available
+
+### `/api/chart`
+
+Purpose:
+
+- normalized BTC price chart for `1`, `7`, or `30` days
+
+Behavior:
+
+- validates `days`
+- validates optional `currency`
+- uses CoinGecko KV fallback metadata when available
+
+### `/api/performance`
+
+Purpose:
+
+- long-range performance and structural market context
+
+Behavior:
+
+- uses a 365-day CoinGecko chart source
+- derives `7d`, `30d`, `90d`, `1y`, and `YTD` periods plus 52-week and volatility stats
+- uses CoinGecko KV fallback metadata when available
+
+### `/api/market-context-chart`
+
+Purpose:
+
+- 30-day normalized series for market cap and volume context
+
+Behavior:
+
+- validates optional `currency`
+- uses CoinGecko KV fallback metadata when available
+
+### `/api/network`
+
+Purpose:
+
+- current network state and fee environment from mempool.space
+
+Behavior:
+
+- combines multiple upstream requests in parallel
+- returns partial payloads with warnings when one or more subsections fail
+- fails with `502` only when every upstream request fails
+
+### `/api/onchain-activity`
+
+Purpose:
+
+- recent on-chain activity context from Coin Metrics
+
+Behavior:
+
+- returns a normalized 7-day view with derived metrics
+- currently fails as a whole when no usable provider payload is available
+
+### `/api/sentiment`
+
+Purpose:
+
+- Fear & Greed value with short-term context and update timing
+
+Behavior:
+
+- fetches the latest 7 entries
+- currently fails as a whole when no usable provider payload is available
+
+## Caching Strategy
+
+Caching is defined at the route boundary and mirrored in upstream fetch behavior.
+
+### Current cache policies
+
+- `overview`: browser `60s`, edge revalidate `300s`, stale-while-revalidate `900s`
+- `chart` for `1d` and `7d`: browser `60s`, edge revalidate `300s`, stale-while-revalidate `900s`
+- `chart` for `30d`: browser `300s`, edge revalidate `900s`, stale-while-revalidate `1800s`
+- `performance`: browser `300s`, edge revalidate `1800s`, stale-while-revalidate `7200s`
+- `market-context-chart`: browser `300s`, edge revalidate `900s`, stale-while-revalidate `1800s`
+- `network`: browser `5s`, edge revalidate `20s`, stale-while-revalidate `40s`
+- `sentiment`: browser `300s`, edge revalidate `900s`, stale-while-revalidate `3600s`
+- `onchain-activity`: browser `300s`, edge revalidate `1800s`, stale-while-revalidate `7200s`
+
+### CoinGecko KV fallback
+
+CoinGecko-backed routes currently use a second cache layer when `BITCOIN_DASHBOARD_CACHE` is available.
+
+Behavior:
+
+- fresh KV entries can satisfy requests without hitting CoinGecko
+- fresh upstream responses are written back to KV
+- stale KV entries can be served when CoinGecko fails
+- stale responses are marked through cache metadata and human-readable warnings
+
+This currently applies to:
+
+- `/api/overview`
+- `/api/chart`
+- `/api/performance`
+- `/api/market-context-chart`
+
+## Error Handling
+
+Current error-handling rules:
+
+- invalid client input returns `400`
+- missing required server configuration returns `500`
+- total upstream failure returns `502`
+- user-facing errors stay concise and sanitized
+- provider-specific debugging details stay near the server boundary
+- raw provider payloads and secrets are never exposed directly to the UI
+
+Shared implementation pieces:
+
+- `src/server/http.ts` for JSON and error responses
+- `src/server/provider-fetch.ts` for upstream requests and timeouts
+- `src/server/upstream.ts` for structured upstream error modeling
+
+## Partial Failure Rules
+
+The app deliberately preserves useful data when it can do so safely.
+
+Current examples:
+
+- `/api/overview` can return market data even when the USD reference or global dominance request fails
+- `/api/network` can return a usable payload when one or more mempool.space requests fail
+- CoinGecko stale KV data can keep chart or overview routes usable during upstream outages
 
 Rules:
 
-- define `COINGECKO_DEMO_API_KEY` in `.dev.vars`
-- do not commit `.dev.vars`
-- local route handlers should fail clearly if the key is missing rather than attempting an unauthenticated fallback
+- set `partial: true` when the payload is incomplete but still useful
+- include warnings that explain what is missing or degraded
+- use `null` for missing values instead of ad hoc shape changes
 
-### Production
+## Environment And Runtime
 
-Production should provide the same variable through the Cloudflare Worker environment.
+### Required now
 
-Rules:
+- `COINGECKO_DEMO_API_KEY`
 
-- production config must define `COINGECKO_DEMO_API_KEY`
-- production should bind `BITCOIN_DASHBOARD_CACHE` for CoinGecko cache and stale fallback behavior
-- route handlers should read runtime env values through `src/server/env.ts`
-- env access should remain server-only and not leak into client bundles
+### Used in deployed Workers
 
-## Implementation rules for future API work
+- `BITCOIN_DASHBOARD_CACHE` KV binding for CoinGecko fallback caching
 
-When adding or changing provider-backed functionality:
+Current runtime rules:
 
-1. Decide which provider owns the domain and document it if it is new.
-2. Define or extend the normalized app contract in `src/types`.
-3. Implement provider access in a route handler or extracted `src/server` helper.
-4. Normalize upstream data before returning any JSON to the UI.
-5. Set an explicit cache policy for the route.
-6. Define partial-failure behavior up front.
-7. Return user-safe errors and server-useful details.
-8. Keep the route contract stable even if the upstream provider later changes.
+- env values are read only through `src/server/env.ts`
+- provider auth stays server-side
+- local development uses `.dev.vars`
+- production bindings are configured through Wrangler and the Cloudflare Worker environment
 
-## Decision summary
+## Implementation Rules
 
-The API strategy for this project is:
+When changing or adding a provider-backed route:
 
-- external providers are accessed only on the server
-- route handlers are the proxy and normalization boundary
-- the UI consumes app-specific response shapes only
-- route-level cache headers define the first-pass freshness policy
-- partial responses are preferred over full failure when safe
-- provider-specific logic should become shared `src/server` code once reuse appears
-- environment variables stay server-side and are read through centralized runtime helpers
+1. decide which provider owns the domain
+2. define or extend the normalized DTO contract
+3. keep provider access in `src/server` or the route handler server layer
+4. normalize before returning JSON
+5. set cache policy intentionally
+6. define partial-failure behavior explicitly
+7. return user-safe errors and server-useful details
+8. preserve the app contract even if a provider later changes
 
-This keeps the dashboard resilient on Cloudflare Workers today and makes future provider swaps or API expansion much easier to manage.
+## Decision Summary
+
+The current API strategy is stable and production-oriented:
+
+- providers are called only on the server
+- route handlers are the normalization boundary
+- the UI consumes app-owned contracts only
+- caching is explicit per route
+- CoinGecko routes use KV fallback when available
+- partial responses are preferred over total failure when safe

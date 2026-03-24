@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   getDashboardSectionStateMessages,
   getUnavailableText,
-  normalizeDashboardWarningMessage,
   sanitizeDashboardErrorMessage,
 } from "./dashboard-state-copy";
 
@@ -27,16 +26,6 @@ describe("dashboard-state-copy", () => {
         "Fallback"
       )
     ).toBe("Der Datendienst meldet vorübergehend keine neuen Werte.");
-  });
-
-  it("normalizes provider warnings into user-facing microcopy", () => {
-    expect(
-      normalizeDashboardWarningMessage(
-        "Fee-Daten nicht verfügbar: fees request failed: 502 Provider overloaded"
-      )
-    ).toBe(
-      "Fee-Schätzungen werden gerade nicht vollständig erneuert. Vorhandene Werte bleiben sichtbar."
-    );
   });
 
   it("builds consistent messages for dashboard sections", () => {

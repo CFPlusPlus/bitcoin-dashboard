@@ -2,366 +2,321 @@
 
 ## Purpose
 
-This document is the source of truth for how the Bitcoin Dashboard should be structured as the codebase grows. It explains the current application shape, the intended responsibilities of each source area, and the architectural boundaries future work should follow.
+This document describes the current architecture of the Bitcoin Dashboard codebase. It is the source of truth for where responsibilities live today and which boundaries must stay intact as the project evolves.
 
-The goal is not to freeze implementation details. The goal is to keep the project understandable, consistent, and easy to extend without mixing provider concerns, route logic, and UI code.
+The app is already structured around a stable V1 shape:
 
-## High-level architecture
+- localized App Router pages
+- internal `/api/*` route handlers as the app-facing backend
+- server-side provider access and normalization
+- reusable UI/view/hook layers on the client
+- Cloudflare Workers deployment via OpenNext
+
+## Runtime Model
 
 The application is a Next.js App Router project deployed to Cloudflare Workers through OpenNext.
 
-At a high level:
+Current runtime pieces:
 
-1. `src/app` defines routes, page entry points, layouts, and HTTP route handlers.
-2. `src/app/api` exposes application-facing JSON endpoints for the UI.
-3. Route handlers call external providers on the server, validate and normalize their responses, and return the app's internal response shapes.
-4. Client UI code consumes those internal API responses through shared types and helper functions.
-5. Shared presentation, view composition, hooks, utilities, and types live in dedicated folders outside the route tree.
+- `next.config.ts` initializes the OpenNext Cloudflare dev runtime
+- `open-next.config.ts` uses the Cloudflare adapter
+- `wrangler.jsonc` points Wrangler at `.open-next/worker.js` and `.open-next/assets`
+- `src/server/env.ts` reads runtime bindings through `@opennextjs/cloudflare`
+- Cloudflare KV is used for CoinGecko cache fallback when the binding is present
 
-This creates a deliberate separation:
+## Routing And Localization
 
-- Next.js handles routing, rendering, and route execution.
-- Route handlers are the boundary between external services and the app.
-- Shared domain types define the data contract used across server and UI code.
-- Views and components render normalized app data instead of provider-specific payloads.
+Routing is locale-first.
 
-## Deployment model
+Current behavior:
 
-The production target is Cloudflare Workers.
+- `middleware.ts` enforces locale-prefixed page routes
+- supported locales are defined in `src/i18n/config.ts`
+- `/` redirects to the default locale (`/de`)
+- unlocalized convenience routes such as `/tools` redirect to the default localized route
+- internal API routes remain unlocalized under `/api/*`
 
-- `open-next.config.ts` configures the OpenNext Cloudflare adapter.
-- `wrangler.jsonc` points Wrangler at the generated worker entry (`.open-next/worker.js`) and static assets.
-- `src/server/env.ts` reads runtime environment values through `@opennextjs/cloudflare`.
+Route files stay thin and primarily do three things:
 
-OpenNext is responsible for adapting the Next.js App Router application to the Cloudflare runtime. That means application code should be written against Next.js route and rendering patterns, while deployment-specific runtime access stays isolated in `src/server`.
+- validate route params
+- define route metadata and structured data
+- hand page composition off to `src/views`
 
-## Rendering model
+Examples:
 
-The app uses a mixed server/client rendering model supported by the App Router.
+- `src/app/[locale]/page.tsx` renders the localized home route
+- `src/app/[locale]/tools/page.tsx` renders the localized tools route
+- `src/app/[locale]/tools/dca-rechner/page.tsx` renders the localized DCA route
+- `src/app/page.tsx` only redirects to the default locale
 
-- Route files in `src/app` remain the routing and composition entry points.
-- Client interactivity is opt-in through `"use client"` modules such as dashboard and tool views.
-- Server-only responsibilities include external provider access, runtime environment access, request validation, normalization, and API response shaping.
-- Client-side responsibilities include interactive controls, local refresh behavior, view state, and browser persistence when the feature is explicitly user-local.
+## Rendering Model
+
+The app uses a mixed server/client model.
+
+Server-owned responsibilities:
+
+- route params and locale validation
+- metadata generation and JSON-LD output
+- provider access
+- runtime environment access
+- response normalization and cache headers
+
+Client-owned responsibilities:
+
+- dashboard interaction and refresh behavior
+- React Query orchestration for internal endpoints
+- persisted user preferences such as currency, range, and auto-refresh
+- tool-local state such as DCA entries
 
 Current examples:
 
-- `src/app/page.tsx` is a route entry point that renders the dashboard view.
-- `src/views/DashboardPage.tsx` is a client view that manages dashboard interactivity through `useDashboardData`.
-- `src/views/DcaCalculatorPage.tsx` is a client view that uses browser persistence for personal calculator entries.
+- `src/views/HomePage.tsx` orchestrates the dashboard via `useDashboardData`
+- `src/views/DcaCalculatorPage.tsx` manages local calculator state and persistence
+- `src/components/AppProviders.tsx` sets up the shared React Query client
 
-## Source tree responsibilities
+## Current Layering
 
 ### `src/app`
 
-Owns the route tree for the Next.js App Router.
+Owns:
 
-Responsibilities:
-
-- page entry points
+- page routes
 - layouts
-- route-level metadata and route-specific composition
-- colocated route handlers under `api`
+- metadata entry points
+- route handlers
+- redirect-only compatibility routes
 
 Rules:
 
-- Keep route files thin.
-- Prefer route files that delegate substantial UI to `src/views`.
-- Do not put shared business logic in route files.
+- keep route files thin
+- prefer `src/views` for page composition
+- keep shared logic out of the route tree
 
 ### `src/app/api`
 
-Owns internal HTTP endpoints consumed by the application UI.
+Owns the app-facing backend boundary.
 
-Responsibilities:
+Current endpoints:
 
-- request parsing and validation
-- provider orchestration
-- response normalization
-- cache header decisions
-- application-friendly error responses
-
-Rules:
-
-- Treat route handlers as the app-facing backend boundary.
-- Return normalized app contracts, not raw provider payloads.
-- Keep provider-specific parsing close to the route or extract it into server-focused modules when it grows.
-- Do not move browser UI logic into route handlers.
-
-### `src/components`
-
-Owns reusable presentation components.
-
-Responsibilities:
-
-- rendering card, section, navigation, toolbar, chart, and display building blocks
-- accepting already-prepared data via props
-- encapsulating reusable UI patterns
+- overview
+- chart
+- performance
+- market-context-chart
+- network
+- onchain-activity
+- sentiment
 
 Rules:
 
-- Components should be presentation-focused.
-- Avoid embedding provider fetch logic in shared components.
-- Avoid making components responsible for page orchestration when that belongs in a view.
+- parse request input
+- call providers on the server only
+- normalize every response into app contracts
+- set cache headers explicitly per route
+- return user-safe errors
 
-### `src/views`
+### `src/domain/dashboard`
 
-Owns page-level view composition.
+Owns dashboard DTOs and mapping logic.
 
-Responsibilities:
+This layer currently holds:
 
-- assembling sections into a coherent page
-- connecting hooks to presentational components
-- handling page-local UI flow and interaction state
-
-Rules:
-
-- A view can coordinate multiple components and hooks.
-- A view should not directly call external providers.
-- If a page grows complex, the view is the preferred place for page-specific coordination before creating more folders.
-
-### `src/hooks`
-
-Owns reusable React hooks.
-
-Responsibilities:
-
-- UI data loading from internal endpoints
-- browser state synchronization
-- local persistence
-- reusable interaction logic
-
-Current examples:
-
-- `useDashboardData` coordinates calls to `/api/overview`, `/api/network`, `/api/sentiment`, and `/api/chart`.
-- `usePersistentState` wraps browser storage behind a typed React hook.
+- DTO definitions used by the app
+- route-facing mapping helpers for overview, chart, network, sentiment, performance, and on-chain data
+- the normalization boundary between raw provider payloads and app-facing contracts
 
 Rules:
 
-- Hooks may call internal app endpoints.
-- Hooks must not bypass the route-handler boundary to call providers directly from the browser.
-- Shared hooks should expose app-level concepts, not provider response formats.
-
-### `src/lib`
-
-Owns shared framework-agnostic helpers and app utilities.
-
-Responsibilities:
-
-- internal API client helpers
-- formatting helpers
-- pure calculations
-- testable utility logic
-
-Current examples:
-
-- `api.ts` standardizes client-side fetch handling for internal JSON endpoints.
-- `dca.ts` contains pure DCA calculation logic.
-- `format.ts` owns display formatting helpers.
-
-Rules:
-
-- Prefer pure functions here when possible.
-- Keep React component code and Cloudflare runtime access out of this folder.
-- If a utility becomes server-runtime-specific, move it to `src/server`.
+- keep provider schemas out of the UI
+- map raw payloads here or directly beside the route when logic is still very small
+- expose stable app contracts rather than upstream shapes
 
 ### `src/server`
 
-Owns server/runtime-specific code.
+Owns runtime-specific and provider-facing code.
 
-Responsibilities:
+Current responsibilities:
 
-- runtime environment access
-- HTTP helper utilities for route handlers
-- provider-facing request helpers
-- server-only abstractions
+- Cloudflare env access
+- cache policy helpers
+- KV fallback helpers
+- shared upstream request helpers
+- provider clients under `src/server/providers`
+- upstream error modeling
+
+Rules:
+
+- secrets and runtime bindings stay here
+- provider access stays here or in route handlers that call into this layer
+- browser-only logic must not be imported here
+
+### `src/views`
+
+Owns page-level composition.
 
 Current examples:
 
-- `env.ts` reads Cloudflare runtime environment.
-- `http.ts` provides timeout handling and consistent JSON/error responses.
+- `HomePage.tsx`
+- `ToolsPage.tsx`
+- `DcaCalculatorPage.tsx`
+- `views/dashboard/*` section composition
 
 Rules:
 
-- This folder is the home for code that depends on server execution or deployment runtime behavior.
-- External provider integration helpers should live here once they are shared across multiple routes.
-- Do not import browser-only logic into server modules.
+- views coordinate hooks and components
+- views consume normalized internal contracts
+- views do not call upstream providers directly
+
+### `src/components`
+
+Owns reusable presentation building blocks.
+
+Current responsibilities:
+
+- cards, sections, layout primitives, and display components
+- dashboard/chart/status primitives
+- site shell pieces such as navigation and footer
+- shared async-state UI
+
+Rules:
+
+- components stay presentation-focused
+- components do not know provider URLs or raw upstream fields
+
+### `src/hooks`
+
+Owns reusable client orchestration.
+
+Current examples:
+
+- `useDashboardData`
+- `usePersistentState`
+
+Rules:
+
+- hooks may call internal `/api/*` endpoints
+- hooks must not bypass the server boundary
+- persisted state must stay local and non-sensitive
+
+### `src/lib`
+
+Owns pure helpers and framework-light utilities.
+
+Current responsibilities:
+
+- formatting
+- client-side fetch helpers
+- async-state resolution
+- SEO helpers
+- DCA calculations
+- currency helpers
+
+Rules:
+
+- prefer pure functions here
+- move runtime-specific code to `src/server`
 
 ### `src/types`
 
-Owns shared domain and API contract types.
+Owns the UI-facing normalized type surface.
 
-Responsibilities:
+Current pattern:
 
-- normalized data contracts
-- reusable domain primitives
-- shared UI/server typing for internal payloads
-
-Current example:
-
-- `dashboard.ts` defines the normalized contracts for overview, network, sentiment, chart, and DCA features.
+- `src/types/dashboard.ts` re-exports DTO-backed contracts from `src/domain/dashboard/dto`
+- DCA-specific local types live alongside those exports
 
 Rules:
 
-- Shared types should describe the app's internal model, not the raw provider schema.
-- Reuse central types instead of redefining the same contract in multiple routes or components.
+- UI code consumes app types from here
+- raw provider schemas do not belong here
 
-## Data flow
+## Data Flow
 
-The intended data flow is:
+The current data flow is:
 
-1. An external provider is called from server-side route code.
-2. The route handler validates, parses, and normalizes the provider response.
-3. The route handler returns an internal JSON shape defined by shared app types.
-4. A hook or page-level client module fetches that internal endpoint.
-5. Views and components render the normalized data.
+1. A client view or hook requests an internal `/api/*` endpoint.
+2. The route handler validates input and calls the relevant provider helpers.
+3. Provider payloads are validated and mapped into DTOs.
+4. The route handler returns a normalized app response with cache metadata, timestamps, and warnings where needed.
+5. The UI renders the normalized contract through views and presentation components.
 
-For the dashboard, the concrete path is:
+Concrete dashboard example:
 
-1. `src/app/api/overview/route.ts`, `network/route.ts`, `sentiment/route.ts`, and `chart/route.ts` call CoinGecko, mempool.space, and Alternative.me on the server.
-2. Those handlers convert provider responses into the app's own shapes, including warnings, partial-state flags, cache headers, and timestamps.
-3. `src/hooks/useDashboardData.ts` fetches the internal `/api/*` endpoints through `src/lib/api.ts`.
-4. `src/views/DashboardPage.tsx` coordinates the hook output.
-5. `src/components/*` render the resulting UI.
+1. `useDashboardData` requests `/api/overview`, `/api/chart`, `/api/performance`, `/api/market-context-chart`, `/api/network`, `/api/onchain-activity`, and `/api/sentiment`.
+2. Route handlers call CoinGecko, mempool.space, Alternative.me, or Coin Metrics on the server.
+3. Mappers in `src/domain/dashboard` convert upstream payloads into app DTOs.
+4. Dashboard sections render those DTOs and derive UI state via `resolveAsyncDataState`.
 
-Required architectural stance:
+## Current Cross-Cutting Patterns
 
-- External APIs are accessed server-side.
-- Route handlers act as application-facing endpoints.
-- UI code consumes normalized internal responses.
-- Provider-specific response formats must not leak into views or shared components.
+### Caching
 
-## Separation of concerns
+Caching is expressed at the route-handler boundary.
 
-### Provider fetch logic
+Current implementation uses:
 
-Provider access belongs in server-side code, currently inside route handlers with shared request helpers from `src/server/http.ts`.
+- route-level `Cache-Control` headers
+- Next.js revalidation hints for upstream fetches
+- Cloudflare KV for CoinGecko-backed stale fallback
+- explicit cache metadata returned in CoinGecko-backed DTOs
 
-When a provider integration grows beyond a small route, extract server-only helpers under `src/server` rather than duplicating fetch and parsing code across routes.
+### Errors And Partial Data
 
-### Data mapping and normalization
+The app prefers predictable app-level behavior over raw upstream failures.
 
-Normalization happens at the server boundary before data reaches the UI.
+Current behavior includes:
 
-This includes:
+- normalized error responses from route handlers
+- warnings arrays on partial or degraded payloads
+- stale-cache warnings when KV fallback data is served
+- shared upstream error handling in `src/server/upstream.ts`
 
-- converting provider payloads into app field names
-- handling partial failures
-- converting invalid or missing provider values to safe app-level nulls or warnings
-- shaping metadata like `source`, `fetchedAt`, `partial`, and `warnings`
+### Metadata And SEO
 
-### Domain typing
+Metadata is part of the route layer.
 
-Shared domain and response contracts belong in `src/types`.
+Current implementation includes:
 
-Types should be stable enough that UI code can depend on them without knowing or caring which provider supplied the data.
+- localized metadata generation in route files
+- Open Graph and X image routes
+- JSON-LD output for website, webpage, collection, and software application schemas
 
-### Presentation components
+## Architecture Rules
 
-Presentation components belong in `src/components`.
+These rules are mandatory for this repository:
 
-They should receive data through props and stay focused on rendering, layout, and display interactions rather than source-specific business logic.
+1. External providers are called only from server code.
+2. UI code consumes internal `/api/*` endpoints, never provider URLs.
+3. Route handlers return normalized app contracts, not raw upstream payloads.
+4. Locale-prefixed routing remains the rule for page routes.
+5. Route files stay thin and delegate composition to `src/views`.
+6. Shared domain contracts and mapping logic stay centralized.
+7. Runtime env access stays in `src/server/env.ts`.
+8. Local persistence is allowed only for explicitly local, non-sensitive UX state.
+9. Cloudflare-specific runtime behavior must not leak through the UI layer.
+10. New work should extend the nearest existing feature area before adding a new pattern.
 
-### Page composition
+## Adding New Work
 
-Page composition belongs in `src/views` and thin route entries under `src/app`.
+### New dashboard domain
 
-A page view can orchestrate multiple sections, hooks, and local state, but it should still consume internal app contracts instead of raw provider payloads.
+When adding another dashboard data area:
 
-## Rendering strategy
+1. define or extend the DTO in `src/domain/dashboard/dto.ts`
+2. add mapping logic in `src/domain/dashboard`
+3. add or extend a route handler in `src/app/api`
+4. use `src/server` for provider access and cache helpers
+5. consume the new contract from a hook/view/component path
 
-### What should stay server-driven
+### New tool
 
-The following should remain server-driven by default:
+When adding another tool:
 
-- external provider access
-- request validation and normalization
-- environment-variable access
-- response caching decisions
-- any logic that depends on secret values or runtime-only capabilities
+1. add the localized route entry in `src/app/[locale]/tools/...`
+2. keep page composition in `src/views`
+3. keep reusable UI in `src/components`
+4. keep pure calculations in `src/lib`
+5. use local persistence only when the state is device-local and non-sensitive
 
-If a feature can be expressed as route-driven data plus rendered output, prefer that model first.
+## Decision Summary
 
-### What can be client-interactive
-
-Client interactivity is appropriate for:
-
-- dashboard controls like currency and chart range switching
-- refresh triggers and auto-refresh timers
-- form state and local calculations
-- UI-only state such as tabs, toggles, and temporary filters
-
-Client code can fetch internal `/api` endpoints, but it should not fetch providers directly.
-
-### Where local persistence is acceptable
-
-Local browser persistence is acceptable when the state is:
-
-- user-local
-- non-sensitive
-- not required for shared server truth
-- clearly tied to convenience or personalization
-
-Current acceptable examples:
-
-- remembered dashboard currency, range, and auto-refresh settings
-- DCA calculator entries stored locally per device
-
-Local persistence should not become a substitute for domain data ownership. Shared market data, provider responses, and app-wide contracts should still come from server-owned flows.
-
-## Architecture rules
-
-These rules are mandatory unless this document is intentionally updated.
-
-1. No direct provider calls from arbitrary client components, hooks, or views.
-2. All external API access must enter through server-side route or server modules.
-3. Route handlers must return normalized application responses, not raw provider payloads.
-4. Do not duplicate provider fetch logic across multiple routes; extract shared server helpers when reuse appears.
-5. Shared types must be defined centrally and reused across route, hook, and UI code.
-6. Presentation components should render prepared data, not own provider parsing or fetch orchestration.
-7. Route files in `src/app` should stay thin and delegate page composition to `src/views`.
-8. Feature code should remain cohesive; add to the nearest existing feature area before creating scattered one-off utilities.
-9. Browser persistence is allowed only for explicitly local, non-sensitive UX state.
-10. Cloudflare- or OpenNext-specific runtime access should stay isolated to server/runtime modules rather than leaking through the UI layer.
-
-## Adding new domains
-
-When adding a new dashboard domain such as another Bitcoin metric or insight area:
-
-1. Define or extend normalized app types in `src/types`.
-2. Add or extend a route handler under `src/app/api` for the server-facing integration.
-3. Put shared provider/runtime helpers in `src/server` if the route logic is no longer small.
-4. Fetch the new internal endpoint from a hook or page-level client module.
-5. Render the result through `src/views` and `src/components`.
-
-A new domain should be considered complete only when its provider boundary, normalized contract, and UI consumption path are all clear.
-
-## Adding new tools and pages
-
-New tools and pages should fit the existing route-plus-view structure.
-
-- Add the route entry under `src/app`.
-- Put substantial page composition in `src/views`.
-- Put reusable UI sections in `src/components`.
-- Put pure calculators and display helpers in `src/lib`.
-- Use `src/hooks` for local persistence or internal endpoint orchestration.
-
-For interactive tools:
-
-- keep user-entered state local to the tool unless a shared server-backed model is explicitly introduced later
-- reuse central types if the tool exposes domain concepts used elsewhere
-- avoid placing tool-specific business logic directly in the route file
-
-## Decision summary
-
-The intended architecture is a layered App Router application:
-
-- `src/app` owns routes.
-- `src/app/api` owns app-facing server endpoints.
-- `src/server` owns runtime and provider-facing server logic.
-- `src/types` owns internal contracts.
-- `src/hooks` and `src/lib` own reusable client and pure logic.
-- `src/views` composes pages.
-- `src/components` renders reusable UI.
-
-The most important boundary is this one: provider-specific data comes in through the server, gets normalized once, and the rest of the app works with the app's own types and responses.
+The current architecture is a layered App Router application with one critical rule: provider-specific data enters through the server, gets normalized once, and the rest of the app works with app-owned contracts.

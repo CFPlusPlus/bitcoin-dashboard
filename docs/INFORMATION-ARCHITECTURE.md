@@ -2,334 +2,148 @@
 
 ## Purpose
 
-This document defines the content hierarchy for V1 of the Bitcoin Dashboard.
-It answers the question of **which content should appear where and with what level of priority**.
+This document describes the current content hierarchy and route structure of the shipped V1 product. It focuses on what exists today rather than proposing a future layout.
 
-The IA is the foundation for:
+## Top-Level Navigation
 
-- homepage layout
-- module order
-- mobile order
-- navigation logic
-- later visual redesign decisions
-
----
-
-## 1. Core Principle
-
-The homepage is not a collection point for every possible data point.
-It is a focused overview of Bitcoin.
-
-The page should first provide orientation,
-then enable deeper exploration,
-and only after that introduce supporting tools.
-
----
-
-## 2. Main Areas of V1
-
-V1 consists of five core content areas:
-
-1. Market overview
-2. Chart / price development
-3. Sentiment / Fear & Greed
-4. Network and blockchain data
-5. Tools
-
----
-
-## 3. Priority Levels
-
-### Priority A — immediately visible / highest importance
-
-- current Bitcoin price
-- 24h change
-- main chart
-
-### Priority B — direct context
-
-- market metrics
-- sentiment / Fear & Greed
-
-### Priority C — deeper factual context
-
-- network data
-- blockchain / on-chain related metrics
-
-### Priority D — supporting functionality
-
-- tool teaser
-- DCA calculator
-
----
-
-## 4. First 5 Seconds Rule
-
-Within the first 5 seconds, the following should be clear:
-
-- What is Bitcoin currently trading at?
-- How has the price changed recently?
-- What does the main chart look like?
-- What is the current sentiment / market mood?
-- Where can I access the tools?
-
-Anything that gets in the way of this should be treated as lower priority.
-
----
-
-## 5. Homepage Structure
-
-## 5.1 Hero / Page Intro
-
-Goal:
-
-- make it immediately clear what the page is about
-- avoid marketing overload
-- no need for a large landing-page style hero with too much copy
-
-Content:
-
-- clear page title
-- optional short subtitle
-- optional last-updated timestamp
-- optional small context about data freshness
-
-Note:
-The hero should provide orientation, not dominate the page visually.
-
----
-
-## 5.2 Primary Overview Zone
-
-Goal:
-
-- most important information area on the entire page
-
-Content:
-
-- current Bitcoin price
-- 24h change
-- optional 24h high / 24h low
-- optional 1–2 additional core KPIs
-
-Requirements:
-
-- extremely scannable
-- clear number hierarchy
-- trend and status visible at a glance
-
----
-
-## 5.3 Main Chart Zone
-
-Goal:
-
-- price development as the main exploration area
-
-Content:
-
-- main chart
-- timeframe switching
-- optional last refresh / data status
-- optional compact chart context information
-
-Requirements:
-
-- visually prominent
-- above deeper secondary sections
-- readable on mobile
-- not overloaded like a trading terminal
-
----
-
-## 5.4 Market Context Zone
-
-Goal:
-
-- place the current price into a broader market context
-
-Possible content:
-
-- market cap
-- volume
-- dominance (if within scope)
-- additional compact market metrics
-
-Requirements:
-
-- secondary to price + chart
-- compact, but not cramped
-- same visual language as overview
-
----
-
-## 5.5 Sentiment Zone
-
-Goal:
-
-- provide a fast emotional / psychological market reading
-
-Content:
-
-- Fear & Greed
-- short status / label
-- optional last-updated info
-
-Requirements:
-
-- very fast to understand
-- can be slightly more visually expressive than other sections
-- must not become a showpiece
-
----
-
-## 5.6 Network & Blockchain Zone
-
-Goal:
-
-- provide deeper technical context for more advanced users
-
-Possible content:
-
-- network data
-- blockchain size
-- additional blockchain-related metrics
-
-Requirements:
-
-- informative, but clearly secondary
-- not visually equal in importance to price + chart
-- modular and extendable
-
----
-
-## 5.7 Tools Zone
-
-Goal:
-
-- create the transition from information to interaction
-
-V1 content:
-
-- DCA calculator
-- optional tool teaser / CTA to the tools page
-
-Requirements:
-
-- clearly accessible
-- visible on the homepage
-- but not positioned as the main stage above core data
-
----
-
-## 6. Desktop Order
-
-Recommended order on desktop:
-
-1. Header / navigation
-2. Intro / page context
-3. Primary Overview Zone
-4. Main Chart Zone
-5. Market Context + Sentiment
-6. Network & Blockchain
-7. Tools Preview / CTA
-8. Footer
-
----
-
-## 7. Mobile Order
-
-Recommended order on mobile:
-
-1. Header
-2. Intro
-3. Price + 24h + core KPIs
-4. Main chart
-5. Sentiment
-6. Market metrics
-7. Network / blockchain
-8. Tools
-9. Footer
-
-Reasoning:
-On mobile, fast comprehension must come first.
-Deeper context and tools follow afterwards.
-
----
-
-## 8. Navigation Logic
-
-V1 navigation should remain light and clear.
-
-Recommended main items:
+The current primary navigation is intentionally small:
 
 - Dashboard
 - Tools
 
-Optional later:
+Supporting links currently live in the footer:
 
-- Learn / Info
-- About / Methodology
-- Settings
+- legal notice route (`/impressum`)
+- privacy route (`/datenschutz`)
 
-Not a V1 priority:
+## Route Structure
 
-- Portfolio
-- Alerts
-- Watchlist
-- Multi-coin navigation
+Public page routes are locale-prefixed.
 
----
+Current route map:
 
-## 9. Content Rules
+- `/` -> redirects to `/${DEFAULT_LOCALE}`
+- `/{locale}` -> dashboard homepage
+- `/{locale}/tools` -> tools overview
+- `/{locale}/tools/dca-rechner` -> DCA calculator
+- `/{locale}/impressum` -> legal placeholder page
+- `/{locale}/datenschutz` -> legal placeholder page
 
-### 9.1 What belongs on the homepage
+Unlocalized helper routes such as `/tools` and `/tools/dca-rechner` redirect to the default locale.
 
-- everything that helps explain the current Bitcoin situation quickly
-- everything that supports the core product promise
-- selected teasers for supporting tools
+Internal data routes stay separate under `/api/*` and are not part of the public IA.
 
-### 9.2 What does not belong on the homepage
+## Current Homepage Hierarchy
 
-- feature collections without priority
-- deep configuration options
-- too many equally weighted KPI cards
-- experimental side features
-- UI elements without clear information value
+The homepage currently follows this order:
 
----
+1. localized page header and navigation
+2. homepage intro with product framing and dashboard refresh controls
+3. overview section for spot price and market snapshot
+4. ATH context section
+5. performance section
+6. main BTC chart section
+7. market-and-sentiment group
+8. on-chain activity section
+9. network overview section
+10. halving section
+11. tools preview section
+12. metadata/footer section
+13. site footer
 
-## 10. Module Principles
+This order reflects the current implementation in `src/views/dashboard/DashboardContent.tsx` plus `HomepageIntro.tsx`.
 
-Every homepage module should:
+## Homepage Module Roles
 
-- have a clear purpose
-- fit into the priority logic
-- be understandable within 1–2 seconds
-- have consistent states
-- not force special layout logic
+### Intro
 
----
+Current purpose:
 
-## 11. Information Density
+- orient the user quickly
+- show dashboard-level refresh state
+- link directly to the chart and tools
+- surface warnings without hiding useful data
 
-The page should be informative, but must not feel overloaded.
+### Overview
 
-Therefore:
+Current purpose:
 
-- prefer fewer modules with clearer weighting
-- prefer stronger visual grouping
-- prefer more breathing room between sections
-- prefer clear overview over maximum data density
+- make spot price and key market metrics the first factual read
 
----
+### ATH And Performance
 
-## 12. Success Criteria for the IA
+Current purpose:
 
-The information architecture is successful if a new user can say after a few seconds:
+- add broader market context without turning the page into a trading terminal
 
-- This is a Bitcoin-focused site
-- I can immediately see price and direction
-- I roughly understand the market situation
-- I can find deeper metrics if I want to
-- I can use tools without the page feeling overcrowded
+### Chart
+
+Current purpose:
+
+- provide the main exploratory area for short-range BTC price movement
+
+### Sentiment And Market Context
+
+Current purpose:
+
+- place price action beside Fear & Greed and broader market structure
+
+### On-Chain, Network, And Halving
+
+Current purpose:
+
+- provide deeper technical context for users who want more than price and sentiment
+
+### Tools Preview
+
+Current purpose:
+
+- bridge the dashboard into the tools area without making tools the primary page focus
+
+## Current Tools IA
+
+### Tools Overview Page
+
+The tools landing page currently contains:
+
+- page intro and featured-tool CTA
+- a short framing section that explains the tools philosophy
+- a highlight card for the DCA calculator
+- the current live tools list
+- a secondary card that keeps the area intentionally small and curated
+
+### DCA Calculator Page
+
+The DCA page currently contains:
+
+1. page hero
+2. market data toolbar with manual refresh
+3. insight summary card
+4. summary metrics grid
+5. calculator form
+6. entry history list
+
+This reflects the current page implementation in `src/views/DcaCalculatorPage.tsx`.
+
+## Localization Implications
+
+Current IA rules depend on localization:
+
+- every public page has a `de` and `en` variant
+- canonical and alternate locale metadata are generated per route
+- language switching is part of the shared site shell
+- page structure remains aligned across locales
+
+## Current IA Principles
+
+The shipped IA follows these practical rules:
+
+- price and orientation come before deeper context
+- tools are visible but not the main homepage focus
+- data-heavy areas are grouped into coherent sections instead of a flat KPI wall
+- legal routes are present but remain secondary navigation items
+- internal APIs stay separate from the public content tree
+
+## Decision Summary
+
+The current V1 information architecture is simple and deliberate: one localized dashboard route, one localized tools route, one localized DCA tool route, and a homepage structure that moves from fast orientation to deeper Bitcoin context.

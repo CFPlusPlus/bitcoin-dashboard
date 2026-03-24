@@ -2,12 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { AppLocale } from "../i18n/config";
 import { getDictionary } from "../i18n/dictionaries";
+import {
+  getDashboardNoticeCandidates,
+  PERSISTENT_NOTICE_DELAY_MS,
+} from "../lib/dashboard-notices";
 import { fetchJson } from "../lib/api";
 import { CURRENCY_STORAGE_KEY, DEFAULT_CURRENCY, isCurrency } from "../lib/currency";
-import {
-  normalizeDashboardWarningMessage,
-  sanitizeDashboardErrorMessage,
-} from "../lib/dashboard-state-copy";
+import { sanitizeDashboardErrorMessage } from "../lib/dashboard-state-copy";
 import { getLatestSuccessfulUpdate, resolveAsyncDataState } from "../lib/data-state";
 import type {
   ChartData,
@@ -20,6 +21,7 @@ import type {
   Performance,
   Sentiment,
 } from "../types/dashboard";
+import { usePersistentNoticeMessages } from "./usePersistentNoticeMessages";
 import { usePersistentState } from "./usePersistentState";
 
 const STORAGE_KEYS = {
@@ -30,7 +32,7 @@ const STORAGE_KEYS = {
 
 const DASHBOARD_REFRESH_INTERVAL_MS = 60_000;
 const SLOW_SECTIONS_REFRESH_INTERVAL_MS = 15 * 60_000;
-const NETWORK_BLOCK_POLL_INTERVAL_MS = 15_000;
+const NETWORK_BLOCK_POLL_INTERVAL_MS = 30_000;
 const QUERY_RETRY_COUNT = 1;
 
 function isChartRange(value: unknown): value is ChartRange {
@@ -372,31 +374,6 @@ export function useDashboardData(locale: AppLocale) {
     return () => window.clearInterval(timerId);
   }, [autoRefresh, loadNetworkData]);
 
-  const warnings = useMemo(() => {
-    const items = [
-      ...(overview?.warnings ?? []),
-      ...(network?.warnings ?? []),
-      ...(onChainActivity?.warnings ?? []),
-      ...(sentiment?.warnings ?? []),
-      ...(chart?.warnings ?? []),
-      ...(performance?.warnings ?? []),
-      ...(marketContextChart?.warnings ?? []),
-    ]
-      .map((warning) => normalizeDashboardWarningMessage(warning, locale))
-      .filter(Boolean);
-
-    return [...new Set(items)];
-  }, [
-    chart,
-    locale,
-    marketContextChart,
-    network,
-    onChainActivity,
-    overview,
-    performance,
-    sentiment,
-  ]);
-
   const overviewMetrics = useMemo(
     () =>
       overview
@@ -536,6 +513,20 @@ export function useDashboardData(locale: AppLocale) {
   const hasMarketContextChartData = Boolean(
     marketContextChart?.series.some((series) => series.points.length > 0)
   );
+  const noticeCandidates = useMemo(
+    () =>
+      getDashboardNoticeCandidates({
+        locale,
+        network,
+        networkState: {
+          error: networkError,
+          hasUsableData: hasNetworkData,
+          isLoading: networkLoading,
+        },
+      }),
+    [hasNetworkData, locale, network, networkError, networkLoading]
+  );
+  const warnings = usePersistentNoticeMessages(noticeCandidates, PERSISTENT_NOTICE_DELAY_MS);
 
   const overviewState = useMemo(
     () =>
