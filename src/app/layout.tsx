@@ -4,12 +4,23 @@ import "@fontsource-variable/instrument-sans";
 import "@fontsource-variable/newsreader";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
+import { SITE_NAME, metadataBase } from "../lib/seo";
 import { DEFAULT_LOCALE, localeMeta } from "../i18n/config";
-import { metadataBase } from "../lib/seo";
 import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase,
+  applicationName: SITE_NAME,
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml",
+      },
+    ],
+    shortcut: ["/favicon.svg"],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
