@@ -63,43 +63,35 @@ export default function DashboardContent(props: DashboardContentProps) {
 
   return (
     <Section aria-label={copy.contentAriaLabel} space="lg" className="gap-8 xl:gap-10">
-      <Section
-        as="section"
-        aria-label={copy.marketAndSentimentAriaLabel}
-        space="md"
-        className="gap-6"
-      >
+      <PerformanceSection
+        currency={props.currency}
+        performance={props.performance}
+        performanceState={props.performanceState}
+        onRetry={props.onPerformanceRetry}
+      />
+
+      <MarketContextSection
+        currency={props.currency}
+        marketContextChart={props.marketContextChart}
+        marketContextChartState={props.marketContextChartState}
+        onChartRetry={props.onMarketContextChartRetry}
+        overview={props.overview}
+        overviewState={props.overviewState}
+        onRetry={props.onOverviewRetry}
+      />
+
+      <SentimentSection
+        sentiment={props.sentiment}
+        sentimentState={props.sentimentState}
+        onRetry={props.onSentimentRetry}
+      />
+
+      <Section as="section" aria-label={copy.cycleAriaLabel} space="md" className="gap-6">
         <SectionHeader
-          eyebrow={copy.marketAndSentimentEyebrow}
-          title={copy.marketAndSentimentTitle}
-          description={copy.marketAndSentimentDescription}
+          eyebrow={copy.cycleEyebrow}
+          title={copy.cycleTitle}
+          description={copy.cycleDescription}
         />
-
-        <PerformanceSection
-          currency={props.currency}
-          performance={props.performance}
-          performanceState={props.performanceState}
-          onRetry={props.onPerformanceRetry}
-        />
-
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)] xl:items-start">
-          <MarketContextSection
-            currency={props.currency}
-            marketContextChart={props.marketContextChart}
-            marketContextChartState={props.marketContextChartState}
-            onChartRetry={props.onMarketContextChartRetry}
-            overview={props.overview}
-            overviewState={props.overviewState}
-            onRetry={props.onOverviewRetry}
-          />
-
-          <SentimentSection
-            sentiment={props.sentiment}
-            sentimentState={props.sentimentState}
-            onRetry={props.onSentimentRetry}
-          />
-        </div>
-
         <div className="grid gap-6 xl:grid-cols-2 xl:items-start">
           <AthSection
             currency={props.currency}
@@ -134,13 +126,13 @@ export default function DashboardContent(props: DashboardContentProps) {
           networkState={props.networkState}
           onRetry={props.onNetworkRetry}
         />
-
-        <OnChainActivitySection
-          onChainActivity={props.onChainActivity}
-          onChainActivityState={props.onChainActivityState}
-          onRetry={props.onOnChainActivityRetry}
-        />
       </Section>
+
+      <OnChainActivitySection
+        onChainActivity={props.onChainActivity}
+        onChainActivityState={props.onChainActivityState}
+        onRetry={props.onOnChainActivityRetry}
+      />
 
       <ToolsPreviewSection />
 

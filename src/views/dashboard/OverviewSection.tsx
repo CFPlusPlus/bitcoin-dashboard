@@ -350,7 +350,7 @@ export default function OverviewSection({
         retryBusy={overviewState.isLoading}
         messages={stateMessages}
       >
-        <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.72fr)_minmax(22rem,0.96fr)]">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.56fr)_minmax(20rem,0.94fr)]">
           <div
             className="flex h-full flex-col justify-between gap-6 overflow-hidden rounded-md border border-accent/25 px-5 py-5 sm:px-7 sm:py-6"
             style={{
@@ -410,7 +410,7 @@ export default function OverviewSection({
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {[
               {
                 label: formatMessage(copy.highLabel, { currency: currencyLabel }),

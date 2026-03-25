@@ -169,6 +169,8 @@ export const dictionaries = {
         followUpTitle: "Vom Blick zur Aktion",
         followUpDescription: "Hier wird aus Beobachtung eine konkrete Bitcoin-Entscheidung.",
         followUpLead: "Starte mit dem DCA-Rechner, wenn du Käufe sauber einordnen willst.",
+        followUpBody:
+          "Ein starkes Werkzeug reicht hier mehr als eine Rasterwand. Der nächste Schritt soll sofort klar sein.",
         openDca: "DCA-Rechner",
         allTools: "Alle Werkzeuge",
       },
@@ -184,6 +186,9 @@ export const dictionaries = {
         "Sieh in Sekunden, wo Bitcoin steht, wie der Markt wirkt und ob sich der nächste Klick lohnt.",
       heroBody:
         "Preis, Stimmung und Netzwerk in einer klaren Ansicht, damit du sofort erkennst, was gerade wichtig ist und wo sich der nächste Blick lohnt.",
+      todayTitle: "Heute wichtig",
+      todayDescription:
+        "Drei Signale für den ersten Überblick: Preis, Stimmung und der Zustand des Netzwerks.",
       jumpToChart: "Zum Chart",
       jumpToTools: "Werkzeuge entdecken",
       benefits: [
@@ -219,6 +224,11 @@ export const dictionaries = {
       marketAndSentimentTitle: "Was den Preis gerade einordnet",
       marketAndSentimentDescription:
         "Stimmung und Marktgröße zeigen, ob Bewegung eher laut oder belastbar wirkt.",
+      cycleAriaLabel: "Zyklus und Einordnung",
+      cycleEyebrow: "Zyklus",
+      cycleTitle: "Zyklus und Einordnung",
+      cycleDescription:
+        "ATH und Halving geben gemeinsam den ruhigeren Makroblick auf die aktuelle Bitcoin-Phase.",
       controlsAriaLabel: "Aktualisierung und Einstellungen",
       controls: {
         currencyAriaLabel: "Währung wählen",
@@ -330,10 +340,10 @@ export const dictionaries = {
         movingAverageFootnote: "Abstand zum 200D MA: {value}",
         volatility30dLabelSafe: "30D Volatilität",
         volatility90dLabelSafe: "90D Volatilität",
-        volatility30dLabel: "30D VolatilitÃ¤t",
+        volatility30dLabel: "30D Volatilität",
         volatility30dMeta: "Realisiert und auf Jahresbasis hochgerechnet.",
         volatility30dFootnote: "Zeigt, wie stark BTC in den letzten 30 Tagen geschwankt hat.",
-        volatility90dLabel: "90D VolatilitÃ¤t",
+        volatility90dLabel: "90D Volatilität",
         volatility90dMeta: "Realisiert und auf Jahresbasis hochgerechnet.",
         volatility90dFootnote: "Hilft, kurzfristige und breitere Marktunruhe zu vergleichen.",
         periods: {
@@ -407,6 +417,12 @@ export const dictionaries = {
         title: "Nutzung auf der Blockchain",
         description:
           "Aktive Adressen und Transaktionen ergänzen Fees und Mempool um reale Netzwerknutzung.",
+        groups: {
+          usage: "Nutzung",
+          transfers: "Transferaktivität",
+          holders: "Besitzstruktur",
+          fees: "Fees",
+        },
         activeAddressesLabel: "Aktive Adressen",
         activeAddressesMeta: "Letzter Tageswert aus der Coin Metrics Community API.",
         activeAddressesFootnote:
@@ -497,23 +513,23 @@ export const dictionaries = {
         blockSizeLabel: "Größe",
         projectedBlocksTitle: "Nächste Blöcke",
         activityCardTitle: "Blockfluss",
-        averageBlockTimeLabel: "Ã˜ Blockzeit",
-        averageBlockTimeMeta: "Durchschnitt der letzten sichtbaren BlockabstÃ¤nde.",
-        averageTransactionsPerBlockLabel: "Ã˜ Transaktionen / Block",
+        averageBlockTimeLabel: "Ø Blockzeit",
+        averageBlockTimeMeta: "Durchschnitt der letzten sichtbaren Blockabstände.",
+        averageTransactionsPerBlockLabel: "Ø Transaktionen / Block",
         averageTransactionsPerBlockMeta:
-          "Wie dicht die letzten BlÃ¶cke durchschnittlich gefÃ¼llt waren.",
-        averageBlockSizeLabel: "Ã˜ BlockgrÃ¶ÃŸe",
+          "Wie dicht die letzten Blöcke durchschnittlich gefüllt waren.",
+        averageBlockSizeLabel: "Ø Blockgröße",
         averageBlockSizeMeta: "Hilft beim Einordnen der aktuellen Blockauslastung.",
         backlogBlocksLabel: "Backlog",
-        backlogBlocksMeta: "UnbestÃ¤tigter RÃ¼ckstau als ungefÃ¤hre Anzahl voller BlÃ¶cke.",
-        backlogBlocksSuffix: "BlÃ¶cke",
+        backlogBlocksMeta: "Unbestätigter Rückstau als ungefähre Anzahl voller Blöcke.",
+        backlogBlocksSuffix: "Blöcke",
         feeSpreadTitle: "Fee-Spreads",
-        feeSpreadDescription: "Absolute AbstandsmaÃŸe zwischen den sichtbaren Fee-Stufen.",
+        feeSpreadDescription: "Absolute Abstandsmaße zwischen den sichtbaren Fee-Stufen.",
         feeSpreadDetail:
-          "Je grÃ¶ÃŸer der Abstand, desto stÃ¤rker trennt der Markt gerade zwischen Geduld und PrioritÃ¤t.",
-        fastestToHourSpreadLabel: "PrioritÃ¤t â†’ 60 Min",
-        hourToMinimumSpreadLabel: "60 Min â†’ Minimum",
-        fastestToMinimumSpreadLabel: "PrioritÃ¤t â†’ Minimum",
+          "Je größer der Abstand, desto stärker trennt der Markt gerade zwischen Geduld und Priorität.",
+        fastestToHourSpreadLabel: "Priorität → 60 Min",
+        hourToMinimumSpreadLabel: "60 Min → Minimum",
+        fastestToMinimumSpreadLabel: "Priorität → Minimum",
         activityCardTitleSafe: "Blockfluss",
         averageBlockTimeLabelSafe: "Ø Blockzeit",
         averageBlockTimeMetaSafe: "Durchschnitt der letzten sichtbaren Blockabstände.",
@@ -595,6 +611,10 @@ export const dictionaries = {
         title: "Quellen und Aktualisierung",
         description:
           "Aktive Währung: {currency}. Kompakt, damit Quelle und letzter Stand schnell sichtbar bleiben.",
+        sourcesTitle: "Datenquellen",
+        refreshTitle: "Letzter Stand",
+        activeCurrencyLabel: "Aktive Währung",
+        dashboardUpdated: "Letzte Dashboard-Aktualisierung",
         marketSource: "Quelle Marktdaten",
         networkSource: "Quelle Netzwerk",
         sentimentSource: "Quelle Sentiment",
@@ -1176,6 +1196,8 @@ export const dictionaries = {
         followUpTitle: "From viewing to action",
         followUpDescription: "This is where observation turns into a concrete Bitcoin decision.",
         followUpLead: "Start with the DCA Calculator if you want to understand your buys cleanly.",
+        followUpBody:
+          "One strong tool matters here more than a grid of options. The next step should be clear immediately.",
         openDca: "DCA Calculator",
         allTools: "All tools",
       },
@@ -1191,6 +1213,9 @@ export const dictionaries = {
         "See in seconds where Bitcoin stands, how the market feels, and whether the next click is worth it.",
       heroBody:
         "Price, sentiment, and network in one focused view so you can spot what matters now and decide where to dig deeper.",
+      todayTitle: "Today matters",
+      todayDescription:
+        "Three signals for the first read: price, sentiment, and how the network feels right now.",
       jumpToChart: "Jump to chart",
       jumpToTools: "Explore tools",
       benefits: [
@@ -1225,6 +1250,11 @@ export const dictionaries = {
       marketAndSentimentTitle: "What gives the price context right now",
       marketAndSentimentDescription:
         "Sentiment and market size help show whether a move looks noisy or durable.",
+      cycleAriaLabel: "Cycle and framing",
+      cycleEyebrow: "Cycle",
+      cycleTitle: "Cycle and framing",
+      cycleDescription:
+        "ATH and halving together provide the calmer macro read on Bitcoin's current phase.",
       controlsAriaLabel: "Refresh and settings",
       controls: {
         currencyAriaLabel: "Choose currency",
@@ -1409,6 +1439,12 @@ export const dictionaries = {
         title: "Usage on the blockchain",
         description:
           "Active addresses and transaction count complement fees and mempool pressure with real usage.",
+        groups: {
+          usage: "Usage",
+          transfers: "Transfer activity",
+          holders: "Holder structure",
+          fees: "Fees",
+        },
         activeAddressesLabel: "Active addresses",
         activeAddressesMeta: "Latest daily value from the Coin Metrics Community API.",
         activeAddressesFootnote: "Shows how many addresses were recently active on the network.",
@@ -1594,6 +1630,10 @@ export const dictionaries = {
         title: "Sources and refresh",
         description:
           "Active currency: {currency}. Compact, so the source and the latest state stay visible at a glance.",
+        sourcesTitle: "Data sources",
+        refreshTitle: "Latest state",
+        activeCurrencyLabel: "Active currency",
+        dashboardUpdated: "Latest dashboard refresh",
         marketSource: "Market source",
         networkSource: "Network source",
         sentimentSource: "Sentiment source",

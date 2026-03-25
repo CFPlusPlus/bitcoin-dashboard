@@ -41,8 +41,8 @@ export default function ToolsPreviewSection() {
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(18rem,1.15fr)]">
-        <Card as="article" tone="muted" padding="md" className="justify-between">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,0.74fr)_minmax(20rem,1.26fr)]">
+        <Card as="article" tone="accent" padding="lg" className="justify-between">
           <SectionHeader
             eyebrow={copy.followUpEyebrow}
             title={copy.followUpTitle}
@@ -53,34 +53,35 @@ export default function ToolsPreviewSection() {
           />
 
           <Stack gap="md">
-            <MetaText tone="strong">{copy.followUpLead}</MetaText>
-            <div className="border-t border-border-subtle pt-4">
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href={getLocalizedPathname(locale, featuredTool.href)}
-                  className={cn(
-                    buttonVariants({
-                      intent: "primary",
-                      size: "sm",
-                    }),
-                    "no-underline"
-                  )}
-                >
-                  {copy.openDca}
-                </Link>
-                <Link
-                  href={getLocalizedPathname(locale, "/tools")}
-                  className={cn(
-                    buttonVariants({
-                      intent: "ghost",
-                      size: "sm",
-                    }),
-                    "no-underline"
-                  )}
-                >
-                  {copy.allTools}
-                </Link>
-              </div>
+            <MetaText tone="strong" className="max-w-[34ch] text-base leading-7 text-fg">
+              {copy.followUpLead}
+            </MetaText>
+            <MetaText className="max-w-[40ch]">{copy.followUpBody}</MetaText>
+            <div className="flex flex-wrap gap-3 border-t border-border-default/70 pt-4">
+              <Link
+                href={getLocalizedPathname(locale, featuredTool.href)}
+                className={cn(
+                  buttonVariants({
+                    intent: "primary",
+                    size: "sm",
+                  }),
+                  "no-underline"
+                )}
+              >
+                {copy.openDca}
+              </Link>
+              <Link
+                href={getLocalizedPathname(locale, "/tools")}
+                className={cn(
+                  buttonVariants({
+                    intent: "ghost",
+                    size: "sm",
+                  }),
+                  "no-underline"
+                )}
+              >
+                {copy.allTools}
+              </Link>
             </div>
           </Stack>
         </Card>

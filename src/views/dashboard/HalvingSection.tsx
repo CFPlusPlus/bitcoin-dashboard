@@ -96,7 +96,7 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
     network?.halving.nextReward === null ||
     network?.halving.nextReward === undefined
       ? fallback
-      : `${formatRewardValue(network.halving.currentReward, locale, fallback)} -> ${formatRewardValue(network.halving.nextReward, locale, fallback)}`;
+      : `${formatRewardValue(network.halving.currentReward, locale, fallback)} → ${formatRewardValue(network.halving.nextReward, locale, fallback)}`;
 
   return (
     <Card as="section" tone="default" padding="md" gap="md" className="overflow-hidden">

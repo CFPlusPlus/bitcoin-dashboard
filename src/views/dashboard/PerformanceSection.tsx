@@ -68,7 +68,7 @@ export default function PerformanceSection({
         retryBusy={performanceState.isLoading}
         messages={stateMessages}
       >
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
           {PERIOD_ORDER.map((key) => {
             const period = periodsByKey.get(key);
             const changePercent = period?.changePercent ?? null;
@@ -98,7 +98,7 @@ export default function PerformanceSection({
           <MetaText size="xs" className="mb-3 font-mono uppercase tracking-[0.18em]">
             {copy.structureTitle}
           </MetaText>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
             <MetricCard
               label={copy.rangeHighLabel}
               value={formatCurrency(stats?.high52w.price ?? null, currency, locale)}
