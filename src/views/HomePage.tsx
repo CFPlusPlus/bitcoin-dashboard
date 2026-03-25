@@ -3,8 +3,8 @@
 import { useI18n } from "../i18n/context";
 import Stack from "../components/ui/layout/Stack";
 import { useDashboardData } from "../hooks/useDashboardData";
+import BitcoinNowSection from "./dashboard/BitcoinNowSection";
 import DashboardContent from "./dashboard/DashboardContent";
-import HomepageIntro from "./dashboard/HomepageIntro";
 
 export default function HomePage() {
   const { locale } = useI18n();
@@ -44,12 +44,28 @@ export default function HomePage() {
 
   return (
     <Stack gap="xl">
-      <HomepageIntro
+      <BitcoinNowSection
         autoRefresh={autoRefresh}
+        chart={chart}
+        chartState={chartState}
+        currency={currency}
         dashboardState={dashboardState}
+        halvingState={halvingState}
+        network={network}
+        networkState={networkState}
         refreshing={refreshing}
         onAutoRefreshChange={setAutoRefresh}
+        onChartRetry={() => void loadChartData(range, currency)}
+        onNetworkRetry={() => void loadNetworkData()}
+        onOverviewRetry={() => void loadOverviewData(currency)}
+        onRangeChange={setRange}
         onRefresh={() => void refreshAll(range, currency)}
+        onSentimentRetry={() => void loadSentimentData()}
+        overview={overview}
+        overviewState={overviewState}
+        range={range}
+        sentiment={sentiment}
+        sentimentState={sentimentState}
         warnings={warnings}
       />
 

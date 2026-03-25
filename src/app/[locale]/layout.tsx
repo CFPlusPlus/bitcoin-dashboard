@@ -72,7 +72,7 @@ export default async function LocaleLayout({
             <PageContainer
               as="div"
               width="wide"
-              className="flex flex-col gap-3 py-3 sm:gap-3.5 sm:py-3.5 lg:flex-row lg:items-center lg:justify-between lg:gap-6"
+              className="flex flex-col gap-2.5 py-3 sm:gap-3 sm:py-3.5 lg:flex-row lg:items-center lg:justify-between lg:gap-6"
             >
               <Link href={`/${locale}`} className="min-w-0 max-w-fit text-left">
                 <div className="flex flex-col gap-1">

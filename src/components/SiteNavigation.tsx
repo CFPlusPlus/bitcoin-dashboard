@@ -17,7 +17,7 @@ export default function SiteNavigation() {
   ];
 
   return (
-    <div className="flex w-full min-w-0 items-center justify-end gap-3 sm:gap-4 lg:w-auto lg:gap-5">
+    <div className="flex w-full min-w-0 flex-col gap-2.5 sm:gap-3 lg:w-auto lg:flex-row lg:items-center lg:justify-end lg:gap-5">
       <nav
         className="flex min-w-0 items-center gap-3 sm:gap-4 lg:gap-5"
         aria-label={messages.nav.ariaLabel}
@@ -45,7 +45,7 @@ export default function SiteNavigation() {
         })}
       </nav>
 
-      <div className="flex items-center gap-1.5 sm:gap-2">
+      <div className="flex w-full items-center justify-between gap-1.5 sm:w-auto sm:justify-end sm:gap-2">
         <ThemeToggle />
         <CurrencySwitcher />
         <LanguageSwitcher />
