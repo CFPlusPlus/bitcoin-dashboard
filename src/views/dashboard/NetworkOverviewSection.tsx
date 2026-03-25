@@ -13,7 +13,6 @@ import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
 import Cluster from "../../components/ui/layout/Cluster";
-import SectionHeader from "../../components/ui/layout/SectionHeader";
 import Stack from "../../components/ui/layout/Stack";
 
 type NetworkOverviewSectionProps = {
@@ -164,7 +163,7 @@ function Sparkline({
   const gradientId = `${useId().replace(/:/g, "")}-hashrate-area-gradient`;
 
   if (points.length < 2) {
-    return <div className="h-28 rounded-sm border border-border-subtle bg-surface/50" />;
+    return <div className="h-28 rounded-md border border-border-subtle bg-surface/50" />;
   }
 
   const values = points.map((point) => point.ehPerSecond);
@@ -292,7 +291,7 @@ function Sparkline({
       ) : null}
       {activeHoveredPoint ? (
         <div
-          className="pointer-events-none absolute -translate-x-1/2 rounded-[6px] border border-accent/25 bg-app px-2 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.28)]"
+          className="pointer-events-none absolute -translate-x-1/2 rounded-md border border-accent/25 bg-app px-2 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.28)]"
           style={{
             left: `${tooltipLeftPercent}%`,
             top: `${tooltipTopPercent}%`,
@@ -321,13 +320,9 @@ function NetworkPanel({
   return (
     <div
       className={cn(
-        "flex h-full min-h-[18rem] flex-col gap-4 border border-border-subtle px-4 py-4 sm:px-5 sm:py-5",
+        "flex h-full min-h-[18rem] flex-col gap-4 rounded-md border border-border-subtle bg-surface px-4 py-4 sm:px-5 sm:py-5",
         className
       )}
-      style={{
-        background:
-          "linear-gradient(180deg, color-mix(in srgb, var(--token-color-text-primary) 3%, transparent), color-mix(in srgb, var(--token-color-text-primary) 1%, transparent))",
-      }}
     >
       <MetaText size="xs" className="font-mono uppercase tracking-[0.24em]">
         {title}
@@ -461,11 +456,7 @@ function RecentBlockTile({
       href={blockUrl}
       target="_blank"
       rel="noreferrer"
-      className="min-w-0 border border-border-subtle/80 px-3 py-3 transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
-      style={{
-        background:
-          "linear-gradient(180deg, color-mix(in srgb, var(--token-color-text-primary) 2.5%, transparent), color-mix(in srgb, var(--token-color-text-primary) 1%, transparent))",
-      }}
+      className="min-w-0 rounded-md border border-border-subtle/80 bg-surface px-3 py-3 transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
     >
       <div className="flex h-full flex-col items-center justify-between gap-2 text-center">
         <div className="space-y-1">
@@ -524,60 +515,27 @@ export default function NetworkOverviewSection({
 
   return (
     <Card as="section" tone="muted" padding="md" className="gap-4 border-border-default/80">
-      <SectionHeader
-        eyebrow={copy.eyebrow}
-        title={copy.title}
-        description={copy.description}
-        meta={<DataStateMeta state={networkState} />}
-      />
-
       <DataState
         state={networkState}
         onRetry={onRetry}
         retryBusy={networkState.isLoading}
         messages={stateMessages}
       >
-        <div className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-12">
-          <NetworkPanel title={copy.statsCardTitle} className="2xl:col-span-5">
-            <div className="grid gap-5 sm:grid-cols-2 xl:gap-x-6 xl:gap-y-6">
-              <StatLabel
-                label={copy.latestBlock}
-                value={
-                  network?.latestBlockHeight === null || network?.latestBlockHeight === undefined
-                    ? fallback
-                    : formatNumber(network.latestBlockHeight, locale)
-                }
-              />
-              <StatLabel
-                label={copy.hashrateCurrentLabel}
-                value={
-                  formatHashrate(network?.hashrate.currentEhPerSecond ?? null, numberLocale) ??
-                  fallback
-                }
-              />
-              <StatLabel
-                label={copy.difficultyCurrentLabel}
-                value={
-                  formatDifficulty(network?.difficulty.current ?? null, numberLocale) ?? fallback
-                }
-              />
-              <StatLabel
-                label={copy.pendingTransactionsLabel}
-                value={formatNumber(network?.mempool.pendingTransactions ?? null, locale)}
-              />
-              <StatLabel label={copy.priorityFeeLabel} value={highPriorityFee} />
-              <StatLabel
-                label={copy.unconfirmedSizeLabel}
-                value={
-                  network?.mempool.pendingVirtualSizeMb === null ||
-                  network?.mempool.pendingVirtualSizeMb === undefined
-                    ? fallback
-                    : `${formatDecimal(network.mempool.pendingVirtualSizeMb, numberLocale, 1)} MB`
-                }
-              />
-            </div>
-          </NetworkPanel>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle/80 pb-4">
+          <div>
+            <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
+              {copy.title}
+            </p>
+            <p className="mt-2 max-w-2xl text-sm text-fg-secondary">
+              {locale === "de"
+                ? "Gebuehren, Hashrate und Blockfluss kompakt in einem tieferen Netzwerkbild."
+                : "Fees, hashrate, and block flow in a deeper network read."}
+            </p>
+          </div>
+          <DataStateMeta state={networkState} />
+        </div>
 
+        <div className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-12">
           <NetworkPanel title={copy.hashrateCardTitle} className="2xl:col-span-7">
             <div className="flex items-start justify-between gap-3">
               <div className="flex flex-col gap-2">
@@ -596,7 +554,7 @@ export default function NetworkOverviewSection({
                 />
                 <div
                   className={cn(
-                    "font-numeric tabular-nums w-fit rounded-sm px-2 py-1 text-sm font-medium",
+                    "font-numeric tabular-nums w-fit rounded-md px-2 py-1 text-sm font-medium",
                     hashrateIsPositive ? "bg-success/12 text-success" : "bg-danger/12 text-danger"
                   )}
                 >
@@ -639,7 +597,7 @@ export default function NetworkOverviewSection({
             </div>
           </NetworkPanel>
 
-          <NetworkPanel title={copy.difficultyCardTitle} className="2xl:col-span-6">
+          <NetworkPanel title={copy.difficultyCardTitle} className="2xl:col-span-5">
             <KpiValue
               value={
                 <SafeValueText
@@ -693,7 +651,7 @@ export default function NetworkOverviewSection({
             </div>
           </NetworkPanel>
 
-          <NetworkPanel title={copy.feesCardTitle} className="2xl:col-span-6">
+          <NetworkPanel title={copy.feesCardTitle} className="2xl:col-span-12">
             <Stack gap="md">
               {[
                 {
@@ -738,60 +696,64 @@ export default function NetworkOverviewSection({
               ))}
             </Stack>
 
-            <Stack gap="md">
-              <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
-                {copy.projectedBlocksTitle}
-              </MetaText>
-              <Stack gap="sm">
-                {(network?.mempool.projectedBlocks ?? []).map((block) => (
-                  <DetailRow
-                    key={block.blockIndex}
-                    label={`#${block.blockIndex}`}
-                    leading={<span className="size-2 rounded-full bg-accent" aria-hidden="true" />}
-                    value={
-                      block.minFeeRate === null || block.maxFeeRate === null
-                        ? fallback
-                        : `${formatDecimal(block.minFeeRate, numberLocale, 1)}-${formatDecimal(block.maxFeeRate, numberLocale, 1)} sat/vB`
-                    }
-                    detail={
-                      block.transactionCount === null
-                        ? fallback
-                        : `${formatNumber(block.transactionCount, locale)} ${copy.transactionsSuffix}`
-                    }
-                  />
-                ))}
+            <div className="grid gap-6 xl:grid-cols-2">
+              <Stack gap="md">
+                <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
+                  {copy.projectedBlocksTitle}
+                </MetaText>
+                <Stack gap="sm">
+                  {(network?.mempool.projectedBlocks ?? []).map((block) => (
+                    <DetailRow
+                      key={block.blockIndex}
+                      label={`#${block.blockIndex}`}
+                      leading={
+                        <span className="size-2 rounded-full bg-accent" aria-hidden="true" />
+                      }
+                      value={
+                        block.minFeeRate === null || block.maxFeeRate === null
+                          ? fallback
+                          : `${formatDecimal(block.minFeeRate, numberLocale, 1)}-${formatDecimal(block.maxFeeRate, numberLocale, 1)} sat/vB`
+                      }
+                      detail={
+                        block.transactionCount === null
+                          ? fallback
+                          : `${formatNumber(block.transactionCount, locale)} ${copy.transactionsSuffix}`
+                      }
+                    />
+                  ))}
+                </Stack>
               </Stack>
-            </Stack>
 
-            <Stack gap="md">
-              <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
-                {copy.feeSpreadTitleSafe}
-              </MetaText>
-              <MetaText>{copy.feeSpreadDescriptionSafe}</MetaText>
-              <Stack gap="sm">
-                {[
-                  {
-                    label: copy.fastestToHourSpreadLabelSafe,
-                    value: formatFee(network?.feeSpread.fastestToHour ?? null, numberLocale),
-                  },
-                  {
-                    label: copy.hourToMinimumSpreadLabelSafe,
-                    value: formatFee(network?.feeSpread.hourToMinimum ?? null, numberLocale),
-                  },
-                  {
-                    label: copy.fastestToMinimumSpreadLabelSafe,
-                    value: formatFee(network?.feeSpread.fastestToMinimum ?? null, numberLocale),
-                  },
-                ].map((item) => (
-                  <DetailRow
-                    key={item.label}
-                    label={item.label}
-                    value={item.value ?? fallback}
-                    detail={copy.feeSpreadDetailSafe}
-                  />
-                ))}
+              <Stack gap="md">
+                <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
+                  {copy.feeSpreadTitleSafe}
+                </MetaText>
+                <MetaText>{copy.feeSpreadDescriptionSafe}</MetaText>
+                <Stack gap="sm">
+                  {[
+                    {
+                      label: copy.fastestToHourSpreadLabelSafe,
+                      value: formatFee(network?.feeSpread.fastestToHour ?? null, numberLocale),
+                    },
+                    {
+                      label: copy.hourToMinimumSpreadLabelSafe,
+                      value: formatFee(network?.feeSpread.hourToMinimum ?? null, numberLocale),
+                    },
+                    {
+                      label: copy.fastestToMinimumSpreadLabelSafe,
+                      value: formatFee(network?.feeSpread.fastestToMinimum ?? null, numberLocale),
+                    },
+                  ].map((item) => (
+                    <DetailRow
+                      key={item.label}
+                      label={item.label}
+                      value={item.value ?? fallback}
+                      detail={copy.feeSpreadDetailSafe}
+                    />
+                  ))}
+                </Stack>
               </Stack>
-            </Stack>
+            </div>
           </NetworkPanel>
 
           <NetworkPanel title={copy.activityCardTitleSafe} className="2xl:col-span-12 min-h-0">

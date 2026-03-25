@@ -61,7 +61,7 @@ export default function ThemeToggle() {
         activeTheme === "dark" ? messages.site.themeSwitchToLight : messages.site.themeSwitchToDark
       }
       className={cn(
-        "relative h-8 w-[3.6rem] overflow-hidden rounded-[0.32rem] border border-border-subtle bg-[color-mix(in_srgb,var(--token-color-bg-surface)_46%,transparent)] p-[0.15rem] transition-[border-color,background-color,box-shadow,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-app hover:border-border-default/80 hover:bg-surface/72 active:scale-[0.985]",
+        "relative h-8 w-[3.6rem] overflow-hidden rounded-md border border-border-subtle bg-[color-mix(in_srgb,var(--token-color-bg-surface)_46%,transparent)] p-[0.15rem] transition-[border-color,background-color,box-shadow,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-app hover:border-border-default/80 hover:bg-surface/72 active:scale-[0.985]",
         theme === null && "opacity-0"
       )}
       style={{
@@ -75,7 +75,7 @@ export default function ThemeToggle() {
     >
       <span
         aria-hidden="true"
-        className="absolute inset-[0.15rem] rounded-[0.22rem] transition-[background,opacity] duration-500"
+        className="absolute inset-[0.15rem] rounded-md transition-[background,opacity] duration-500"
         style={{
           background:
             activeTheme === "dark"
@@ -88,7 +88,7 @@ export default function ThemeToggle() {
       <span
         aria-hidden="true"
         className={cn(
-          "absolute top-[0.32rem] h-[1.35rem] w-[1.35rem] rounded-[0.2rem] blur-[10px] transition-[transform,background-color,opacity] duration-500 opacity-70",
+          "absolute top-[0.32rem] h-[1.35rem] w-[1.35rem] rounded-md blur-[10px] transition-[transform,background-color,opacity] duration-500 opacity-70",
           activeTheme === "dark" ? "translate-x-[1.86rem]" : "translate-x-[0.32rem]"
         )}
         style={{
@@ -102,7 +102,7 @@ export default function ThemeToggle() {
 
       <span
         className={cn(
-          "absolute left-[0.15rem] top-[0.15rem] flex size-[1.55rem] items-center justify-center rounded-[0.22rem] border border-border-default/85 bg-app text-fg shadow-[0_4px_10px_rgba(0,0,0,0.12)] transition-[transform,border-color,background-color,color,box-shadow] duration-500 will-change-transform",
+          "absolute left-[0.15rem] top-[0.15rem] flex size-[1.55rem] items-center justify-center rounded-md border border-border-default/85 bg-app text-fg shadow-[0_4px_10px_rgba(0,0,0,0.12)] transition-[transform,border-color,background-color,color,box-shadow] duration-500 will-change-transform",
           activeTheme === "dark" ? "translate-x-[1.72rem]" : "translate-x-0"
         )}
         style={{

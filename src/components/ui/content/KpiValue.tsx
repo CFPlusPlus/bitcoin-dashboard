@@ -6,7 +6,7 @@ import MetaText from "./MetaText";
 const kpiValueVariants = cva("font-numeric tabular-nums font-medium tracking-[-0.045em] text-fg", {
   variants: {
     size: {
-      md: "text-[clamp(1.75rem,5vw,2rem)] leading-[0.95] sm:text-[clamp(1.9rem,3vw,2.15rem)]",
+      md: "text-[clamp(1.65rem,4.6vw,1.95rem)] leading-[0.93] sm:text-[clamp(1.8rem,2.8vw,2.05rem)]",
       lg: "text-[2.2rem] leading-none sm:text-[3.35rem]",
     },
     tone: {
@@ -42,9 +42,9 @@ export default function KpiValue({
   ...props
 }: KpiValueProps) {
   return (
-    <div className={cn("flex flex-col gap-2", className)} {...props}>
+    <div className={cn("flex flex-col gap-1.5", className)} {...props}>
       {label ? (
-        <MetaText className="uppercase tracking-[0.16em]" size="xs">
+        <MetaText className="uppercase tracking-[0.18em]" size="xs">
           {label}
         </MetaText>
       ) : null}

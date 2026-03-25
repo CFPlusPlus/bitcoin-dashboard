@@ -176,13 +176,7 @@ export default function MarketContextSection({
                 points={volumeSeries.points}
               />
             ) : null}
-            <div
-              className="overflow-hidden rounded-xl border border-border-subtle 2xl:col-span-2"
-              style={{
-                background:
-                  "linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 92%, black 8%), color-mix(in srgb, var(--token-color-bg-app) 94%, black 6%))",
-              }}
-            >
+            <div className="overflow-hidden rounded-md border border-border-subtle bg-surface 2xl:col-span-2">
               <div className="px-4 py-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="min-w-0">

@@ -176,13 +176,7 @@ export default function MarketMetricChart({
   }
 
   return (
-    <div
-      className="relative rounded-xl border border-border-subtle"
-      style={{
-        background:
-          "linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 90%, var(--token-color-info) 10%) 0%, color-mix(in srgb, var(--token-color-bg-surface) 94%, var(--token-color-bg-app) 6%) 100%)",
-      }}
-    >
+    <div className="relative rounded-md border border-border-subtle bg-surface">
       <div className="px-4 pt-4">
         <Stack gap="sm" className="min-w-0">
           <Cluster align="center" gap="sm">

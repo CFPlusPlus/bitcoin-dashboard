@@ -4,7 +4,7 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../../../lib/cn";
 
 const stateBadgeVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-[0.68rem] font-medium uppercase tracking-[0.16em]",
+  "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[0.68rem] font-medium uppercase tracking-[0.16em]",
   {
     variants: {
       tone: {

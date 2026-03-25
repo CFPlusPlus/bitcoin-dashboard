@@ -113,13 +113,7 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
         retryBusy={halvingState.isLoading}
         messages={stateMessages}
       >
-        <div
-          className="overflow-hidden border border-border-subtle/90 px-4 py-4 sm:px-6 sm:py-5"
-          style={{
-            background:
-              "radial-gradient(circle at top left, color-mix(in srgb, var(--token-color-accent-primary) 14%, transparent), color-mix(in srgb, var(--token-color-accent-primary) 2%, transparent) 30%, transparent 55%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 92%, black 8%), color-mix(in srgb, var(--token-color-bg-app) 94%, black 6%))",
-          }}
-        >
+        <div className="overflow-hidden rounded-md border border-border-subtle/90 bg-surface px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <MetaText

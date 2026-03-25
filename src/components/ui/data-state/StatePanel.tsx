@@ -80,7 +80,7 @@ export default function StatePanel({
       <div className="flex items-start gap-3">
         <span
           className={cn(
-            "flex shrink-0 items-center justify-center rounded-sm border border-border-subtle",
+            "flex shrink-0 items-center justify-center rounded-md border border-border-subtle",
             compact ? "mt-0.5 size-8" : "size-10",
             iconWrapClassName
           )}

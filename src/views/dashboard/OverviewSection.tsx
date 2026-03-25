@@ -352,7 +352,7 @@ export default function OverviewSection({
       >
         <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.72fr)_minmax(22rem,0.96fr)]">
           <div
-            className="flex h-full flex-col justify-between gap-6 overflow-hidden border border-accent/25 px-5 py-5 sm:px-7 sm:py-6"
+            className="flex h-full flex-col justify-between gap-6 overflow-hidden rounded-md border border-accent/25 px-5 py-5 sm:px-7 sm:py-6"
             style={{
               background:
                 "linear-gradient(138deg, color-mix(in srgb, var(--token-color-accent-primary) 8%, transparent) 0%, color-mix(in srgb, var(--token-color-info) 5%, transparent) 18%, transparent 40%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 92%, black 8%), color-mix(in srgb, var(--token-color-bg-app) 94%, black 6%))",
@@ -397,7 +397,7 @@ export default function OverviewSection({
                   points={livePoints}
                 />
               ) : (
-                <div className="flex min-h-[9.5rem] items-center justify-center border border-border-subtle bg-muted-surface px-4 py-5">
+                <div className="flex min-h-[9.5rem] items-center justify-center rounded-md border border-border-subtle bg-muted-surface px-4 py-5">
                   <p className="max-w-xl text-center text-sm leading-6 text-fg-secondary">
                     {liveStatusText}
                   </p>

@@ -9,7 +9,6 @@ import Card from "../../components/ui/Card";
 import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
-import SectionHeader from "../../components/ui/layout/SectionHeader";
 
 type NetworkHighlightsSectionProps = {
   network: Network | null;
@@ -43,11 +42,11 @@ function formatHashrateValue(value: number | null, locale: "de" | "en", fallback
 
 function HighlightTile({ label, meta, value }: { label: string; meta?: string; value: string }) {
   return (
-    <div className="flex min-h-[8rem] flex-col gap-2 border border-border-subtle bg-surface px-4 py-4">
+    <div className="flex min-h-[7rem] flex-col gap-2 rounded-md border border-border-subtle bg-surface px-4 py-4">
       <MetaText size="xs" className="uppercase tracking-[0.16em]">
         {label}
       </MetaText>
-      <p className="font-numeric text-[clamp(1.55rem,4vw,2.15rem)] font-medium leading-[0.95] tracking-[-0.04em] text-fg">
+      <p className="font-numeric text-[clamp(1.4rem,3.4vw,1.9rem)] font-medium leading-[0.95] tracking-[-0.04em] text-fg">
         {value}
       </p>
       {meta ? <MetaText>{meta}</MetaText> : null}
@@ -66,20 +65,23 @@ export default function NetworkHighlightsSection({
   const stateMessages = getDashboardSectionStateMessages("network", networkState.error, locale);
 
   return (
-    <Card as="section" tone="muted" padding="md" gap="md" className="border-border-default/80">
-      <SectionHeader
-        eyebrow={copy.eyebrow}
-        title={copy.statsCardTitle}
-        description={copy.description}
-        meta={<DataStateMeta state={networkState} />}
-      />
-
+    <Card as="section" tone="default" padding="md" gap="md" className="border-border-default/80">
       <DataState
         state={networkState}
         onRetry={onRetry}
         retryBusy={networkState.isLoading}
         messages={stateMessages}
       >
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle/80 pb-4">
+          <div>
+            <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
+              {copy.statsCardTitle}
+            </p>
+            <p className="mt-2 max-w-2xl text-sm text-fg-secondary">{copy.description}</p>
+          </div>
+          <DataStateMeta state={networkState} />
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <HighlightTile
             label={copy.latestBlock}

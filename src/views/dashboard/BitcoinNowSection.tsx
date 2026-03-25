@@ -78,7 +78,7 @@ function SnapshotSurface({ children, eyebrow, meta, title }: SnapshotSurfaceProp
       as="section"
       tone="elevated"
       padding="md"
-      className="flex flex-col gap-4 border-border-default/80 bg-muted-surface/55"
+      className="flex flex-col gap-4 border-border-default/80 bg-muted-surface/55 xl:min-h-[18.5rem]"
     >
       <div className="flex items-start justify-between gap-3 border-b border-border-subtle/80 pb-4">
         <div className="min-w-0">
@@ -97,7 +97,7 @@ function SnapshotSurface({ children, eyebrow, meta, title }: SnapshotSurfaceProp
 
 function SnapshotStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex min-w-0 flex-col gap-1.5 rounded-sm border border-border-subtle/80 bg-surface px-3 py-3">
+    <div className="flex min-w-0 flex-col gap-1.5 rounded-md border border-border-subtle/80 bg-surface px-3 py-3">
       <MetaText size="xs" className="uppercase tracking-[0.16em]">
         {label}
       </MetaText>
@@ -192,7 +192,7 @@ function HalvingSnapshotCard({
               }
             />
           </div>
-          <div className="rounded-sm border border-accent/25 bg-accent-soft px-3 py-3">
+          <div className="rounded-md border border-accent/25 bg-accent-soft px-3 py-3">
             <MetaText size="xs" className="uppercase tracking-[0.16em] text-accent-strong">
               {networkCopy.halvingDaysRemainingLabel}
             </MetaText>
@@ -234,7 +234,7 @@ function SentimentSnapshotCard({
         messages={stateMessages}
       >
         <Stack gap="md">
-          <div className="rounded-sm border border-border-subtle/80 bg-surface px-4 py-4">
+          <div className="rounded-md border border-border-subtle/80 bg-surface px-4 py-4">
             <KpiValue
               label={copy.indexLabel}
               value={formatNumber(sentiment?.value ?? null, locale)}

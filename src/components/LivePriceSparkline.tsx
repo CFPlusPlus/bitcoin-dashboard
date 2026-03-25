@@ -296,7 +296,7 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
 
   if (usablePoints.length < 2) {
     return (
-      <div className="flex h-[7.5rem] items-center justify-center border border-dashed border-border-subtle bg-surface/70 px-4 text-sm text-fg-muted">
+      <div className="flex h-[7.5rem] items-center justify-center rounded-md border border-dashed border-border-subtle bg-surface/70 px-4 text-sm text-fg-muted">
         {copy.liveChartEmpty}
       </div>
     );
@@ -410,7 +410,7 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
 
   return (
     <div
-      className="relative isolate overflow-hidden border p-4 sm:p-5"
+      className="relative isolate overflow-hidden rounded-md border p-4 sm:p-5"
       style={{
         borderColor: "color-mix(in srgb, var(--token-color-border-default) 75%, transparent)",
         background:

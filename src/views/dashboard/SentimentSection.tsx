@@ -196,7 +196,7 @@ export default function SentimentSection({
           <div
             className="overflow-hidden rounded-md border px-4 py-5 sm:px-5 sm:py-6"
             style={{
-              background: `linear-gradient(180deg, color-mix(in srgb, ${currentVisual.accent} 10%, var(--token-color-bg-elevated) 90%) 0%, color-mix(in srgb, ${currentVisual.accent} 4%, var(--token-color-bg-surface) 96%) 48%, var(--token-color-bg-surface) 100%)`,
+              backgroundColor: "var(--token-color-bg-surface)",
               borderColor: currentVisual.strong,
             }}
           >
@@ -282,7 +282,7 @@ export default function SentimentSection({
                 return (
                   <div
                     key={range.key}
-                    className="min-w-[6.25rem] rounded-sm border px-3 py-2 text-center transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)]"
+                    className="min-w-[6.25rem] rounded-md border px-3 py-2 text-center transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)]"
                     style={{
                       backgroundColor: isActive ? visual.soft : "var(--token-color-bg-elevated)",
                       borderColor: isActive ? visual.strong : "var(--token-color-border-subtle)",
@@ -302,7 +302,7 @@ export default function SentimentSection({
           </div>
 
           <div className="grid gap-3 md:grid-cols-2">
-            <div className="flex flex-col gap-3 border border-border-subtle bg-surface px-4 py-4">
+            <div className="flex flex-col gap-3 rounded-md border border-border-subtle bg-surface px-4 py-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <MetaText size="xs" className="uppercase tracking-[0.16em]">
@@ -319,14 +319,14 @@ export default function SentimentSection({
               <p className="text-sm leading-relaxed text-fg-secondary">{zoneCopy.description}</p>
             </div>
 
-            <div className="flex flex-col gap-3 border border-border-subtle bg-surface px-4 py-4">
+            <div className="flex flex-col gap-3 rounded-md border border-border-subtle bg-surface px-4 py-4">
               <MetaText size="xs" className="uppercase tracking-[0.16em]">
                 {copy.weekContextLabel}
               </MetaText>
               <p className="text-sm leading-relaxed text-fg-secondary">{weeklyContext}</p>
             </div>
 
-            <div className="flex flex-col gap-3 border border-border-subtle bg-surface px-4 py-4">
+            <div className="flex flex-col gap-3 rounded-md border border-border-subtle bg-surface px-4 py-4">
               <MetaText size="xs" className="uppercase tracking-[0.16em]">
                 {copy.nextUpdate}
               </MetaText>
@@ -336,7 +336,7 @@ export default function SentimentSection({
               <MetaText>{copy.nextUpdateHint}</MetaText>
             </div>
 
-            <div className="flex flex-col gap-3 border border-border-subtle bg-surface px-4 py-4">
+            <div className="flex flex-col gap-3 rounded-md border border-border-subtle bg-surface px-4 py-4">
               <MetaText size="xs" className="uppercase tracking-[0.16em]">
                 {copy.sourceLabel}
               </MetaText>

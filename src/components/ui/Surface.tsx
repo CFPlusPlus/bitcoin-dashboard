@@ -3,7 +3,7 @@ import { createElement, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../lib/cn";
 
 export const surfaceVariants = cva(
-  "rounded-md border border-border-default/90 bg-surface text-fg shadow-surface",
+  "rounded-md border border-border-default bg-surface text-fg shadow-surface",
   {
     variants: {
       padding: {
@@ -16,9 +16,9 @@ export const surfaceVariants = cva(
         default: "bg-surface",
         elevated: "bg-elevated shadow-elevated",
         muted: "bg-muted-surface shadow-none",
-        accent: "border-accent/30 bg-accent-soft",
+        accent: "border-accent/40 bg-accent-soft",
         interactive:
-          "bg-elevated shadow-surface transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] motion-safe:hover:border-accent/40 motion-safe:hover:bg-surface",
+          "bg-elevated shadow-surface transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] motion-safe:hover:border-accent/55 motion-safe:hover:bg-surface",
       },
     },
     defaultVariants: {

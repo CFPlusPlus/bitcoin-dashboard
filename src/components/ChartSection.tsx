@@ -91,7 +91,7 @@ export default function ChartSection({
         retryLabel={copy.retryLabel}
         messages={stateMessages}
       >
-        <div className="border border-border-subtle bg-muted-surface p-3 sm:p-4">
+        <div className="rounded-md border border-border-subtle bg-muted-surface p-3 sm:p-4">
           <PriceChart
             points={chart?.points ?? []}
             range={chart?.range ?? range}

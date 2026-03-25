@@ -26,7 +26,7 @@ export default function LegalPlaceholderPage({
         <p className="max-w-2xl text-base text-fg-secondary sm:text-lg">{description}</p>
       </Stack>
 
-      <section className="max-w-3xl rounded-lg border border-border-default bg-surface px-5 py-5 shadow-surface sm:px-6 sm:py-6">
+      <section className="max-w-3xl rounded-md border border-border-default bg-surface px-5 py-5 shadow-surface sm:px-6 sm:py-6">
         <Stack gap="sm">
           <h2 className="font-serif text-2xl tracking-[-0.03em] text-fg">{bodyTitle}</h2>
           <p className="text-sm leading-7 text-fg-secondary sm:text-base">{body}</p>
