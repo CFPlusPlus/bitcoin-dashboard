@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { useDashboardPollingLeader } from "./useDashboardPollingLeader";
 
@@ -16,8 +16,10 @@ describe("useDashboardPollingLeader", () => {
       expect(Number(first.result.current) + Number(second.result.current)).toBe(1);
     });
 
-    first.unmount();
-    document.dispatchEvent(new Event("visibilitychange"));
+    act(() => {
+      first.unmount();
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
 
     await waitFor(() => {
       expect(second.result.current).toBe(true);
