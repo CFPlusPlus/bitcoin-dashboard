@@ -1,6 +1,7 @@
 import Link from "next/link";
 import packageJson from "../../package.json";
 import { buttonVariants } from "./ui/Button";
+import PageContainer from "./ui/layout/PageContainer";
 import type { Dictionary } from "../i18n/dictionaries";
 import type { AppLocale } from "../i18n/config";
 import { getLocalizedPathname } from "../i18n/config";
@@ -22,14 +23,12 @@ export default function SiteFooter({ locale, messages }: SiteFooterProps) {
   const [taglineLead, ...taglineRest] = messages.tagline.split(" ");
 
   return (
-    <footer
-      className="mt-10 border-t border-border-default/80"
-      style={{
-        background:
-          "linear-gradient(180deg, color-mix(in srgb, var(--token-color-accent-primary) 7%, transparent) 0%, transparent 100%), var(--token-color-bg-muted)",
-      }}
-    >
-      <div className="mx-auto grid w-full max-w-[var(--container-max-width)] gap-8 px-[var(--container-padding-x)] py-8 sm:grid-cols-[minmax(0,1.4fr)_minmax(14rem,0.9fr)] sm:py-10">
+    <footer className="mt-10 border-t border-border-default/80 bg-muted-surface">
+      <PageContainer
+        as="div"
+        width="wide"
+        className="grid w-full gap-6 py-6 sm:grid-cols-[minmax(0,1.4fr)_minmax(14rem,0.9fr)] sm:py-8"
+      >
         <div className="space-y-3">
           <p className="font-mono text-[0.68rem] uppercase tracking-[0.28em] text-accent">
             {messages.name}
@@ -93,7 +92,7 @@ export default function SiteFooter({ locale, messages }: SiteFooterProps) {
             </p>
           </div>
         </div>
-      </div>
+      </PageContainer>
     </footer>
   );
 }
