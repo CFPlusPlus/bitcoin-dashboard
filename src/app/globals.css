@@ -47,7 +47,18 @@
   }
 
   body {
-    background: var(--token-color-bg-app);
+    background:
+      radial-gradient(
+        circle at top left,
+        color-mix(in srgb, var(--token-color-accent-primary) 6%, transparent),
+        transparent 24rem
+      ),
+      radial-gradient(
+        circle at top right,
+        color-mix(in srgb, var(--token-color-text-primary) 4%, transparent),
+        transparent 26rem
+      ),
+      var(--token-color-bg-app);
     color: var(--token-color-text-primary);
     font-family: var(--token-font-family-sans);
     line-height: 1.5;

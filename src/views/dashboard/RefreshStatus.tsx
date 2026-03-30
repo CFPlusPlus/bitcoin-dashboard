@@ -43,13 +43,20 @@ export default function RefreshStatus({ autoRefresh, dashboardState }: RefreshSt
   const copy = messages.dashboard.controls;
 
   return (
-    <div className="flex flex-col items-start gap-2">
-      <div className="flex flex-wrap items-center gap-2 text-sm text-fg-secondary">
-        <span className="font-medium text-fg-muted">{copy.statusLabel}</span>
-        <span>{autoRefresh ? copy.everyMinute : copy.paused}</span>
+    <div className="flex flex-col items-start gap-2.5">
+      <div className="flex flex-wrap items-center gap-2.5">
+        <span className="inline-flex min-h-8 items-center rounded-md border border-border-default/80 bg-muted-surface px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-fg">
+          {autoRefresh ? copy.everyMinute : copy.paused}
+        </span>
+        <DataStateMeta
+          className="justify-start"
+          lastUpdatedLabel={messages.common.lastUpdated}
+          state={dashboardState}
+        />
       </div>
-      <DataStateMeta lastUpdatedLabel={messages.common.lastUpdated} state={dashboardState} />
-      <p className="text-sm text-fg-muted">{getStatusCopy(dashboardState, copy)}</p>
+      <p className="max-w-[34rem] text-sm leading-6 text-fg-muted">
+        {getStatusCopy(dashboardState, copy)}
+      </p>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "../../../lib/cn";
 import Surface from "../Surface";
 
@@ -12,37 +12,60 @@ const toneStyles: Record<
     iconWrapClassName: string;
     messageClassName: string;
     surfaceClassName: string;
+    surfaceStyle?: CSSProperties;
+    titleClassName?: string;
   }
 > = {
   empty: {
-    iconClassName: "text-info",
-    iconWrapClassName: "bg-elevated",
-    messageClassName: "text-fg-muted",
-    surfaceClassName: "border-dashed border-border-subtle bg-[var(--state-empty-bg)]",
+    iconClassName: "text-fg-muted",
+    iconWrapClassName: "bg-muted-surface",
+    messageClassName: "text-fg-secondary",
+    surfaceClassName: "border-border-subtle/90 bg-surface/92",
+    surfaceStyle: {
+      background:
+        "linear-gradient(180deg, color-mix(in srgb, var(--token-color-text-primary) 1.8%, transparent), transparent 72%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-surface) 96%, transparent), color-mix(in srgb, var(--token-color-bg-muted) 58%, transparent))",
+    },
   },
   error: {
     iconClassName: "text-danger",
     iconWrapClassName: "bg-danger/12",
-    messageClassName: "text-[var(--state-error-fg)]",
-    surfaceClassName: "border-danger/25 bg-[var(--state-error-bg)]",
+    messageClassName: "text-fg-secondary",
+    surfaceClassName: "border-danger/20 bg-surface/96",
+    surfaceStyle: {
+      background:
+        "linear-gradient(180deg, color-mix(in srgb, var(--token-color-danger) 7%, transparent), transparent 76%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-surface) 98%, transparent), color-mix(in srgb, var(--token-color-bg-muted) 48%, transparent))",
+    },
+    titleClassName: "text-fg",
   },
   loading: {
     iconClassName: "animate-spin text-[var(--state-loading-fg)]",
     iconWrapClassName: "bg-accent-soft",
-    messageClassName: "text-fg-muted",
-    surfaceClassName: "border-dashed border-border-default bg-[var(--state-loading-bg)]",
+    messageClassName: "text-fg-secondary",
+    surfaceClassName: "border-border-default/80 bg-surface/96",
+    surfaceStyle: {
+      background:
+        "linear-gradient(180deg, color-mix(in srgb, var(--token-color-accent-primary) 7%, transparent), transparent 76%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-surface) 98%, transparent), color-mix(in srgb, var(--token-color-bg-muted) 42%, transparent))",
+    },
   },
   partial: {
     iconClassName: "text-[var(--state-partial-fg)]",
     iconWrapClassName: "bg-info/10",
     messageClassName: "text-fg-secondary",
-    surfaceClassName: "border-info/25 bg-[var(--state-partial-bg)]",
+    surfaceClassName: "border-info/18 bg-surface/95",
+    surfaceStyle: {
+      background:
+        "linear-gradient(180deg, color-mix(in srgb, var(--token-color-info) 7%, transparent), transparent 80%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-surface) 98%, transparent), color-mix(in srgb, var(--token-color-bg-muted) 44%, transparent))",
+    },
   },
   stale: {
     iconClassName: "text-[var(--state-stale-fg)]",
     iconWrapClassName: "bg-warning/10",
     messageClassName: "text-fg-secondary",
-    surfaceClassName: "border-warning/25 bg-[var(--state-stale-bg)]",
+    surfaceClassName: "border-warning/18 bg-surface/95",
+    surfaceStyle: {
+      background:
+        "linear-gradient(180deg, color-mix(in srgb, var(--token-color-warning) 7%, transparent), transparent 80%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-surface) 98%, transparent), color-mix(in srgb, var(--token-color-bg-muted) 44%, transparent))",
+    },
   },
 };
 
@@ -65,19 +88,29 @@ export default function StatePanel({
   title,
   tone,
 }: StatePanelProps) {
-  const { iconClassName, iconWrapClassName, messageClassName, surfaceClassName } = toneStyles[tone];
+  const {
+    iconClassName,
+    iconWrapClassName,
+    messageClassName,
+    surfaceClassName,
+    surfaceStyle,
+    titleClassName,
+  } = toneStyles[tone];
 
   return (
     <Surface
       padding={compact ? "sm" : "md"}
       className={cn(
-        compact ? "flex flex-col gap-3" : "flex flex-col gap-4",
+        compact
+          ? "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+          : "flex flex-col gap-4",
         surfaceClassName,
         className
       )}
-      aria-live={tone === "loading" ? "polite" : "assertive"}
+      style={surfaceStyle}
+      aria-live={tone === "error" ? "assertive" : "polite"}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex min-w-0 items-start gap-3">
         <span
           className={cn(
             "flex shrink-0 items-center justify-center rounded-md border border-border-subtle",
@@ -89,12 +122,16 @@ export default function StatePanel({
         </span>
 
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <p className="font-medium text-fg">{title}</p>
+          <p className={cn("font-medium text-fg", titleClassName)}>{title}</p>
           <p className={cn("text-sm leading-relaxed", messageClassName)}>{description}</p>
         </div>
       </div>
 
-      {action ? <div className="flex flex-wrap items-center gap-2">{action}</div> : null}
+      {action ? (
+        <div className={cn("flex flex-wrap items-center gap-2", compact && "sm:shrink-0")}>
+          {action}
+        </div>
+      ) : null}
     </Surface>
   );
 }

@@ -21,6 +21,26 @@ function toLowerText(value: string) {
   return normalizeText(value).toLowerCase();
 }
 
+function looksTechnicalError(raw: string, normalized: string) {
+  return (
+    normalized.includes("typeerror") ||
+    normalized.includes("syntaxerror") ||
+    normalized.includes("referenceerror") ||
+    normalized.includes("aborterror") ||
+    normalized.includes("zoderror") ||
+    normalized.includes("fetch failed") ||
+    normalized.includes("request failed") ||
+    normalized.includes("unexpected token") ||
+    normalized.includes("response status") ||
+    normalized.includes("html") ||
+    normalized.includes("json") ||
+    normalized.includes("stack") ||
+    /https?:\/\//i.test(raw) ||
+    /\bat\s+\S+/.test(raw) ||
+    /[<{[]/.test(raw)
+  );
+}
+
 export function getUnavailableText(locale: AppLocale = "de") {
   return getDictionary(locale).common.unavailable;
 }
@@ -61,6 +81,10 @@ export function sanitizeDashboardErrorMessage(
     normalized.includes("upstream") ||
     /\b\d{3}\b/.test(normalized)
   ) {
+    return fallback;
+  }
+
+  if (looksTechnicalError(trimmed, normalized)) {
     return fallback;
   }
 

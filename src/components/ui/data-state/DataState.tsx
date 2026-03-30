@@ -69,6 +69,7 @@ export default function DataState({
     if (state.status === "empty" && messages.empty) {
       return (
         <EmptyState
+          action={retryAction}
           className={className}
           title={messages.empty.title}
           description={messages.empty.description}

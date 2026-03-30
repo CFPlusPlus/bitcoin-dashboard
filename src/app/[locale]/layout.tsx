@@ -72,18 +72,18 @@ export default async function LocaleLayout({
             <PageContainer
               as="div"
               width="wide"
-              className="flex flex-col gap-2.5 py-3 sm:gap-3 sm:py-3.5 lg:flex-row lg:items-center lg:justify-between lg:gap-6"
+              className="flex flex-col gap-2 py-2 sm:gap-3 sm:py-3.5 lg:flex-row lg:items-center lg:justify-between lg:gap-6"
             >
               <Link href={`/${locale}`} className="min-w-0 max-w-fit text-left">
                 <div className="flex flex-col gap-1">
-                  <p className="font-serif text-[1.55rem] leading-none tracking-[0.002em] text-fg sm:text-[1.78rem]">
+                  <p className="font-serif text-[1.34rem] leading-none tracking-[0.002em] text-fg sm:text-[1.78rem]">
                     <span className="text-fg">bit</span>
                     <span className="text-accent">stats</span>
                     <span className="ml-0.75 inline-block text-[0.56em] text-fg-secondary">
                       .org
                     </span>
                   </p>
-                  <p className="font-sans text-[0.72rem] leading-[1.1] tracking-[-0.005em] text-fg-muted sm:text-[0.8rem]">
+                  <p className="hidden font-sans text-[0.8rem] leading-[1.1] tracking-[-0.005em] text-fg-muted sm:block">
                     Bitcoin Data, Charts &amp; Tools
                   </p>
                 </div>

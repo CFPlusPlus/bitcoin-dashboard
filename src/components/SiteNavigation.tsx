@@ -17,9 +17,9 @@ export default function SiteNavigation() {
   ];
 
   return (
-    <div className="flex w-full min-w-0 flex-col gap-2.5 sm:gap-3 lg:w-auto lg:flex-row lg:items-center lg:justify-end lg:gap-5">
+    <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:gap-y-3 lg:w-auto lg:flex-nowrap lg:justify-end lg:gap-5">
       <nav
-        className="flex min-w-0 items-center gap-3 sm:gap-4 lg:gap-5"
+        className="flex min-w-0 items-center gap-2.5 sm:gap-4 lg:gap-5"
         aria-label={messages.nav.ariaLabel}
       >
         {navItems.map((item) => {
@@ -35,8 +35,8 @@ export default function SiteNavigation() {
               href={localizedHref}
               className={
                 isActive
-                  ? "inline-flex h-8 items-center border-b border-accent pb-px text-[0.69rem] font-medium uppercase tracking-[0.22em] text-fg transition-[border-color,color,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)]"
-                  : "inline-flex h-8 items-center border-b border-transparent pb-px text-[0.69rem] font-medium uppercase tracking-[0.22em] text-fg-secondary transition-[border-color,color,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:text-fg hover:border-border-default/70"
+                  ? "inline-flex h-7 items-center border-b border-accent pb-px text-[0.68rem] font-medium uppercase tracking-[0.22em] text-fg transition-[border-color,color,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)] sm:h-8 sm:text-[0.69rem]"
+                  : "inline-flex h-7 items-center border-b border-transparent pb-px text-[0.68rem] font-medium uppercase tracking-[0.22em] text-fg-secondary transition-[border-color,color,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:text-fg hover:border-border-default/70 sm:h-8 sm:text-[0.69rem]"
               }
             >
               {item.label}
@@ -45,7 +45,7 @@ export default function SiteNavigation() {
         })}
       </nav>
 
-      <div className="flex w-full items-center justify-between gap-1.5 sm:w-auto sm:justify-end sm:gap-2">
+      <div className="flex items-center justify-end gap-1.5 sm:gap-2">
         <ThemeToggle />
         <CurrencySwitcher />
         <LanguageSwitcher />

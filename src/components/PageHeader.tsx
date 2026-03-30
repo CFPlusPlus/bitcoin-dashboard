@@ -12,16 +12,16 @@ export default function PageHeader() {
   return (
     <header className="max-w-[46rem]">
       <Stack gap="md">
-        <div className="flex items-center gap-3">
-          <span aria-hidden className="h-px w-10 bg-accent/65" />
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <span aria-hidden className="h-px w-8 bg-accent/65 sm:w-10" />
           <Eyebrow>{messages.home.headerEyebrow}</Eyebrow>
         </div>
 
-        <Stack gap="md" className="max-w-[40rem]">
+        <Stack gap="sm" className="max-w-[40rem] sm:gap-md">
           <SectionTitle
             as="h1"
             size="xl"
-            className="max-w-[11ch] text-[2.65rem] leading-[0.95] tracking-[-0.045em] sm:text-[4.05rem] xl:text-[4.85rem]"
+            className="max-w-[10.5ch] text-[2.4rem] leading-[0.94] tracking-[-0.045em] sm:max-w-[11ch] sm:text-[4.05rem] xl:text-[4.85rem]"
           >
             <>
               {messages.home.headerTitlePrefix}{" "}
@@ -31,7 +31,7 @@ export default function PageHeader() {
           <MetaText
             size="base"
             tone="strong"
-            className="max-w-[31rem] text-[0.98rem] leading-7 text-fg-secondary/95 sm:text-[1.02rem]"
+            className="max-w-[31rem] text-[0.96rem] leading-6 text-fg-secondary/95 sm:text-[1.02rem] sm:leading-7"
           >
             {messages.home.headerDescription}
           </MetaText>

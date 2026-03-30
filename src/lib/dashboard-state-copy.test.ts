@@ -28,6 +28,15 @@ describe("dashboard-state-copy", () => {
     ).toBe("Der Datendienst meldet vorübergehend keine neuen Werte.");
   });
 
+  it("replaces technical runtime errors with calmer fallback copy", () => {
+    expect(
+      sanitizeDashboardErrorMessage(
+        "TypeError: fetch failed at loadOverviewData (https://example.com/app.js:12:5)",
+        "Es konnten noch keine verlässlichen Marktdaten geladen werden."
+      )
+    ).toBe("Es konnten noch keine verlässlichen Marktdaten geladen werden.");
+  });
+
   it("builds consistent messages for dashboard sections", () => {
     expect(
       getDashboardSectionStateMessages("overview", "CoinGecko timeout").error.description
