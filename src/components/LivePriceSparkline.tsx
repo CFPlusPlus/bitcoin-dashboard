@@ -1,9 +1,25 @@
 "use client";
 
-import { type PointerEvent, useEffect, useId, useRef, useState } from "react";
+import {
+  Chart as ChartJS,
+  Filler,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Tooltip,
+  type ChartData,
+  type ChartOptions,
+  type Plugin,
+  type ScriptableContext,
+  type TooltipItem,
+} from "chart.js";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Line } from "react-chartjs-2";
 import { useI18n } from "../i18n/context";
 import { formatCurrency } from "../lib/format";
 import type { Currency } from "../types/dashboard";
+
+ChartJS.register(Filler, LinearScale, LineElement, PointElement, Tooltip);
 
 export type LivePricePoint = {
   price: number;
@@ -14,6 +30,24 @@ type LivePriceSparklineProps = {
   currency: Currency;
   performancePercent: number | null;
   points: LivePricePoint[];
+};
+
+type LiveChartTheme = {
+  areaEnd: string;
+  areaStart: string;
+  bgApp: string;
+  fontNumeric: string;
+  fontSans: string;
+  guide: string;
+  grid: string;
+  line: string;
+  lineEnd: string;
+  pointFill: string;
+  pointStroke: string;
+  textMuted: string;
+  textPrimary: string;
+  tooltipBackground: string;
+  tooltipBorder: string;
 };
 
 const LIVE_WINDOW_MS = 30_000;
@@ -30,6 +64,14 @@ const SAMPLE_INTERVAL_MS = 1000 / 48;
 const LIVE_DOT_RADIUS = 7;
 const MAX_FRAME_GAP_MS = 250;
 const MAX_FRAME_DELTA_SECONDS = 1 / 20;
+
+function getAbsoluteFrameTimestamp(frameTime: number) {
+  if (typeof performance !== "undefined" && Number.isFinite(performance.timeOrigin)) {
+    return performance.timeOrigin + frameTime;
+  }
+
+  return Date.now();
+}
 
 function formatTimeLabel(timestamp: number, locale: "de" | "en") {
   const code = locale === "de" ? "de-DE" : "en-US";
@@ -52,126 +94,262 @@ function formatHoverDateLabel(timestamp: number, locale: "de" | "en") {
   }).format(new Date(timestamp));
 }
 
-function buildLinePath(points: Array<{ x: number; y: number }>) {
-  if (points.length === 0) return "";
-  let path = `M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`;
+function parseHexColor(value: string) {
+  const normalized = value.trim().replace("#", "");
 
-  for (let index = 1; index < points.length; index += 1) {
-    path += ` L ${points[index].x.toFixed(2)} ${points[index].y.toFixed(2)}`;
+  if (normalized.length === 3) {
+    return [
+      Number.parseInt(normalized[0] + normalized[0], 16),
+      Number.parseInt(normalized[1] + normalized[1], 16),
+      Number.parseInt(normalized[2] + normalized[2], 16),
+    ] as const;
   }
 
-  return path;
-}
-
-function getTooltipWidth(valueLabel: string, dateLabel: string) {
-  const longestLine = Math.max(valueLabel.length, dateLabel.length);
-  return Math.min(Math.max(longestLine * 7.4 + 20, 96), 150);
-}
-
-function getTooltipY({
-  pointY,
-  tooltipHeight,
-  preferredOffset,
-  fallbackOffset,
-  minY,
-  maxY,
-}: {
-  pointY: number;
-  tooltipHeight: number;
-  preferredOffset: number;
-  fallbackOffset: number;
-  minY: number;
-  maxY: number;
-}) {
-  const aboveY = pointY - tooltipHeight - preferredOffset;
-
-  if (aboveY >= minY) {
-    return aboveY;
+  if (normalized.length === 6) {
+    return [
+      Number.parseInt(normalized.slice(0, 2), 16),
+      Number.parseInt(normalized.slice(2, 4), 16),
+      Number.parseInt(normalized.slice(4, 6), 16),
+    ] as const;
   }
 
-  return Math.min(pointY + fallbackOffset, maxY);
+  return null;
 }
 
-function getChartTheme(performancePercent: number | null) {
+function parseRgbColor(value: string) {
+  const match = value
+    .trim()
+    .match(/rgba?\(\s*([0-9.]+)(?:\s+|,\s*)([0-9.]+)(?:\s+|,\s*)([0-9.]+)/i);
+
+  if (!match) return null;
+
+  return [
+    Number.parseFloat(match[1]),
+    Number.parseFloat(match[2]),
+    Number.parseFloat(match[3]),
+  ] as const;
+}
+
+function toRgba(value: string, alpha: number) {
+  const rgb = value.trim().startsWith("#") ? parseHexColor(value) : parseRgbColor(value);
+
+  if (!rgb) {
+    return value;
+  }
+
+  return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${Math.max(0, Math.min(alpha, 1))})`;
+}
+
+function readThemeVar(name: string, fallback: string) {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || fallback;
+}
+
+function buildLiveChartTheme(performancePercent: number | null): LiveChartTheme {
+  const vars = {
+    accentPrimary: readThemeVar("--token-color-accent-primary", "#f7931a"),
+    accentStrong: readThemeVar("--token-color-accent-strong", "#ffb14d"),
+    bgApp: readThemeVar("--token-color-bg-app", "#080b0f"),
+    danger: readThemeVar("--token-color-danger", "#c9737c"),
+    fontNumeric: readThemeVar(
+      "--token-font-family-numeric",
+      '"Geist Mono Variable", "Geist Mono", ui-monospace, monospace'
+    ),
+    fontSans: readThemeVar(
+      "--token-font-family-sans",
+      '"Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif'
+    ),
+    info: readThemeVar("--token-color-info", "#7393b4"),
+    success: readThemeVar("--token-color-success", "#4d9575"),
+    textMuted: readThemeVar("--token-color-text-muted", "#737e8a"),
+    textPrimary: readThemeVar("--token-color-text-primary", "#edf2f7"),
+    warning: readThemeVar("--token-color-warning", "#d3a14a"),
+  };
+
   if (typeof performancePercent === "number" && performancePercent < 0) {
     return {
-      areaEnd: "color-mix(in srgb, var(--token-color-danger) 3%, transparent)",
-      areaStart: "color-mix(in srgb, var(--token-color-danger) 24%, transparent)",
-      dot: "color-mix(in srgb, var(--token-color-danger) 68%, white)",
-      dotStroke: "var(--token-color-danger)",
-      guide:
-        "color-mix(in srgb, var(--token-color-accent-primary) 58%, var(--token-color-warning) 42%)",
-      lineEnd:
-        "color-mix(in srgb, var(--token-color-accent-primary) 82%, var(--token-color-danger) 18%)",
-      lineStart: "var(--token-color-danger)",
+      areaEnd: toRgba(vars.danger, 0.1),
+      areaStart: toRgba(vars.danger, 0.42),
+      bgApp: vars.bgApp,
+      fontNumeric: vars.fontNumeric,
+      fontSans: vars.fontSans,
+      guide: toRgba(vars.warning, 0.72),
+      grid: toRgba(vars.textPrimary, 0.08),
+      line: vars.danger,
+      lineEnd: vars.danger,
+      pointFill: vars.danger,
+      pointStroke: vars.danger,
+      textMuted: vars.textMuted,
+      textPrimary: vars.textPrimary,
+      tooltipBackground: vars.bgApp,
+      tooltipBorder: toRgba(vars.danger, 0.42),
     };
   }
 
   if (typeof performancePercent === "number" && performancePercent > 0) {
     return {
-      areaEnd: "color-mix(in srgb, var(--token-color-success) 3%, transparent)",
-      areaStart: "color-mix(in srgb, var(--token-color-success) 28%, transparent)",
-      dot: "color-mix(in srgb, var(--token-color-success) 72%, white)",
-      dotStroke: "var(--token-color-success)",
-      guide:
-        "color-mix(in srgb, var(--token-color-accent-primary) 58%, var(--token-color-warning) 42%)",
-      lineEnd: "color-mix(in srgb, var(--token-color-info) 24%, var(--token-color-success) 76%)",
-      lineStart: "var(--token-color-success)",
+      areaEnd: toRgba(vars.success, 0.1),
+      areaStart: toRgba(vars.success, 0.48),
+      bgApp: vars.bgApp,
+      fontNumeric: vars.fontNumeric,
+      fontSans: vars.fontSans,
+      guide: toRgba(vars.warning, 0.72),
+      grid: toRgba(vars.textPrimary, 0.08),
+      line: vars.success,
+      lineEnd: vars.success,
+      pointFill: vars.success,
+      pointStroke: vars.success,
+      textMuted: vars.textMuted,
+      textPrimary: vars.textPrimary,
+      tooltipBackground: vars.bgApp,
+      tooltipBorder: toRgba(vars.success, 0.42),
     };
   }
 
   return {
-    areaEnd: "color-mix(in srgb, var(--token-color-accent-primary) 3%, transparent)",
-    areaStart: "color-mix(in srgb, var(--token-color-accent-primary) 24%, transparent)",
-    dot: "var(--token-color-accent-strong)",
-    dotStroke: "var(--token-color-accent-primary)",
-    guide:
-      "color-mix(in srgb, var(--token-color-accent-primary) 62%, var(--token-color-warning) 38%)",
-    lineEnd: "var(--token-color-accent-strong)",
-    lineStart: "var(--token-color-accent-primary)",
+    areaEnd: toRgba(vars.accentPrimary, 0.05),
+    areaStart: toRgba(vars.accentPrimary, 0.3),
+    bgApp: vars.bgApp,
+    fontNumeric: vars.fontNumeric,
+    fontSans: vars.fontSans,
+    guide: toRgba(vars.warning, 0.72),
+    grid: toRgba(vars.textPrimary, 0.08),
+    line: vars.accentPrimary,
+    lineEnd: vars.accentStrong,
+    pointFill: vars.accentStrong,
+    pointStroke: vars.accentPrimary,
+    textMuted: vars.textMuted,
+    textPrimary: vars.textPrimary,
+    tooltipBackground: vars.bgApp,
+    tooltipBorder: toRgba(vars.accentPrimary, 0.3),
   };
 }
 
-function buildMovingTimeTicks(now: number, chartWidth: number, paddingLeft: number) {
+function useLiveChartTheme(performancePercent: number | null) {
+  const [themeVersion, setThemeVersion] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleThemeChange = () => {
+      setThemeVersion((current) => current + 1);
+    };
+
+    const rootObserver = new MutationObserver(handleThemeChange);
+    rootObserver.observe(document.documentElement, {
+      attributeFilter: ["class", "data-theme", "style"],
+      attributes: true,
+    });
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: light)");
+    mediaQuery.addEventListener("change", handleThemeChange);
+
+    return () => {
+      rootObserver.disconnect();
+      mediaQuery.removeEventListener("change", handleThemeChange);
+    };
+  }, []);
+
+  return useMemo(() => {
+    void themeVersion;
+    return buildLiveChartTheme(performancePercent);
+  }, [performancePercent, themeVersion]);
+}
+
+function buildMovingTimeTicks(now: number) {
   const visibleStart = now - LIVE_WINDOW_MS;
   const firstTick = Math.floor(visibleStart / AXIS_TICK_MS) * AXIS_TICK_MS;
-  const ticks: Array<{ timestamp: number; x: number }> = [];
+  const ticks: Array<{ timestamp: number; positionPercent: number }> = [];
 
   for (let timestamp = firstTick; timestamp <= now + AXIS_TICK_MS; timestamp += AXIS_TICK_MS) {
     if (timestamp < visibleStart || timestamp > now) {
       continue;
     }
 
-    const progress = (timestamp - visibleStart) / LIVE_WINDOW_MS;
     ticks.push({
+      positionPercent: ((timestamp - visibleStart) / LIVE_WINDOW_MS) * 100,
       timestamp,
-      x: paddingLeft + chartWidth * progress,
     });
   }
 
   return ticks;
 }
 
-export default function LivePriceSparkline({ currency, points }: LivePriceSparklineProps) {
+function createLatestGuidePlugin(color: string): Plugin<"line"> {
+  return {
+    afterDatasetsDraw(chart) {
+      const datasetMeta = chart.getDatasetMeta(0);
+      const lastPoint = datasetMeta.data[datasetMeta.data.length - 1];
+
+      if (!lastPoint) {
+        return;
+      }
+
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([8, 10]);
+      ctx.moveTo(chart.chartArea.left, lastPoint.y);
+      ctx.lineTo(chart.chartArea.right, lastPoint.y);
+      ctx.stroke();
+      ctx.restore();
+    },
+    id: "latest-guide-line",
+  };
+}
+
+function createHoverGuidePlugin(color: string): Plugin<"line"> {
+  return {
+    afterDatasetsDraw(chart) {
+      const activeElements = chart.tooltip?.getActiveElements() ?? [];
+      const activeElement = activeElements[0];
+
+      if (!activeElement) {
+        return;
+      }
+
+      const point = chart.getDatasetMeta(activeElement.datasetIndex).data[activeElement.index];
+
+      if (!point) {
+        return;
+      }
+
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 7]);
+      ctx.moveTo(point.x, chart.chartArea.top);
+      ctx.lineTo(point.x, chart.chartArea.bottom);
+      ctx.stroke();
+      ctx.restore();
+    },
+    id: "hover-guide-line",
+  };
+}
+
+export default function LivePriceSparkline({
+  currency,
+  performancePercent,
+  points,
+}: LivePriceSparklineProps) {
   const { locale, messages } = useI18n();
   const copy = messages.dashboard.overview;
   const [now, setNow] = useState(() => Date.now());
   const [renderedPoints, setRenderedPoints] = useState<LivePricePoint[]>([]);
-  const [hoveredTimestamp, setHoveredTimestamp] = useState<number | null>(null);
   const animationFrameRef = useRef<number>(0);
   const lastSampleTimeRef = useRef<number>(0);
   const lastFrameTimeRef = useRef<number | null>(null);
   const targetPriceRef = useRef<number | null>(null);
   const currentRenderedPriceRef = useRef<number | null>(null);
   const renderedVelocityRef = useRef(0);
-  const idPrefix = useId().replace(/:/g, "");
-  const width = 920;
-  const height = 320;
-  const paddingLeft = 18;
-  const paddingRight = 108;
-  const paddingTop = 16;
-  const paddingBottom = 40;
-
   const latestSourcePoint = points[points.length - 1] ?? null;
 
   useEffect(() => {
@@ -189,6 +367,7 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
     const renderFrame = (frameTime: number) => {
       const targetPrice = targetPriceRef.current;
       const currentPrice = currentRenderedPriceRef.current;
+      const absoluteFrameTime = getAbsoluteFrameTimestamp(frameTime);
       const previousFrameTime = lastFrameTimeRef.current;
       const deltaSeconds =
         previousFrameTime === null
@@ -226,12 +405,12 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
         frameTime - lastSampleTimeRef.current > MAX_FRAME_GAP_MS
       ) {
         const resumedPrice = currentRenderedPriceRef.current;
-        const seedStart = frameTime - SAMPLE_INTERVAL_MS * 2;
+        const seedStart = absoluteFrameTime - SAMPLE_INTERVAL_MS * 2;
 
         lastSampleTimeRef.current = frameTime;
         lastFrameTimeRef.current = frameTime;
         renderedVelocityRef.current = 0;
-        setNow(frameTime);
+        setNow(absoluteFrameTime);
         setRenderedPoints([
           {
             price: resumedPrice,
@@ -256,10 +435,10 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
         (lastSampleTimeRef.current === 0 ||
           frameTime - lastSampleTimeRef.current >= SAMPLE_INTERVAL_MS)
       ) {
-        const sampleTimestamp = frameTime;
+        const sampleTimestamp = absoluteFrameTime;
         const samplePrice = currentRenderedPriceRef.current;
 
-        lastSampleTimeRef.current = sampleTimestamp;
+        lastSampleTimeRef.current = frameTime;
         setNow(sampleTimestamp);
         setRenderedPoints((currentPoints) => {
           const nextPoints = [
@@ -293,6 +472,208 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
   const usablePoints = displayPoints.filter(
     (point) => point.timestamp >= visibleStart - AXIS_TICK_MS && point.timestamp <= visibleEnd
   );
+  const axisSourcePoints = displayPoints.length > 0 ? displayPoints : usablePoints;
+  const prices = axisSourcePoints.length > 0 ? axisSourcePoints.map((point) => point.price) : [0];
+  const firstVisiblePoint = usablePoints[0] ??
+    axisSourcePoints[0] ?? { price: 0, timestamp: visibleStart };
+  const latestPoint = usablePoints[usablePoints.length - 1] ??
+    axisSourcePoints[axisSourcePoints.length - 1] ?? {
+      price: 0,
+      timestamp: visibleEnd,
+    };
+  const visiblePerformancePercent =
+    firstVisiblePoint.price === 0
+      ? (performancePercent ?? 0)
+      : ((latestPoint.price - firstVisiblePoint.price) / firstVisiblePoint.price) * 100;
+  const theme = useLiveChartTheme(visiblePerformancePercent);
+  const rawDelta = Math.max(...prices) - Math.min(...prices);
+  const paddedDelta = Math.max(
+    rawDelta * Y_AXIS_PADDING_RATIO,
+    Math.max(...prices) * Y_AXIS_MIN_PADDING_RATIO,
+    Y_AXIS_MIN_PADDING_ABSOLUTE
+  );
+  const axisMin = Math.min(...prices) - paddedDelta;
+  const axisMax = Math.max(...prices) + paddedDelta;
+  const chartPoints = displayPoints
+    .filter(
+      (point) =>
+        point.timestamp >= visibleStart - AXIS_TICK_MS &&
+        point.timestamp <= visibleEnd + AXIS_TICK_MS
+    )
+    .map((point) => ({
+      x: point.timestamp,
+      y: point.price,
+    }));
+  const movingTicks = buildMovingTimeTicks(visibleEnd);
+
+  const data = useMemo<ChartData<"line", Array<{ x: number; y: number }>>>(
+    () => ({
+      datasets: [
+        {
+          backgroundColor: (context: ScriptableContext<"line">) => {
+            const { chart } = context;
+            const { chartArea, ctx } = chart;
+
+            if (!chartArea) {
+              return theme.areaStart;
+            }
+
+            const fillGradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            fillGradient.addColorStop(0, theme.areaStart);
+            fillGradient.addColorStop(1, theme.areaEnd);
+            return fillGradient;
+          },
+          borderColor: (context: ScriptableContext<"line">) => {
+            const { chart } = context;
+            const { chartArea, ctx } = chart;
+
+            if (!chartArea) {
+              return theme.line;
+            }
+
+            const gradient = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+            gradient.addColorStop(0, theme.line);
+            gradient.addColorStop(1, theme.lineEnd);
+            return gradient;
+          },
+          borderJoinStyle: "round",
+          borderWidth: 3.2,
+          clip: 10,
+          cubicInterpolationMode: "monotone",
+          data: chartPoints,
+          fill: "origin",
+          parsing: false,
+          pointBackgroundColor: theme.bgApp,
+          pointBorderColor: theme.pointStroke,
+          pointBorderWidth: (context) => (context.dataIndex === chartPoints.length - 1 ? 3 : 0),
+          pointHitRadius: 18,
+          pointHoverBackgroundColor: theme.bgApp,
+          pointHoverBorderColor: theme.pointStroke,
+          pointHoverBorderWidth: 2.4,
+          pointHoverRadius: 8,
+          pointRadius: (context) =>
+            context.dataIndex === chartPoints.length - 1 ? LIVE_DOT_RADIUS : 0,
+          pointStyle: "circle",
+          spanGaps: true,
+          tension: 0.16,
+        },
+      ],
+    }),
+    [
+      chartPoints,
+      theme.areaEnd,
+      theme.areaStart,
+      theme.bgApp,
+      theme.line,
+      theme.lineEnd,
+      theme.pointStroke,
+    ]
+  );
+
+  const options = useMemo<ChartOptions<"line">>(
+    () => ({
+      animation: false,
+      maintainAspectRatio: false,
+      normalized: true,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          backgroundColor: theme.tooltipBackground,
+          bodyColor: theme.textPrimary,
+          bodyFont: {
+            family: theme.fontNumeric,
+            size: 13,
+            weight: 600,
+          },
+          borderColor: theme.tooltipBorder,
+          borderWidth: 1,
+          callbacks: {
+            label: (context: TooltipItem<"line">) =>
+              formatCurrency(context.parsed.y ?? 0, currency, locale),
+            title: (items: TooltipItem<"line">[]) =>
+              formatHoverDateLabel(items[0]?.parsed.x ?? visibleEnd, locale),
+          },
+          caretPadding: 12,
+          displayColors: false,
+          intersect: false,
+          mode: "nearest",
+          padding: 10,
+          titleColor: theme.textMuted,
+          titleFont: {
+            family: theme.fontSans,
+            size: 11.5,
+            weight: 500,
+          },
+        },
+      },
+      responsive: true,
+      scales: {
+        x: {
+          border: {
+            display: false,
+          },
+          bounds: "data",
+          display: false,
+          max: visibleEnd,
+          min: visibleStart,
+          type: "linear",
+        },
+        y: {
+          border: {
+            display: false,
+          },
+          grid: {
+            color: theme.grid,
+            drawTicks: false,
+          },
+          max: axisMax,
+          min: axisMin,
+          position: "right",
+          ticks: {
+            autoSkip: false,
+            color: theme.textMuted,
+            count: 4,
+            font: {
+              family: theme.fontSans,
+              size: 15,
+              weight: 500,
+            },
+            padding: 18,
+            callback: (value) =>
+              formatCurrency(typeof value === "number" ? value : Number(value), currency, locale),
+          },
+          type: "linear",
+        },
+      },
+      interaction: {
+        axis: "x",
+        intersect: false,
+        mode: "nearest",
+      },
+    }),
+    [
+      axisMax,
+      axisMin,
+      currency,
+      locale,
+      theme.fontNumeric,
+      theme.fontSans,
+      theme.grid,
+      theme.textMuted,
+      theme.textPrimary,
+      theme.tooltipBackground,
+      theme.tooltipBorder,
+      visibleEnd,
+      visibleStart,
+    ]
+  );
+
+  const plugins = useMemo(
+    () => [createLatestGuidePlugin(theme.guide), createHoverGuidePlugin(toRgba(theme.grid, 0.95))],
+    [theme.grid, theme.guide]
+  );
 
   if (usablePoints.length < 2) {
     return (
@@ -300,112 +681,6 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
         {copy.liveChartEmpty}
       </div>
     );
-  }
-
-  const axisSourcePoints = displayPoints.length > 0 ? displayPoints : usablePoints;
-  const prices = axisSourcePoints.length > 0 ? axisSourcePoints.map((point) => point.price) : [0];
-  const firstVisiblePoint = usablePoints[0];
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
-  const latestPoint = usablePoints[usablePoints.length - 1];
-  const visiblePerformancePercent =
-    firstVisiblePoint.price === 0
-      ? 0
-      : ((latestPoint.price - firstVisiblePoint.price) / firstVisiblePoint.price) * 100;
-  const theme = getChartTheme(visiblePerformancePercent);
-  const rawDelta = maxPrice - minPrice;
-  const paddedDelta = Math.max(
-    rawDelta * Y_AXIS_PADDING_RATIO,
-    maxPrice * Y_AXIS_MIN_PADDING_RATIO,
-    Y_AXIS_MIN_PADDING_ABSOLUTE
-  );
-  const axisMin = minPrice - paddedDelta;
-  const axisMax = maxPrice + paddedDelta;
-  const axisDelta = axisMax - axisMin || 1;
-  const chartWidth = width - paddingLeft - paddingRight;
-  const chartHeight = height - paddingTop - paddingBottom;
-  const xTicks = buildMovingTimeTicks(visibleEnd, chartWidth, paddingLeft);
-
-  const yTicks = Array.from({ length: 4 }, (_, index) => {
-    const ratio = index / 3;
-    const value = axisMax - axisDelta * ratio;
-    return {
-      label: formatCurrency(value, currency, locale),
-      value,
-      y: paddingTop + chartHeight * ratio,
-    };
-  });
-
-  const getX = (timestamp: number) =>
-    paddingLeft + ((timestamp - visibleStart) / LIVE_WINDOW_MS) * chartWidth;
-
-  const getY = (price: number) => {
-    const normalized = (price - axisMin) / axisDelta;
-    return height - paddingBottom - normalized * chartHeight;
-  };
-
-  const pathSourcePoints = displayPoints.filter(
-    (point) =>
-      point.timestamp >= visibleStart - AXIS_TICK_MS && point.timestamp <= visibleEnd + AXIS_TICK_MS
-  );
-  const chartPoints = pathSourcePoints.map((point) => ({
-    x: getX(point.timestamp),
-    y: getY(point.price),
-  }));
-  const hoverablePoints = usablePoints.map((point) => ({
-    ...point,
-    x: getX(point.timestamp),
-    y: getY(point.price),
-  }));
-  const linePath = buildLinePath(chartPoints);
-  const firstX = chartPoints[0]?.x ?? paddingLeft;
-  const lastX = chartPoints[chartPoints.length - 1]?.x ?? width - paddingRight;
-  const lastY = getY(latestPoint.price);
-  const baseY = height - paddingBottom;
-  const areaPath = `${linePath} L ${lastX.toFixed(2)} ${baseY.toFixed(2)} L ${firstX.toFixed(2)} ${baseY.toFixed(2)} Z`;
-  const activeHoveredPoint =
-    hoveredTimestamp === null
-      ? null
-      : (hoverablePoints.find((point) => point.timestamp === hoveredTimestamp) ?? null);
-  const tooltipValueLabel = activeHoveredPoint
-    ? formatCurrency(activeHoveredPoint.price, currency, locale)
-    : "";
-  const tooltipDateLabel = activeHoveredPoint
-    ? formatHoverDateLabel(activeHoveredPoint.timestamp, locale)
-    : "";
-  const tooltipWidth = getTooltipWidth(tooltipValueLabel, tooltipDateLabel);
-  const tooltipHeight = 46;
-  const tooltipX = activeHoveredPoint
-    ? Math.min(Math.max(activeHoveredPoint.x - tooltipWidth / 2, 10), width - tooltipWidth - 10)
-    : 0;
-  const tooltipY = activeHoveredPoint
-    ? getTooltipY({
-        pointY: activeHoveredPoint.y,
-        tooltipHeight,
-        preferredOffset: 32,
-        fallbackOffset: 18,
-        minY: 10,
-        maxY: height - paddingBottom - tooltipHeight - 8,
-      })
-    : 0;
-
-  function handlePointerMove(event: PointerEvent<SVGRectElement>) {
-    if (hoverablePoints.length === 0) return;
-
-    const bounds = event.currentTarget.getBoundingClientRect();
-    if (bounds.width === 0) return;
-
-    const pointerX = paddingLeft + ((event.clientX - bounds.left) / bounds.width) * chartWidth;
-    const clampedX = Math.min(Math.max(pointerX, paddingLeft), paddingLeft + chartWidth);
-    const closestPoint = hoverablePoints.reduce((closest, point) =>
-      Math.abs(point.x - clampedX) < Math.abs(closest.x - clampedX) ? point : closest
-    );
-
-    setHoveredTimestamp(closestPoint.timestamp);
-  }
-
-  function handlePointerLeave() {
-    setHoveredTimestamp(null);
   }
 
   return (
@@ -456,182 +731,38 @@ export default function LivePriceSparkline({ currency, points }: LivePriceSparkl
       </div>
 
       <div className="relative z-10">
-        <div className="mb-3 flex items-center justify-between gap-3 text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
+        <div className="mb-3 flex items-center gap-3 text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
           <span>{copy.liveChartLabel}</span>
-          <span>{copy.liveWindow}</span>
         </div>
 
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          className="block h-[17rem] w-full sm:h-[19rem]"
-          role="img"
-          aria-label={copy.liveChartAriaLabel}
-        >
-          <defs>
-            <clipPath id={`${idPrefix}-live-chart-clip`}>
-              <rect
-                x={paddingLeft}
-                y={paddingTop}
-                width={chartWidth + LIVE_DOT_RADIUS + 4}
-                height={chartHeight}
-              />
-            </clipPath>
-            <linearGradient id={`${idPrefix}-live-area-fill`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={theme.areaStart} />
-              <stop offset="100%" stopColor={theme.areaEnd} />
-            </linearGradient>
-            <linearGradient id={`${idPrefix}-live-line-stroke`} x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor={theme.lineStart} />
-              <stop offset="100%" stopColor={theme.lineEnd} />
-            </linearGradient>
-          </defs>
-
-          {yTicks.map((tick) => (
-            <g key={`${tick.value}`}>
-              <line
-                x1={paddingLeft}
-                y1={tick.y}
-                x2={width - paddingRight + 6}
-                y2={tick.y}
-                stroke="color-mix(in srgb, var(--token-color-text-primary) 7%, transparent)"
-                strokeWidth="1"
-              />
-              <text
-                x={width - paddingRight + 18}
-                y={tick.y + 4}
-                fill="var(--token-color-text-muted)"
-                fontSize="15"
-                textAnchor="start"
-              >
-                {tick.label}
-              </text>
-            </g>
-          ))}
-
-          {xTicks.map((tick) => (
-            <text
-              key={`${tick.timestamp}`}
-              x={tick.x}
-              y={height - 8}
-              fill="var(--token-color-text-muted)"
-              fontSize="14"
-              textAnchor="middle"
-            >
-              {formatTimeLabel(tick.timestamp, locale)}
-            </text>
-          ))}
-
-          <line
-            x1={paddingLeft}
-            y1={lastY}
-            x2={width - paddingRight + 2}
-            y2={lastY}
-            stroke={theme.guide}
-            strokeDasharray="8 10"
-            strokeWidth="1.2"
-            opacity="0.75"
+        <div className="h-[15.5rem] sm:h-[17.5rem]">
+          <Line
+            aria-label={copy.liveChartAriaLabel}
+            className="h-full w-full"
+            data={data}
+            options={options}
+            plugins={plugins}
+            role="img"
           />
-          <g clipPath={`url(#${idPrefix}-live-chart-clip)`}>
-            <path d={areaPath} fill={`url(#${idPrefix}-live-area-fill)`} />
-            <path
-              d={linePath}
-              fill="none"
-              stroke="color-mix(in srgb, var(--token-color-bg-app) 56%, transparent)"
-              strokeWidth="7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d={linePath}
-              fill="none"
-              stroke={`url(#${idPrefix}-live-line-stroke)`}
-              strokeWidth="3.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            {activeHoveredPoint ? (
-              <>
-                <line
-                  x1={activeHoveredPoint.x}
-                  y1={paddingTop}
-                  x2={activeHoveredPoint.x}
-                  y2={baseY}
-                  stroke="color-mix(in srgb, var(--token-color-text-primary) 22%, transparent)"
-                  strokeDasharray="5 7"
-                  strokeWidth="1"
-                />
-                <circle
-                  cx={activeHoveredPoint.x}
-                  cy={activeHoveredPoint.y}
-                  r="8"
-                  fill="color-mix(in srgb, var(--token-color-bg-app) 86%, black)"
-                  stroke={theme.dotStroke}
-                  strokeWidth="2.5"
-                />
-                <circle
-                  cx={activeHoveredPoint.x}
-                  cy={activeHoveredPoint.y}
-                  r="3.5"
-                  fill={theme.dot}
-                />
-              </>
-            ) : null}
-            <circle
-              cx={chartPoints[chartPoints.length - 1].x}
-              cy={lastY}
-              r={LIVE_DOT_RADIUS}
-              fill="color-mix(in srgb, var(--token-color-bg-app) 84%, black)"
-              stroke={theme.dotStroke}
-              strokeWidth="3"
-            />
-            <circle
-              cx={chartPoints[chartPoints.length - 1].x}
-              cy={lastY}
-              r="3.5"
-              fill={theme.dot}
-            />
-          </g>
-          <rect
-            x={paddingLeft}
-            y={paddingTop}
-            width={chartWidth}
-            height={chartHeight}
-            fill="transparent"
-            className="cursor-crosshair"
-            onPointerMove={handlePointerMove}
-            onPointerLeave={handlePointerLeave}
-          />
-          {activeHoveredPoint ? (
-            <g pointerEvents="none">
-              <rect
-                x={tooltipX}
-                y={tooltipY}
-                width={tooltipWidth}
-                height={tooltipHeight}
-                rx="6"
-                fill="color-mix(in srgb, var(--token-color-bg-app) 90%, black)"
-                stroke="color-mix(in srgb, var(--token-color-accent-primary) 28%, transparent)"
-              />
-              <text
-                x={tooltipX + 10}
-                y={tooltipY + 18}
-                fill="var(--token-color-text-primary)"
-                fontSize="13"
-                fontWeight="600"
+        </div>
+
+        <div className="mt-2 flex h-5">
+          <div
+            className="relative h-full flex-1 overflow-hidden"
+            style={{ marginRight: "-0.9rem" }}
+          >
+            {movingTicks.map((tick) => (
+              <span
+                key={tick.timestamp}
+                className="absolute top-0 whitespace-nowrap -translate-x-1/2 text-sm text-fg-muted"
+                style={{ left: `${tick.positionPercent}%` }}
               >
-                {tooltipValueLabel}
-              </text>
-              <text
-                x={tooltipX + 10}
-                y={tooltipY + 33}
-                fill="var(--token-color-text-muted)"
-                fontSize="11.5"
-              >
-                {tooltipDateLabel}
-              </text>
-            </g>
-          ) : null}
-        </svg>
+                {formatTimeLabel(tick.timestamp, locale)}
+              </span>
+            ))}
+          </div>
+          <div aria-hidden="true" className="w-[6.75rem] shrink-0" />
+        </div>
 
         <div className="mt-3 flex items-center justify-between gap-3 border-t border-border-subtle/80 pt-3 text-sm text-fg-muted">
           <span>

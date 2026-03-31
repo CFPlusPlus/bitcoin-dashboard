@@ -125,7 +125,9 @@ function Sparkline({
 
   return (
     <BaseLineChart
-      ariaLabel={locale === "de" ? "Hashrate-Verlauf der letzten 30 Tage" : "Hashrate over the last 30 days"}
+      ariaLabel={
+        locale === "de" ? "Hashrate-Verlauf der letzten 30 Tage" : "Hashrate over the last 30 days"
+      }
       height={112}
       points={chartPoints}
       showArea

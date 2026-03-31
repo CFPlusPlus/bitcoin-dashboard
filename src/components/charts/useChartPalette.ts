@@ -115,11 +115,7 @@ function buildPalette(tone: ChartTone): ChartPalette {
           ? vars.danger
           : vars.textSecondary;
   const lineStrong =
-    tone === "accent"
-      ? vars.accentStrong
-      : tone === "default"
-        ? vars.textPrimary
-        : line;
+    tone === "accent" ? vars.accentStrong : tone === "default" ? vars.textPrimary : line;
 
   return {
     areaEnd: toRgba(line, 0.02),
