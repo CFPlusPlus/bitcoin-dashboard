@@ -132,7 +132,7 @@ function buildPalette(tone: ChartTone): ChartPalette {
     lineStrong,
     pointFill: vars.bgApp,
     textMuted: vars.textMuted,
-    tooltipBackground: toRgba(vars.bgApp, 0.94),
+    tooltipBackground: vars.bgApp,
     tooltipBorder: vars.borderDefault,
   };
 }

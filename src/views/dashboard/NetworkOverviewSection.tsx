@@ -1,13 +1,15 @@
 "use client";
 
-import { type PointerEvent, type ReactNode, useId, useState } from "react";
+import type { ReactNode } from "react";
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Network } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import { formatDate, formatNumber, formatPercent } from "../../lib/format";
+import { formatChartShortDateLabel } from "../../lib/chart-format";
 import { cn } from "../../lib/cn";
 import { useI18n } from "../../i18n/context";
 import Card from "../../components/ui/Card";
+import BaseLineChart from "../../components/charts/BaseLineChart";
 import KpiValue from "../../components/ui/content/KpiValue";
 import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
@@ -104,207 +106,36 @@ function formatRelativeTimestamp(timestamp: number, locale: "de" | "en", now = D
   return formatter.format(-Math.round(valueToFormat), "week");
 }
 
-function formatSparklineDate(timestamp: number, locale: "de" | "en") {
-  const code = locale === "de" ? "de-DE" : "en-US";
-  return new Intl.DateTimeFormat(code, {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-  }).format(new Date(timestamp));
-}
-
-function getTooltipWidthPx(valueLabel: string, dateLabel: string) {
-  const longestLine = Math.max(valueLabel.length, dateLabel.length);
-  return Math.min(Math.max(longestLine * 6.8 + 18, 76), 112);
-}
-
-function getTooltipTopPercent({
-  pointY,
-  chartHeight,
-  tooltipHeightPx,
-  preferredOffsetPx,
-  fallbackOffsetPx,
-  minPercent,
-  maxPercent,
-  renderedHeightPx,
-}: {
-  pointY: number;
-  chartHeight: number;
-  tooltipHeightPx: number;
-  preferredOffsetPx: number;
-  fallbackOffsetPx: number;
-  minPercent: number;
-  maxPercent: number;
-  renderedHeightPx: number;
-}) {
-  const pointPercent = (pointY / chartHeight) * 100;
-  const tooltipHeightPercent = (tooltipHeightPx / renderedHeightPx) * 100;
-  const preferredOffsetPercent = (preferredOffsetPx / renderedHeightPx) * 100;
-  const fallbackOffsetPercent = (fallbackOffsetPx / renderedHeightPx) * 100;
-  const abovePercent = pointPercent - tooltipHeightPercent - preferredOffsetPercent;
-
-  if (abovePercent >= minPercent) {
-    return abovePercent;
-  }
-
-  return Math.min(pointPercent + fallbackOffsetPercent, maxPercent);
-}
-
 function Sparkline({
   locale,
   points,
-  strokeClassName,
 }: {
   locale: "de" | "en";
   points: Array<{ ehPerSecond: number; timestamp: number }>;
-  strokeClassName: string;
 }) {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const gradientId = `${useId().replace(/:/g, "")}-hashrate-area-gradient`;
-
   if (points.length < 2) {
     return <div className="h-28 rounded-md border border-border-subtle bg-surface/50" />;
   }
 
-  const values = points.map((point) => point.ehPerSecond);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min || 1;
-  const width = 100;
-  const height = 44;
-
-  const path = points
-    .map((point, index) => {
-      const x = (index / (points.length - 1)) * width;
-      const y = height - ((point.ehPerSecond - min) / range) * height;
-      return `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
-    })
-    .join(" ");
-  const hoverablePoints = points.map((point, index) => ({
-    ...point,
-    index,
-    x: points.length === 1 ? width / 2 : (index / (points.length - 1)) * width,
-    y: height - ((point.ehPerSecond - min) / range) * height,
+  const numberLocale = locale === "de" ? "de-DE" : "en-US";
+  const chartPoints = points.map((point) => ({
+    x: point.timestamp,
+    y: point.ehPerSecond,
   }));
 
-  const areaPath = `${path} L ${width},${height} L 0,${height} Z`;
-  const activeHoveredPoint = hoveredIndex === null ? null : (hoverablePoints[hoveredIndex] ?? null);
-  const tooltipValueLabel = activeHoveredPoint
-    ? (formatHashrate(activeHoveredPoint.ehPerSecond, locale === "de" ? "de-DE" : "en-US") ?? "n/a")
-    : "";
-  const tooltipDateLabel = activeHoveredPoint
-    ? formatSparklineDate(activeHoveredPoint.timestamp, locale)
-    : "";
-  const tooltipLeftPercent = activeHoveredPoint
-    ? Math.min(Math.max((activeHoveredPoint.x / width) * 100, 8), 92)
-    : 0;
-  const renderedChartHeight = 112;
-  const tooltipWidthPx = getTooltipWidthPx(tooltipValueLabel, tooltipDateLabel);
-  const tooltipTopPercent = activeHoveredPoint
-    ? getTooltipTopPercent({
-        pointY: activeHoveredPoint.y,
-        chartHeight: height,
-        tooltipHeightPx: 36,
-        preferredOffsetPx: 28,
-        fallbackOffsetPx: 14,
-        minPercent: 4,
-        maxPercent: 72,
-        renderedHeightPx: renderedChartHeight,
-      })
-    : 0;
-  const markerLeftPercent = activeHoveredPoint ? (activeHoveredPoint.x / width) * 100 : 0;
-  const markerTopPercent = activeHoveredPoint ? (activeHoveredPoint.y / height) * 100 : 0;
-
-  function handlePointerMove(event: PointerEvent<SVGRectElement>) {
-    if (points.length === 0) return;
-
-    const bounds = event.currentTarget.getBoundingClientRect();
-    if (bounds.width === 0) return;
-
-    const pointerX = ((event.clientX - bounds.left) / bounds.width) * width;
-    const clampedX = Math.min(Math.max(pointerX, 0), width);
-    const nextIndex = Math.round((clampedX / (width || 1)) * (points.length - 1));
-    setHoveredIndex(Math.min(Math.max(nextIndex, 0), points.length - 1));
-  }
-
-  function handlePointerLeave() {
-    setHoveredIndex(null);
-  }
-
   return (
-    <div className="relative h-28 w-full">
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        aria-hidden="true"
-        className="h-full w-full overflow-visible"
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={areaPath} fill={`url(#${gradientId})`} className={strokeClassName} />
-        <path
-          d={path}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          vectorEffect="non-scaling-stroke"
-          className={strokeClassName}
-        />
-        {activeHoveredPoint ? (
-          <>
-            <line
-              x1={activeHoveredPoint.x}
-              y1={0}
-              x2={activeHoveredPoint.x}
-              y2={height}
-              stroke="currentColor"
-              strokeOpacity="0.22"
-              strokeDasharray="4 5"
-              strokeWidth="1"
-              vectorEffect="non-scaling-stroke"
-            />
-          </>
-        ) : null}
-        <rect
-          x="0"
-          y="0"
-          width={width}
-          height={height}
-          fill="transparent"
-          className="cursor-crosshair"
-          onPointerMove={handlePointerMove}
-          onPointerLeave={handlePointerLeave}
-        />
-      </svg>
-      {activeHoveredPoint ? (
-        <div
-          className="pointer-events-none absolute size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent bg-app"
-          style={{
-            left: `${markerLeftPercent}%`,
-            top: `${markerTopPercent}%`,
-          }}
-        />
-      ) : null}
-      {activeHoveredPoint ? (
-        <div
-          className="pointer-events-none absolute -translate-x-1/2 rounded-md border border-accent/25 bg-app px-2 py-1 shadow-[0_10px_30px_rgba(0,0,0,0.28)]"
-          style={{
-            left: `${tooltipLeftPercent}%`,
-            top: `${tooltipTopPercent}%`,
-            width: `${tooltipWidthPx}px`,
-          }}
-        >
-          <div className="font-numeric tabular-nums text-[10.5px] font-semibold leading-none text-fg">
-            {tooltipValueLabel}
-          </div>
-          <div className="mt-1 text-[9.5px] leading-none text-fg-muted">{tooltipDateLabel}</div>
-        </div>
-      ) : null}
-    </div>
+    <BaseLineChart
+      ariaLabel={locale === "de" ? "Hashrate-Verlauf der letzten 30 Tage" : "Hashrate over the last 30 days"}
+      height={112}
+      points={chartPoints}
+      showArea
+      showVerticalHoverGuide
+      showXAxis={false}
+      showYAxis={false}
+      tone="accent"
+      tooltipTitleFormatter={(value) => formatChartShortDateLabel(value, locale)}
+      tooltipValueFormatter={(value) => formatHashrate(value, numberLocale) ?? "n/a"}
+    />
   );
 }
 
@@ -566,13 +397,7 @@ export default function NetworkOverviewSection({
               </div>
             </div>
 
-            <div className="text-accent">
-              <Sparkline
-                locale={locale}
-                points={network?.hashrate.points ?? []}
-                strokeClassName="text-accent"
-              />
-            </div>
+            <Sparkline locale={locale} points={network?.hashrate.points ?? []} />
 
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <StatLabel
