@@ -114,7 +114,7 @@ function Sparkline({
   points: Array<{ ehPerSecond: number; timestamp: number }>;
 }) {
   if (points.length < 2) {
-    return <div className="h-28 rounded-md border border-border-subtle bg-surface/50" />;
+    return <div className="h-28 rounded-md border border-border-default bg-surface" />;
   }
 
   const numberLocale = locale === "de" ? "de-DE" : "en-US";
@@ -206,7 +206,7 @@ function DetailRow({
   detail?: string;
 }) {
   return (
-    <Stack gap="xs" className="border-b border-border-subtle/70 pb-2 last:border-b-0 last:pb-0">
+    <Stack gap="xs" className="border-b border-border-default pb-2 last:border-b-0 last:pb-0">
       <Cluster align="center" justify="between" gap="md">
         <Cluster align="center" gap="sm" className="min-w-0">
           {leading}
@@ -237,7 +237,7 @@ function FeePriorityRow({
   maxFee: number;
 }) {
   return (
-    <Stack gap="sm" className="border-b border-border-subtle/70 pb-3 last:border-b-0 last:pb-0">
+    <Stack gap="sm" className="border-b border-border-default pb-3 last:border-b-0 last:pb-0">
       <Cluster align="center" justify="between" gap="md">
         <MetaText size="xs" className="font-mono uppercase tracking-[0.16em]">
           {label}
@@ -289,7 +289,7 @@ function RecentBlockTile({
       href={blockUrl}
       target="_blank"
       rel="noreferrer"
-      className="min-w-0 rounded-md border border-border-subtle/80 bg-surface px-3 py-3 transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+      className="min-w-0 rounded-md border border-border-default bg-surface px-3 py-3 transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
     >
       <div className="flex h-full flex-col items-center justify-between gap-2 text-center">
         <div className="space-y-1">
@@ -347,14 +347,14 @@ export default function NetworkOverviewSection({
   );
 
   return (
-    <Card as="section" tone="muted" padding="md" className="gap-4 border-border-default/80">
+    <Card as="section" tone="muted" padding="md" className="gap-4 border-border-default">
       <DataState
         state={networkState}
         onRetry={onRetry}
         retryBusy={networkState.isLoading}
         messages={stateMessages}
       >
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle/80 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-default pb-4">
           <div>
             <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
               {copy.title}
@@ -388,7 +388,9 @@ export default function NetworkOverviewSection({
                 <div
                   className={cn(
                     "font-numeric tabular-nums w-fit rounded-md px-2 py-1 text-sm font-medium",
-                    hashrateIsPositive ? "bg-success/12 text-success" : "bg-danger/12 text-danger"
+                    hashrateIsPositive
+                      ? "border border-success bg-muted-surface text-success"
+                      : "border border-danger bg-muted-surface text-danger"
                   )}
                 >
                   <span className={hashrateIsPositive ? "text-success" : "text-danger"}>
@@ -503,7 +505,7 @@ export default function NetworkOverviewSection({
                   label: copy.economyPriorityLabel,
                   value: network?.fees.economyFee ?? null,
                   text: economyPriorityFee,
-                  barClassName: "bg-success/70",
+                  barClassName: "bg-success",
                 },
                 {
                   label: copy.minimumPriorityLabel,

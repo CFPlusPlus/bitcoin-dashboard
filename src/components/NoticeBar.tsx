@@ -19,7 +19,7 @@ export default function NoticeBar({ warnings }: NoticeBarProps) {
     <Surface
       as="section"
       tone="accent"
-      className="flex flex-col gap-3 border-accent/30 bg-accent-soft"
+      className="flex flex-col gap-3 border-accent bg-muted-surface"
       aria-label={messages.common.noticeAriaLabel}
     >
       <div className="flex items-center gap-3">

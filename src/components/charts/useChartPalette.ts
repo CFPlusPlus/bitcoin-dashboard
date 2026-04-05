@@ -25,11 +25,11 @@ const FALLBACK_VARS = {
   bgApp: "#080b0f",
   borderDefault: "rgba(237, 242, 247, 0.11)",
   borderSubtle: "rgba(237, 242, 247, 0.06)",
-  danger: "#c9737c",
+  danger: "#d06b63",
   fontNumeric:
     '"Geist Mono Variable", "Geist Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", monospace',
   fontSans: '"Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif',
-  success: "#4d9575",
+  success: "#58b98b",
   textMuted: "#737e8a",
   textPrimary: "#edf2f7",
   textSecondary: "#afbac5",

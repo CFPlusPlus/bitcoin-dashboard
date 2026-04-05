@@ -10,7 +10,6 @@ import {
   type ChartData,
   type ChartOptions,
   type Plugin,
-  type ScriptableContext,
   type TooltipItem,
 } from "chart.js";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -33,7 +32,6 @@ type LivePriceSparklineProps = {
 };
 
 type LiveChartTheme = {
-  areaEnd: string;
   areaStart: string;
   bgApp: string;
   fontNumeric: string;
@@ -41,7 +39,6 @@ type LiveChartTheme = {
   guide: string;
   grid: string;
   line: string;
-  lineEnd: string;
   pointFill: string;
   pointStroke: string;
   textMuted: string;
@@ -154,7 +151,7 @@ function buildLiveChartTheme(performancePercent: number | null): LiveChartTheme 
     accentPrimary: readThemeVar("--token-color-accent-primary", "#f7931a"),
     accentStrong: readThemeVar("--token-color-accent-strong", "#ffb14d"),
     bgApp: readThemeVar("--token-color-bg-app", "#080b0f"),
-    danger: readThemeVar("--token-color-danger", "#c9737c"),
+    danger: readThemeVar("--token-color-danger", "#d06b63"),
     fontNumeric: readThemeVar(
       "--token-font-family-numeric",
       '"Geist Mono Variable", "Geist Mono", ui-monospace, monospace'
@@ -163,16 +160,15 @@ function buildLiveChartTheme(performancePercent: number | null): LiveChartTheme 
       "--token-font-family-sans",
       '"Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif'
     ),
-    info: readThemeVar("--token-color-info", "#7393b4"),
-    success: readThemeVar("--token-color-success", "#4d9575"),
+    info: readThemeVar("--token-color-info", "#b9794a"),
+    success: readThemeVar("--token-color-success", "#58b98b"),
     textMuted: readThemeVar("--token-color-text-muted", "#737e8a"),
     textPrimary: readThemeVar("--token-color-text-primary", "#edf2f7"),
-    warning: readThemeVar("--token-color-warning", "#d3a14a"),
+    warning: readThemeVar("--token-color-warning", "#d58a2f"),
   };
 
   if (typeof performancePercent === "number" && performancePercent < 0) {
     return {
-      areaEnd: toRgba(vars.danger, 0.1),
       areaStart: toRgba(vars.danger, 0.42),
       bgApp: vars.bgApp,
       fontNumeric: vars.fontNumeric,
@@ -180,7 +176,6 @@ function buildLiveChartTheme(performancePercent: number | null): LiveChartTheme 
       guide: toRgba(vars.warning, 0.72),
       grid: toRgba(vars.textPrimary, 0.08),
       line: vars.danger,
-      lineEnd: vars.danger,
       pointFill: vars.danger,
       pointStroke: vars.danger,
       textMuted: vars.textMuted,
@@ -192,7 +187,6 @@ function buildLiveChartTheme(performancePercent: number | null): LiveChartTheme 
 
   if (typeof performancePercent === "number" && performancePercent > 0) {
     return {
-      areaEnd: toRgba(vars.success, 0.1),
       areaStart: toRgba(vars.success, 0.48),
       bgApp: vars.bgApp,
       fontNumeric: vars.fontNumeric,
@@ -200,7 +194,6 @@ function buildLiveChartTheme(performancePercent: number | null): LiveChartTheme 
       guide: toRgba(vars.warning, 0.72),
       grid: toRgba(vars.textPrimary, 0.08),
       line: vars.success,
-      lineEnd: vars.success,
       pointFill: vars.success,
       pointStroke: vars.success,
       textMuted: vars.textMuted,
@@ -211,7 +204,6 @@ function buildLiveChartTheme(performancePercent: number | null): LiveChartTheme 
   }
 
   return {
-    areaEnd: toRgba(vars.accentPrimary, 0.05),
     areaStart: toRgba(vars.accentPrimary, 0.3),
     bgApp: vars.bgApp,
     fontNumeric: vars.fontNumeric,
@@ -219,7 +211,6 @@ function buildLiveChartTheme(performancePercent: number | null): LiveChartTheme 
     guide: toRgba(vars.warning, 0.72),
     grid: toRgba(vars.textPrimary, 0.08),
     line: vars.accentPrimary,
-    lineEnd: vars.accentStrong,
     pointFill: vars.accentStrong,
     pointStroke: vars.accentPrimary,
     textMuted: vars.textMuted,
@@ -510,32 +501,8 @@ export default function LivePriceSparkline({
     () => ({
       datasets: [
         {
-          backgroundColor: (context: ScriptableContext<"line">) => {
-            const { chart } = context;
-            const { chartArea, ctx } = chart;
-
-            if (!chartArea) {
-              return theme.areaStart;
-            }
-
-            const fillGradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            fillGradient.addColorStop(0, theme.areaStart);
-            fillGradient.addColorStop(1, theme.areaEnd);
-            return fillGradient;
-          },
-          borderColor: (context: ScriptableContext<"line">) => {
-            const { chart } = context;
-            const { chartArea, ctx } = chart;
-
-            if (!chartArea) {
-              return theme.line;
-            }
-
-            const gradient = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
-            gradient.addColorStop(0, theme.line);
-            gradient.addColorStop(1, theme.lineEnd);
-            return gradient;
-          },
+          backgroundColor: theme.areaStart,
+          borderColor: theme.line,
           borderJoinStyle: "round",
           borderWidth: 3.2,
           clip: 10,
@@ -559,15 +526,7 @@ export default function LivePriceSparkline({
         },
       ],
     }),
-    [
-      chartPoints,
-      theme.areaEnd,
-      theme.areaStart,
-      theme.bgApp,
-      theme.line,
-      theme.lineEnd,
-      theme.pointStroke,
-    ]
+    [chartPoints, theme.areaStart, theme.bgApp, theme.line, theme.pointStroke]
   );
 
   const options = useMemo<ChartOptions<"line">>(
@@ -677,7 +636,7 @@ export default function LivePriceSparkline({
 
   if (usablePoints.length < 2) {
     return (
-      <div className="flex h-[7.5rem] items-center justify-center rounded-md border border-dashed border-border-subtle bg-surface/70 px-4 text-sm text-fg-muted">
+      <div className="flex h-[7.5rem] items-center justify-center rounded-md border border-dashed border-border-default bg-surface px-4 text-sm text-fg-muted">
         {copy.liveChartEmpty}
       </div>
     );
@@ -688,48 +647,9 @@ export default function LivePriceSparkline({
       className="relative isolate overflow-hidden rounded-md border p-4 sm:p-5"
       style={{
         borderColor: "color-mix(in srgb, var(--token-color-border-default) 75%, transparent)",
-        background:
-          "linear-gradient(180deg, color-mix(in srgb, var(--token-color-text-primary) 2.2%, transparent) 0%, color-mix(in srgb, var(--token-color-text-primary) 0.6%, transparent) 100%), linear-gradient(125deg, color-mix(in srgb, var(--token-color-accent-primary) 10%, transparent) 0%, color-mix(in srgb, var(--token-color-info) 8%, transparent) 22%, transparent 48%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 86%, black 14%), color-mix(in srgb, var(--token-color-bg-app) 88%, black 12%))",
+        background: "var(--token-color-bg-elevated)",
       }}
     >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute inset-x-0 top-0 h-px"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, color-mix(in srgb, var(--token-color-text-primary) 18%, transparent), transparent)",
-          }}
-        />
-        <div
-          className="absolute inset-x-0 bottom-0 h-px"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, color-mix(in srgb, var(--token-color-accent-primary) 22%, transparent), transparent)",
-          }}
-        />
-        <div
-          className="absolute inset-y-0 left-0 w-px"
-          style={{
-            background:
-              "linear-gradient(180deg, transparent, color-mix(in srgb, var(--token-color-text-primary) 10%, transparent), transparent)",
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-35"
-          style={{
-            background:
-              "repeating-linear-gradient(90deg, color-mix(in srgb, var(--token-color-text-primary) 1.2%, transparent) 0, color-mix(in srgb, var(--token-color-text-primary) 1.2%, transparent) 1px, transparent 1px, transparent 72px)",
-          }}
-        />
-        <div
-          className="absolute inset-x-0 bottom-0 h-24"
-          style={{
-            background:
-              "linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--token-color-bg-app) 18%, transparent) 100%)",
-          }}
-        />
-      </div>
-
       <div className="relative z-10">
         <div className="mb-3 flex items-center gap-3 text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
           <span>{copy.liveChartLabel}</span>
@@ -764,7 +684,7 @@ export default function LivePriceSparkline({
           <div aria-hidden="true" className="w-[6.75rem] shrink-0" />
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border-subtle/80 pt-3 text-sm text-fg-muted">
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border-default pt-3 text-sm text-fg-muted">
           <span>
             {copy.liveCoverageStart}: {formatTimeLabel(visibleStart, locale)}
           </span>

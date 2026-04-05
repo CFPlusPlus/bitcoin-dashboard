@@ -72,18 +72,8 @@ function TodaySignal({
     <div
       className={cn(
         "flex min-w-0 flex-col gap-2.5 rounded-md border px-3.5 py-3.5 sm:gap-3 sm:px-4 sm:py-4",
-        emphasis === "primary"
-          ? "border-accent/28 bg-surface"
-          : "border-border-subtle/85 bg-surface/90"
+        emphasis === "primary" ? "border-accent bg-elevated" : "border-border-default bg-surface"
       )}
-      style={
-        emphasis === "primary"
-          ? {
-              background:
-                "linear-gradient(180deg, color-mix(in srgb, var(--token-color-accent-primary) 8%, transparent), transparent 70%), var(--token-color-bg-surface)",
-            }
-          : undefined
-      }
     >
       <MetaText
         size="xs"
@@ -183,11 +173,7 @@ export default function BitcoinNowSection({
           as="section"
           tone="elevated"
           padding="lg"
-          className="border-border-default/80 xl:px-8 xl:py-7"
-          style={{
-            background:
-              "linear-gradient(180deg, color-mix(in srgb, var(--token-color-text-primary) 1.6%, transparent), transparent 22%), linear-gradient(132deg, color-mix(in srgb, var(--token-color-accent-primary) 5%, transparent), transparent 38%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 96%, transparent), color-mix(in srgb, var(--token-color-bg-surface) 92%, transparent))",
-          }}
+          className="border-border-default xl:px-8 xl:py-7"
         >
           <div className="flex h-full flex-col gap-4 sm:gap-6">
             <PageHeader />
@@ -209,15 +195,15 @@ export default function BitcoinNowSection({
               <Link
                 href={getLocalizedPathname(locale, "/tools")}
                 className={cn(
-                  "inline-flex min-h-9 items-center justify-center px-2 text-[0.69rem] font-medium uppercase tracking-[0.2em] text-fg-secondary no-underline transition-[color,opacity] duration-[var(--motion-fast)] ease-[var(--ease-standard)] hover:text-fg sm:min-h-10 sm:rounded-md sm:border sm:border-transparent sm:px-4 sm:hover:border-border-subtle sm:hover:bg-elevated/70"
+                  "inline-flex min-h-9 items-center justify-center px-2 text-[0.69rem] font-medium uppercase tracking-[0.2em] text-fg-secondary no-underline transition-[color,opacity] duration-[var(--motion-fast)] ease-[var(--ease-standard)] hover:text-fg sm:min-h-10 sm:rounded-md sm:border sm:border-border-default sm:bg-surface sm:px-4 sm:hover:bg-elevated"
                 )}
               >
                 {copy.jumpToTools}
               </Link>
             </div>
 
-            <div className="mt-auto grid gap-3 border-t border-border-subtle/80 pt-4 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-              <div className="min-w-0 rounded-md border border-border-subtle/75 bg-app/30 px-4 py-3">
+            <div className="mt-auto grid gap-3 border-t border-border-default pt-4 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+              <div className="min-w-0 rounded-md border border-border-default bg-app px-4 py-3">
                 <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
                   {messages.dashboard.controls.statusLabel}
                 </p>
@@ -248,14 +234,10 @@ export default function BitcoinNowSection({
           as="aside"
           tone="elevated"
           padding="lg"
-          className="border-border-default/80 xl:px-6 xl:py-6"
-          style={{
-            background:
-              "linear-gradient(180deg, color-mix(in srgb, var(--token-color-text-primary) 1.4%, transparent), transparent 18%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 96%, transparent), color-mix(in srgb, var(--token-color-bg-surface) 92%, transparent))",
-          }}
+          className="border-border-default xl:px-6 xl:py-6"
         >
           <div className="flex h-full flex-col gap-4 sm:gap-5">
-            <div className="border-b border-border-subtle/80 pb-3.5 sm:pb-4">
+            <div className="border-b border-border-default pb-3.5 sm:pb-4">
               <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
                 {copy.todayTitle}
               </p>

@@ -25,8 +25,7 @@ export function createSocialImageResponse({ eyebrow, footer, summary, title }: S
         flexDirection: "column",
         justifyContent: "space-between",
         padding: "56px",
-        background:
-          "radial-gradient(circle at top right, #ff7a1a 0, rgba(255, 122, 26, 0.2) 28%, transparent 54%), linear-gradient(135deg, #09131c 0%, #102332 56%, #0c1a25 100%)",
+        background: "#09131c",
         color: "#eaf4ff",
         fontFamily: "sans-serif",
       }}
@@ -54,7 +53,6 @@ export function createSocialImageResponse({ eyebrow, footer, summary, title }: S
               height: "18px",
               borderRadius: "999px",
               backgroundColor: "#ff7a1a",
-              boxShadow: "0 0 32px rgba(255, 122, 26, 0.45)",
             }}
           />
           <span>{SITE_NAME}</span>

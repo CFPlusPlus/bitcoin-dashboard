@@ -54,13 +54,19 @@ Desktop may lead the composition, but mobile must preserve the product's full me
 
 The current implementation expresses these decisions:
 
-- an obsidian-and-ice base that supports both dark and light system themes
-- signal orange as a focused accent rather than a warm atmospheric wash
+- a monochrome obsidian base that supports both dark and light system themes
+- one restrained accent color used for active states and important emphasis
 - cooler text tones with cleaner contrast instead of warm paper styling
-- tight radii and crisp surfaces
-- restrained shadows
-- serif accents paired with clean sans-serif UI text
+- standardized medium radii and crisp surfaces
+- restrained shadows with more emphasis on borders and layering
+- clean sans-serif typography throughout the product
 - mono treatment for many technical values and metrics
+
+The app shell should now read closer to a focused SaaS workspace:
+
+- a persistent sidebar on desktop
+- one active dashboard panel at a time
+- compact utilities and navigation instead of a wide top navbar
 
 ## Motion Principles
 
@@ -99,6 +105,7 @@ The UI should keep reinforcing that this product is:
 - not a portfolio manager
 - not a multi-asset product
 - not a trading terminal
+- not a generic admin template with interchangeable sections
 
 ## Review Questions
 
@@ -112,4 +119,4 @@ Before shipping a UI change, check:
 
 ## Decision Summary
 
-The current UI direction is already clear in the codebase: calm, dark, typographic, Bitcoin-only, and intentionally more focused than broad crypto dashboards.
+The current UI direction in the codebase is a calm, monochrome, sidebar-based Bitcoin workspace that stays more focused than broad crypto dashboards or generic admin kits.

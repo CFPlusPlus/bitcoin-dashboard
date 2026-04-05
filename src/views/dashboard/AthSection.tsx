@@ -75,7 +75,7 @@ export default function AthSection({
         messages={stateMessages}
       >
         <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.18fr)_minmax(0,1fr)]">
-          <div className="flex min-h-[13rem] flex-col gap-4 rounded-md border border-accent/30 bg-surface px-5 py-5">
+          <div className="flex min-h-[13rem] flex-col gap-4 rounded-md border border-accent bg-surface px-5 py-5">
             <KpiValue
               label={copy.lastAthLabel}
               value={formatCurrency(ath, currency, locale)}

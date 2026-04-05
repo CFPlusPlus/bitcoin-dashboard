@@ -2,8 +2,6 @@ import { ImageResponse } from "next/og";
 
 export const APP_ICON_BACKGROUND_COLOR = "#0A1620";
 export const APP_ICON_THEME_COLOR = "#FF7A1A";
-
-const APP_ICON_GRADIENT = "linear-gradient(135deg, #FF5B2A 0%, #FF7A1A 52%, #FFB15A 100%)";
 const LINE_THICKNESS = 5;
 const DOT_SIZE = 11.6667;
 
@@ -50,7 +48,7 @@ function AppIconGraphic() {
             width: `${segment.length}%`,
             height: `${LINE_THICKNESS}%`,
             borderRadius: "999px",
-            backgroundImage: APP_ICON_GRADIENT,
+            backgroundColor: APP_ICON_THEME_COLOR,
             transform: `translateY(-50%) rotate(${segment.angle}deg)`,
             transformOrigin: "left center",
           }}

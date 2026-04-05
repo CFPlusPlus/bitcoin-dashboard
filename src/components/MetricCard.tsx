@@ -30,7 +30,7 @@ export default function MetricCard({
     tone === "elevated"
       ? "bg-elevated"
       : tone === "interactive"
-        ? "bg-elevated transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent/40"
+        ? "bg-elevated transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent"
         : tone === "default"
           ? "bg-surface"
           : "bg-muted-surface";
@@ -40,7 +40,7 @@ export default function MetricCard({
       : valueTone === "negative"
         ? "bg-danger"
         : tone === "interactive" || tone === "elevated"
-          ? "bg-accent/65"
+          ? "bg-accent"
           : "bg-border-default";
 
   return (
@@ -62,7 +62,7 @@ export default function MetricCard({
         tone={valueTone}
       />
 
-      <div className="mt-auto flex flex-col gap-2 border-t border-border-default/75 pt-3">
+      <div className="mt-auto flex flex-col gap-2 border-t border-border-default pt-3">
         {valueFootnote ? (
           <MetaText tone="strong" size="xs" className="leading-snug">
             {valueFootnote}

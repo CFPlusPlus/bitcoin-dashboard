@@ -30,7 +30,7 @@ export default function SectionHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 border-b border-border-subtle/80 pb-3 sm:flex-row sm:items-start sm:justify-between",
+        "flex flex-col gap-3 border-b border-border-default pb-3 sm:flex-row sm:items-start sm:justify-between",
         className
       )}
       {...props}

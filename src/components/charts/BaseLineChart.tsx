@@ -10,7 +10,6 @@ import {
   type ChartData,
   type ChartOptions,
   type Plugin,
-  type ScriptableContext,
   type TooltipItem,
 } from "chart.js";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -136,23 +135,7 @@ export default function BaseLineChart({
     () => ({
       datasets: [
         {
-          backgroundColor: (context: ScriptableContext<"line">) => {
-            if (!showArea) {
-              return "transparent";
-            }
-
-            const { chart } = context;
-            const { chartArea, ctx } = chart;
-
-            if (!chartArea) {
-              return palette.areaStart;
-            }
-
-            const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            gradient.addColorStop(0, palette.areaStart);
-            gradient.addColorStop(1, palette.areaEnd);
-            return gradient;
-          },
+          backgroundColor: showArea ? palette.areaStart : "transparent",
           borderColor: palette.line,
           borderJoinStyle: "round",
           borderWidth: compact ? 1.35 : 1.7,
@@ -179,7 +162,6 @@ export default function BaseLineChart({
     }),
     [
       compact,
-      palette.areaEnd,
       palette.areaStart,
       palette.line,
       palette.lineStrong,

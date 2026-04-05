@@ -55,11 +55,11 @@ Prefer the existing shared UI primitives when possible:
 The current styling system aims for:
 
 - calm, high-contrast surfaces across dark and light system themes
-- clear structure through borders more than shadow
-- signal orange as a controlled accent inside a cooler obsidian-and-ice palette
-- expressive but disciplined typography
+- clear structure through borders, layering, and consistent card radii
+- a mostly monochrome surface system with one restrained accent color
+- clean sans-serif typography with mono support for technical values
 - readable data presentation on both desktop and mobile
 
 ## Review Rule
 
-When adding or changing UI, the question is not only whether it looks fine in isolation, but whether it still feels like the same product system already present in the app.
+When adding or changing UI, the question is not only whether it looks fine in isolation, but whether it still feels like the current product system: monochrome, structured, calm, and workspace-like rather than marketing-heavy.

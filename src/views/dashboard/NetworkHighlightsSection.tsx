@@ -65,14 +65,14 @@ export default function NetworkHighlightsSection({
   const stateMessages = getDashboardSectionStateMessages("network", networkState.error, locale);
 
   return (
-    <Card as="section" tone="default" padding="md" gap="md" className="border-border-default/80">
+    <Card as="section" tone="default" padding="md" gap="md" className="border-border-default">
       <DataState
         state={networkState}
         onRetry={onRetry}
         retryBusy={networkState.isLoading}
         messages={stateMessages}
       >
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle/80 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-default pb-4">
           <div>
             <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
               {copy.statsCardTitle}

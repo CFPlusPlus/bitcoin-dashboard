@@ -12,11 +12,11 @@ export const buttonVariants = cva(
       },
       intent: {
         primary:
-          "border-accent/60 bg-accent text-fg-inverse hover:border-accent-strong hover:bg-accent-strong",
+          "border-accent bg-accent text-fg-inverse hover:border-accent-strong hover:bg-accent-strong",
         secondary:
-          "border-border-default bg-transparent text-fg-secondary hover:border-accent/40 hover:bg-accent-soft hover:text-fg",
+          "border-border-default bg-surface text-fg-secondary hover:border-accent hover:bg-elevated hover:text-fg",
         ghost:
-          "border-transparent bg-transparent text-fg-secondary hover:border-border-subtle hover:bg-elevated/70 hover:text-fg",
+          "border-border-default bg-surface text-fg-secondary hover:border-border-default hover:bg-elevated hover:text-fg",
       },
       size: {
         sm: "min-h-9 px-3.5",
@@ -27,7 +27,7 @@ export const buttonVariants = cva(
       {
         active: true,
         intent: "secondary",
-        className: "border-accent/60 bg-accent-soft text-fg",
+        className: "border-accent bg-elevated text-fg",
       },
       {
         active: true,

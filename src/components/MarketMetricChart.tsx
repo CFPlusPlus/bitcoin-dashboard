@@ -51,9 +51,9 @@ export default function MarketMetricChart({
             <span
               className={
                 deltaTone === "positive"
-                  ? "inline-flex min-h-7 items-center rounded-md bg-success/12 px-2.5 text-sm font-semibold text-success"
+                  ? "inline-flex min-h-7 items-center rounded-md border border-success bg-muted-surface px-2.5 text-sm font-semibold text-success"
                   : deltaTone === "negative"
-                    ? "inline-flex min-h-7 items-center rounded-md bg-danger/12 px-2.5 text-sm font-semibold text-danger"
+                    ? "inline-flex min-h-7 items-center rounded-md border border-danger bg-muted-surface px-2.5 text-sm font-semibold text-danger"
                     : "inline-flex min-h-7 items-center rounded-md bg-elevated px-2.5 text-sm font-semibold text-fg-secondary"
               }
             >

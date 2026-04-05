@@ -2,12 +2,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { createElement, type HTMLAttributes, type ReactNode } from "react";
 import { cn } from "../../../lib/cn";
 
-const sectionTitleVariants = cva("font-serif text-fg tracking-[-0.035em]", {
+const sectionTitleVariants = cva("font-sans text-fg tracking-[-0.04em]", {
   variants: {
     size: {
-      md: "text-[1.65rem] leading-[1.03] sm:text-[2.1rem]",
-      lg: "text-[2.1rem] leading-[0.98] sm:text-[3rem]",
-      xl: "text-[2.9rem] leading-[0.9] sm:text-[4.25rem]",
+      md: "text-[1.55rem] leading-[1] sm:text-[1.95rem]",
+      lg: "text-[2rem] leading-[0.96] sm:text-[2.85rem]",
+      xl: "text-[2.85rem] leading-[0.9] sm:text-[4.15rem]",
     },
   },
   defaultVariants: {

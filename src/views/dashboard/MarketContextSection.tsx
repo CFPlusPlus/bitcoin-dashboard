@@ -112,12 +112,7 @@ export default function MarketContextSection({
         };
 
   return (
-    <Card
-      as="section"
-      tone="default"
-      padding="md"
-      className="h-full gap-4 border-border-default/80"
-    >
+    <Card as="section" tone="default" padding="md" className="h-full gap-4 border-border-default">
       <SectionHeader
         eyebrow={copy.eyebrow}
         title={copy.title}
@@ -195,7 +190,7 @@ export default function MarketContextSection({
                     </Stack>
                   </div>
 
-                  <div className="min-w-0 border-t border-border-subtle/80 pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
+                  <div className="min-w-0 border-t border-border-default pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
                     <KpiValue
                       label={copy.supplyLabel}
                       value={formatBtc(circulatingSupply, locale)}
@@ -223,7 +218,7 @@ export default function MarketContextSection({
                     </MetaText>
                   </div>
 
-                  <div className="min-w-0 border-t border-border-subtle/80 pt-4 md:col-span-2 md:pl-0">
+                  <div className="min-w-0 border-t border-border-default pt-4 md:col-span-2 md:pl-0">
                     <KpiValue
                       label={copy.fdvLabel}
                       value={formatCompactCurrency(fullyDilutedValuation, currency, locale)}

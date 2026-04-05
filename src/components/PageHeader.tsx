@@ -13,7 +13,7 @@ export default function PageHeader() {
     <header className="max-w-[46rem]">
       <Stack gap="md">
         <div className="flex items-center gap-2.5 sm:gap-3">
-          <span aria-hidden className="h-px w-8 bg-accent/65 sm:w-10" />
+          <span aria-hidden className="h-px w-8 bg-accent sm:w-10" />
           <Eyebrow>{messages.home.headerEyebrow}</Eyebrow>
         </div>
 
@@ -31,7 +31,7 @@ export default function PageHeader() {
           <MetaText
             size="base"
             tone="strong"
-            className="max-w-[31rem] text-[0.96rem] leading-6 text-fg-secondary/95 sm:text-[1.02rem] sm:leading-7"
+            className="max-w-[31rem] text-[0.96rem] leading-6 text-fg-secondary sm:text-[1.02rem] sm:leading-7"
           >
             {messages.home.headerDescription}
           </MetaText>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { AsyncDataState } from "../../lib/data-state";
+import type { DashboardSectionId } from "../../lib/dashboard-workspace";
 import type {
   ChartData,
   ChartRange,
@@ -25,8 +26,10 @@ import OnChainActivitySection from "./OnChainActivitySection";
 import PerformanceSection from "./PerformanceSection";
 import SentimentSection from "./SentimentSection";
 import ToolsPreviewSection from "./ToolsPreviewSection";
+import BitcoinNowSection from "./BitcoinNowSection";
 
 type DashboardContentProps = {
+  autoRefresh: boolean;
   chart: ChartData | null;
   chartState: AsyncDataState<ChartData>;
   currency: Currency;
@@ -47,13 +50,18 @@ type DashboardContentProps = {
   onPerformanceRetry: () => void;
   onRangeChange: (value: ChartRange) => void;
   onSentimentRetry: () => void;
+  onAutoRefreshChange: (value: boolean) => void;
+  onRefresh: () => void;
   overview: Overview | null;
   overviewState: AsyncDataState<Overview>;
   performance: Performance | null;
   performanceState: AsyncDataState<Performance>;
   range: ChartRange;
+  refreshing: boolean;
+  section: DashboardSectionId;
   sentiment: Sentiment | null;
   sentimentState: AsyncDataState<Sentiment>;
+  warnings: string[];
 };
 
 export default function DashboardContent(props: DashboardContentProps) {
@@ -61,31 +69,74 @@ export default function DashboardContent(props: DashboardContentProps) {
   const copy = messages.dashboard;
   const networkCopy = messages.dashboard.network;
 
-  return (
-    <Section aria-label={copy.contentAriaLabel} space="lg" className="gap-8 xl:gap-10">
+  if (props.section === "overview") {
+    return (
+      <Section aria-label={copy.contentAriaLabel} space="lg" className="gap-8 xl:gap-10">
+        <BitcoinNowSection
+          autoRefresh={props.autoRefresh}
+          chart={props.chart}
+          chartState={props.chartState}
+          currency={props.currency}
+          dashboardState={props.dashboardState}
+          halvingState={props.halvingState}
+          network={props.network}
+          networkState={props.networkState}
+          refreshing={props.refreshing}
+          onAutoRefreshChange={props.onAutoRefreshChange}
+          onChartRetry={props.onChartRetry}
+          onNetworkRetry={props.onNetworkRetry}
+          onOverviewRetry={props.onOverviewRetry}
+          onRangeChange={props.onRangeChange}
+          onRefresh={props.onRefresh}
+          onSentimentRetry={props.onSentimentRetry}
+          overview={props.overview}
+          overviewState={props.overviewState}
+          range={props.range}
+          sentiment={props.sentiment}
+          sentimentState={props.sentimentState}
+          warnings={props.warnings}
+        />
+
+        <ToolsPreviewSection />
+      </Section>
+    );
+  }
+
+  if (props.section === "performance") {
+    return (
       <PerformanceSection
         currency={props.currency}
         performance={props.performance}
         performanceState={props.performanceState}
         onRetry={props.onPerformanceRetry}
       />
+    );
+  }
 
-      <MarketContextSection
-        currency={props.currency}
-        marketContextChart={props.marketContextChart}
-        marketContextChartState={props.marketContextChartState}
-        onChartRetry={props.onMarketContextChartRetry}
-        overview={props.overview}
-        overviewState={props.overviewState}
-        onRetry={props.onOverviewRetry}
-      />
+  if (props.section === "market") {
+    return (
+      <Section aria-label={copy.marketAndSentimentAriaLabel} space="lg" className="gap-8 xl:gap-10">
+        <MarketContextSection
+          currency={props.currency}
+          marketContextChart={props.marketContextChart}
+          marketContextChartState={props.marketContextChartState}
+          onChartRetry={props.onMarketContextChartRetry}
+          overview={props.overview}
+          overviewState={props.overviewState}
+          onRetry={props.onOverviewRetry}
+        />
 
-      <SentimentSection
-        sentiment={props.sentiment}
-        sentimentState={props.sentimentState}
-        onRetry={props.onSentimentRetry}
-      />
+        <SentimentSection
+          sentiment={props.sentiment}
+          sentimentState={props.sentimentState}
+          onRetry={props.onSentimentRetry}
+        />
+      </Section>
+    );
+  }
 
+  if (props.section === "cycle") {
+    return (
       <Section as="section" aria-label={copy.cycleAriaLabel} space="md" className="gap-6">
         <SectionHeader
           eyebrow={copy.cycleEyebrow}
@@ -107,7 +158,11 @@ export default function DashboardContent(props: DashboardContentProps) {
           />
         </div>
       </Section>
+    );
+  }
 
+  if (props.section === "network") {
+    return (
       <Section as="section" aria-label={networkCopy.title} space="md" className="gap-6">
         <SectionHeader
           eyebrow={networkCopy.eyebrow}
@@ -127,24 +182,28 @@ export default function DashboardContent(props: DashboardContentProps) {
           onRetry={props.onNetworkRetry}
         />
       </Section>
+    );
+  }
 
+  if (props.section === "onchain") {
+    return (
       <OnChainActivitySection
         onChainActivity={props.onChainActivity}
         onChainActivityState={props.onChainActivityState}
         onRetry={props.onOnChainActivityRetry}
       />
+    );
+  }
 
-      <ToolsPreviewSection />
-
-      <MetadataSection
-        chart={props.chart}
-        currency={props.currency}
-        dashboardState={props.dashboardState}
-        network={props.network}
-        onRetry={props.onDashboardRetry}
-        overview={props.overview}
-        sentiment={props.sentiment}
-      />
-    </Section>
+  return (
+    <MetadataSection
+      chart={props.chart}
+      currency={props.currency}
+      dashboardState={props.dashboardState}
+      network={props.network}
+      onRetry={props.onDashboardRetry}
+      overview={props.overview}
+      sentiment={props.sentiment}
+    />
   );
 }

@@ -113,7 +113,7 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
         retryBusy={halvingState.isLoading}
         messages={stateMessages}
       >
-        <div className="overflow-hidden rounded-md border border-border-subtle/90 bg-surface px-4 py-4 sm:px-6 sm:py-5">
+        <div className="overflow-hidden rounded-md border border-border-default bg-surface px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <MetaText
@@ -153,7 +153,7 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
               </div>
             </div>
 
-            <div className="grid gap-4 border-t border-border-subtle/80 pt-4 sm:grid-cols-2">
+            <div className="grid gap-4 border-t border-border-default pt-4 sm:grid-cols-2">
               <HalvingMetaStat
                 label={copy.currentBlockLabel}
                 value={

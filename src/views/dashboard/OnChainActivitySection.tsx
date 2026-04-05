@@ -41,7 +41,7 @@ function getValueTone(value: number | null) {
 
 function ActivityGroup({ children, title }: { children: ReactNode; title: string }) {
   return (
-    <div className="flex h-full flex-col gap-4 rounded-md border border-border-subtle/85 bg-surface px-4 py-4 sm:px-5 sm:py-5">
+    <div className="flex h-full flex-col gap-4 rounded-md border border-border-default bg-surface px-4 py-4 sm:px-5 sm:py-5">
       <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
         {title}
       </MetaText>

@@ -54,7 +54,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   return (
     <div className="flex flex-col gap-5">
       <div className="grid gap-3 xl:grid-cols-2 2xl:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
-        <div className="rounded-md border border-accent/30 bg-accent-soft px-3 py-3 xl:col-span-2 2xl:col-span-1">
+        <div className="rounded-md border border-accent bg-muted-surface px-3 py-3 xl:col-span-2 2xl:col-span-1">
           <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
             {copy.contextLabel}
           </p>
@@ -90,7 +90,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           </p>
         </div>
 
-        <div className="rounded-md border border-accent/35 bg-accent-soft px-3 py-2.5">
+        <div className="rounded-md border border-accent bg-muted-surface px-3 py-2.5">
           <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.latest}</p>
           <p className="mt-2 font-numeric tabular-nums text-base text-fg">
             {formatCurrency(currentPrice, currency, locale)}
@@ -103,7 +103,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
       </div>
 
       <div className="overflow-hidden rounded-md border border-border-subtle bg-surface p-4 sm:p-5">
-        <div className="mb-3 flex flex-col gap-2 border-b border-border-subtle/80 pb-3 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-3 flex flex-col gap-2 border-b border-border-default pb-3 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
           <p>{copy.direction}</p>
           <p className="font-medium text-fg-secondary">
             {formatMessage(copy.timeWindow, {
@@ -131,7 +131,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           yTickFormatter={(value) => formatCurrency(value, currency, locale)}
         />
 
-        <div className="mt-3 flex flex-col gap-2 border-t border-border-subtle/80 pt-3 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-3 flex flex-col gap-2 border-t border-border-default pt-3 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
           <p>{copy.axisContext}</p>
           <p>
             {formatMessage(copy.lastVisiblePoint, {

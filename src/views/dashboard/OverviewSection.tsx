@@ -352,14 +352,11 @@ export default function OverviewSection({
       >
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.56fr)_minmax(20rem,0.94fr)]">
           <div
-            className="flex h-full flex-col justify-between gap-6 overflow-hidden rounded-md border border-accent/25 px-5 py-5 sm:px-7 sm:py-6"
-            style={{
-              background:
-                "linear-gradient(138deg, color-mix(in srgb, var(--token-color-accent-primary) 8%, transparent) 0%, color-mix(in srgb, var(--token-color-info) 5%, transparent) 18%, transparent 40%), linear-gradient(180deg, color-mix(in srgb, var(--token-color-bg-elevated) 92%, black 8%), color-mix(in srgb, var(--token-color-bg-app) 94%, black 6%))",
-            }}
+            className="flex h-full flex-col justify-between gap-6 overflow-hidden rounded-md border border-accent px-5 py-5 sm:px-7 sm:py-6"
+            style={{ background: "var(--token-color-bg-elevated)" }}
           >
             <div className="flex flex-col gap-5">
-              <div className="flex flex-col gap-4 border-b border-border-subtle/80 pb-5">
+              <div className="flex flex-col gap-4 border-b border-border-default pb-5">
                 <MetaText className="uppercase tracking-[0.18em]" size="xs">
                   {formatMessage(copy.spotLabel, { currency: currencyLabel })}
                 </MetaText>

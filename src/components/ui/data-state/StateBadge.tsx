@@ -9,9 +9,9 @@ const stateBadgeVariants = cva(
     variants: {
       tone: {
         default: "border-border-default bg-elevated text-fg-secondary",
-        loading: "border-accent/30 bg-accent-soft text-accent-strong",
-        partial: "border-info/30 bg-info/10 text-info",
-        stale: "border-warning/30 bg-warning/10 text-warning",
+        loading: "border-accent bg-muted-surface text-accent",
+        partial: "border-info bg-muted-surface text-info",
+        stale: "border-warning bg-muted-surface text-warning",
       },
     },
     defaultVariants: {

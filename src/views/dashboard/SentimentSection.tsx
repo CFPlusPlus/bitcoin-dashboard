@@ -1,6 +1,4 @@
 "use client";
-
-import { useId } from "react";
 import type { AsyncDataState } from "../../lib/data-state";
 import type { Sentiment } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
@@ -149,7 +147,6 @@ export default function SentimentSection({
   sentiment,
   sentimentState,
 }: SentimentSectionProps) {
-  const gradientId = useId();
   const { locale, messages } = useI18n();
   const copy = messages.dashboard.sentiment;
   const fallback = messages.common.unavailable;
@@ -178,7 +175,7 @@ export default function SentimentSection({
   ].join(" ");
 
   return (
-    <Card as="section" tone="muted" padding="md" className="h-full gap-4 border-border-default/80">
+    <Card as="section" tone="muted" padding="md" className="h-full gap-4 border-border-default">
       <SectionHeader
         eyebrow={copy.eyebrow}
         title={copy.title}
@@ -212,31 +209,6 @@ export default function SentimentSection({
             <div className="mt-6 flex justify-center">
               <div className="relative w-full max-w-[46rem]">
                 <svg viewBox="0 0 320 220" className="block w-full" aria-hidden="true">
-                  <defs>
-                    <linearGradient
-                      id={gradientId}
-                      x1="24"
-                      y1="0"
-                      x2="296"
-                      y2="0"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop offset="0%" stopColor="var(--token-color-danger)" />
-                      <stop
-                        offset="28%"
-                        stopColor="color-mix(in srgb, var(--token-color-danger) 62%, var(--token-color-accent-primary) 38%)"
-                      />
-                      <stop
-                        offset="52%"
-                        stopColor="color-mix(in srgb, var(--token-color-accent-primary) 58%, var(--token-color-warning) 42%)"
-                      />
-                      <stop
-                        offset="76%"
-                        stopColor="color-mix(in srgb, var(--token-color-success) 52%, var(--token-color-warning) 48%)"
-                      />
-                      <stop offset="100%" stopColor="var(--token-color-success)" />
-                    </linearGradient>
-                  </defs>
                   <path
                     d={describeArc(160, 176, 128, 180, 360)}
                     fill="none"
@@ -247,7 +219,7 @@ export default function SentimentSection({
                   <path
                     d={describeArc(160, 176, 128, 180, 360)}
                     fill="none"
-                    stroke={`url(#${gradientId})`}
+                    stroke={currentVisual.accent}
                     strokeWidth="15"
                     strokeLinecap="round"
                   />

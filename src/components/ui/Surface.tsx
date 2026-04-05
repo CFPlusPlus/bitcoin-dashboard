@@ -16,9 +16,9 @@ export const surfaceVariants = cva(
         default: "bg-surface",
         elevated: "bg-elevated shadow-elevated",
         muted: "bg-muted-surface shadow-none",
-        accent: "border-accent/40 bg-accent-soft",
+        accent: "border-accent bg-muted-surface",
         interactive:
-          "bg-elevated shadow-surface transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] motion-safe:hover:border-accent/55 motion-safe:hover:bg-surface",
+          "bg-elevated shadow-surface transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] motion-safe:hover:border-accent motion-safe:hover:bg-surface",
       },
     },
     defaultVariants: {

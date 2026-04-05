@@ -50,7 +50,7 @@ export default function ChartSection({
       tone="elevated"
       padding="lg"
       gap="md"
-      className="overflow-hidden border-border-default/80"
+      className="overflow-hidden border-border-default"
     >
       <SectionHeader
         eyebrow={copy.eyebrow}
