@@ -120,14 +120,14 @@ export const dictionaries = {
       imprint: {
         path: "/impressum",
         title: "Impressum",
-        description: "Vorbereitete Platzhalterseite fuer das Impressum des Bitcoin Dashboards.",
+        description: "Vorbereitete Platzhalterseite für das Impressum des Bitcoin Dashboards.",
         schemaName: "Impressum",
       },
       privacy: {
         path: "/datenschutz",
         title: "Datenschutz",
         description:
-          "Vorbereitete Platzhalterseite fuer die Datenschutzhinweise des Bitcoin Dashboards.",
+          "Vorbereitete Platzhalterseite für die Datenschutzhinweise des Bitcoin Dashboards.",
         schemaName: "Datenschutz",
       },
     },
@@ -296,9 +296,9 @@ export const dictionaries = {
         liveStatusFallback:
           "Live-Preis konnte gerade nicht erneuert werden. Letzter Wert bleibt sichtbar.",
         liveStatusConverted:
-          "Live-Preis wird ueber BTC-USD bezogen und fortlaufend in {currency} umgerechnet.",
+          "Live-Preis wird über BTC-USD bezogen und fortlaufend in {currency} umgerechnet.",
         liveStatusUnsupported:
-          "Live-Ticker ist fuer {currency} derzeit nicht verfuegbar, weil keine stabile USD-Referenz fuer die Umrechnung vorliegt.",
+          "Live-Ticker ist für {currency} derzeit nicht verfügbar, weil keine stabile USD-Referenz für die Umrechnung vorliegt.",
         liveUpdated: "Live-Stand: {value}",
         highLabel: "24h Tageshoch ({currency})",
         highMeta: "Höchster Preis der letzten 24 Stunden.",
@@ -349,6 +349,12 @@ export const dictionaries = {
         title: "Bitcoin über mehrere Zeiträume",
         description:
           "Die prozentuale BTC-Performance in {currency} für wichtige Vergleichsfenster.",
+        recentTitle: "Kurzfristige Bewegung",
+        recentDescription:
+          "Diese Fenster zeigen, ob Bitcoin zuletzt eher Momentum aufgebaut oder wieder abgegeben hat.",
+        longerTitle: "Längerer Kontext",
+        longerDescription:
+          "Die größeren Vergleichsfenster helfen, kurzfristige Bewegung gegen den breiteren Trend zu lesen.",
         athDistanceLabel: "Abstand zum ATH",
         athDate: "ATH am {value}",
         athPrice: "ATH: {value}",
@@ -383,7 +389,7 @@ export const dictionaries = {
       chart: {
         eyebrow: "Preisverlauf",
         title: "Bitcoin-Chart in {currency}",
-        description: "So hat sich der BTC-Preis für {range} bewegt.",
+        description: "Der Verlauf für {range}. Spotpreis und Tageswerte stehen im Marktüberblick.",
         chooseRange: "Zeitraum wählen",
         chooseRangeAriaLabel: "Chart-Zeitraum wählen",
         preserveHint: "Beim Wechsel bleibt der letzte Verlauf sichtbar.",
@@ -413,9 +419,23 @@ export const dictionaries = {
         eyebrow: "Marktkontext",
         title: "Marktgröße im Blick",
         description: "Marktgröße, Angebotsfortschritt und Bewertung in einem ruhigen Überblick.",
+        historyTitle: "30-Tage-Verlauf",
+        historyDescription: "Marktkapitalisierung und Volumen im zeitlichen Verlauf.",
+        historyLoadingTitle: "30-Tage-Verlauf wird geladen",
+        historyLoadingDescription:
+          "Marktkapitalisierung und Volumen werden für die letzten 30 Tage vorbereitet.",
+        historyErrorTitle: "30-Tage-Verlauf gerade nicht verfügbar",
+        historyErrorDescription:
+          "Die historischen Marktkontext-Daten konnten nicht geladen werden.",
+        historyEmptyTitle: "Keine Verlaufsdaten vorhanden",
+        historyEmptyDescription:
+          "Für die letzten 30 Tage wurden keine verwertbaren Marktkontext-Daten gefunden.",
         marketCapLabel: "Marktkapitalisierung ({currency})",
         marketCapMeta: "Wert aller umlaufenden BTC.",
         marketCapFootnote: "Zeigt die Größe des Bitcoin-Markts.",
+        dominanceLabel: "Bitcoin-Dominanz",
+        dominanceMeta: "Aktueller Anteil von Bitcoin an der gesamten Krypto-Marktkapitalisierung.",
+        currentBadge: "aktuell",
         volumeLabel: "24h Volumen ({currency})",
         volumeMeta: "Geschätztes Handelsvolumen der letzten 24 Stunden.",
         volumeFootnote: "Mehr Volumen heißt meist mehr echte Marktaktivität.",
@@ -496,6 +516,8 @@ export const dictionaries = {
         title: "Bitcoin im Netzwerk",
         description:
           "Hashrate, Schwierigkeit und Gebühren zeigen, wie belastet oder ruhig das Netzwerk gerade läuft.",
+        overviewDescription:
+          "Gebühren, Hashrate und Blockfluss kompakt in einem tieferen Netzwerkbild.",
         statsCardTitle: "Netzwerk-Status",
         hashrateCardTitle: "Hashrate",
         difficultyCardTitle: "Schwierigkeit",
@@ -725,7 +747,7 @@ export const dictionaries = {
           stale: {
             title: "Letzter Halving-Kontext bleibt sichtbar",
             description:
-              "Die Aktualisierung ist fehlgeschlagen. Der angezeigte Countdown kann inzwischen ueberholt sein.",
+              "Die Aktualisierung ist fehlgeschlagen. Der angezeigte Countdown kann inzwischen überholt sein.",
           },
         },
         performance: {
@@ -1042,17 +1064,17 @@ export const dictionaries = {
         eyebrow: "Rechtliches",
         title: "Impressum",
         description:
-          "Diese Seite ist als Platzhalter vorbereitet. Die finalen Anbieterangaben und Kontaktdaten werden hier ergaenzt.",
+          "Diese Seite ist als Platzhalter vorbereitet. Die finalen Anbieterangaben und Kontaktdaten werden hier ergänzt.",
         bodyTitle: "In Vorbereitung",
-        body: "Hier entsteht das vollstaendige Impressum fuer das Bitcoin Dashboard. Bis zur finalen Veroeffentlichung dient diese Seite als strukturierter Platzhalter.",
+        body: "Hier entsteht das vollständige Impressum für das Bitcoin Dashboard. Bis zur finalen Veröffentlichung dient diese Seite als strukturierter Platzhalter.",
       },
       privacy: {
         eyebrow: "Rechtliches",
         title: "Datenschutz",
         description:
-          "Diese Seite ist als Platzhalter vorbereitet. Die finalen Datenschutzhinweise und Informationen zur Datenverarbeitung werden hier ergaenzt.",
+          "Diese Seite ist als Platzhalter vorbereitet. Die finalen Datenschutzhinweise und Informationen zur Datenverarbeitung werden hier ergänzt.",
         bodyTitle: "In Vorbereitung",
-        body: "Hier entstehen die Datenschutzhinweise fuer das Bitcoin Dashboard. Bis zur finalen Ausarbeitung dient diese Seite als strukturierter Platzhalter.",
+        body: "Hier entstehen die Datenschutzhinweise für das Bitcoin Dashboard. Bis zur finalen Ausarbeitung dient diese Seite als strukturierter Platzhalter.",
       },
     },
   },
@@ -1397,6 +1419,12 @@ export const dictionaries = {
         title: "Bitcoin across key timeframes",
         description:
           "BTC percentage performance in {currency} across the comparison windows that matter most.",
+        recentTitle: "Recent movement",
+        recentDescription:
+          "These windows show whether Bitcoin has been building momentum lately or giving some of it back.",
+        longerTitle: "Longer context",
+        longerDescription:
+          "The wider comparison windows help frame shorter moves against the broader trend.",
         athDistanceLabel: "Distance to ATH",
         athDate: "ATH on {value}",
         athPrice: "ATH: {value}",
@@ -1431,7 +1459,8 @@ export const dictionaries = {
       chart: {
         eyebrow: "Price action",
         title: "Bitcoin chart in {currency}",
-        description: "This is how BTC moved over {range}.",
+        description:
+          "The price path for {range}. Spot price and daily levels stay in market overview.",
         chooseRange: "Choose range",
         chooseRangeAriaLabel: "Choose chart range",
         preserveHint: "When switching, the last visible line stays on screen.",
@@ -1461,9 +1490,20 @@ export const dictionaries = {
         eyebrow: "Market context",
         title: "Market size at a glance",
         description: "A calm read on market size, supply progress, and valuation.",
+        historyTitle: "30-day history",
+        historyDescription: "Market cap and volume over time.",
+        historyLoadingTitle: "Loading 30-day history",
+        historyLoadingDescription: "Preparing market cap and volume for the last 30 days.",
+        historyErrorTitle: "30-day history is unavailable right now",
+        historyErrorDescription: "The historical market context data could not be loaded.",
+        historyEmptyTitle: "No history data available",
+        historyEmptyDescription: "No usable market context history was found for the last 30 days.",
         marketCapLabel: "Market cap ({currency})",
         marketCapMeta: "Value of all circulating BTC.",
         marketCapFootnote: "Shows the size of the Bitcoin market.",
+        dominanceLabel: "Bitcoin dominance",
+        dominanceMeta: "Current share of Bitcoin across the total crypto market capitalization.",
+        currentBadge: "current",
         volumeLabel: "24h volume ({currency})",
         volumeMeta: "Estimated trading volume over the last 24 hours.",
         volumeFootnote: "More volume usually means more real market activity.",
@@ -1539,6 +1579,7 @@ export const dictionaries = {
         title: "Bitcoin on the network",
         description:
           "Hashrate, difficulty, and fees show how calm or crowded the network feels right now.",
+        overviewDescription: "Fees, hashrate, and block flow in a deeper network read.",
         statsCardTitle: "Network Status",
         hashrateCardTitle: "Hashrate",
         difficultyCardTitle: "Difficulty",

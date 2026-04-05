@@ -47,8 +47,8 @@ export default function ChartSection({
     <Card
       as="section"
       id="main-chart-zone"
-      tone="elevated"
-      padding="lg"
+      tone="default"
+      padding="md"
       gap="md"
       className="overflow-hidden border-border-default"
     >
@@ -91,7 +91,7 @@ export default function ChartSection({
         retryLabel={copy.retryLabel}
         messages={stateMessages}
       >
-        <div className="rounded-md border border-border-subtle bg-muted-surface p-3 sm:p-4">
+        <div className="rounded-md border border-border-subtle bg-surface p-4 sm:p-5">
           <PriceChart
             points={chart?.points ?? []}
             range={chart?.range ?? range}

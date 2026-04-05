@@ -64,52 +64,20 @@ export default function MarketContextSection({
   const marketCapSeries =
     marketContextChart?.series.find((item) => item.key === "marketCap") ?? null;
   const volumeSeries = marketContextChart?.series.find((item) => item.key === "volume24h") ?? null;
-  const dominanceCopy =
-    locale === "de"
-      ? {
-          label: "Bitcoin-Dominanz",
-          meta: "Aktueller Anteil von Bitcoin an der gesamten Krypto-Marktkapitalisierung.",
-        }
-      : {
-          label: "Bitcoin dominance",
-          meta: "Current share of Bitcoin across the total crypto market capitalization.",
-        };
-  const chartMessages =
-    locale === "de"
-      ? {
-          loading: {
-            title: "30-Tage-Verlauf wird geladen",
-            description:
-              "Marktkapitalisierung und Volumen werden für die letzten 30 Tage vorbereitet.",
-          },
-          error: {
-            title: "30-Tage-Verlauf gerade nicht verfügbar",
-            description:
-              marketContextChartState.error ??
-              "Die historischen Marktkontext-Daten konnten nicht geladen werden.",
-          },
-          empty: {
-            title: "Keine Verlaufsdaten vorhanden",
-            description:
-              "Für die letzten 30 Tage wurden keine verwertbaren Marktkontext-Daten gefunden.",
-          },
-        }
-      : {
-          loading: {
-            title: "Loading 30-day history",
-            description: "Preparing market cap and volume for the last 30 days.",
-          },
-          error: {
-            title: "30-day history is unavailable right now",
-            description:
-              marketContextChartState.error ??
-              "The historical market context data could not be loaded.",
-          },
-          empty: {
-            title: "No history data available",
-            description: "No usable market context history was found for the last 30 days.",
-          },
-        };
+  const chartMessages = {
+    loading: {
+      title: copy.historyLoadingTitle,
+      description: copy.historyLoadingDescription,
+    },
+    error: {
+      title: copy.historyErrorTitle,
+      description: marketContextChartState.error ?? copy.historyErrorDescription,
+    },
+    empty: {
+      title: copy.historyEmptyTitle,
+      description: copy.historyEmptyDescription,
+    },
+  };
 
   return (
     <Card as="section" tone="default" padding="md" className="h-full gap-4 border-border-default">
@@ -127,14 +95,8 @@ export default function MarketContextSection({
         messages={stateMessages}
       >
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-border-subtle pb-4">
-          <MetaText tone="strong">
-            {locale === "de" ? "30-Tage-Verlauf" : "30-day history"}
-          </MetaText>
-          <MetaText>
-            {locale === "de"
-              ? "Marktkapitalisierung und Volumen im zeitlichen Verlauf."
-              : "Market cap and volume over time."}
-          </MetaText>
+          <MetaText tone="strong">{copy.historyTitle}</MetaText>
+          <MetaText>{copy.historyDescription}</MetaText>
         </div>
 
         <DataState
@@ -178,15 +140,15 @@ export default function MarketContextSection({
                     <Stack gap="sm">
                       <Cluster align="center" gap="sm">
                         <KpiValue
-                          label={dominanceCopy.label}
+                          label={copy.dominanceLabel}
                           value={formatPercentValue(btcDominance, locale)}
                           size="md"
                         />
                         <span className="inline-flex min-h-7 items-center rounded-md bg-elevated px-2.5 text-sm font-semibold text-fg-secondary">
-                          {locale === "de" ? "aktuell" : "current"}
+                          {copy.currentBadge}
                         </span>
                       </Cluster>
-                      <MetaText>{dominanceCopy.meta}</MetaText>
+                      <MetaText>{copy.dominanceMeta}</MetaText>
                     </Stack>
                   </div>
 

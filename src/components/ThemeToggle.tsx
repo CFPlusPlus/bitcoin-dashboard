@@ -2,6 +2,7 @@
 
 import { MoonStar, SunMedium } from "lucide-react";
 import { useEffect, useState } from "react";
+import type { HTMLAttributes } from "react";
 import { useI18n } from "../i18n/context";
 import {
   THEME_EVENT_NAME,
@@ -13,7 +14,9 @@ import {
 } from "../lib/theme";
 import { cn } from "../lib/cn";
 
-export default function ThemeToggle() {
+type ThemeToggleProps = Pick<HTMLAttributes<HTMLButtonElement>, "className">;
+
+export default function ThemeToggle({ className }: ThemeToggleProps) {
   const { messages } = useI18n();
   const [theme, setTheme] = useState<ThemeMode | null>(null);
 
@@ -61,7 +64,8 @@ export default function ThemeToggle() {
       title={label}
       className={cn(
         "inline-flex h-8 min-w-[8.5rem] items-center justify-center gap-2 rounded-md border border-border-default bg-surface px-3 text-[0.64rem] font-medium uppercase tracking-[0.16em] text-fg-secondary transition-[border-color,background-color,color,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-app hover:border-accent hover:bg-elevated hover:text-fg",
-        theme === null && "opacity-0"
+        theme === null && "opacity-0",
+        className
       )}
       onClick={() => {
         applyTheme(nextTheme);

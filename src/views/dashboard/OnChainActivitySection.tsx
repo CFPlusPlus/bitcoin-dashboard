@@ -6,6 +6,7 @@ import type { OnChainActivity } from "../../types/dashboard";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import { formatCompactNumber, formatCurrency, formatPercent } from "../../lib/format";
 import { useI18n } from "../../i18n/context";
+import { cn } from "../../lib/cn";
 import MetricCard from "../../components/MetricCard";
 import Card from "../../components/ui/Card";
 import MetaText from "../../components/ui/content/MetaText";
@@ -21,7 +22,7 @@ type OnChainActivitySectionProps = {
 
 function formatRatio(value: number | null, locale: "de" | "en") {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "—";
+    return null;
   }
 
   const formatted = new Intl.NumberFormat(locale, {
@@ -39,13 +40,31 @@ function getValueTone(value: number | null) {
   return "default" as const;
 }
 
-function ActivityGroup({ children, title }: { children: ReactNode; title: string }) {
+function ActivityGroup({
+  children,
+  className,
+  contentClassName,
+  title,
+  tone = "default",
+}: {
+  children: ReactNode;
+  className?: string;
+  contentClassName?: string;
+  title: string;
+  tone?: "default" | "emphasis";
+}) {
   return (
-    <div className="flex h-full flex-col gap-4 rounded-md border border-border-default bg-surface px-4 py-4 sm:px-5 sm:py-5">
+    <div
+      className={cn(
+        "flex h-full flex-col gap-4 rounded-md border px-4 py-4 sm:px-5 sm:py-5",
+        tone === "emphasis" ? "border-accent bg-muted-surface" : "border-border-default bg-surface",
+        className
+      )}
+    >
       <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
         {title}
       </MetaText>
-      <div className="grid gap-4 sm:grid-cols-2">{children}</div>
+      <div className={cn("grid gap-4 sm:grid-cols-2", contentClassName)}>{children}</div>
     </div>
   );
 }
@@ -57,6 +76,7 @@ export default function OnChainActivitySection({
 }: OnChainActivitySectionProps) {
   const { locale, messages } = useI18n();
   const copy = messages.dashboard.onChainActivity;
+  const fallback = messages.common.unavailable;
   const stateMessages = getDashboardSectionStateMessages(
     "onChainActivity",
     onChainActivityState.error,
@@ -79,7 +99,12 @@ export default function OnChainActivitySection({
         messages={stateMessages}
       >
         <div className="grid gap-4 xl:grid-cols-2">
-          <ActivityGroup title={copy.groups.usage}>
+          <ActivityGroup
+            title={copy.groups.usage}
+            tone="emphasis"
+            className="xl:col-span-2"
+            contentClassName="xl:grid-cols-4"
+          >
             <MetricCard
               label={copy.activeAddressesLabel}
               value={formatCompactNumber(onChainActivity?.activeAddresses.current ?? null, locale)}
@@ -116,19 +141,23 @@ export default function OnChainActivitySection({
             />
           </ActivityGroup>
 
-          <ActivityGroup title={copy.groups.transfers}>
+          <ActivityGroup title={copy.groups.fees}>
             <MetricCard
-              label={copy.transferCountLabel}
-              value={formatCompactNumber(onChainActivity?.transferCount.current ?? null, locale)}
-              meta={copy.transferCountMeta}
-              valueFootnote={copy.transferCountFootnote}
+              label={copy.dailyFeesLabel}
+              value={formatCurrency(onChainActivity?.dailyFeesBtc.current ?? null, "btc", locale)}
+              meta={copy.dailyFeesMeta}
+              valueFootnote={copy.dailyFeesFootnote}
               tone="default"
             />
             <MetricCard
-              label={copy.transfersPerTransactionLabel}
-              value={formatRatio(onChainActivity?.derived.transfersPerTransaction ?? null, locale)}
-              meta={copy.transfersPerTransactionMeta}
-              valueFootnote={copy.transfersPerTransactionFootnote}
+              label={copy.dailyFeesAverage7dLabel}
+              value={formatCurrency(
+                onChainActivity?.derived.averageDailyFees7dBtc ?? null,
+                "btc",
+                locale
+              )}
+              meta={copy.dailyFeesAverage7dMeta}
+              valueFootnote={copy.dailyFeesAverage7dFootnote}
               tone="default"
             />
           </ActivityGroup>
@@ -154,23 +183,22 @@ export default function OnChainActivitySection({
             />
           </ActivityGroup>
 
-          <ActivityGroup title={copy.groups.fees}>
+          <ActivityGroup title={copy.groups.transfers}>
             <MetricCard
-              label={copy.dailyFeesLabel}
-              value={formatCurrency(onChainActivity?.dailyFeesBtc.current ?? null, "btc", locale)}
-              meta={copy.dailyFeesMeta}
-              valueFootnote={copy.dailyFeesFootnote}
+              label={copy.transferCountLabel}
+              value={formatCompactNumber(onChainActivity?.transferCount.current ?? null, locale)}
+              meta={copy.transferCountMeta}
+              valueFootnote={copy.transferCountFootnote}
               tone="default"
             />
             <MetricCard
-              label={copy.dailyFeesAverage7dLabel}
-              value={formatCurrency(
-                onChainActivity?.derived.averageDailyFees7dBtc ?? null,
-                "btc",
-                locale
-              )}
-              meta={copy.dailyFeesAverage7dMeta}
-              valueFootnote={copy.dailyFeesAverage7dFootnote}
+              label={copy.transfersPerTransactionLabel}
+              value={
+                formatRatio(onChainActivity?.derived.transfersPerTransaction ?? null, locale) ??
+                fallback
+              }
+              meta={copy.transfersPerTransactionMeta}
+              valueFootnote={copy.transfersPerTransactionFootnote}
               tone="default"
             />
           </ActivityGroup>

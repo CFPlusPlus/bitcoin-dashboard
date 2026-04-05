@@ -326,11 +326,11 @@ export default function CurrencySwitcher() {
             />
           </div>
 
-          <div className="mt-2.5 flex items-center justify-between gap-2">
+          <div className="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[0.62rem] font-medium uppercase tracking-[0.18em] text-fg-muted">
               {messages.site.currencyScopeLabel}
             </p>
-            <div className="flex items-center gap-1">
+            <div className="grid grid-cols-2 gap-1 sm:flex sm:items-center">
               <button
                 type="button"
                 className={cn(
@@ -403,7 +403,7 @@ export default function CurrencySwitcher() {
             <p className="px-2 pb-1 text-[0.62rem] font-medium uppercase tracking-[0.18em] text-fg-muted">
               {messages.site.currencyPopularLabel}
             </p>
-            <div className="grid grid-cols-5 gap-1">
+            <div className="grid grid-cols-4 gap-1 sm:grid-cols-5">
               {popularCurrencies.map((entry) => {
                 const isActive = entry === currency;
 

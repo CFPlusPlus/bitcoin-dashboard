@@ -337,6 +337,8 @@ export default function NetworkOverviewSection({
   const hashrateIsPositive = (network?.hashrate.changePercent30d ?? 0) >= 0;
   const difficultyIsPositive = (network?.difficulty.adjustmentPercent ?? 0) >= 0;
   const nowTimestamp = network?.fetchedAt ? new Date(network.fetchedAt).getTime() : 0;
+  const projectedBlocks = (network?.mempool.projectedBlocks ?? []).slice(0, 4);
+  const latestBlocks = (network?.latestBlocks ?? []).slice(0, 4);
   const maxFee = Math.max(
     network?.fees.fastestFee ?? 0,
     network?.fees.halfHourFee ?? 0,
@@ -359,11 +361,7 @@ export default function NetworkOverviewSection({
             <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
               {copy.title}
             </p>
-            <p className="mt-2 max-w-2xl text-sm text-fg-secondary">
-              {locale === "de"
-                ? "Gebuehren, Hashrate und Blockfluss kompakt in einem tieferen Netzwerkbild."
-                : "Fees, hashrate, and block flow in a deeper network read."}
-            </p>
+            <p className="mt-2 max-w-2xl text-sm text-fg-secondary">{copy.overviewDescription}</p>
           </div>
           <DataStateMeta state={networkState} />
         </div>
@@ -525,40 +523,42 @@ export default function NetworkOverviewSection({
               ))}
             </Stack>
 
-            <div className="grid gap-6 xl:grid-cols-2">
-              <Stack gap="md">
-                <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
-                  {copy.projectedBlocksTitle}
-                </MetaText>
-                <Stack gap="sm">
-                  {(network?.mempool.projectedBlocks ?? []).map((block) => (
-                    <DetailRow
-                      key={block.blockIndex}
-                      label={`#${block.blockIndex}`}
-                      leading={
-                        <span className="size-2 rounded-full bg-accent" aria-hidden="true" />
-                      }
-                      value={
-                        block.minFeeRate === null || block.maxFeeRate === null
-                          ? fallback
-                          : `${formatDecimal(block.minFeeRate, numberLocale, 1)}-${formatDecimal(block.maxFeeRate, numberLocale, 1)} sat/vB`
-                      }
-                      detail={
-                        block.transactionCount === null
-                          ? fallback
-                          : `${formatNumber(block.transactionCount, locale)} ${copy.transactionsSuffix}`
-                      }
-                    />
-                  ))}
+            <div className="grid gap-4 xl:grid-cols-2">
+              <div className="rounded-md border border-border-subtle bg-muted-surface px-4 py-4">
+                <Stack gap="md">
+                  <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
+                    {copy.projectedBlocksTitle}
+                  </MetaText>
+                  <Stack gap="sm">
+                    {projectedBlocks.map((block) => (
+                      <DetailRow
+                        key={block.blockIndex}
+                        label={`#${block.blockIndex}`}
+                        leading={
+                          <span className="size-2 rounded-full bg-accent" aria-hidden="true" />
+                        }
+                        value={
+                          block.minFeeRate === null || block.maxFeeRate === null
+                            ? fallback
+                            : `${formatDecimal(block.minFeeRate, numberLocale, 1)}-${formatDecimal(block.maxFeeRate, numberLocale, 1)} sat/vB`
+                        }
+                        detail={
+                          block.transactionCount === null
+                            ? fallback
+                            : `${formatNumber(block.transactionCount, locale)} ${copy.transactionsSuffix}`
+                        }
+                      />
+                    ))}
+                  </Stack>
                 </Stack>
-              </Stack>
+              </div>
 
-              <Stack gap="md">
+              <div className="rounded-md border border-border-subtle bg-muted-surface px-4 py-4">
                 <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
                   {copy.feeSpreadTitleSafe}
                 </MetaText>
-                <MetaText>{copy.feeSpreadDescriptionSafe}</MetaText>
-                <Stack gap="sm">
+                <MetaText className="mt-3">{copy.feeSpreadDescriptionSafe}</MetaText>
+                <Stack gap="sm" className="mt-4">
                   {[
                     {
                       label: copy.fastestToHourSpreadLabelSafe,
@@ -581,12 +581,12 @@ export default function NetworkOverviewSection({
                     />
                   ))}
                 </Stack>
-              </Stack>
+              </div>
             </div>
           </NetworkPanel>
 
-          <NetworkPanel title={copy.activityCardTitleSafe} className="2xl:col-span-12 min-h-0">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <NetworkPanel title={copy.activityCardTitleSafe} className="2xl:col-span-6 min-h-0">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-2">
               <StatLabel
                 label={copy.averageBlockTimeLabelSafe}
                 value={
@@ -621,28 +621,28 @@ export default function NetworkOverviewSection({
               />
             </div>
           </NetworkPanel>
-        </div>
 
-        <NetworkPanel title={copy.latestBlocksTitle} className="mt-2 min-h-0">
-          {network?.latestBlocks.length ? (
-            <div className="grid gap-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
-              {network.latestBlocks.map((block) => (
-                <RecentBlockTile
-                  key={block.height}
-                  ageLabel={copy.blockAgeLabel}
-                  block={block}
-                  fallback={fallback}
-                  locale={locale}
-                  now={nowTimestamp}
-                  sizeLabel={copy.blockSizeLabel}
-                  transactionsSuffix={copy.transactionsSuffix}
-                />
-              ))}
-            </div>
-          ) : (
-            <MetaText>{copy.latestBlocksEmpty}</MetaText>
-          )}
-        </NetworkPanel>
+          <NetworkPanel title={copy.latestBlocksTitle} className="2xl:col-span-6 min-h-0">
+            {latestBlocks.length ? (
+              <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-2">
+                {latestBlocks.map((block) => (
+                  <RecentBlockTile
+                    key={block.height}
+                    ageLabel={copy.blockAgeLabel}
+                    block={block}
+                    fallback={fallback}
+                    locale={locale}
+                    now={nowTimestamp}
+                    sizeLabel={copy.blockSizeLabel}
+                    transactionsSuffix={copy.transactionsSuffix}
+                  />
+                ))}
+              </div>
+            ) : (
+              <MetaText>{copy.latestBlocksEmpty}</MetaText>
+            )}
+          </NetworkPanel>
+        </div>
       </DataState>
     </Card>
   );

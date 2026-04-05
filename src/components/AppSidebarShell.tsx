@@ -5,9 +5,13 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import {
-  Activity,
   BarChart3,
+  BookOpen,
+  Calculator,
   ChevronRight,
+  CircleDollarSign,
+  Database,
+  FileText,
   LayoutDashboard,
   Menu,
   Network,
@@ -134,7 +138,7 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
     },
     {
       href: buildSectionHref(locale, "market"),
-      icon: Activity,
+      icon: CircleDollarSign,
       isActive: onDashboardRoute && activeSection === "market",
       label: messages.nav.sections.market,
     },
@@ -152,13 +156,13 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
     },
     {
       href: buildSectionHref(locale, "onchain"),
-      icon: Activity,
+      icon: Database,
       isActive: onDashboardRoute && activeSection === "onchain",
       label: messages.nav.sections.onchain,
     },
     {
       href: buildSectionHref(locale, "sources"),
-      icon: Shield,
+      icon: BookOpen,
       isActive: onDashboardRoute && activeSection === "sources",
       label: messages.nav.sections.sources,
     },
@@ -173,7 +177,7 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
     },
     {
       href: dcaHref,
-      icon: BarChart3,
+      icon: Calculator,
       isActive: pathname === dcaHref,
       label: messages.nav.dcaCalculator,
     },
@@ -182,7 +186,7 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
   const supportItems: SidebarLink[] = [
     {
       href: imprintHref,
-      icon: Shield,
+      icon: FileText,
       isActive: pathname === imprintHref,
       label: messages.nav.imprint,
     },
@@ -278,12 +282,12 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
               {messages.nav.utilities}
             </p>
 
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-col gap-2">
               <span className="text-sm text-fg-secondary">{messages.nav.theme}</span>
-              <ThemeToggle />
+              <ThemeToggle className="w-full min-w-0 justify-between" />
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="grid gap-2">
               <CurrencySwitcher />
               <LanguageSwitcher />
             </div>

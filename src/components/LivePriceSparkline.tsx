@@ -666,7 +666,7 @@ export default function LivePriceSparkline({
           />
         </div>
 
-        <div className="mt-2 flex h-5">
+        <div className="mt-2 hidden h-5 sm:flex">
           <div
             className="relative h-full flex-1 overflow-hidden"
             style={{ marginRight: "-0.9rem" }}
@@ -684,7 +684,7 @@ export default function LivePriceSparkline({
           <div aria-hidden="true" className="w-[6.75rem] shrink-0" />
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border-default pt-3 text-sm text-fg-muted">
+        <div className="mt-3 flex flex-col gap-2 border-t border-border-default pt-3 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
           <span>
             {copy.liveCoverageStart}: {formatTimeLabel(visibleStart, locale)}
           </span>

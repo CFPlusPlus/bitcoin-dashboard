@@ -20,7 +20,8 @@ type PerformanceSectionProps = {
   performanceState: AsyncDataState<Performance>;
 };
 
-const PERIOD_ORDER: PerformanceWindowKey[] = ["7d", "30d", "90d", "1y", "ytd"];
+const RECENT_PERIOD_ORDER: PerformanceWindowKey[] = ["7d", "30d", "90d"];
+const LONGER_PERIOD_ORDER: PerformanceWindowKey[] = ["1y", "ytd"];
 
 function getValueTone(value: number | null) {
   if (typeof value !== "number") return "default" as const;
@@ -53,6 +54,31 @@ export default function PerformanceSection({
   const periodsByKey = new Map((performance?.periods ?? []).map((period) => [period.key, period]));
   const stats = performance?.stats ?? null;
 
+  function renderPeriodCard(key: PerformanceWindowKey, tone: "default" | "muted" = "muted") {
+    const period = periodsByKey.get(key);
+    const changePercent = period?.changePercent ?? null;
+    const referenceDate =
+      typeof period?.referenceTimestamp === "number"
+        ? new Date(period.referenceTimestamp).toISOString()
+        : null;
+
+    return (
+      <MetricCard
+        key={key}
+        label={copy.periods[key]}
+        value={formatPercent(changePercent, locale)}
+        meta={formatMessage(copy.referenceDate, {
+          value: formatDate(referenceDate, locale),
+        })}
+        valueFootnote={formatMessage(copy.referencePrice, {
+          value: formatCurrency(period?.referencePrice ?? null, currency, locale),
+        })}
+        valueTone={getValueTone(changePercent)}
+        tone={tone}
+      />
+    );
+  }
+
   return (
     <Card as="section" tone="elevated" padding="md" gap="md" className="overflow-hidden">
       <SectionHeader
@@ -68,33 +94,35 @@ export default function PerformanceSection({
         retryBusy={performanceState.isLoading}
         messages={stateMessages}
       >
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
-          {PERIOD_ORDER.map((key) => {
-            const period = periodsByKey.get(key);
-            const changePercent = period?.changePercent ?? null;
-            const referenceDate =
-              typeof period?.referenceTimestamp === "number"
-                ? new Date(period.referenceTimestamp).toISOString()
-                : null;
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)]">
+          <div className="rounded-md border border-accent bg-muted-surface px-4 py-4 sm:px-5 sm:py-5">
+            <MetaText size="xs" className="font-mono uppercase tracking-[0.18em] text-accent">
+              {copy.recentTitle}
+            </MetaText>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-fg-secondary">
+              {copy.recentDescription}
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              {RECENT_PERIOD_ORDER.map((key) =>
+                renderPeriodCard(key, key === "30d" ? "default" : "muted")
+              )}
+            </div>
+          </div>
 
-            return (
-              <MetricCard
-                key={key}
-                label={copy.periods[key]}
-                value={formatPercent(changePercent, locale)}
-                meta={formatMessage(copy.referenceDate, {
-                  value: formatDate(referenceDate, locale),
-                })}
-                valueFootnote={formatMessage(copy.referencePrice, {
-                  value: formatCurrency(period?.referencePrice ?? null, currency, locale),
-                })}
-                valueTone={getValueTone(changePercent)}
-              />
-            );
-          })}
+          <div className="rounded-md border border-border-subtle bg-surface px-4 py-4 sm:px-5 sm:py-5">
+            <MetaText size="xs" className="font-mono uppercase tracking-[0.18em]">
+              {copy.longerTitle}
+            </MetaText>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-fg-secondary">
+              {copy.longerDescription}
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              {LONGER_PERIOD_ORDER.map((key) => renderPeriodCard(key, "default"))}
+            </div>
+          </div>
         </div>
 
-        <div className="mt-4 border-t border-border-subtle pt-4">
+        <div className="rounded-md border border-border-subtle bg-surface px-4 py-4 sm:px-5 sm:py-5">
           <MetaText size="xs" className="mb-3 font-mono uppercase tracking-[0.18em]">
             {copy.structureTitle}
           </MetaText>

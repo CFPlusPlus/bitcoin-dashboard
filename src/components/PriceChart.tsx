@@ -52,27 +52,45 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
   const chartPoints = points.map((point) => ({ x: point.timestamp, y: point.price }));
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="grid gap-3 xl:grid-cols-2 2xl:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
-        <div className="rounded-md border border-accent bg-muted-surface px-3 py-3 xl:col-span-2 2xl:col-span-1">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
-            {copy.contextLabel}
-          </p>
-          <p className="mt-2 text-sm font-medium text-fg">
-            {formatMessage(copy.contextLine, {
-              currency: currency.toUpperCase(),
-              range: rangeLabel,
-            })}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-fg-muted">
-            {formatMessage(copy.contextCoverage, {
-              end: formatChartCoverageLabel(latestPoint.timestamp, range, locale),
-              start: formatChartCoverageLabel(firstPoint.timestamp, range, locale),
+    <div className="overflow-hidden rounded-md border border-border-subtle bg-surface p-4 sm:p-5">
+      <div className="mb-4 flex flex-col gap-3 border-b border-border-default pb-4">
+        <p className="text-sm font-medium text-fg">
+          {formatMessage(copy.contextLine, {
+            currency: currency.toUpperCase(),
+            range: rangeLabel,
+          })}
+        </p>
+        <div className="flex flex-col gap-2 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>{copy.direction}</p>
+          <p className="font-medium text-fg-secondary">
+            {formatMessage(copy.timeWindow, {
+              end: formatChartAxisLabel(latestPoint.timestamp, range, locale),
+              start: formatChartAxisLabel(firstPoint.timestamp, range, locale),
             })}
           </p>
         </div>
+      </div>
 
-        <div className="rounded-md border border-border-subtle bg-surface px-3 py-2.5">
+      <BaseLineChart
+        ariaLabel={formatMessage(copy.ariaLabel, {
+          currency: currency.toUpperCase(),
+          days: range,
+        })}
+        height={340}
+        points={chartPoints}
+        showArea
+        showVerticalHoverGuide
+        showXAxis
+        showYAxis
+        tone="accent"
+        tooltipTitleFormatter={(value) => formatChartTooltipLabel(value, range, locale)}
+        tooltipValueFormatter={(value) => formatCurrency(value, currency, locale)}
+        xTickFormatter={(value) => formatChartAxisLabel(value, range, locale)}
+        yTickFormatter={(value) => formatCurrency(value, currency, locale)}
+      />
+
+      <div className="mt-4 grid gap-3 border-t border-border-default pt-4 sm:grid-cols-3">
+        <div className="min-w-0">
           <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
             {copy.lowInWindow}
           </p>
@@ -81,7 +99,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           </p>
         </div>
 
-        <div className="rounded-md border border-border-subtle bg-surface px-3 py-2.5">
+        <div className="min-w-0">
           <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
             {copy.highInWindow}
           </p>
@@ -90,7 +108,7 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
           </p>
         </div>
 
-        <div className="rounded-md border border-accent bg-muted-surface px-3 py-2.5">
+        <div className="min-w-0">
           <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.latest}</p>
           <p className="mt-2 font-numeric tabular-nums text-base text-fg">
             {formatCurrency(currentPrice, currency, locale)}
@@ -102,43 +120,13 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-md border border-border-subtle bg-surface p-4 sm:p-5">
-        <div className="mb-3 flex flex-col gap-2 border-b border-border-default pb-3 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>{copy.direction}</p>
-          <p className="font-medium text-fg-secondary">
-            {formatMessage(copy.timeWindow, {
-              end: formatChartAxisLabel(latestPoint.timestamp, range, locale),
-              start: formatChartAxisLabel(firstPoint.timestamp, range, locale),
-            })}
-          </p>
-        </div>
-
-        <BaseLineChart
-          ariaLabel={formatMessage(copy.ariaLabel, {
-            currency: currency.toUpperCase(),
-            days: range,
+      <div className="mt-4 flex flex-col gap-2 border-t border-border-default pt-4 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
+        <p>{copy.axisContext}</p>
+        <p>
+          {formatMessage(copy.lastVisiblePoint, {
+            value: formatChartCoverageLabel(latestPoint.timestamp, range, locale),
           })}
-          height={340}
-          points={chartPoints}
-          showArea
-          showVerticalHoverGuide
-          showXAxis
-          showYAxis
-          tone="accent"
-          tooltipTitleFormatter={(value) => formatChartTooltipLabel(value, range, locale)}
-          tooltipValueFormatter={(value) => formatCurrency(value, currency, locale)}
-          xTickFormatter={(value) => formatChartAxisLabel(value, range, locale)}
-          yTickFormatter={(value) => formatCurrency(value, currency, locale)}
-        />
-
-        <div className="mt-3 flex flex-col gap-2 border-t border-border-default pt-3 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>{copy.axisContext}</p>
-          <p>
-            {formatMessage(copy.lastVisiblePoint, {
-              value: formatChartCoverageLabel(latestPoint.timestamp, range, locale),
-            })}
-          </p>
-        </div>
+        </p>
       </div>
     </div>
   );
