@@ -12,9 +12,13 @@ import type {
   Sentiment,
 } from "../../types/dashboard";
 import { formatMessage } from "../../i18n/template";
-import { getLocalizedPathname } from "../../i18n/config";
 import { useI18n } from "../../i18n/context";
-import { formatCompactNumber, formatCurrency, formatNumber, formatPercent } from "../../lib/format";
+import {
+  formatCompactNumber,
+  formatCurrency,
+  formatNumber,
+  formatSignedPercentValue,
+} from "../../lib/format";
 import { getSentimentZoneKey } from "../../lib/sentiment";
 import NoticeBar from "../../components/NoticeBar";
 import PageHeader from "../../components/PageHeader";
@@ -71,7 +75,7 @@ function TodaySignal({
   return (
     <div
       className={cn(
-        "flex min-w-0 flex-col gap-2.5 rounded-md border px-3.5 py-3.5 sm:gap-3 sm:px-4 sm:py-4",
+        "flex min-w-0 flex-col gap-2 rounded-md border px-3 py-3 sm:gap-2.5 sm:px-4 sm:py-4",
         emphasis === "primary" ? "border-accent bg-elevated" : "border-border-default bg-surface"
       )}
     >
@@ -88,9 +92,9 @@ function TodaySignal({
         className={cn(
           "font-numeric min-w-0 [overflow-wrap:anywhere]",
           emphasis === "primary"
-            ? "text-[1.72rem] font-medium leading-[0.94] tracking-[-0.06em] sm:text-[2.2rem]"
-            : "text-[1.5rem] font-medium leading-[0.98] tracking-[-0.05em] sm:text-[1.7rem]",
-          isUnavailable && "text-[1.2rem] tracking-[-0.03em] text-fg-secondary sm:text-[1.55rem]"
+            ? "text-[1.55rem] font-medium leading-[0.94] tracking-[-0.055em] sm:text-[1.95rem]"
+            : "text-[1.35rem] font-medium leading-[0.98] tracking-[-0.045em] sm:text-[1.55rem]",
+          isUnavailable && "text-[1.1rem] tracking-[-0.03em] text-fg-secondary sm:text-[1.35rem]"
         )}
       >
         {isUnavailable ? "--" : value}
@@ -149,14 +153,16 @@ export default function BitcoinNowSection({
 }: BitcoinNowSectionProps) {
   const { locale, messages } = useI18n();
   const copy = messages.home;
+  const athCopy = messages.dashboard.ath;
   const overviewCopy = messages.dashboard.overview;
+  const performanceCopy = messages.dashboard.performance;
   const sentimentCopy = messages.dashboard.sentiment;
   const networkCopy = messages.dashboard.network;
   const fallback = messages.common.unavailable;
-  const { change24h, price } = getOverviewValues(overview, currency);
+  const { ath, athChangePercent, price } = getOverviewValues(overview, currency);
   const zoneKey = getSentimentZoneKey(sentiment?.value ?? null, sentiment?.classification ?? null);
   const zoneCopy = zoneKey ? sentimentCopy.zones[zoneKey] : sentimentCopy.zones.unknown;
-  const overviewUnavailable = typeof price !== "number";
+  const overviewUnavailable = typeof athChangePercent !== "number";
   const sentimentUnavailable = typeof sentiment?.value !== "number";
   const feeValue = network?.fees.halfHourFee ?? null;
   const hashrateValue = network?.hashrate.currentEhPerSecond ?? null;
@@ -168,21 +174,17 @@ export default function BitcoinNowSection({
 
   return (
     <Section aria-label={copy.introAriaLabel} space="lg" className="gap-6 xl:gap-8">
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.62fr)_minmax(20rem,0.92fr)] xl:items-stretch">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.72fr)_minmax(20rem,0.88fr)] xl:items-stretch">
         <Surface
           as="section"
           tone="elevated"
           padding="lg"
           className="border-border-default xl:px-8 xl:py-7"
         >
-          <div className="flex h-full flex-col gap-4 sm:gap-6">
+          <div className="flex h-full flex-col gap-6 sm:gap-8">
             <PageHeader />
 
-            <p className="hidden max-w-[39rem] text-[0.98rem] leading-7 text-fg-secondary sm:block sm:text-[1.02rem]">
-              {copy.heroBody}
-            </p>
-
-            <div className="flex flex-col items-stretch gap-2.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+            <div className="mt-auto flex flex-col items-stretch gap-3 sm:items-start">
               <Link
                 href="#main-chart-zone"
                 className={cn(
@@ -192,40 +194,6 @@ export default function BitcoinNowSection({
               >
                 {copy.jumpToChart}
               </Link>
-              <Link
-                href={getLocalizedPathname(locale, "/tools")}
-                className={cn(
-                  "inline-flex min-h-9 items-center justify-center px-2 text-[0.69rem] font-medium uppercase tracking-[0.2em] text-fg-secondary no-underline transition-[color,opacity] duration-[var(--motion-fast)] ease-[var(--ease-standard)] hover:text-fg sm:min-h-10 sm:rounded-md sm:border sm:border-border-default sm:bg-surface sm:px-4 sm:hover:bg-elevated"
-                )}
-              >
-                {copy.jumpToTools}
-              </Link>
-            </div>
-
-            <div className="mt-auto grid gap-3 border-t border-border-default pt-4 sm:gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-              <div className="min-w-0 rounded-md border border-border-default bg-app px-4 py-3">
-                <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
-                  {messages.dashboard.controls.statusLabel}
-                </p>
-                <div className="mt-3">
-                  <RefreshStatus autoRefresh={autoRefresh} dashboardState={dashboardState} />
-                </div>
-              </div>
-
-              <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center">
-                <AutoRefreshToggle
-                  autoRefresh={autoRefresh}
-                  size="sm"
-                  className="w-full justify-center sm:w-auto"
-                  onChange={onAutoRefreshChange}
-                />
-                <RefreshButton
-                  refreshing={refreshing}
-                  size="sm"
-                  className="w-full justify-center sm:w-auto"
-                  onRefresh={onRefresh}
-                />
-              </div>
             </div>
           </div>
         </Surface>
@@ -237,25 +205,25 @@ export default function BitcoinNowSection({
           className="border-border-default xl:px-6 xl:py-6"
         >
           <div className="flex h-full flex-col gap-4 sm:gap-5">
-            <div className="border-b border-border-default pb-3.5 sm:pb-4">
+            <div className="flex items-center gap-3 border-b border-border-default pb-3 sm:pb-4">
+              <span aria-hidden className="h-px w-8 bg-accent/70" />
               <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
                 {copy.todayTitle}
               </p>
-              <p className="mt-2 hidden text-sm leading-6 text-fg-secondary sm:block">
-                {copy.todayDescription}
-              </p>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-[minmax(0,1.18fr)_repeat(2,minmax(0,0.9fr))] xl:grid-cols-1">
+            <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
               <TodaySignal
                 emphasis="primary"
                 isUnavailable={overviewUnavailable}
-                label={overviewCopy.title}
-                value={formatCurrency(price, currency, locale)}
+                label={performanceCopy.athDistanceLabel}
+                value={formatSignedPercentValue(athChangePercent, locale)}
                 meta={
-                  typeof change24h === "number"
-                    ? `${formatPercent(change24h, locale)} ${overviewCopy.liveDeltaLabel}`
-                    : fallback
+                  typeof ath === "number"
+                    ? formatMessage(performanceCopy.athPrice, {
+                        value: formatCurrency(ath, currency, locale),
+                      })
+                    : athCopy.distanceMeta
                 }
               />
               <TodaySignal
@@ -294,6 +262,40 @@ export default function BitcoinNowSection({
       </div>
 
       <NoticeBar warnings={warnings} />
+
+      <Surface
+        as="section"
+        tone="muted"
+        padding="md"
+        className="border-border-default/80"
+        aria-label={messages.dashboard.controlsAriaLabel}
+      >
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div className="min-w-0">
+            <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
+              {messages.dashboard.controls.statusLabel}
+            </p>
+            <div className="mt-3">
+              <RefreshStatus autoRefresh={autoRefresh} dashboardState={dashboardState} />
+            </div>
+          </div>
+
+          <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center lg:justify-end">
+            <AutoRefreshToggle
+              autoRefresh={autoRefresh}
+              size="sm"
+              className="w-full justify-center sm:w-auto"
+              onChange={onAutoRefreshChange}
+            />
+            <RefreshButton
+              refreshing={refreshing}
+              size="sm"
+              className="w-full justify-center sm:w-auto"
+              onRefresh={onRefresh}
+            />
+          </div>
+        </div>
+      </Surface>
 
       <OverviewSection
         currency={currency}
