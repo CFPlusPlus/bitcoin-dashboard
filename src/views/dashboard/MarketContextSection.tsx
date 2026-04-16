@@ -24,6 +24,7 @@ import Cluster from "../../components/ui/layout/Cluster";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
 import Stack from "../../components/ui/layout/Stack";
 import MetricCard from "../../components/MetricCard";
+import DashboardPanel from "../../components/ui/patterns/DashboardPanel";
 
 type MarketContextSectionProps = {
   currency: Currency;
@@ -133,68 +134,66 @@ export default function MarketContextSection({
                 points={volumeSeries.points}
               />
             ) : null}
-            <div className="overflow-hidden rounded-md border border-border-subtle bg-surface 2xl:col-span-2">
-              <div className="px-4 py-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="min-w-0">
-                    <Stack gap="sm">
-                      <Cluster align="center" gap="sm">
-                        <KpiValue
-                          label={copy.dominanceLabel}
-                          value={formatPercentValue(btcDominance, locale)}
-                          size="md"
-                        />
-                        <span className="inline-flex min-h-7 items-center rounded-md bg-elevated px-2.5 text-sm font-semibold text-fg-secondary">
-                          {copy.currentBadge}
-                        </span>
-                      </Cluster>
-                      <MetaText>{copy.dominanceMeta}</MetaText>
-                    </Stack>
-                  </div>
-
-                  <div className="min-w-0 border-t border-border-default pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
-                    <KpiValue
-                      label={copy.supplyLabel}
-                      value={formatBtc(circulatingSupply, locale)}
-                      meta={copy.supplyMeta}
-                      size="md"
-                      valueClassName="max-w-full break-words text-[clamp(1.9rem,3.5vw,2.5rem)] leading-[0.94]"
-                    />
-                    <MetaText tone="strong" size="xs" className="mt-2 leading-snug">
-                      {formatMessage(copy.supplyCap, {
-                        value: formatBtc(maxSupply, locale),
-                      })}
-                    </MetaText>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface">
-                      <div
-                        className="h-full rounded-full bg-accent transition-[width] duration-500"
-                        style={{
-                          width: `${Math.max(0, Math.min(100, supplyProgressPercent ?? 0))}%`,
-                        }}
+            <DashboardPanel className="2xl:col-span-2">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="min-w-0">
+                  <Stack gap="sm">
+                    <Cluster align="center" gap="sm">
+                      <KpiValue
+                        label={copy.dominanceLabel}
+                        value={formatPercentValue(btcDominance, locale)}
+                        size="md"
                       />
-                    </div>
-                    <MetaText className="mt-2">
-                      {formatMessage(copy.supplyProgress, {
-                        value: formatPercentValue(supplyProgressPercent, locale),
-                      })}
-                    </MetaText>
-                  </div>
+                      <span className="inline-flex min-h-7 items-center rounded-md bg-elevated px-2.5 text-sm font-medium text-fg-secondary">
+                        {copy.currentBadge}
+                      </span>
+                    </Cluster>
+                    <MetaText>{copy.dominanceMeta}</MetaText>
+                  </Stack>
+                </div>
 
-                  <div className="min-w-0 border-t border-border-default pt-4 md:col-span-2 md:pl-0">
-                    <KpiValue
-                      label={copy.fdvLabel}
-                      value={formatCompactCurrency(fullyDilutedValuation, currency, locale)}
-                      meta={copy.fdvMeta}
-                      size="md"
-                      valueClassName="max-w-full break-words text-[clamp(1.85rem,3.2vw,2.35rem)] leading-[0.94]"
+                <div className="min-w-0 border-t border-border-default pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
+                  <KpiValue
+                    label={copy.supplyLabel}
+                    value={formatBtc(circulatingSupply, locale)}
+                    meta={copy.supplyMeta}
+                    size="md"
+                    valueClassName="max-w-full break-words text-[clamp(1.9rem,3.5vw,2.5rem)] leading-[0.94]"
+                  />
+                  <MetaText tone="strong" size="xs" className="mt-2 leading-snug">
+                    {formatMessage(copy.supplyCap, {
+                      value: formatBtc(maxSupply, locale),
+                    })}
+                  </MetaText>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface">
+                    <div
+                      className="h-full rounded-full bg-accent transition-[width] duration-500"
+                      style={{
+                        width: `${Math.max(0, Math.min(100, supplyProgressPercent ?? 0))}%`,
+                      }}
                     />
-                    <MetaText tone="strong" size="xs" className="leading-snug">
-                      {copy.fdvFootnote}
-                    </MetaText>
                   </div>
+                  <MetaText className="mt-2">
+                    {formatMessage(copy.supplyProgress, {
+                      value: formatPercentValue(supplyProgressPercent, locale),
+                    })}
+                  </MetaText>
+                </div>
+
+                <div className="min-w-0 border-t border-border-default pt-4 md:col-span-2 md:pl-0">
+                  <KpiValue
+                    label={copy.fdvLabel}
+                    value={formatCompactCurrency(fullyDilutedValuation, currency, locale)}
+                    meta={copy.fdvMeta}
+                    size="md"
+                    valueClassName="max-w-full break-words text-[clamp(1.85rem,3.2vw,2.35rem)] leading-[0.94]"
+                  />
+                  <MetaText tone="strong" size="xs" className="leading-snug">
+                    {copy.fdvFootnote}
+                  </MetaText>
                 </div>
               </div>
-            </div>
+            </DashboardPanel>
 
             <div className="grid gap-4 sm:grid-cols-2 2xl:col-span-2">
               <MetricCard

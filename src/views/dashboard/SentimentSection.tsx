@@ -16,6 +16,7 @@ import {
 import Card from "../../components/ui/Card";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
+import Label from "../../components/ui/content/Label";
 import MetaText from "../../components/ui/content/MetaText";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
 import Stack from "../../components/ui/layout/Stack";
@@ -199,9 +200,7 @@ export default function SentimentSection({
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="max-w-2xl">
-                <MetaText size="xs" className="uppercase tracking-[0.16em]">
-                  {copy.scaleLabel}
-                </MetaText>
+                <Label tone="muted">{copy.scaleLabel}</Label>
                 <p className="mt-2 text-sm leading-relaxed text-fg-secondary">{copy.scaleHint}</p>
               </div>
             </div>
@@ -277,9 +276,7 @@ export default function SentimentSection({
             <div className="flex flex-col gap-3 rounded-md border border-border-subtle bg-surface px-4 py-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <MetaText size="xs" className="uppercase tracking-[0.16em]">
-                    {copy.currentZoneLabel}
-                  </MetaText>
+                  <Label tone="muted">{copy.currentZoneLabel}</Label>
                   <p className="mt-2 text-lg font-medium text-fg">{zoneCopy.label}</p>
                 </div>
                 <span
@@ -292,16 +289,12 @@ export default function SentimentSection({
             </div>
 
             <div className="flex flex-col gap-3 rounded-md border border-border-subtle bg-surface px-4 py-4">
-              <MetaText size="xs" className="uppercase tracking-[0.16em]">
-                {copy.weekContextLabel}
-              </MetaText>
+              <Label tone="muted">{copy.weekContextLabel}</Label>
               <p className="text-sm leading-relaxed text-fg-secondary">{weeklyContext}</p>
             </div>
 
             <div className="flex flex-col gap-3 rounded-md border border-border-subtle bg-surface px-4 py-4">
-              <MetaText size="xs" className="uppercase tracking-[0.16em]">
-                {copy.nextUpdate}
-              </MetaText>
+              <Label tone="muted">{copy.nextUpdate}</Label>
               <p className="font-numeric tabular-nums text-[1.2rem] text-fg">
                 {formatCountdown(sentiment?.timeUntilUpdateSeconds ?? null, locale)}
               </p>
@@ -309,9 +302,7 @@ export default function SentimentSection({
             </div>
 
             <div className="flex flex-col gap-3 rounded-md border border-border-subtle bg-surface px-4 py-4">
-              <MetaText size="xs" className="uppercase tracking-[0.16em]">
-                {copy.sourceLabel}
-              </MetaText>
+              <Label tone="muted">{copy.sourceLabel}</Label>
               <p className="text-base font-medium text-fg">{sentiment?.attribution ?? fallback}</p>
               <MetaText>{copy.sourceHint}</MetaText>
             </div>

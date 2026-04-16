@@ -24,6 +24,7 @@ import NoticeBar from "../../components/NoticeBar";
 import PageHeader from "../../components/PageHeader";
 import { buttonVariants } from "../../components/ui/Button";
 import Surface from "../../components/ui/Surface";
+import Label from "../../components/ui/content/Label";
 import MetaText from "../../components/ui/content/MetaText";
 import Section from "../../components/ui/layout/Section";
 import { cn } from "../../lib/cn";
@@ -79,15 +80,9 @@ function TodaySignal({
         emphasis === "primary" ? "border-accent bg-elevated" : "border-border-default bg-surface"
       )}
     >
-      <MetaText
-        size="xs"
-        className={cn(
-          "font-mono uppercase tracking-[0.18em]",
-          emphasis === "primary" ? "text-accent" : "text-fg-muted"
-        )}
-      >
+      <Label className={cn("mb-0", emphasis === "primary" ? "text-accent" : "text-fg-muted")}>
         {label}
-      </MetaText>
+      </Label>
       <div
         className={cn(
           "font-numeric min-w-0 [overflow-wrap:anywhere]",
@@ -207,9 +202,7 @@ export default function BitcoinNowSection({
           <div className="flex h-full flex-col gap-4 sm:gap-5">
             <div className="flex items-center gap-3 border-b border-border-default pb-3 sm:pb-4">
               <span aria-hidden className="h-px w-8 bg-accent/70" />
-              <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
-                {copy.todayTitle}
-              </p>
+              <Label tone="accent">{copy.todayTitle}</Label>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
@@ -272,9 +265,7 @@ export default function BitcoinNowSection({
       >
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="min-w-0">
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
-              {messages.dashboard.controls.statusLabel}
-            </p>
+            <Label tone="accent">{messages.dashboard.controls.statusLabel}</Label>
             <div className="mt-3">
               <RefreshStatus autoRefresh={autoRefresh} dashboardState={dashboardState} />
             </div>

@@ -13,6 +13,7 @@ import DataState from "./ui/data-state/DataState";
 import DataStateMeta from "./ui/data-state/DataStateMeta";
 import SectionHeader from "./ui/layout/SectionHeader";
 import Stack from "./ui/layout/Stack";
+import DashboardPanel from "./ui/patterns/DashboardPanel";
 
 type MetadataSectionProps = {
   chart: ChartData | null;
@@ -34,14 +35,7 @@ function MetadataItem({ label, value }: { label: string; value: ReactNode }) {
 }
 
 function MetadataPanel({ children, title }: { children: ReactNode; title: string }) {
-  return (
-    <div className="flex h-full flex-col gap-4 rounded-md border border-border-default bg-surface px-4 py-4 sm:px-5 sm:py-5">
-      <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
-        {title}
-      </MetaText>
-      {children}
-    </div>
-  );
+  return <DashboardPanel title={title}>{children}</DashboardPanel>;
 }
 
 export default function MetadataSection({

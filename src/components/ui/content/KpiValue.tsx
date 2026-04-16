@@ -1,6 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../../../lib/cn";
+import Label from "./Label";
 import MetaText from "./MetaText";
 
 const kpiValueVariants = cva("font-numeric tabular-nums font-medium tracking-[-0.045em] text-fg", {
@@ -43,11 +44,7 @@ export default function KpiValue({
 }: KpiValueProps) {
   return (
     <div className={cn("flex flex-col gap-1.5", className)} {...props}>
-      {label ? (
-        <MetaText className="uppercase tracking-[0.18em]" size="xs">
-          {label}
-        </MetaText>
-      ) : null}
+      {label ? <Label>{label}</Label> : null}
       <div
         className={cn(
           "min-w-0 whitespace-normal [overflow-wrap:anywhere]",

@@ -66,13 +66,7 @@ export default function HomepageIntro({
                   </Link>
                   <Link
                     href={getLocalizedPathname(locale, "/tools")}
-                    className={cn(
-                      buttonVariants({
-                        intent: "ghost",
-                        size: "md",
-                      }),
-                      "no-underline"
-                    )}
+                    className="inline-flex h-7 items-center border-b border-transparent pb-px text-[0.68rem] font-medium uppercase tracking-[0.22em] text-fg-secondary transition-[border-color,color,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)] no-underline hover:border-border-default/70 hover:text-fg focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/45 focus-visible:ring-offset-2 focus-visible:ring-offset-app sm:h-8 sm:text-[0.69rem]"
                   >
                     {copy.jumpToTools}
                   </Link>

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "../lib/cn";
 import KpiValue from "./ui/content/KpiValue";
 import MetaText from "./ui/content/MetaText";
+import DashboardPanel from "./ui/patterns/DashboardPanel";
 
 type MetricCardProps = {
   children?: ReactNode;
@@ -26,32 +27,23 @@ export default function MetricCard({
   valueFootnote,
   valueTone = "default",
 }: MetricCardProps) {
-  const toneClassName =
-    tone === "elevated"
-      ? "bg-elevated"
-      : tone === "interactive"
-        ? "bg-elevated transition-colors duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent"
-        : tone === "default"
-          ? "bg-surface"
-          : "bg-muted-surface";
-  const accentClassName =
-    valueTone === "positive"
-      ? "bg-success"
-      : valueTone === "negative"
-        ? "bg-danger"
-        : tone === "interactive" || tone === "elevated"
-          ? "bg-accent"
-          : "bg-border-default";
+  const panelTone =
+    tone === "elevated" || tone === "interactive"
+      ? "elevated"
+      : tone === "default"
+        ? "default"
+        : "muted";
 
   return (
-    <div
+    <DashboardPanel
+      padding="md"
+      tone={panelTone}
       className={cn(
-        "flex h-full min-h-[11rem] min-w-0 flex-col gap-4 overflow-hidden rounded-md border border-border-default px-4 py-4 sm:min-h-[11.5rem]",
-        toneClassName
+        "min-h-[11rem] min-w-0 sm:min-h-[11.5rem]",
+        tone === "interactive" &&
+          "transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] hover:border-accent hover:bg-surface"
       )}
     >
-      <span aria-hidden="true" className={cn("h-px w-9", accentClassName)} />
-
       <KpiValue
         label={label}
         value={value}
@@ -62,7 +54,7 @@ export default function MetricCard({
         tone={valueTone}
       />
 
-      <div className="mt-auto flex flex-col gap-2 border-t border-border-default pt-3">
+      <div className="mt-auto flex flex-col gap-2">
         {valueFootnote ? (
           <MetaText tone="strong" size="xs" className="leading-snug">
             {valueFootnote}
@@ -72,6 +64,6 @@ export default function MetricCard({
         )}
         {children}
       </div>
-    </div>
+    </DashboardPanel>
   );
 }

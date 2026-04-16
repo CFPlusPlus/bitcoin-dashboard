@@ -7,6 +7,7 @@ import { formatBtc, formatDate, formatNumber, formatPercentValue } from "../../l
 import { formatMessage } from "../../i18n/template";
 import { useI18n } from "../../i18n/context";
 import Card from "../../components/ui/Card";
+import Label from "../../components/ui/content/Label";
 import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
@@ -49,9 +50,9 @@ function HalvingMetaStat({
       <div className="font-numeric tabular-nums text-[1.45rem] font-medium leading-none tracking-[-0.05em] text-fg whitespace-normal [overflow-wrap:anywhere] sm:text-[2rem]">
         {value}
       </div>
-      <MetaText size="xs" className="mt-2 font-mono uppercase tracking-[0.22em] text-fg-secondary">
+      <Label className="mt-2" tone="muted">
         {label}
-      </MetaText>
+      </Label>
     </div>
   );
 }
@@ -116,12 +117,7 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
         <div className="overflow-hidden rounded-md border border-border-default bg-surface px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <MetaText
-                size="xs"
-                className="font-mono uppercase tracking-[0.24em] text-fg-secondary"
-              >
-                {copy.countdownLabel}
-              </MetaText>
+              <Label tone="muted">{copy.countdownLabel}</Label>
               <MetaText size="base" className="font-mono text-fg-secondary sm:text-right">
                 {formatApproxMonthYear(network?.halving.estimatedDate ?? null, locale, fallback)}
               </MetaText>
@@ -132,9 +128,9 @@ export default function HalvingSection({ halvingState, network, onRetry }: Halvi
                 {blocksRemaining}
               </p>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <MetaText className="font-mono uppercase tracking-[0.14em] text-accent-strong">
+                <Label tone="accent" className="text-accent-strong">
                   {daysRemaining}
-                </MetaText>
+                </Label>
                 <MetaText>{formatDate(network?.halving.estimatedDate ?? null, locale)}</MetaText>
               </div>
             </div>

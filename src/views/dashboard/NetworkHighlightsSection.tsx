@@ -6,6 +6,7 @@ import { useI18n } from "../../i18n/context";
 import { getDashboardSectionStateMessages } from "../../lib/dashboard-state-copy";
 import { formatCompactNumber, formatNumber } from "../../lib/format";
 import Card from "../../components/ui/Card";
+import Label from "../../components/ui/content/Label";
 import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
@@ -43,9 +44,7 @@ function formatHashrateValue(value: number | null, locale: "de" | "en", fallback
 function HighlightTile({ label, meta, value }: { label: string; meta?: string; value: string }) {
   return (
     <div className="flex min-h-[7rem] flex-col gap-2 rounded-md border border-border-subtle bg-surface px-4 py-4">
-      <MetaText size="xs" className="uppercase tracking-[0.16em]">
-        {label}
-      </MetaText>
+      <Label tone="muted">{label}</Label>
       <p className="font-numeric text-[clamp(1.4rem,3.4vw,1.9rem)] font-medium leading-[0.95] tracking-[-0.04em] text-fg">
         {value}
       </p>
@@ -74,9 +73,7 @@ export default function NetworkHighlightsSection({
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-default pb-4">
           <div>
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
-              {copy.statsCardTitle}
-            </p>
+            <Label tone="accent">{copy.statsCardTitle}</Label>
             <p className="mt-2 max-w-2xl text-sm text-fg-secondary">{copy.description}</p>
           </div>
           <DataStateMeta state={networkState} />

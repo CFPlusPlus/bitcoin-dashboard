@@ -13,6 +13,7 @@ import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
+import DashboardPanel from "../../components/ui/patterns/DashboardPanel";
 
 type OnChainActivitySectionProps = {
   onChainActivity: OnChainActivity | null;
@@ -54,18 +55,13 @@ function ActivityGroup({
   tone?: "default" | "emphasis";
 }) {
   return (
-    <div
-      className={cn(
-        "flex h-full flex-col gap-4 rounded-md border px-4 py-4 sm:px-5 sm:py-5",
-        tone === "emphasis" ? "border-accent bg-muted-surface" : "border-border-default bg-surface",
-        className
-      )}
+    <DashboardPanel
+      title={title}
+      tone={tone === "emphasis" ? "accent" : "default"}
+      className={className}
     >
-      <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
-        {title}
-      </MetaText>
       <div className={cn("grid gap-4 sm:grid-cols-2", contentClassName)}>{children}</div>
-    </div>
+    </DashboardPanel>
   );
 }
 

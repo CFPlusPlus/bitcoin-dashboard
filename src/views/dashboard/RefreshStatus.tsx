@@ -45,7 +45,7 @@ export default function RefreshStatus({ autoRefresh, dashboardState }: RefreshSt
   return (
     <div className="flex flex-col items-start gap-2.5">
       <div className="flex flex-wrap items-center gap-2.5">
-        <span className="inline-flex min-h-8 items-center rounded-md border border-border-default bg-muted-surface px-3 py-1 text-[0.68rem] font-medium uppercase tracking-[0.18em] text-fg">
+        <span className="inline-flex min-h-8 items-center rounded-md border border-border-default bg-muted-surface px-3 py-1 text-[0.72rem] font-medium leading-none tracking-[0.08em] text-fg">
           {autoRefresh ? copy.everyMinute : copy.paused}
         </span>
         <DataStateMeta

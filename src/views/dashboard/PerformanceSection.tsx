@@ -12,6 +12,7 @@ import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
+import DashboardPanel from "../../components/ui/patterns/DashboardPanel";
 
 type PerformanceSectionProps = {
   currency: Currency;
@@ -95,10 +96,7 @@ export default function PerformanceSection({
         messages={stateMessages}
       >
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)]">
-          <div className="rounded-md border border-accent bg-muted-surface px-4 py-4 sm:px-5 sm:py-5">
-            <MetaText size="xs" className="font-mono uppercase tracking-[0.18em] text-accent">
-              {copy.recentTitle}
-            </MetaText>
+          <DashboardPanel title={copy.recentTitle} titleTone="accent" tone="accent">
             <p className="mt-2 max-w-2xl text-sm leading-6 text-fg-secondary">
               {copy.recentDescription}
             </p>
@@ -107,25 +105,19 @@ export default function PerformanceSection({
                 renderPeriodCard(key, key === "30d" ? "default" : "muted")
               )}
             </div>
-          </div>
+          </DashboardPanel>
 
-          <div className="rounded-md border border-border-subtle bg-surface px-4 py-4 sm:px-5 sm:py-5">
-            <MetaText size="xs" className="font-mono uppercase tracking-[0.18em]">
-              {copy.longerTitle}
-            </MetaText>
+          <DashboardPanel title={copy.longerTitle}>
             <p className="mt-2 max-w-xl text-sm leading-6 text-fg-secondary">
               {copy.longerDescription}
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               {LONGER_PERIOD_ORDER.map((key) => renderPeriodCard(key, "default"))}
             </div>
-          </div>
+          </DashboardPanel>
         </div>
 
-        <div className="rounded-md border border-border-subtle bg-surface px-4 py-4 sm:px-5 sm:py-5">
-          <MetaText size="xs" className="mb-3 font-mono uppercase tracking-[0.18em]">
-            {copy.structureTitle}
-          </MetaText>
+        <DashboardPanel title={copy.structureTitle}>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
             <MetricCard
               label={copy.rangeHighLabel}
@@ -175,7 +167,7 @@ export default function PerformanceSection({
               tone="default"
             />
           </div>
-        </div>
+        </DashboardPanel>
       </DataState>
     </Card>
   );

@@ -18,6 +18,7 @@ import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
+import DashboardPanel from "../../components/ui/patterns/DashboardPanel";
 
 type AthSectionProps = {
   currency: Currency;
@@ -75,7 +76,7 @@ export default function AthSection({
         messages={stateMessages}
       >
         <div className="grid gap-4 2xl:grid-cols-[minmax(0,1.18fr)_minmax(0,1fr)]">
-          <div className="flex min-h-[13rem] flex-col gap-4 rounded-md border border-accent bg-surface px-5 py-5">
+          <DashboardPanel tone="accent" className="min-h-[13rem]">
             <KpiValue
               label={copy.lastAthLabel}
               value={formatCurrency(ath, currency, locale)}
@@ -88,7 +89,7 @@ export default function AthSection({
             <MetaText tone="strong" className="mt-auto max-w-[34ch] leading-snug">
               {copy.lastAthFootnote}
             </MetaText>
-          </div>
+          </DashboardPanel>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-2">
             <MetricCard

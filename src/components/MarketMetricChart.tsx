@@ -10,6 +10,7 @@ import KpiValue from "./ui/content/KpiValue";
 import MetaText from "./ui/content/MetaText";
 import Cluster from "./ui/layout/Cluster";
 import Stack from "./ui/layout/Stack";
+import DashboardPanel from "./ui/patterns/DashboardPanel";
 
 type MarketMetricChartProps = {
   currentValue: ReactNode;
@@ -43,7 +44,7 @@ export default function MarketMetricChart({
   const chartPoints = points.map((point) => ({ x: point.timestamp, y: point.value }));
 
   return (
-    <div className="relative rounded-md border border-border-subtle bg-surface">
+    <DashboardPanel tone={tone === "accent" ? "accent" : "default"} className="relative">
       <div className="px-4 pt-4">
         <Stack gap="sm" className="min-w-0">
           <Cluster align="center" gap="sm">
@@ -51,10 +52,10 @@ export default function MarketMetricChart({
             <span
               className={
                 deltaTone === "positive"
-                  ? "inline-flex min-h-7 items-center rounded-md border border-success bg-muted-surface px-2.5 text-sm font-semibold text-success"
+                  ? "inline-flex min-h-7 items-center rounded-md border border-success bg-muted-surface px-2.5 text-sm font-medium text-success"
                   : deltaTone === "negative"
-                    ? "inline-flex min-h-7 items-center rounded-md border border-danger bg-muted-surface px-2.5 text-sm font-semibold text-danger"
-                    : "inline-flex min-h-7 items-center rounded-md bg-elevated px-2.5 text-sm font-semibold text-fg-secondary"
+                    ? "inline-flex min-h-7 items-center rounded-md border border-danger bg-muted-surface px-2.5 text-sm font-medium text-danger"
+                    : "inline-flex min-h-7 items-center rounded-md bg-elevated px-2.5 text-sm font-medium text-fg-secondary"
               }
             >
               {deltaLabel}
@@ -79,6 +80,6 @@ export default function MarketMetricChart({
           tooltipValueFormatter={(value) => formatCompactCurrency(value, currency, locale, 1)}
         />
       </div>
-    </div>
+    </DashboardPanel>
   );
 }

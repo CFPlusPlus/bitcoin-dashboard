@@ -1,6 +1,7 @@
 import Link from "next/link";
 import packageJson from "../../package.json";
 import { buttonVariants } from "./ui/Button";
+import Label from "./ui/content/Label";
 import PageContainer from "./ui/layout/PageContainer";
 import type { Dictionary } from "../i18n/dictionaries";
 import type { AppLocale } from "../i18n/config";
@@ -30,9 +31,7 @@ export default function SiteFooter({ locale, messages }: SiteFooterProps) {
         className="grid w-full gap-6 py-6 sm:grid-cols-[minmax(0,1.4fr)_minmax(14rem,0.9fr)] sm:py-8"
       >
         <div className="space-y-3">
-          <p className="font-mono text-[0.68rem] uppercase tracking-[0.28em] text-accent">
-            {messages.name}
-          </p>
+          <Label tone="accent">{messages.name}</Label>
           <p className="max-w-2xl font-serif text-2xl leading-tight tracking-[-0.03em] text-fg sm:text-3xl">
             <span className="text-accent">{taglineLead}</span>
             {taglineRest.length > 0 ? ` ${taglineRest.join(" ")}` : null}
@@ -44,9 +43,7 @@ export default function SiteFooter({ locale, messages }: SiteFooterProps) {
 
         <div className="flex flex-col gap-6 sm:items-end">
           <div className="space-y-3 sm:text-right">
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.24em] text-fg-muted">
-              {messages.footer.navigation}
-            </p>
+            <Label tone="muted">{messages.footer.navigation}</Label>
             <nav
               className="flex flex-wrap gap-3 sm:justify-end"
               aria-label={messages.footer.navigation}
@@ -67,9 +64,7 @@ export default function SiteFooter({ locale, messages }: SiteFooterProps) {
           </div>
 
           <div className="space-y-3 sm:text-right">
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.24em] text-fg-muted">
-              {messages.footer.legal}
-            </p>
+            <Label tone="muted">{messages.footer.legal}</Label>
             <nav className="flex flex-wrap gap-3 sm:justify-end" aria-label={messages.footer.legal}>
               {legalItems.map((item) => (
                 <Link
@@ -87,9 +82,9 @@ export default function SiteFooter({ locale, messages }: SiteFooterProps) {
           </div>
 
           <div className="text-left sm:text-right">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-fg-muted">
+            <Label size="sm" treatment="marker" tone="muted">
               {messages.footer.version} v{packageJson.version}
-            </p>
+            </Label>
           </div>
         </div>
       </PageContainer>

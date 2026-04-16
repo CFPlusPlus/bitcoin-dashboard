@@ -11,11 +11,13 @@ import { useI18n } from "../../i18n/context";
 import Card from "../../components/ui/Card";
 import BaseLineChart from "../../components/charts/BaseLineChart";
 import KpiValue from "../../components/ui/content/KpiValue";
+import Label from "../../components/ui/content/Label";
 import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
 import Cluster from "../../components/ui/layout/Cluster";
 import Stack from "../../components/ui/layout/Stack";
+import DashboardPanel from "../../components/ui/patterns/DashboardPanel";
 
 type NetworkOverviewSectionProps = {
   network: Network | null;
@@ -151,22 +153,42 @@ function NetworkPanel({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "flex h-full min-h-[18rem] flex-col gap-4 rounded-md border border-border-subtle bg-surface px-4 py-4 sm:px-5 sm:py-5",
-        className
-      )}
-    >
-      <MetaText size="xs" className="font-mono uppercase tracking-[0.24em]">
-        {title}
-      </MetaText>
+    <DashboardPanel title={title} className={cn("min-h-[18rem]", className)}>
       {children}
-    </div>
+    </DashboardPanel>
   );
 }
 
 function SafeValueText({ value }: { value: string }) {
   return <span className="block min-w-0 whitespace-normal [overflow-wrap:anywhere]">{value}</span>;
+}
+
+function CompactValue({
+  value,
+  tone = "default",
+  className,
+}: {
+  value: string;
+  tone?: "accent" | "default" | "positive" | "negative";
+  className?: string;
+}) {
+  return (
+    <p
+      className={cn(
+        "min-w-0 font-numeric tabular-nums text-[clamp(1.2rem,2.2vw,1.55rem)] font-medium leading-[0.95] tracking-[-0.045em] [overflow-wrap:anywhere]",
+        tone === "accent"
+          ? "text-accent"
+          : tone === "positive"
+            ? "text-success"
+            : tone === "negative"
+              ? "text-danger"
+              : "text-fg",
+        className
+      )}
+    >
+      {value}
+    </p>
+  );
 }
 
 function StatLabel({
@@ -210,13 +232,11 @@ function DetailRow({
       <Cluster align="center" justify="between" gap="md">
         <Cluster align="center" gap="sm" className="min-w-0">
           {leading}
-          <MetaText size="xs" className="font-mono uppercase tracking-[0.16em]">
+          <Label size="sm" tone="muted">
             {label}
-          </MetaText>
+          </Label>
         </Cluster>
-        <MetaText tone="strong" className="min-w-0 text-right font-mono [overflow-wrap:anywhere]">
-          {value}
-        </MetaText>
+        <CompactValue value={value} className="text-right" />
       </Cluster>
       {detail ? <MetaText>{detail}</MetaText> : null}
     </Stack>
@@ -239,12 +259,10 @@ function FeePriorityRow({
   return (
     <Stack gap="sm" className="border-b border-border-default pb-3 last:border-b-0 last:pb-0">
       <Cluster align="center" justify="between" gap="md">
-        <MetaText size="xs" className="font-mono uppercase tracking-[0.16em]">
+        <Label size="sm" tone="muted">
           {label}
-        </MetaText>
-        <MetaText tone="strong" className="min-w-0 text-right font-mono [overflow-wrap:anywhere]">
-          {displayValue}
-        </MetaText>
+        </Label>
+        <CompactValue value={displayValue} className="text-right" />
       </Cluster>
       <div className="h-2.5 overflow-hidden rounded-full bg-surface">
         <div
@@ -293,24 +311,28 @@ function RecentBlockTile({
     >
       <div className="flex h-full flex-col items-center justify-between gap-2 text-center">
         <div className="space-y-1">
-          <div className="font-numeric tabular-nums text-[1.05rem] font-semibold leading-none tracking-[-0.04em] text-accent">
-            #{formatNumber(block.height, locale)}
-          </div>
+          <CompactValue
+            value={`#${formatNumber(block.height, locale)}`}
+            tone="accent"
+            className="text-[1.1rem]"
+          />
           <MetaText size="xs" className="text-[0.74rem]">
             {age}
           </MetaText>
         </div>
         <div className="space-y-1">
-          <div className="font-numeric tabular-nums text-[1.35rem] font-medium leading-none tracking-[-0.04em] text-fg">
-            {block.transactionCount === null
-              ? fallback
-              : formatNumber(block.transactionCount, locale)}
-          </div>
-          <MetaText size="xs" className="text-[0.74rem] uppercase tracking-[0.16em]">
+          <CompactValue
+            value={
+              block.transactionCount === null
+                ? fallback
+                : formatNumber(block.transactionCount, locale)
+            }
+          />
+          <Label size="sm" tone="muted">
             {transactionsSuffix}
-          </MetaText>
+          </Label>
         </div>
-        <MetaText size="xs" className="font-mono text-[0.78rem] text-fg-secondary">
+        <MetaText size="xs" className="text-[0.78rem] text-fg-secondary">
           {size}
         </MetaText>
       </div>
@@ -358,9 +380,7 @@ export default function NetworkOverviewSection({
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border-default pb-4">
           <div>
-            <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
-              {copy.title}
-            </p>
+            <Label tone="accent">{copy.title}</Label>
             <p className="mt-2 max-w-2xl text-sm text-fg-secondary">{copy.overviewDescription}</p>
           </div>
           <DataStateMeta state={networkState} />
@@ -524,11 +544,8 @@ export default function NetworkOverviewSection({
             </Stack>
 
             <div className="grid gap-4 xl:grid-cols-2">
-              <div className="rounded-md border border-border-subtle bg-muted-surface px-4 py-4">
+              <DashboardPanel title={copy.projectedBlocksTitle} tone="muted">
                 <Stack gap="md">
-                  <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
-                    {copy.projectedBlocksTitle}
-                  </MetaText>
                   <Stack gap="sm">
                     {projectedBlocks.map((block) => (
                       <DetailRow
@@ -551,12 +568,9 @@ export default function NetworkOverviewSection({
                     ))}
                   </Stack>
                 </Stack>
-              </div>
+              </DashboardPanel>
 
-              <div className="rounded-md border border-border-subtle bg-muted-surface px-4 py-4">
-                <MetaText size="xs" className="font-mono uppercase tracking-[0.2em]">
-                  {copy.feeSpreadTitleSafe}
-                </MetaText>
+              <DashboardPanel title={copy.feeSpreadTitleSafe} tone="muted">
                 <MetaText className="mt-3">{copy.feeSpreadDescriptionSafe}</MetaText>
                 <Stack gap="sm" className="mt-4">
                   {[
@@ -581,7 +595,7 @@ export default function NetworkOverviewSection({
                     />
                   ))}
                 </Stack>
-              </div>
+              </DashboardPanel>
             </div>
           </NetworkPanel>
 

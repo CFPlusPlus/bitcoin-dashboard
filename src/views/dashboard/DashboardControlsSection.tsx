@@ -3,6 +3,7 @@
 import type { AsyncDataState } from "../../lib/data-state";
 import { useI18n } from "../../i18n/context";
 import Surface from "../../components/ui/Surface";
+import Label from "../../components/ui/content/Label";
 import AutoRefreshToggle from "./AutoRefreshToggle";
 import RefreshButton from "./RefreshButton";
 import RefreshStatus from "./RefreshStatus";
@@ -27,9 +28,7 @@ export default function DashboardControlsSection(props: DashboardControlsSection
       aria-label={messages.dashboard.controlsAriaLabel}
     >
       <div className="border-b border-border-subtle/80 pb-5">
-        <p className="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-accent">
-          {messages.dashboard.controls.statusLabel}
-        </p>
+        <Label tone="accent">{messages.dashboard.controls.statusLabel}</Label>
         <p className="mt-3 max-w-[16rem] text-sm leading-7 text-fg-secondary">
           {messages.dashboard.controls.refreshing}
         </p>

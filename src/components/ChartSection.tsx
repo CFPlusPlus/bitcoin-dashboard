@@ -10,6 +10,7 @@ import Button from "./ui/Button";
 import Card from "./ui/Card";
 import DataState from "./ui/data-state/DataState";
 import DataStateMeta from "./ui/data-state/DataStateMeta";
+import Label from "./ui/content/Label";
 import Cluster from "./ui/layout/Cluster";
 import SectionHeader from "./ui/layout/SectionHeader";
 
@@ -59,9 +60,7 @@ export default function ChartSection({
         meta={<DataStateMeta state={chartState} lastUpdatedLabel={messages.common.lastUpdated} />}
         action={
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
-            <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
-              {copy.chooseRange}
-            </p>
+            <Label tone="muted">{copy.chooseRange}</Label>
             <Cluster aria-label={copy.chooseRangeAriaLabel} gap="sm">
               {rangeOptions.map((option) => (
                 <Button

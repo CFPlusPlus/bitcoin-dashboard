@@ -9,6 +9,7 @@ import {
 import { formatCurrency, formatPercent } from "../lib/format";
 import type { ChartPoint, ChartRange, Currency } from "../types/dashboard";
 import BaseLineChart from "./charts/BaseLineChart";
+import Label from "./ui/content/Label";
 
 type PriceChartProps = {
   currency: Currency;
@@ -91,25 +92,21 @@ export default function PriceChart({ currency, points, range }: PriceChartProps)
 
       <div className="mt-4 grid gap-3 border-t border-border-default pt-4 sm:grid-cols-3">
         <div className="min-w-0">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
-            {copy.lowInWindow}
-          </p>
+          <Label tone="muted">{copy.lowInWindow}</Label>
           <p className="mt-2 font-numeric tabular-nums text-base text-fg">
             {formatCurrency(minPrice, currency, locale)}
           </p>
         </div>
 
         <div className="min-w-0">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">
-            {copy.highInWindow}
-          </p>
+          <Label tone="muted">{copy.highInWindow}</Label>
           <p className="mt-2 font-numeric tabular-nums text-base text-fg">
             {formatCurrency(maxPrice, currency, locale)}
           </p>
         </div>
 
         <div className="min-w-0">
-          <p className="text-[0.68rem] uppercase tracking-[0.18em] text-fg-muted">{copy.latest}</p>
+          <Label tone="muted">{copy.latest}</Label>
           <p className="mt-2 font-numeric tabular-nums text-base text-fg">
             {formatCurrency(currentPrice, currency, locale)}
           </p>

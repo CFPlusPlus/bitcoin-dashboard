@@ -21,6 +21,7 @@ import MetaText from "../../components/ui/content/MetaText";
 import DataState from "../../components/ui/data-state/DataState";
 import DataStateMeta from "../../components/ui/data-state/DataStateMeta";
 import SectionHeader from "../../components/ui/layout/SectionHeader";
+import DashboardPanel from "../../components/ui/patterns/DashboardPanel";
 import { getOverviewValues } from "./overview-values";
 
 type OverviewSectionProps = {
@@ -351,13 +352,10 @@ export default function OverviewSection({
         messages={stateMessages}
       >
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.56fr)_minmax(20rem,0.94fr)]">
-          <div
-            className="flex h-full flex-col justify-between gap-6 overflow-hidden rounded-md border border-accent px-5 py-5 sm:px-7 sm:py-6"
-            style={{ background: "var(--token-color-bg-elevated)" }}
-          >
+          <DashboardPanel tone="highlight" padding="lg" className="justify-between sm:p-7">
             <div className="flex flex-col gap-5">
               <div className="flex flex-col gap-4 border-b border-border-default pb-5">
-                <MetaText className="uppercase tracking-[0.18em]" size="xs">
+                <MetaText size="xs">
                   {formatMessage(copy.spotLabel, { currency: currencyLabel })}
                 </MetaText>
 
@@ -405,7 +403,7 @@ export default function OverviewSection({
                 {liveUpdatedText ? <MetaText>{liveUpdatedText}</MetaText> : null}
               </div>
             </div>
-          </div>
+          </DashboardPanel>
 
           <div className="grid gap-4 sm:grid-cols-2">
             {[

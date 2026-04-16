@@ -3,6 +3,7 @@
 import { TriangleAlert } from "lucide-react";
 import { useI18n } from "../i18n/context";
 import Surface from "./ui/Surface";
+import Label from "./ui/content/Label";
 
 type NoticeBarProps = {
   warnings: string[];
@@ -24,9 +25,7 @@ export default function NoticeBar({ warnings }: NoticeBarProps) {
     >
       <div className="flex items-center gap-3">
         <TriangleAlert className="size-4 text-accent" aria-hidden="true" />
-        <p className="text-xs font-medium uppercase tracking-[0.16em] text-fg-secondary">
-          {messages.common.notices}
-        </p>
+        <Label>{messages.common.notices}</Label>
       </div>
       <ul className="m-0 flex list-disc flex-col gap-2 pl-5 text-sm text-fg-secondary">
         {warnings.map((warning) => (

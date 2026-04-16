@@ -23,6 +23,7 @@ import {
 import CurrencySwitcher from "./CurrencySwitcher";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
+import Label from "./ui/content/Label";
 import { getLocalizedPathname, type AppLocale } from "../i18n/config";
 import { useI18n } from "../i18n/context";
 import { cn } from "../lib/cn";
@@ -50,9 +51,9 @@ function SidebarGroup({
 }) {
   return (
     <div className="space-y-2">
-      <p className="px-2 text-[0.68rem] font-medium uppercase tracking-[0.22em] text-fg-muted">
+      <Label className="px-2" tone="muted">
         {label}
-      </p>
+      </Label>
 
       <nav className="space-y-1.5" aria-label={label}>
         {items.map((item) => {
@@ -240,9 +241,9 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
                   <p className="truncate text-[1.02rem] font-semibold tracking-[-0.03em] text-fg">
                     bitstats.org
                   </p>
-                  <p className="truncate text-xs uppercase tracking-[0.18em] text-fg-muted">
+                  <Label className="truncate" size="sm" tone="muted">
                     {messages.nav.workspace}
-                  </p>
+                  </Label>
                 </div>
               </div>
             </Link>
@@ -278,9 +279,7 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
           </div>
 
           <div className="space-y-3 rounded-sm border border-border-default bg-app p-3.5 lg:hidden">
-            <p className="text-[0.68rem] font-medium uppercase tracking-[0.22em] text-fg-muted">
-              {messages.nav.utilities}
-            </p>
+            <Label tone="muted">{messages.nav.utilities}</Label>
 
             <div className="flex flex-col gap-2">
               <span className="text-sm text-fg-secondary">{messages.nav.theme}</span>
@@ -299,9 +298,7 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
         <div className="sticky top-0 z-20 border-b border-border-default bg-app lg:hidden">
           <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
             <div className="min-w-0">
-              <p className="text-[0.68rem] font-medium uppercase tracking-[0.22em] text-accent">
-                {messages.nav.workspace}
-              </p>
+              <Label tone="accent">{messages.nav.workspace}</Label>
               <p className="truncate text-base font-semibold tracking-[-0.03em] text-fg">
                 {currentViewLabel}
               </p>
