@@ -60,14 +60,38 @@
   --state-stale-bg: rgb(213 138 47 / 12%);
   --state-stale-fg: var(--token-color-warning);
 
-  --token-font-family-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
-  --token-font-family-serif: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --token-font-family-sans: "Open Sauce Sans", ui-sans-serif, system-ui, sans-serif;
+  --token-font-family-display: var(--token-font-family-sans);
+  --token-font-family-serif: var(--token-font-family-sans);
   --token-font-family-mono:
     "IBM Plex Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono",
     monospace;
-  --token-font-family-numeric:
-    "Geist Mono Variable", "Geist Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas,
-    "Liberation Mono", monospace;
+  --token-font-family-numeric: var(--token-font-family-mono);
+
+  --token-type-display-size: clamp(2.2rem, 3.2vw + 1.4rem, 3.7rem);
+  --token-type-display-leading: 0.96;
+  --token-type-display-tracking: -0.03em;
+  --token-type-display-weight: 400;
+
+  --token-type-section-size: clamp(1.25rem, 0.9vw + 1.05rem, 1.65rem);
+  --token-type-section-leading: 1.03;
+  --token-type-section-tracking: -0.02em;
+  --token-type-section-weight: 400;
+
+  --token-type-body-size: clamp(0.84rem, 0.18vw + 0.8rem, 0.91rem);
+  --token-type-body-leading: 1.52;
+  --token-type-body-tracking: -0.006em;
+  --token-type-body-weight: 300;
+
+  --token-type-overline-size: 0.68rem;
+  --token-type-overline-leading: 1.15;
+  --token-type-overline-tracking: 0.1em;
+  --token-type-overline-weight: 400;
+
+  --token-type-kpi-size: clamp(1.28rem, 1.25vw + 1rem, 2.35rem);
+  --token-type-kpi-leading: 0.98;
+  --token-type-kpi-tracking: -0.035em;
+  --token-type-kpi-weight: 400;
 
   --container-max-width: 82rem;
   --container-padding-x: 1rem;

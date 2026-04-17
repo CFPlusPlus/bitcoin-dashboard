@@ -32,13 +32,11 @@ export default function SiteFooter({ locale, messages }: SiteFooterProps) {
       >
         <div className="space-y-3">
           <Label tone="accent">{messages.name}</Label>
-          <p className="max-w-2xl font-serif text-2xl leading-tight tracking-[-0.03em] text-fg sm:text-3xl">
+          <p className="type-section max-w-2xl text-fg">
             <span className="text-accent">{taglineLead}</span>
             {taglineRest.length > 0 ? ` ${taglineRest.join(" ")}` : null}
           </p>
-          <p className="max-w-xl text-sm text-fg-secondary sm:text-base">
-            {messages.footer.description}
-          </p>
+          <p className="type-body max-w-xl text-fg-secondary">{messages.footer.description}</p>
         </div>
 
         <div className="flex flex-col gap-6 sm:items-end">

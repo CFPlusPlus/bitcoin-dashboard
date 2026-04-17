@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import "@fontsource-variable/instrument-sans";
-import "@fontsource-variable/geist-mono";
+import "@fontsource/open-sauce-sans/300.css";
+import "@fontsource/open-sauce-sans/400.css";
+import "@fontsource/open-sauce-sans/500.css";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import { SITE_NAME, metadataBase } from "../lib/seo";

@@ -47,9 +47,7 @@ export default function HomepageIntro({
 
             <div className="grid gap-10 xl:grid-cols-[minmax(0,1.12fr)_minmax(23rem,0.88fr)] xl:items-start">
               <Stack gap="xl" className="max-w-[44rem]">
-                <p className="text-base leading-8 text-fg-secondary sm:text-[1.05rem]">
-                  {copy.heroBody}
-                </p>
+                <p className="type-body max-w-[38rem] text-fg-secondary">{copy.heroBody}</p>
 
                 <div className="flex flex-wrap gap-3">
                   <Link
@@ -83,22 +81,18 @@ export default function HomepageIntro({
                     {copy.snapshotEyebrow}
                   </p>
                 </div>
-                <p className="mt-4 max-w-[12ch] font-serif text-[2rem] leading-[1.03] tracking-[-0.045em] text-fg sm:text-[2.25rem]">
-                  {copy.snapshotTitle}
-                </p>
-                <p className="mt-4 max-w-[23rem] text-sm leading-7 text-fg-secondary">
+                <p className="type-section mt-4 max-w-[16ch] text-fg">{copy.snapshotTitle}</p>
+                <p className="type-body mt-4 max-w-[23rem] text-fg-secondary">
                   {copy.snapshotDescription}
                 </p>
 
-                <p className="mt-5 max-w-[23rem] text-sm leading-7 text-fg-secondary">
-                  {copy.introBody}
-                </p>
+                <p className="type-body mt-5 max-w-[23rem] text-fg-secondary">{copy.introBody}</p>
 
                 <ul className="mt-7 grid gap-4 border-t border-border-subtle/80 pt-5">
                   {copy.snapshotPoints.map((point, index) => (
                     <li key={point} className="flex gap-3.5">
                       <span className="pt-0.5 font-mono text-xs text-accent">0{index + 1}</span>
-                      <span className="text-sm leading-6 text-fg-secondary">{point}</span>
+                      <span className="type-body text-fg-secondary">{point}</span>
                     </li>
                   ))}
                 </ul>
@@ -118,15 +112,13 @@ export default function HomepageIntro({
                   </span>
                   <p
                     className={cn(
-                      "max-w-[15ch] font-serif text-[1.35rem] leading-[1.04] tracking-[-0.04em] text-fg sm:text-[1.5rem]",
+                      "type-section max-w-[18ch] text-fg",
                       index === 1 && "text-accent-strong"
                     )}
                   >
                     {benefit.title}
                   </p>
-                  <p className="max-w-[20rem] text-sm leading-7 text-fg-secondary">
-                    {benefit.description}
-                  </p>
+                  <p className="type-body max-w-[20rem] text-fg-secondary">{benefit.description}</p>
                 </div>
               ))}
             </div>

@@ -85,11 +85,9 @@ function TodaySignal({
       </Label>
       <div
         className={cn(
-          "font-numeric min-w-0 [overflow-wrap:anywhere]",
-          emphasis === "primary"
-            ? "text-[1.55rem] font-medium leading-[0.94] tracking-[-0.055em] sm:text-[1.95rem]"
-            : "text-[1.35rem] font-medium leading-[0.98] tracking-[-0.045em] sm:text-[1.55rem]",
-          isUnavailable && "text-[1.1rem] tracking-[-0.03em] text-fg-secondary sm:text-[1.35rem]"
+          "type-kpi min-w-0 [overflow-wrap:anywhere]",
+          emphasis === "primary" ? "text-accent" : "text-fg",
+          isUnavailable && "text-fg-secondary"
         )}
       >
         {isUnavailable ? "--" : value}

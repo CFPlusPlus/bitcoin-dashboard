@@ -361,7 +361,7 @@ export default function OverviewSection({
 
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                   <div className="flex flex-col gap-3">
-                    <p className="font-numeric tabular-nums text-[2.6rem] font-medium leading-none tracking-[-0.06em] text-fg sm:text-[4.15rem] xl:text-[5.2rem]">
+                    <p className="type-kpi text-fg">
                       {formatCurrency(displayedPrice, currency, locale)}
                     </p>
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">

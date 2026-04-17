@@ -20,6 +20,7 @@
   --color-border-subtle: var(--token-color-border-subtle);
   --color-border-default: var(--token-color-border-default);
   --color-border-strong: var(--token-color-border-strong);
+  --font-display: var(--token-font-family-display);
   --font-sans: var(--token-font-family-sans);
   --font-serif: var(--token-font-family-serif);
   --font-mono: var(--token-font-family-mono);
@@ -50,8 +51,8 @@
     background: var(--token-color-bg-app);
     color: var(--token-color-text-primary);
     font-family: var(--token-font-family-sans);
-    line-height: 1.5;
-    letter-spacing: -0.012em;
+    line-height: var(--token-type-body-leading);
+    letter-spacing: var(--token-type-body-tracking);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
   }
@@ -80,19 +81,27 @@
   }
 
   h1 {
-    font-size: clamp(2.5rem, 6vw, 4.4rem);
-    line-height: 0.92;
-    font-weight: 600;
+    font-family: var(--token-font-family-display);
+    font-size: var(--token-type-display-size);
+    line-height: var(--token-type-display-leading);
+    font-weight: var(--token-type-display-weight);
+    letter-spacing: var(--token-type-display-tracking);
   }
 
   h2 {
-    font-size: 1.65rem;
-    font-weight: 600;
+    font-family: var(--token-font-family-display);
+    font-size: var(--token-type-section-size);
+    line-height: var(--token-type-section-leading);
+    font-weight: var(--token-type-section-weight);
+    letter-spacing: var(--token-type-section-tracking);
   }
 
   h3 {
-    font-size: 1.3rem;
-    font-weight: 600;
+    font-family: var(--token-font-family-display);
+    font-size: var(--token-type-section-size);
+    line-height: var(--token-type-section-leading);
+    font-weight: var(--token-type-section-weight);
+    letter-spacing: var(--token-type-section-tracking);
   }
 
   main {
@@ -101,7 +110,57 @@
 }
 
 @layer utilities {
+  .type-display {
+    font-family: var(--token-font-family-display);
+    font-size: var(--token-type-display-size);
+    line-height: var(--token-type-display-leading);
+    font-weight: var(--token-type-display-weight);
+    letter-spacing: var(--token-type-display-tracking);
+  }
+
+  .type-section {
+    font-family: var(--token-font-family-display);
+    font-size: var(--token-type-section-size);
+    line-height: var(--token-type-section-leading);
+    font-weight: var(--token-type-section-weight);
+    letter-spacing: var(--token-type-section-tracking);
+  }
+
+  .type-body {
+    font-family: var(--token-font-family-sans);
+    font-size: var(--token-type-body-size);
+    line-height: var(--token-type-body-leading);
+    font-weight: var(--token-type-body-weight);
+    letter-spacing: var(--token-type-body-tracking);
+  }
+
+  .type-overline {
+    font-family: var(--token-font-family-sans);
+    font-size: var(--token-type-overline-size);
+    line-height: var(--token-type-overline-leading);
+    font-weight: var(--token-type-overline-weight);
+    letter-spacing: var(--token-type-overline-tracking);
+    text-transform: uppercase;
+  }
+
+  .type-body-caps {
+    font-size: var(--token-type-overline-size);
+    font-weight: var(--token-type-overline-weight);
+    line-height: var(--token-type-overline-leading);
+    letter-spacing: var(--token-type-overline-tracking);
+    text-transform: uppercase;
+  }
+
   .font-numeric {
     font-family: var(--token-font-family-numeric);
+  }
+
+  .type-kpi {
+    font-family: var(--token-font-family-numeric);
+    font-size: var(--token-type-kpi-size);
+    line-height: var(--token-type-kpi-leading);
+    font-weight: var(--token-type-kpi-weight);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: var(--token-type-kpi-tracking);
   }
 }

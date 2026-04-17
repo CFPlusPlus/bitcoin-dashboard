@@ -8,7 +8,6 @@ import {
   BarChart3,
   BookOpen,
   Calculator,
-  ChevronRight,
   CircleDollarSign,
   Database,
   FileText,
@@ -55,7 +54,7 @@ function SidebarGroup({
         {label}
       </Label>
 
-      <nav className="space-y-1.5" aria-label={label}>
+      <nav className="space-y-1" aria-label={label}>
         {items.map((item) => {
           const Icon = item.icon;
 
@@ -65,33 +64,29 @@ function SidebarGroup({
               href={item.href}
               aria-current={item.isActive ? "page" : undefined}
               className={cn(
-                "group flex min-h-11 items-center gap-3 rounded-md border px-3.5 py-2.5 text-sm font-medium tracking-[-0.01em] transition-[border-color,background-color,color,transform] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
-                item.isActive
-                  ? "border-border-default bg-elevated text-fg"
-                  : "border-transparent text-fg-secondary hover:border-border-subtle hover:bg-surface hover:text-fg"
+                "group relative flex min-h-10 items-center gap-3 rounded-md px-3 py-2.5 text-fg-secondary transition-[background-color,color] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                item.isActive ? "bg-transparent text-fg" : "hover:bg-elevated/65 hover:text-fg"
               )}
               onClick={onNavigate}
             >
               <span
+                aria-hidden="true"
                 className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-md border transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                  "absolute inset-y-2 left-0 w-px rounded-full bg-transparent transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                  item.isActive ? "bg-accent" : "group-hover:bg-border-default"
+                )}
+              />
+              <span
+                className={cn(
+                  "flex size-7 shrink-0 items-center justify-center rounded-md transition-[background-color,color] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                   item.isActive
-                    ? "border-accent bg-elevated text-accent"
-                    : "border-border-default bg-app text-fg-muted group-hover:border-border-default group-hover:bg-elevated group-hover:text-fg"
+                    ? "bg-accent/10 text-accent"
+                    : "bg-app/70 text-fg-muted group-hover:bg-muted-surface group-hover:text-fg-secondary"
                 )}
               >
-                <Icon className="size-4" aria-hidden="true" />
+                <Icon className="size-[0.95rem]" aria-hidden="true" />
               </span>
-              <span className="min-w-0 flex-1">{item.label}</span>
-              <ChevronRight
-                className={cn(
-                  "size-4 shrink-0 transition-transform duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
-                  item.isActive
-                    ? "translate-x-0 text-accent"
-                    : "text-fg-muted group-hover:translate-x-0.5"
-                )}
-                aria-hidden="true"
-              />
+              <span className="type-body min-w-0 flex-1 text-inherit">{item.label}</span>
             </Link>
           );
         })}
@@ -238,9 +233,7 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
                   className="size-7 shrink-0"
                 />
                 <div className="min-w-0">
-                  <p className="truncate text-[1.02rem] font-semibold tracking-[-0.03em] text-fg">
-                    bitstats.org
-                  </p>
+                  <p className="type-body truncate font-medium text-fg">bitstats.org</p>
                   <Label className="truncate" size="sm" tone="muted">
                     {messages.nav.workspace}
                   </Label>
@@ -278,7 +271,7 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
             />
           </div>
 
-          <div className="space-y-3 rounded-sm border border-border-default bg-app p-3.5 lg:hidden">
+          <div className="space-y-3 rounded-sm border border-border-default/80 bg-app p-3.5 lg:hidden">
             <Label tone="muted">{messages.nav.utilities}</Label>
 
             <div className="flex flex-col gap-2">
@@ -299,9 +292,7 @@ export default function AppSidebarShell({ children }: AppSidebarShellProps) {
           <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
             <div className="min-w-0">
               <Label tone="accent">{messages.nav.workspace}</Label>
-              <p className="truncate text-base font-semibold tracking-[-0.03em] text-fg">
-                {currentViewLabel}
-              </p>
+              <p className="type-body truncate font-medium text-fg">{currentViewLabel}</p>
             </div>
 
             <button

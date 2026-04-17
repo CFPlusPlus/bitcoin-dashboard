@@ -27,8 +27,8 @@ const FALLBACK_VARS = {
   borderSubtle: "rgba(237, 242, 247, 0.06)",
   danger: "#d06b63",
   fontNumeric:
-    '"Geist Mono Variable", "Geist Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", monospace',
-  fontSans: '"Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif',
+    '"IBM Plex Mono", ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, "Liberation Mono", monospace',
+  fontSans: '"Open Sauce Sans", ui-sans-serif, system-ui, sans-serif',
   success: "#58b98b",
   textMuted: "#737e8a",
   textPrimary: "#edf2f7",

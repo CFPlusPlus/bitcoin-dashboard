@@ -175,7 +175,7 @@ function CompactValue({
   return (
     <p
       className={cn(
-        "min-w-0 font-numeric tabular-nums text-[clamp(1.2rem,2.2vw,1.55rem)] font-medium leading-[0.95] tracking-[-0.045em] [overflow-wrap:anywhere]",
+        "type-body font-numeric min-w-0 font-medium leading-tight [overflow-wrap:anywhere]",
         tone === "accent"
           ? "text-accent"
           : tone === "positive"
@@ -311,12 +311,8 @@ function RecentBlockTile({
     >
       <div className="flex h-full flex-col items-center justify-between gap-2 text-center">
         <div className="space-y-1">
-          <CompactValue
-            value={`#${formatNumber(block.height, locale)}`}
-            tone="accent"
-            className="text-[1.1rem]"
-          />
-          <MetaText size="xs" className="text-[0.74rem]">
+          <CompactValue value={`#${formatNumber(block.height, locale)}`} tone="accent" />
+          <MetaText size="xs" className="leading-snug">
             {age}
           </MetaText>
         </div>

@@ -2,12 +2,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../../../lib/cn";
 
-const metaTextVariants = cva("leading-relaxed", {
+const metaTextVariants = cva("type-body", {
   variants: {
     size: {
-      xs: "text-xs",
-      sm: "text-sm",
-      base: "text-base",
+      xs: "",
+      sm: "",
+      base: "",
     },
     tone: {
       default: "text-fg-muted",
@@ -18,7 +18,6 @@ const metaTextVariants = cva("leading-relaxed", {
     },
   },
   defaultVariants: {
-    size: "sm",
     tone: "default",
   },
 });

@@ -154,11 +154,11 @@ function buildLiveChartTheme(performancePercent: number | null): LiveChartTheme 
     danger: readThemeVar("--token-color-danger", "#d06b63"),
     fontNumeric: readThemeVar(
       "--token-font-family-numeric",
-      '"Geist Mono Variable", "Geist Mono", ui-monospace, monospace'
+      '"IBM Plex Mono", ui-monospace, monospace'
     ),
     fontSans: readThemeVar(
       "--token-font-family-sans",
-      '"Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif'
+      '"Open Sauce Sans", ui-sans-serif, system-ui, sans-serif'
     ),
     info: readThemeVar("--token-color-info", "#b9794a"),
     success: readThemeVar("--token-color-success", "#58b98b"),

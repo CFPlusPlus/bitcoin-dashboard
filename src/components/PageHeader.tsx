@@ -1,9 +1,9 @@
 "use client";
 
 import { useI18n } from "../i18n/context";
+import DisplayTitle from "./ui/content/DisplayTitle";
 import Eyebrow from "./ui/content/Eyebrow";
 import MetaText from "./ui/content/MetaText";
-import SectionTitle from "./ui/content/SectionTitle";
 import Stack from "./ui/layout/Stack";
 
 export default function PageHeader() {
@@ -18,21 +18,13 @@ export default function PageHeader() {
         </div>
 
         <Stack gap="sm" className="max-w-[40rem] sm:gap-md">
-          <SectionTitle
-            as="h1"
-            size="xl"
-            className="max-w-[10.5ch] text-[2.4rem] leading-[0.94] tracking-[-0.045em] sm:max-w-[11ch] sm:text-[4.05rem] xl:text-[4.85rem]"
-          >
+          <DisplayTitle as="h1" className="max-w-[10.75ch] text-balance">
             <>
               {messages.home.headerTitlePrefix}{" "}
               <span className="text-accent">{messages.home.headerTitleAccent}</span>.
             </>
-          </SectionTitle>
-          <MetaText
-            size="base"
-            tone="strong"
-            className="max-w-[31rem] text-[0.96rem] leading-6 text-fg-secondary sm:text-[1.02rem] sm:leading-7"
-          >
+          </DisplayTitle>
+          <MetaText tone="strong" className="max-w-[31rem] text-pretty">
             {messages.home.headerDescription}
           </MetaText>
         </Stack>

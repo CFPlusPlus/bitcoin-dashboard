@@ -24,7 +24,7 @@ export default function SectionHeader({
   meta,
   title,
   titleAs = "h2",
-  titleSize = "md",
+  titleSize: _titleSize = "md",
   ...props
 }: SectionHeaderProps) {
   return (
@@ -38,10 +38,8 @@ export default function SectionHeader({
       <Stack gap="sm" className="min-w-0">
         {typeof eyebrow === "string" ? <Eyebrow>{eyebrow}</Eyebrow> : eyebrow}
         <Stack gap="xs">
-          <SectionTitle as={titleAs} size={titleSize}>
-            {title}
-          </SectionTitle>
-          {description ? <MetaText size="base">{description}</MetaText> : null}
+          <SectionTitle as={titleAs}>{title}</SectionTitle>
+          {description ? <MetaText>{description}</MetaText> : null}
         </Stack>
       </Stack>
 

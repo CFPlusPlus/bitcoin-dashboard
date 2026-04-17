@@ -4,11 +4,11 @@ import { cn } from "../../../lib/cn";
 import Label from "./Label";
 import MetaText from "./MetaText";
 
-const kpiValueVariants = cva("font-numeric tabular-nums font-medium tracking-[-0.045em] text-fg", {
+const kpiValueVariants = cva("type-kpi text-fg", {
   variants: {
     size: {
-      md: "text-[clamp(1.65rem,4.6vw,1.95rem)] leading-[0.93] sm:text-[clamp(1.8rem,2.8vw,2.05rem)]",
-      lg: "text-[2.2rem] leading-none sm:text-[3.35rem]",
+      md: "",
+      lg: "",
     },
     tone: {
       default: "text-fg",
@@ -47,7 +47,7 @@ export default function KpiValue({
       {label ? <Label>{label}</Label> : null}
       <div
         className={cn(
-          "min-w-0 whitespace-normal [overflow-wrap:anywhere]",
+          "font-numeric min-w-0 whitespace-normal [overflow-wrap:anywhere]",
           kpiValueVariants({ size, tone }),
           valueClassName
         )}
