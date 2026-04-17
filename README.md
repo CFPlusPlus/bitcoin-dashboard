@@ -179,7 +179,8 @@ npm run deploy
 
 Command notes:
 
-- `npm run dev`: standard local development entry point
+- `npm run dev`: standard local development entry point without the Cloudflare dev runtime
+- `npm run dev:cf`: local development with the OpenNext Cloudflare dev runtime enabled
 - `npm run cf:build`: builds the OpenNext Cloudflare bundle
 - `npm run cf:preview`: previews an existing OpenNext build locally
 - `npm run cf:dev`: runs `cf:build` followed by `cf:preview`
@@ -193,7 +194,7 @@ This project targets Cloudflare Workers through OpenNext.
 Current deployment configuration:
 
 - `open-next.config.ts` uses the OpenNext Cloudflare adapter
-- `next.config.ts` initializes the OpenNext Cloudflare dev runtime
+- `next.config.ts` initializes the OpenNext Cloudflare dev runtime only for `npm run dev:cf`
 - `wrangler.jsonc` points to `.open-next/worker.js`
 - static assets are served from `.open-next/assets`
 - `nodejs_compat` is enabled in Wrangler
@@ -217,7 +218,7 @@ Legacy Cloudflare Pages workflows do not apply to this repository.
 
 ## Windows Note
 
-Native Windows works well for day-to-day work with `npm run dev`. Cloudflare preview flows can be less reliable than in WSL, so `npm run cf:preview` and `npm run cf:dev` are best treated as parity checks rather than the default inner loop on Windows.
+Native Windows works well for day-to-day work with `npm run dev`, which now avoids the extra Cloudflare dev runtime process. Use `npm run dev:cf`, `npm run cf:preview`, and `npm run cf:dev` when you specifically want Cloudflare parity; on Windows those flows can still be less reliable than the default inner loop or WSL.
 
 ## Next.js Compatibility Note
 

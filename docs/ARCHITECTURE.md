@@ -18,10 +18,10 @@ The application is a Next.js App Router project deployed to Cloudflare Workers t
 
 Current runtime pieces:
 
-- `next.config.ts` initializes the OpenNext Cloudflare dev runtime
+- `next.config.ts` initializes the OpenNext Cloudflare dev runtime only when `NEXT_DEV_USE_CLOUDFLARE=true`
 - `open-next.config.ts` uses the Cloudflare adapter
 - `wrangler.jsonc` points Wrangler at `.open-next/worker.js` and `.open-next/assets`
-- `src/server/env.ts` reads runtime bindings through `@opennextjs/cloudflare`
+- `src/server/env.ts` reads runtime bindings through `@opennextjs/cloudflare` and falls back to `process.env` for the standard local Next.js loop
 - Cloudflare KV is used for CoinGecko cache fallback when the binding is present
 
 ## Routing And Localization

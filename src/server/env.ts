@@ -18,7 +18,21 @@ type AppEnv = {
   BITCOIN_DASHBOARD_CACHE?: KvNamespaceBinding;
 };
 
+function getCloudflareEnv(): AppEnv | null {
+  try {
+    const { env } = getCloudflareContext();
+    return env as AppEnv;
+  } catch {
+    return null;
+  }
+}
+
 export function getAppEnv() {
-  const { env } = getCloudflareContext();
-  return env as AppEnv;
+  const cloudflareEnv = getCloudflareEnv();
+
+  return {
+    COINGECKO_DEMO_API_KEY:
+      cloudflareEnv?.COINGECKO_DEMO_API_KEY ?? process.env.COINGECKO_DEMO_API_KEY,
+    BITCOIN_DASHBOARD_CACHE: cloudflareEnv?.BITCOIN_DASHBOARD_CACHE,
+  };
 }

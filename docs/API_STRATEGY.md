@@ -307,7 +307,8 @@ Current runtime rules:
 
 - env values are read only through `src/server/env.ts`
 - provider auth stays server-side
-- local development uses `.dev.vars`
+- local development uses `.dev.vars`, loaded by the dev runner before `next dev`
+- Cloudflare-specific bindings remain available through `npm run dev:cf`
 - production bindings are configured through Wrangler and the Cloudflare Worker environment
 
 ## Implementation Rules

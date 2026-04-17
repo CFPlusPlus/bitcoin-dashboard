@@ -10,7 +10,8 @@
   "type": "module",
   "adapter": "@opennextjs/cloudflare",
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/run-dev.mjs",
+    "dev:cf": "node scripts/run-dev.mjs --cloudflare",
     "build": "next build",
     "start": "next start",
     "cf:build": "opennextjs-cloudflare build",
