@@ -50,20 +50,20 @@ export default function LanguageSwitcher() {
         aria-expanded={isOpen}
         aria-haspopup="menu"
         className={cn(
-          "inline-flex h-8 min-w-[5.4rem] items-center justify-between gap-2 rounded-md border px-2.5 text-[0.64rem] font-medium uppercase tracking-[0.18em] transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-app",
+          "inline-flex h-8 min-w-[4.9rem] items-center justify-between gap-1.5 rounded-md border px-2.5 text-[0.74rem] font-medium tracking-[0.01em] transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-app",
           isOpen
-            ? "border-accent bg-elevated text-fg"
-            : "border-border-default bg-surface text-fg-secondary hover:bg-elevated hover:text-fg"
+            ? "border-border-default bg-elevated text-fg"
+            : "border-border-default/80 bg-surface text-fg-muted hover:border-border-default hover:bg-elevated/70 hover:text-fg-secondary"
         )}
         onClick={() => setIsOpen((current) => !current)}
       >
-        <span className="flex items-center gap-2">
-          <Languages className="size-[0.95rem] text-fg-muted" aria-hidden="true" />
-          <span>{locale.toUpperCase()}</span>
+        <span className="flex items-center gap-1.5">
+          <Languages className="size-3.5 text-fg-muted" aria-hidden="true" />
+          <span className="font-mono text-[0.72rem] tracking-[0.08em]">{locale.toUpperCase()}</span>
         </span>
         <ChevronDown
           className={cn(
-            "size-[0.95rem] text-fg-muted transition-transform duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+            "size-3.5 text-fg-muted transition-transform duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
             isOpen && "rotate-180"
           )}
           aria-hidden="true"
@@ -93,13 +93,13 @@ export default function LanguageSwitcher() {
               className={cn(
                 "flex w-full items-center justify-between rounded-md px-3 py-2 text-left transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                 isActive
-                  ? "bg-elevated text-fg"
-                  : "text-fg-secondary hover:bg-elevated hover:text-fg"
+                  ? "bg-muted-surface text-fg"
+                  : "text-fg-secondary hover:bg-elevated/70 hover:text-fg"
               )}
               onClick={() => setIsOpen(false)}
             >
               <span className="flex flex-col">
-                <span className="text-[0.68rem] font-medium uppercase tracking-[0.2em] text-fg-muted">
+                <span className="font-mono text-[0.68rem] tracking-[0.08em] text-fg-muted">
                   {entry.toUpperCase()}
                 </span>
                 <span className="text-sm font-medium tracking-[-0.01em]">

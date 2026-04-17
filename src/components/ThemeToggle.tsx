@@ -63,7 +63,7 @@ export default function ThemeToggle({ className }: ThemeToggleProps) {
       aria-label={label}
       title={label}
       className={cn(
-        "inline-flex h-8 min-w-[8.5rem] items-center justify-center gap-2 rounded-md border border-border-default bg-surface px-3 text-[0.64rem] font-medium uppercase tracking-[0.16em] text-fg-secondary transition-[border-color,background-color,color,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-app hover:border-accent hover:bg-elevated hover:text-fg",
+        "group inline-flex h-8 min-w-[5.75rem] items-center justify-center gap-1.5 rounded-md border border-border-default/80 bg-surface px-2.5 text-[0.74rem] font-medium tracking-[0.01em] text-fg-muted transition-[border-color,background-color,color,opacity] duration-[var(--motion-base)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-app hover:border-border-default hover:bg-elevated/70 hover:text-fg-secondary",
         theme === null && "opacity-0",
         className
       )}
@@ -73,9 +73,15 @@ export default function ThemeToggle({ className }: ThemeToggleProps) {
       }}
     >
       {activeTheme === "dark" ? (
-        <SunMedium className="size-4 text-accent" aria-hidden="true" />
+        <SunMedium
+          className="size-3.5 text-fg-muted transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)] group-hover:text-fg-secondary"
+          aria-hidden="true"
+        />
       ) : (
-        <MoonStar className="size-4 text-accent" aria-hidden="true" />
+        <MoonStar
+          className="size-3.5 text-fg-muted transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)] group-hover:text-fg-secondary"
+          aria-hidden="true"
+        />
       )}
       <span>{buttonLabel}</span>
     </button>

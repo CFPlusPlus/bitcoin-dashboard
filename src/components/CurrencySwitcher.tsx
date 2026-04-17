@@ -265,10 +265,10 @@ export default function CurrencySwitcher() {
         aria-expanded={isOpen}
         aria-haspopup="menu"
         className={cn(
-          "relative z-30 inline-flex h-8 min-w-[6.1rem] items-center justify-between gap-2 rounded-md border px-2.5 text-[0.64rem] font-medium uppercase tracking-[0.18em] transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-app",
+          "relative z-30 inline-flex h-8 min-w-[5.6rem] items-center justify-between gap-1.5 rounded-md border px-2.5 text-[0.74rem] font-medium tracking-[0.01em] transition-[border-color,background-color,color] duration-[var(--motion-base)] ease-[var(--ease-standard)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 focus-visible:ring-offset-2 focus-visible:ring-offset-app",
           isOpen
-            ? "border-accent bg-elevated text-fg"
-            : "border-border-default bg-surface text-fg-secondary hover:bg-elevated hover:text-fg"
+            ? "border-border-default bg-elevated text-fg"
+            : "border-border-default/80 bg-surface text-fg-muted hover:border-border-default hover:bg-elevated/70 hover:text-fg-secondary"
         )}
         onClick={() => {
           if (!isOpen && !isFiatCurrency(currency)) {
@@ -278,13 +278,15 @@ export default function CurrencySwitcher() {
           setIsOpen((current) => !current);
         }}
       >
-        <span className="flex items-center gap-2">
-          <CircleDollarSign className="size-[0.95rem] text-fg-muted" aria-hidden="true" />
-          <span>{formatCurrencyLabel(currency)}</span>
+        <span className="flex items-center gap-1.5">
+          <CircleDollarSign className="size-3.5 text-fg-muted" aria-hidden="true" />
+          <span className="font-mono text-[0.72rem] tracking-[0.08em]">
+            {formatCurrencyLabel(currency)}
+          </span>
         </span>
         <ChevronDown
           className={cn(
-            "size-[0.95rem] text-fg-muted transition-transform duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+            "size-3.5 text-fg-muted transition-transform duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
             isOpen && "rotate-180"
           )}
           aria-hidden="true"
@@ -306,7 +308,7 @@ export default function CurrencySwitcher() {
         <div className="p-1.5">
           <label
             htmlFor={`${menuId}-search`}
-            className="mb-1.5 block text-[0.62rem] font-medium uppercase tracking-[0.18em] text-fg-muted"
+            className="mb-1.5 block text-[0.72rem] font-medium tracking-[0.01em] text-fg-muted"
           >
             {messages.site.currencySearchLabel}
           </label>
@@ -327,17 +329,17 @@ export default function CurrencySwitcher() {
           </div>
 
           <div className="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[0.62rem] font-medium uppercase tracking-[0.18em] text-fg-muted">
+            <p className="text-[0.72rem] font-medium tracking-[0.01em] text-fg-muted">
               {messages.site.currencyScopeLabel}
             </p>
             <div className="grid grid-cols-2 gap-1 sm:flex sm:items-center">
               <button
                 type="button"
                 className={cn(
-                  "inline-flex min-h-8 min-w-[5.75rem] items-center justify-center rounded-md border px-2 text-[0.58rem] font-medium uppercase tracking-[0.16em] transition-[border-color,background-color,color] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                  "inline-flex min-h-8 min-w-[5.5rem] items-center justify-center rounded-md border px-2.5 text-[0.72rem] font-medium tracking-[0.01em] transition-[border-color,background-color,color] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                   showFiatOnly
-                    ? "border-accent bg-elevated text-fg"
-                    : "border-border-default bg-surface text-fg-secondary hover:border-accent hover:bg-elevated hover:text-fg"
+                    ? "border-border-default bg-muted-surface text-fg"
+                    : "border-border-default/80 bg-surface text-fg-secondary hover:border-border-default hover:bg-elevated/70 hover:text-fg"
                 )}
                 onClick={() => {
                   setShowFiatOnly(true);
@@ -349,10 +351,10 @@ export default function CurrencySwitcher() {
               <button
                 type="button"
                 className={cn(
-                  "inline-flex min-h-8 min-w-[7.5rem] items-center justify-center rounded-md border px-2 text-[0.58rem] font-medium uppercase tracking-[0.16em] transition-[border-color,background-color,color] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                  "inline-flex min-h-8 min-w-[7rem] items-center justify-center rounded-md border px-2.5 text-[0.72rem] font-medium tracking-[0.01em] transition-[border-color,background-color,color] duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                   !showFiatOnly
-                    ? "border-accent bg-elevated text-fg"
-                    : "border-border-default bg-surface text-fg-secondary hover:border-accent hover:bg-elevated hover:text-fg"
+                    ? "border-border-default bg-muted-surface text-fg"
+                    : "border-border-default/80 bg-surface text-fg-secondary hover:border-border-default hover:bg-elevated/70 hover:text-fg"
                 )}
                 onClick={() => {
                   setShowFiatOnly(false);
@@ -368,7 +370,7 @@ export default function CurrencySwitcher() {
         <div className="flex-1 overflow-y-auto border-t border-border-subtle px-1.5 pt-2">
           {recentVisibleCurrencies.length > 0 ? (
             <div className="pb-2">
-              <p className="px-2 pb-1 text-[0.62rem] font-medium uppercase tracking-[0.18em] text-fg-muted">
+              <p className="px-2 pb-1 text-[0.72rem] font-medium tracking-[0.01em] text-fg-muted">
                 {messages.site.currencyRecentLabel}
               </p>
               <div className="grid grid-cols-3 gap-1">
@@ -383,10 +385,10 @@ export default function CurrencySwitcher() {
                       aria-checked={isActive}
                       data-currency-option={entry}
                       className={cn(
-                        "flex h-8 items-center justify-center rounded-md border px-2 text-[0.63rem] font-medium uppercase tracking-[0.16em] transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                        "flex h-8 items-center justify-center rounded-md border px-2 text-[0.7rem] font-medium tracking-[0.08em] transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                         isActive || activeHighlightedCurrency === entry
-                          ? "border-accent bg-elevated text-fg"
-                          : "border-border-default bg-surface text-fg-secondary hover:border-accent hover:bg-elevated hover:text-fg"
+                          ? "border-border-default bg-muted-surface text-fg"
+                          : "border-border-default/80 bg-surface text-fg-secondary hover:border-border-default hover:bg-elevated/70 hover:text-fg"
                       )}
                       onMouseEnter={() => setHighlightedCurrency(entry)}
                       onClick={() => handleCurrencySelect(entry)}
@@ -400,7 +402,7 @@ export default function CurrencySwitcher() {
           ) : null}
 
           <div className="border-t border-border-subtle pb-2 pt-2">
-            <p className="px-2 pb-1 text-[0.62rem] font-medium uppercase tracking-[0.18em] text-fg-muted">
+            <p className="px-2 pb-1 text-[0.72rem] font-medium tracking-[0.01em] text-fg-muted">
               {messages.site.currencyPopularLabel}
             </p>
             <div className="grid grid-cols-4 gap-1 sm:grid-cols-5">
@@ -415,10 +417,10 @@ export default function CurrencySwitcher() {
                     aria-checked={isActive}
                     data-currency-option={entry}
                     className={cn(
-                      "flex h-8 items-center justify-center rounded-md border px-2 text-[0.64rem] font-medium uppercase tracking-[0.16em] transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
+                      "flex h-8 items-center justify-center rounded-md border px-2 text-[0.7rem] font-medium tracking-[0.08em] transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                       isActive || activeHighlightedCurrency === entry
-                        ? "border-accent bg-elevated text-fg"
-                        : "border-border-default bg-surface text-fg-secondary hover:border-accent hover:bg-elevated hover:text-fg"
+                        ? "border-border-default bg-muted-surface text-fg"
+                        : "border-border-default/80 bg-surface text-fg-secondary hover:border-border-default hover:bg-elevated/70 hover:text-fg"
                     )}
                     onMouseEnter={() => setHighlightedCurrency(entry)}
                     onClick={() => handleCurrencySelect(entry)}
@@ -431,7 +433,7 @@ export default function CurrencySwitcher() {
           </div>
 
           <div className="border-t border-border-subtle pt-2">
-            <p className="px-2 pb-1 text-[0.62rem] font-medium uppercase tracking-[0.18em] text-fg-muted">
+            <p className="px-2 pb-1 text-[0.72rem] font-medium tracking-[0.01em] text-fg-muted">
               {messages.site.currencyAllLabel}
             </p>
 
@@ -452,14 +454,14 @@ export default function CurrencySwitcher() {
                       className={cn(
                         "flex w-full items-center justify-between rounded-md px-2.5 py-2 text-left transition-colors duration-[var(--motion-fast)] ease-[var(--ease-standard)]",
                         isActive || activeHighlightedCurrency === entry
-                          ? "bg-elevated text-fg"
-                          : "text-fg-secondary hover:bg-elevated hover:text-fg"
+                          ? "bg-muted-surface text-fg"
+                          : "text-fg-secondary hover:bg-elevated/70 hover:text-fg"
                       )}
                       onMouseEnter={() => setHighlightedCurrency(entry)}
                       onClick={() => handleCurrencySelect(entry)}
                     >
                       <span className="flex items-center gap-2">
-                        <span className="font-mono text-[0.7rem] uppercase tracking-[0.18em]">
+                        <span className="font-mono text-[0.69rem] tracking-[0.08em]">
                           {formatCurrencyLabel(entry)}
                         </span>
                         <span className="text-sm tracking-[-0.01em]">{currencyLabels[entry]}</span>
