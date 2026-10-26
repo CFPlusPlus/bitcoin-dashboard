@@ -4,9 +4,11 @@ A private-use Bitcoin analytics dashboard in a public source repository. Initial
 
 ## Development
 
-Use Node.js 22.12+ and npm. CI uses Node 22 LTS.
+Use Node.js 22.22.2 (pinned in `.nvmrc`) and npm 11.20.0 (pinned in `package.json`). CI installs that npm version explicitly before `npm ci`; do not rely on the npm version bundled with Node. The minimum Node version also satisfies the locked development dependencies.
 
 ```sh
+nvm use
+npm install --global npm@11.20.0
 npm ci
 npm run dev
 npm test
@@ -15,6 +17,8 @@ npm run pages:check
 ```
 
 On Windows PowerShell with script execution disabled, use `npm.cmd`.
+
+If your Node version manager does not read `.nvmrc`, select Node 22.22.2 explicitly. Regenerate `package-lock.json` with npm 11.20.0 using `npm install --package-lock-only`, then verify with `npm ci` and the checks above. Keep the lockfile committed: older npm versions can reject the overridden Undici dependency during `npm ci`.
 
 - `dev`: Vite frontend; `/api` is proxied to local Pages on port 8788.
 - `pages:dev`: build and serve the SPA with Pages Functions locally on port 8788; no Cloudflare login needed.
@@ -26,7 +30,7 @@ On Windows PowerShell with script execution disabled, use `npm.cmd`.
 
 React, TypeScript, Vite, Tailwind CSS v4, editable shadcn/ui primitives, Apache ECharts and TanStack Query. Inter is self-hosted through `@fontsource/inter`.
 
-The lockfile pins the dependency graph. A targeted `miniflare` → `undici` override selects the patched 7.30.1+ release; remove it when Wrangler's dependency graph includes that fix itself. The lazy ECharts chunk currently triggers Vite's 500 kB advisory (approximately 171 kB gzip); it is loaded only on chart pages.
+The lockfile pins the dependency graph. A targeted `miniflare` → `undici` override pins the patched 7.30.1 release; remove it when Wrangler's dependency graph includes that fix itself. Miniflare's original `undici: 7.29.1` declaration remains in the lockfile metadata; the nested installed package must resolve to 7.30.1 through the override. Do not manually edit that upstream declaration. The lazy ECharts chunk currently triggers Vite's 500 kB advisory (approximately 171 kB gzip); it is loaded only on chart pages.
 
 ```text
 src/components/ui/    Locally owned, adapted shadcn/ui primitives
