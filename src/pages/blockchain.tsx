@@ -1,8 +1,9 @@
-import { BlocksTable, MetricCard, PageHeading, PlaceholderCard } from '@/components/dashboard'
+import { MetricCard, PageHeading } from '@/components/dashboard'
+import { FeeDetails, FeeMetric, HeightMetric, LatestBlockMetrics, LiveBlocksTable, MempoolCard } from '@/components/bitcoin-data'
 
 export default function Blockchain() {
-  return <><PageHeading title="Blockchain" description="Blöcke, Transaktionen und die Nachfrage nach Blockspace." /><div className="dashboard-grid">
-    {[['Blockhöhe', 'Blöcke'], ['Gebühren', 'sat/vB'], ['Ø Blockzeit', 'Min.'], ['Transaktionsdurchsatz', 'TX/s'], ['Blockgröße', 'MB'], ['Blockgewicht', 'MWU']].map(([label, unit]) => <MetricCard key={label} label={label} unit={unit} />)}
-    <PlaceholderCard className="col-span-12" title="Mempool" description="Ausstehende Transaktionen und Gebührenverteilung werden hier dargestellt." /><BlocksTable className="col-span-12" />
+  return <><PageHeading title="Blockchain" description="Blöcke, Transaktionen und die Nachfrage nach Blockspace." live /><div className="dashboard-grid">
+    <HeightMetric /><FeeMetric /><MetricCard label="Ø Blockzeit" unit="Min." /><MetricCard label="Transaktionsdurchsatz" unit="TX/s" /><LatestBlockMetrics />
+    <MempoolCard /><FeeDetails /><LiveBlocksTable />
   </div></>
 }

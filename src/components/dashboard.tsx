@@ -4,8 +4,8 @@ import { Card, CardTitle } from '@/components/ui/card'
 
 const DemoChart = lazy(() => import('@/components/demo-chart'))
 
-export function PageHeading({ title, description }: { title: string; description: string }) {
-  return <div className="mb-6 flex flex-wrap items-start justify-between gap-3"><div><p className="mb-2 text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">Bitcoin Dashboard</p><h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1><p className="mt-2 text-sm text-muted-foreground">{description}</p></div><span className="status-label"><CircleDashed size={13} /> Vorschau · Keine Live-Daten</span></div>
+export function PageHeading({ title, description, live = false }: { title: string; description: string; live?: boolean }) {
+  return <div className="mb-6 flex flex-wrap items-start justify-between gap-3"><div><p className="mb-2 text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">Bitcoin Dashboard</p><h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1><p className="mt-2 text-sm text-muted-foreground">{description}</p></div><span className="status-label"><CircleDashed size={13} /> {live ? 'Blockchain · mempool.space' : 'Vorschau · Keine Live-Daten'}</span></div>
 }
 
 export function MetricCard({ label, unit }: { label: string; unit: string }) {
