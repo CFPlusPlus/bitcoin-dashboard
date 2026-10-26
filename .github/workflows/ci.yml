@@ -14,12 +14,8 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - name: Install pinned npm
-        # Keep the running npm intact while installing its replacement.
-        run: |
-          npm install --global --prefix "$RUNNER_TEMP/pinned-npm" "$(node -p "require('./package.json').packageManager")"
-          echo "$RUNNER_TEMP/pinned-npm/bin" >> "$GITHUB_PATH"
       - name: Verify toolchain
+        # Use the npm bundled with the Node release pinned in .nvmrc.
         run: |
           node --version
           npm --version

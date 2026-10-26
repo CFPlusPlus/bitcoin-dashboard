@@ -4,11 +4,10 @@ A private-use Bitcoin analytics dashboard in a public source repository. Initial
 
 ## Development
 
-Use Node.js 22.22.2 (pinned in `.nvmrc`) and npm 11.20.0 (pinned in `package.json`). CI installs that npm version into a separate temporary prefix and adds its `bin` directory to `PATH` before `npm ci`. This avoids replacing the running bundled npm during a global self-update, which can fail with `Cannot find module 'promise-retry'`. CI verifies the active npm version against `packageManager`; do not rely on the npm version bundled with Node. The minimum Node version also satisfies the locked development dependencies.
+Use Node.js 22.22.2 (pinned in `.nvmrc`) and its bundled npm 10.9.7 (pinned in `package.json`). CI uses that bundled npm without a global npm installation and verifies its version against `packageManager`. The minimum Node version also satisfies the locked development dependencies.
 
 ```sh
 nvm use
-npm install --global npm@11.20.0
 npm ci
 npm run dev
 npm test
@@ -18,7 +17,7 @@ npm run pages:check
 
 On Windows PowerShell with script execution disabled, use `npm.cmd`.
 
-If your Node version manager does not read `.nvmrc`, select Node 22.22.2 explicitly. Regenerate `package-lock.json` with npm 11.20.0 using `npm install --package-lock-only`, then verify with `npm ci` and the checks above. Keep the lockfile committed: older npm versions can reject the overridden Undici dependency during `npm ci`.
+If your Node version manager does not read `.nvmrc`, select Node 22.22.2 explicitly. When updating dependencies, regenerate `package-lock.json` with npm 10.9.7 using `npm install --package-lock-only`, then verify with `npm ci` and the checks above. Keep the lockfile committed, including the overridden Undici dependency.
 
 - `dev`: Vite frontend; `/api` is proxied to local Pages on port 8788.
 - `pages:dev`: build and serve the SPA with Pages Functions locally on port 8788; no Cloudflare login needed.
@@ -30,7 +29,7 @@ If your Node version manager does not read `.nvmrc`, select Node 22.22.2 explici
 
 React, TypeScript, Vite, Tailwind CSS v4, editable shadcn/ui primitives, Apache ECharts and TanStack Query. Inter is self-hosted through `@fontsource/inter`.
 
-The lockfile pins the dependency graph. A targeted `miniflare` → `undici` override pins the patched 7.30.1 release; remove it when Wrangler's dependency graph includes that fix itself. Miniflare's original `undici: 7.29.1` declaration remains in the lockfile metadata; the nested installed package must resolve to 7.30.1 through the override. Do not manually edit that upstream declaration. The lazy ECharts chunk currently triggers Vite's 500 kB advisory (approximately 171 kB gzip); it is loaded only on chart pages.
+The lockfile pins the dependency graph. A version-scoped `undici@7.29.1` override pins Miniflare's Undici dependency to the patched 7.30.1 release while leaving jsdom's Undici 8 dependency unchanged. This form preserves the override with npm 10.9.7; remove it when Wrangler's dependency graph includes that fix itself. Miniflare's original `undici: 7.29.1` declaration remains in the lockfile metadata; the nested installed package must resolve to 7.30.1 through the override. Do not manually edit that upstream declaration. The lazy ECharts chunk currently triggers Vite's 500 kB advisory (approximately 171 kB gzip); it is loaded only on chart pages.
 
 ```text
 src/components/ui/    Locally owned, adapted shadcn/ui primitives
@@ -69,6 +68,10 @@ Minimal Dark meets Advanced Analytics. Dark is the default regardless of OS pref
 1600px maximum content width, 12-column desktop grid, 12px card radius, 16–20px gaps and 20–24px padding. Inter and tabular metric digits. Horizontal navigation wraps below the header and scrolls on narrow screens. No glass effects or chart animations. ECharts is lazy-loaded with selective imports; charts resize and dispose on unmount and theme change.
 
 ## Cloudflare and future access boundary
+
+For Pages builds, use `.nvmrc` to select Node.js 22.22.2 and its bundled npm 10.9.7. Set the build command to `npm run build` and the output directory to `dist`. Pages v3 does not select Node or npm from `package.json`'s `engines`; those entries describe the supported toolchain. Remove any existing `NPM_VERSION=11.20.0` override or global npm installation from the Pages build settings, and remove a conflicting `NODE_VERSION` override or set it to `22.22.2`. Check both production and preview settings. A `Cannot find module 'promise-retry'` error during npm initialization indicates an incomplete npm installation; adding it to application dependencies cannot repair that bootstrap failure. If a previous broken npm installation persists, clear the Pages build cache before the next authorized build.
+
+References: [Node.js 22.22.2 bundled npm](https://nodejs.org/en/download/archive/v22.22.2), [Pages build image and version selection](https://developers.cloudflare.com/pages/configuration/build-image/).
 
 `wrangler.jsonc` declares `dist` as build output. File-based Functions expose `GET /api/health`; unknown `/api/*` endpoints return JSON 404. `_routes.json` invokes Functions only for `/api/*`. Pages' built-in SPA fallback supports deep links; do not add a top-level `404.html` unless replacing that behavior intentionally.
 
