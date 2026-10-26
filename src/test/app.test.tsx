@@ -2,12 +2,14 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '@/App'
 import { ThemeProvider } from '@/components/theme-provider'
 import { createQueryClient } from '@/lib/query-client'
 
 vi.mock('@/components/demo-chart', () => ({ default: () => <div>Demo chart</div> }))
+beforeEach(() => vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {}))))
+afterEach(() => vi.unstubAllGlobals())
 function renderApp(path = '/') {
   return render(<QueryClientProvider client={createQueryClient()}><ThemeProvider><MemoryRouter initialEntries={[path]}><App /></MemoryRouter></ThemeProvider></QueryClientProvider>)
 }
@@ -16,7 +18,7 @@ describe('dashboard shell', () => {
     renderApp(path)
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: title })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByText('Vorschau · Keine Live-Daten')).toBeInTheDocument()
+    expect(screen.getByText(path === '/' || path === '/blockchain' ? 'Blockchain · mempool.space' : 'Vorschau · Keine Live-Daten')).toBeInTheDocument()
   })
   it('navigates between pages', async () => {
     renderApp()
@@ -41,9 +43,9 @@ describe('dashboard shell', () => {
     await userEvent.click(screen.getByRole('link', { name: 'Zur Übersicht' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Übersicht' })).toBeInTheDocument()
   })
-  it('labels synthetic data and all six placeholder metrics', () => {
+  it('labels synthetic data and the remaining placeholder metrics', () => {
     renderApp()
     expect(screen.getByText('Synthetische Demo-Daten')).toBeInTheDocument()
-    expect(screen.getAllByText('Datenquelle folgt')).toHaveLength(6)
+    expect(screen.getAllByText('Datenquelle folgt')).toHaveLength(4)
   })
 })

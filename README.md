@@ -1,6 +1,6 @@
 # Bitcoin Dashboard
 
-A private-use Bitcoin analytics dashboard in a public source repository. Initial scaffold only: no live data, production deployment or authentication configuration.
+A private-use Bitcoin analytics dashboard in a public source repository. Overview and Blockchain use public Bitcoin mainnet data from mempool.space through same-origin Cloudflare Pages Functions. Market and mining metrics remain explicitly labeled placeholders. This repository does not configure authentication or deployment.
 
 ## Development
 
@@ -35,9 +35,11 @@ The lockfile pins the dependency graph. A version-scoped `undici@7.29.1` overrid
 src/components/ui/    Locally owned, adapted shadcn/ui primitives
 src/components/       Theme, metrics, table and chart components
 src/pages/            Four route components
-src/lib/              Query client, synthetic fixture and utilities
+src/lib/              Query client, Bitcoin queries, synthetic chart fixture and utilities
+shared/               TypeScript API response and Bitcoin data models
 src/test/             Behavior and API contract tests
 functions/api/        Cloudflare Pages Functions
+functions/lib/        Public mempool.space adapter and runtime validation
 public/               Headers and Functions routing
 ```
 
@@ -52,7 +54,29 @@ public/               Headers and Functions routing
 | `/blockchain` | Blockchain | Height, fees, mempool, blocks, block time, throughput, size, weight |
 | `/mining` | Netzwerk & Mining | Hashrate, difficulty, adjustment, pools, halving, supply, inflation |
 
-UI content is German; code and documentation are English. Every metric is an em dash with a pending-data label. The chart uses an explicitly labeled synthetic index, never fabricated Bitcoin prices. TanStack Query manages this local demo fixture to establish the provider/query boundary. No external data requests are made. Analytics and calculator are placeholders, not inactive controls disguised as working features.
+UI content is German; code and documentation are English. Overview and Blockchain show block height, latest blocks, recommended fees and mempool statistics. Blockchain additionally shows the latest block's size and weight and all five fee recommendations. Block time, throughput and other unconnected metrics remain em dashes with pending-data labels. The price chart still uses an explicitly labeled synthetic index, never fabricated Bitcoin prices. Analytics and calculator remain placeholders.
+
+## Bitcoin data integration
+
+All endpoints accept GET only and return `{ data, source: "mempool.space", updatedAt }`. `updatedAt` is the successful validated retrieval time in ISO 8601 UTC, not the block timestamp or a guarantee of provider freshness. The UI formats timestamps in the browser's local timezone. Resources are independently sampled; the tip can advance between requests. Latest-block size, weight and the table share one blocks snapshot in the UI.
+
+| Pages endpoint | Public mempool.space endpoint | Normalized data |
+| --- | --- | --- |
+| `/api/bitcoin/height` | `/api/blocks/tip/height` | `height` |
+| `/api/bitcoin/latest-block` | `/api/blocks` (first entry) | `Block` |
+| `/api/bitcoin/blocks` | `/api/blocks` | Up to ten `Block` entries, newest first |
+| `/api/bitcoin/fees` | `/api/v1/fees/recommended` | Five recommendations in sat/vB |
+| `/api/bitcoin/mempool` | `/api/mempool` | Transaction count, virtual bytes, total satoshis, fee histogram |
+
+The adapter validates required fields, finite nonnegative numbers, integer counts, block hashes, size limits, descending contiguous heights and histogram pairs. Unknown provider fields are discarded. Zero fees and an empty mempool are valid. Block sizes use decimal MB; weight uses MWU; mempool size uses MvB. Block timestamps are miner-reported Unix seconds.
+
+Upstream requests use a fixed HTTPS origin, reject redirects and time out after eight seconds. Invalid payloads, network errors and upstream HTTP errors return JSON 502; timeouts return 504. No upstream diagnostics or credentials are forwarded. Unknown resources return 404 and unsupported methods 405. Responses use `Cache-Control: no-store`; there is no persistent database, KV, Cache API or other server cache.
+
+TanStack Query keeps successful responses in browser memory, shares requests between components and routes, refreshes every 60 seconds while visible, and garbage-collects inactive queries after ten minutes. Data becomes stale after 60 seconds. Background polling pauses; stale data refreshes on return or reconnection. Failed transient requests retry once; client/access errors do not automatically retry. Browser requests time out after 15 seconds and are aborted on unmount when unused. No localStorage persistence or demo fallback is used for Bitcoin data.
+
+Each live section displays the source and its last successful retrieval time, initial loading, recoverable errors and a stale warning. Refresh failures preserve the previous successful response and timestamp. A retry button allows recovery. Initial failures show no numeric values. Tests mock the upstream; test fixtures are never used by the application.
+
+Run `npm run pages:dev` to exercise the full integration locally. For Vite hot reload, keep Pages running on port 8788 and run `npm run dev` in another terminal. Tests cover adapters, route errors, UI states, shared queries and background polling. API reference: [mempool.space REST API](https://mempool.space/docs/api/rest); polling behavior: [TanStack Query](https://tanstack.com/query/latest/docs/framework/react/guides/polling).
 
 ## Design system
 
@@ -82,6 +106,6 @@ The eventual hostname is **bitcoin.falkner.info**, exclusively behind Cloudflare
 3. Verify unauthenticated HTML and `/api/*` requests are denied or redirected to authentication on every hostname.
 4. Only then enable deployment and attach the domain. Do not enable automatic Git deployments before these checks.
 
-Secrets belong in Cloudflare bindings or ignored `.dev.vars`, never `VITE_*` values or tracked source. Provider proxies, input validation, caching and failure handling follow when real data is connected. Package scripts intentionally contain no deployment command.
+Secrets belong in Cloudflare bindings or ignored `.dev.vars`, never `VITE_*` values or tracked source. Bitcoin requests use only public mainnet data and require no provider secret or private node. New endpoints stay under the existing `/api/*` routing and hostname-level Access boundary, add no CORS permission or bypass route, and do not change Access configuration. Access enforcement remains the responsibility of the existing Cloudflare application; local tests cannot verify deployed hostname policies. The unauthenticated HTML/API checks above still apply to every production and preview hostname. Package scripts intentionally contain no deployment command.
 
 Setup references: [shadcn/ui with Vite](https://ui.shadcn.com/docs/installation/vite), [Pages Wrangler configuration](https://developers.cloudflare.com/pages/functions/wrangler-configuration/).
