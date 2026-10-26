@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FeeMetric, HeightMetric, LiveBlocksTable, MempoolCard } from '@/components/bitcoin-data'
 import Blockchain from '@/pages/blockchain'
-import { bitcoinOptions } from '@/lib/bitcoin'
+import { bitcoinOptions, dashboardNavigation } from '@/lib/bitcoin'
 import { block, envelope } from './bitcoin-fixtures'
 import type { ReactNode } from 'react'
 
@@ -17,6 +17,7 @@ function setup(ui: ReactNode) {
   return { client, ...view }
 }
 afterEach(() => {
+  vi.restoreAllMocks()
   clients.splice(0).forEach(client => client.clear())
   focusManager.setFocused(undefined)
   vi.useRealTimers()
@@ -24,6 +25,45 @@ afterEach(() => {
 })
 
 describe('live Bitcoin UI', () => {
+  it.each([401, 403, 'redirect', 'network', 'html'])('offers a full page reload for %s failures without asserting session expiry', async failure => {
+    const reload = vi.spyOn(dashboardNavigation, 'reload').mockImplementation(() => {})
+    const fetcher = vi.fn(() => typeof failure === 'number'
+      ? Promise.resolve(new Response('', { status: failure }))
+      : failure === 'html' ? Promise.resolve(new Response('<html>Login</html>', { headers: { 'Content-Type': 'text/html' } }))
+        : Promise.reject(new TypeError('Failed to fetch')))
+    vi.stubGlobal('fetch', fetcher)
+    setup(<HeightMetric />)
+    const alert = await screen.findByRole('alert', {}, { timeout: 3000 })
+    expect(alert).toHaveTextContent(typeof failure === 'number' ? 'Zugriff verweigert' : failure === 'html' ? 'Anmeldung prüfen' : 'Verbindung fehlgeschlagen')
+    expect(alert).not.toHaveTextContent(/Sitzung.*abgelaufen/)
+    expect(fetcher).toHaveBeenCalledWith('/api/bitcoin/height', expect.objectContaining({ redirect: 'error', credentials: 'same-origin' }))
+    const calls = fetcher.mock.calls.length
+    await userEvent.click(screen.getByRole('button', { name: 'Neu anmelden / Seite neu laden' }))
+    expect(reload).toHaveBeenCalledOnce()
+    expect(fetcher).toHaveBeenCalledTimes(calls)
+  })
+  it('reloads the current document through the browser location API', () => {
+    const reload = vi.fn()
+    vi.stubGlobal('window', { location: { reload } })
+    try {
+      dashboardNavigation.reload()
+      expect(reload).toHaveBeenCalledOnce()
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+  it('keeps valid data and the success timestamp after invalid normalized data', async () => {
+    const saved = envelope({ height: 900000 })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(saved)))
+    const { client } = setup(<HeightMetric />)
+    await screen.findByText('900.000')
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(Response.json(envelope({})))))
+    await act(async () => { await client.invalidateQueries({ queryKey: ['bitcoin', 'height'] }) })
+    expect(await screen.findByRole('alert')).toHaveTextContent('Ungültige API-Antwort')
+    expect(client.getQueryData(['bitcoin', 'height'])).toEqual(saved)
+    expect(screen.getByText('900.000')).toBeInTheDocument()
+    expect(document.querySelector('time')).toHaveAttribute('dateTime', saved.updatedAt)
+  })
   it('shows loading without fabricated values', () => {
     vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})))
     setup(<HeightMetric />)

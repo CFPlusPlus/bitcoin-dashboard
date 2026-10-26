@@ -2,7 +2,7 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import type { BitcoinResponse } from '../../shared/bitcoin'
 import { Card, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { formatNumber as n, formatTime, useBitcoin } from '@/lib/bitcoin'
+import { dashboardNavigation, formatNumber as n, formatTime, useBitcoin } from '@/lib/bitcoin'
 
 export function DataStatus({ query }: { query: UseQueryResult<BitcoinResponse<unknown>, Error> }) {
   return <div className="mt-3 space-y-2 text-xs text-muted-foreground" aria-live="polite">
@@ -10,7 +10,7 @@ export function DataStatus({ query }: { query: UseQueryResult<BitcoinResponse<un
     {query.data && <p>Zuletzt erfolgreich: <time dateTime={query.data.updatedAt}>{formatTime(query.data.updatedAt)}</time></p>}
     {query.isPending && <p role="status">Daten werden geladen …</p>}
     {query.data && (query.isError || query.isStale) && <p className="text-primary">Veraltete Daten · Aktualisierung ausstehend</p>}
-    {query.isError && <div role="alert"><p>{query.error.message}</p><Button variant="outline" className="mt-2" disabled={query.isFetching} onClick={() => void query.refetch()}>Erneut versuchen</Button></div>}
+    {query.isError && <div role="alert"><p>{query.error.message}</p><div className="mt-2 flex flex-wrap gap-2"><Button variant="outline" disabled={query.isFetching} onClick={() => void query.refetch()}>Erneut versuchen</Button><Button variant="outline" className="h-auto whitespace-normal" onClick={() => dashboardNavigation.reload()}>Neu anmelden / Seite neu laden</Button></div></div>}
     {query.isFetching && !query.isPending && <p role="status">Aktualisierung läuft …</p>}
   </div>
 }
