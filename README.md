@@ -4,7 +4,7 @@ A private-use Bitcoin analytics dashboard in a public source repository. Initial
 
 ## Development
 
-Use Node.js 22.22.2 (pinned in `.nvmrc`) and npm 11.20.0 (pinned in `package.json`). CI installs that npm version explicitly before `npm ci`; do not rely on the npm version bundled with Node. The minimum Node version also satisfies the locked development dependencies.
+Use Node.js 22.22.2 (pinned in `.nvmrc`) and npm 11.20.0 (pinned in `package.json`). CI installs that npm version into a separate temporary prefix and adds its `bin` directory to `PATH` before `npm ci`. This avoids replacing the running bundled npm during a global self-update, which can fail with `Cannot find module 'promise-retry'`. CI verifies the active npm version against `packageManager`; do not rely on the npm version bundled with Node. The minimum Node version also satisfies the locked development dependencies.
 
 ```sh
 nvm use
