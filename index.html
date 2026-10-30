@@ -3,12 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Bitcoin verstehen: Markt, Netzwerk und die wichtigsten Kennzahlen auf einen Blick." />
+    <meta
+      name="description"
+      content="Bitcoin verstehen: Markt, Netzwerk und die wichtigsten Kennzahlen auf einen Blick."
+    />
     <title>Bitcoin Dashboard</title>
     <script>
-      document.documentElement.classList.add('dark');
-      try { document.documentElement.classList.toggle('dark', localStorage.getItem('theme') !== 'light') } catch {}
+      document.documentElement.classList.add('dark')
+      try {
+        document.documentElement.classList.toggle('dark', localStorage.getItem('theme') !== 'light')
+      } catch {}
     </script>
   </head>
-  <body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
