@@ -8,17 +8,41 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { createQueryClient } from '@/lib/query-client'
 
 vi.mock('@/components/demo-chart', () => ({ default: () => <div>Demo chart</div> }))
-beforeEach(() => vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {}))))
+beforeEach(() =>
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() => new Promise(() => {})),
+  ),
+)
 afterEach(() => vi.unstubAllGlobals())
 function renderApp(path = '/') {
-  return render(<QueryClientProvider client={createQueryClient()}><ThemeProvider><MemoryRouter initialEntries={[path]}><App /></MemoryRouter></ThemeProvider></QueryClientProvider>)
+  return render(
+    <QueryClientProvider client={createQueryClient()}>
+      <ThemeProvider>
+        <MemoryRouter initialEntries={[path]}>
+          <App />
+        </MemoryRouter>
+      </ThemeProvider>
+    </QueryClientProvider>,
+  )
 }
 describe('dashboard shell', () => {
-  it.each([['/', 'Übersicht'], ['/market', 'Markt'], ['/blockchain', 'Blockchain'], ['/mining', 'Netzwerk & Mining']])('renders route %s', (path, title) => {
+  it.each([
+    ['/', 'Übersicht'],
+    ['/market', 'Markt'],
+    ['/blockchain', 'Blockchain'],
+    ['/mining', 'Netzwerk & Mining'],
+  ])('renders route %s', (path, title) => {
     renderApp(path)
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: title })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByText(path === '/' || path === '/blockchain' ? 'Blockchain · mempool.space' : 'Vorschau · Keine Live-Daten')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        path === '/' || path === '/blockchain'
+          ? 'Blockchain · mempool.space'
+          : 'Vorschau · Keine Live-Daten',
+      ),
+    ).toBeInTheDocument()
   })
   it('navigates between pages', async () => {
     renderApp()

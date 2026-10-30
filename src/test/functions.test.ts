@@ -37,8 +37,14 @@ describe('Bitcoin Pages route', () => {
     expect(response.headers.get('Allow')).toBe('GET')
     expect(fetcher).not.toHaveBeenCalled()
   })
-  it.each([['Error', 502, 'UPSTREAM_UNAVAILABLE'], ['TimeoutError', 504, 'UPSTREAM_TIMEOUT']])('maps %s without leaking provider details', async (name, status, code) => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(Object.assign(new Error('private diagnostics'), { name })))
+  it.each([
+    ['Error', 502, 'UPSTREAM_UNAVAILABLE'],
+    ['TimeoutError', 504, 'UPSTREAM_TIMEOUT'],
+  ])('maps %s without leaking provider details', async (name, status, code) => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(Object.assign(new Error('private diagnostics'), { name })),
+    )
     const response = await bitcoin(context('fees'))
     expect(response.status).toBe(status)
     expect(response.headers.get('Cache-Control')).toBe('no-store')

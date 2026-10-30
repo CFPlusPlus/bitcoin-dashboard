@@ -10,6 +10,8 @@ Use Node.js 22.22.2 (pinned in `.nvmrc`) and its bundled npm 10.9.7 (pinned in `
 nvm use
 npm ci
 npm run dev
+npm run lint
+npm run format:check
 npm test
 npm run typecheck
 npm run build
@@ -23,10 +25,15 @@ If your Node version manager does not read `.nvmrc`, select Node 22.22.2 explici
 - `dev`: Vite frontend; `/api` is proxied to local Pages on port 8788.
 - `pages:dev`: build and serve the SPA with Pages Functions locally on port 8788; no Cloudflare login needed.
 - `preview`: frontend production-build preview only, without Functions.
+- `lint` / `lint:fix`: ESLint flat config with recommended JavaScript and TypeScript rules, React Hooks and Vite React Refresh checks; warnings fail CI. Browser, Vitest, Node configuration and Worker environments are scoped separately. TypeScript remains responsible for type safety through the existing strict configurations.
+- `format` / `format:check`: write or check Prettier formatting (two spaces, single quotes, no JavaScript/TypeScript semicolons, 100-column target, LF). The Tailwind CSS 4 plugin reads `src/index.css` and sorts classes, including `cn` and `cva` calls. Dependencies, build output, coverage, Wrangler state and the npm-generated lockfile are excluded.
 - `typecheck`: check frontend, Cloudflare Functions and Functions tests separately. `tsconfig.functions-tests.json` extends the Functions configuration, including its strict checks and Worker types, without adding browser DOM globals. The frontend continues to exclude `src/test/functions.test.ts`; the dedicated Functions-test check covers it and its imports.
 - `build`: run all TypeScript checks before the Vite production build.
 - `pages:check`: compile Functions without deployment.
-- CI runs tests, TypeScript checks, Vite build and Functions compilation. There is no deployment job.
+- Before opening a PR, run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build` and `npm run pages:check`. Use `lint:fix` or `format` for intended changes and review their diff.
+- CI runs lint and formatting checks after `npm ci`, then tests, TypeScript checks, Vite build and Functions compilation. Any failed check fails the job. There is no deployment job.
+
+Development quality tools are ESLint 10.13.0, typescript-eslint 8.72.1, eslint-plugin-react-hooks 7.1.1, eslint-plugin-react-refresh 0.5.7, Prettier 3.9.10 and prettier-plugin-tailwindcss 0.8.1. Direct tool versions and the lockfile are pinned; eslint-config-prettier keeps ESLint's rules compatible with the formatter. Tailwind v4 integration follows the [plugin's stylesheet configuration](https://github.com/tailwindlabs/prettier-plugin-tailwindcss#specifying-your-tailwind-stylesheet-path-tailwind-css-v4).
 
 ## Stack and structure
 
@@ -50,12 +57,12 @@ public/               Headers and Functions routing
 
 ## Routes and scope
 
-| Route | German navigation | Prepared content |
-| --- | --- | --- |
-| `/` | Übersicht | Six KPIs, price chart, latest blocks, network status, halving progress |
-| `/market` | Markt | Price/history, market cap, volume, ATH, dominance, Fear & Greed, sats calculator placeholder |
-| `/blockchain` | Blockchain | Height, fees, mempool, blocks, block time, throughput, size, weight |
-| `/mining` | Netzwerk & Mining | Hashrate, difficulty, adjustment, pools, halving, supply, inflation |
+| Route         | German navigation | Prepared content                                                                             |
+| ------------- | ----------------- | -------------------------------------------------------------------------------------------- |
+| `/`           | Übersicht         | Six KPIs, price chart, latest blocks, network status, halving progress                       |
+| `/market`     | Markt             | Price/history, market cap, volume, ATH, dominance, Fear & Greed, sats calculator placeholder |
+| `/blockchain` | Blockchain        | Height, fees, mempool, blocks, block time, throughput, size, weight                          |
+| `/mining`     | Netzwerk & Mining | Hashrate, difficulty, adjustment, pools, halving, supply, inflation                          |
 
 UI content is German; code and documentation are English. Overview and Blockchain show block height, latest blocks, recommended fees and mempool statistics. Blockchain additionally shows the latest block's size and weight and all five fee recommendations. Block time, throughput and other unconnected metrics remain em dashes with pending-data labels. The price chart still uses an explicitly labeled synthetic index, never fabricated Bitcoin prices. Analytics and calculator remain placeholders.
 
@@ -63,13 +70,13 @@ UI content is German; code and documentation are English. Overview and Blockchai
 
 All endpoints accept GET only and return `{ data, source: "mempool.space", updatedAt }`. `updatedAt` is the successful validated retrieval time in ISO 8601 UTC, not the block timestamp or a guarantee of provider freshness. The UI formats timestamps in the browser's local timezone. Resources are independently sampled; the tip can advance between requests. Latest-block size, weight and the table share one blocks snapshot in the UI.
 
-| Pages endpoint | Public mempool.space endpoint | Normalized data |
-| --- | --- | --- |
-| `/api/bitcoin/height` | `/api/blocks/tip/height` | `height` |
-| `/api/bitcoin/latest-block` | `/api/blocks` (first entry) | `Block` |
-| `/api/bitcoin/blocks` | `/api/blocks` | Up to ten `Block` entries, newest first |
-| `/api/bitcoin/fees` | `/api/v1/fees/recommended` | Five recommendations in sat/vB |
-| `/api/bitcoin/mempool` | `/api/mempool` | Transaction count, virtual bytes, total satoshis, fee histogram |
+| Pages endpoint              | Public mempool.space endpoint | Normalized data                                                 |
+| --------------------------- | ----------------------------- | --------------------------------------------------------------- |
+| `/api/bitcoin/height`       | `/api/blocks/tip/height`      | `height`                                                        |
+| `/api/bitcoin/latest-block` | `/api/blocks` (first entry)   | `Block`                                                         |
+| `/api/bitcoin/blocks`       | `/api/blocks`                 | Up to ten `Block` entries, newest first                         |
+| `/api/bitcoin/fees`         | `/api/v1/fees/recommended`    | Five recommendations in sat/vB                                  |
+| `/api/bitcoin/mempool`      | `/api/mempool`                | Transaction count, virtual bytes, total satoshis, fee histogram |
 
 The adapter validates required fields, finite nonnegative numbers, integer counts, block hashes, size limits, descending contiguous heights and histogram pairs. Unknown provider fields are discarded. Zero fees and an empty mempool are valid. Block sizes use decimal MB; weight uses MWU; mempool size uses MvB. Block timestamps are miner-reported Unix seconds.
 
@@ -87,12 +94,12 @@ Run `npm run pages:dev` to exercise the full integration locally. For Vite hot r
 
 Minimal Dark meets Advanced Analytics. Dark is the default regardless of OS preference. A manual toggle persists the theme in local storage; storage failure does not prevent toggling. An early inline script avoids theme flash.
 
-| Token | Dark | Light |
-| --- | --- | --- |
+| Token      | Dark      | Light     |
+| ---------- | --------- | --------- |
 | Background | `#0B0F14` | `#F6F8FA` |
-| Cards | `#151A21` | `#FFFFFF` |
-| Borders | `#252D37` | `#E2E7ED` |
-| Accent | `#F7931A` | `#D97706` |
+| Cards      | `#151A21` | `#FFFFFF` |
+| Borders    | `#252D37` | `#E2E7ED` |
+| Accent     | `#F7931A` | `#D97706` |
 
 1600px maximum content width, 12-column desktop grid, 12px card radius, 16–20px gaps and 20–24px padding. Inter and tabular metric digits. Horizontal navigation wraps below the header and scrolls on narrow screens. No glass effects or chart animations. ECharts is lazy-loaded with selective imports; charts resize and dispose on unmount and theme change.
 

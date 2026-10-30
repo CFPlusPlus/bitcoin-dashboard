@@ -6,27 +6,27 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --background: #F6F8FA;
-  --card: #FFFFFF;
-  --border: #E2E7ED;
-  --foreground: #17212E;
+  --background: #f6f8fa;
+  --card: #ffffff;
+  --border: #e2e7ed;
+  --foreground: #17212e;
   --muted-foreground: #526174;
-  --muted: #EDF1F5;
-  --primary: #D97706;
-  --primary-foreground: #0B0F14;
-  --ring: #D97706;
+  --muted: #edf1f5;
+  --primary: #d97706;
+  --primary-foreground: #0b0f14;
+  --ring: #d97706;
   color-scheme: light;
 }
 .dark {
-  --background: #0B0F14;
-  --card: #151A21;
-  --border: #252D37;
-  --foreground: #EEF2F6;
-  --muted-foreground: #98A5B5;
-  --muted: #1D2530;
-  --primary: #F7931A;
-  --primary-foreground: #0B0F14;
-  --ring: #F7931A;
+  --background: #0b0f14;
+  --card: #151a21;
+  --border: #252d37;
+  --foreground: #eef2f6;
+  --muted-foreground: #98a5b5;
+  --muted: #1d2530;
+  --primary: #f7931a;
+  --primary-foreground: #0b0f14;
+  --ring: #f7931a;
   color-scheme: dark;
 }
 @theme inline {
@@ -42,14 +42,32 @@
   --font-sans: 'Inter', sans-serif;
 }
 @layer base {
-  body { @apply m-0 min-w-[320px] bg-background text-foreground; }
-  button, a { -webkit-tap-highlight-color: transparent; }
-  button { cursor: pointer; }
-  a:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
+  body {
+    @apply m-0 min-w-[320px] bg-background text-foreground;
+  }
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button {
+    cursor: pointer;
+  }
+  a:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 4px;
+  }
 }
 @layer components {
-  .dashboard-grid { @apply grid grid-cols-12 gap-4 lg:gap-5; }
-  .status-label { @apply inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-muted-foreground; }
-  .chart-placeholder { @apply flex h-72 items-center justify-center text-sm text-muted-foreground md:h-80; }
-  .skip-link { @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:p-4; }
+  .dashboard-grid {
+    @apply grid grid-cols-12 gap-4 lg:gap-5;
+  }
+  .status-label {
+    @apply inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs text-muted-foreground;
+  }
+  .chart-placeholder {
+    @apply flex h-72 items-center justify-center text-sm text-muted-foreground md:h-80;
+  }
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-card focus:p-4;
+  }
 }
