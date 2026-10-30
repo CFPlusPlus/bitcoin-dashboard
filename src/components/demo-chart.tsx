@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { init, use as registerECharts } from 'echarts/core'
+import { getInstanceByDom, init, use as registerECharts } from 'echarts/core'
 import { LineChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, AriaComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -11,6 +11,7 @@ registerECharts([LineChart, GridComponent, TooltipComponent, AriaComponent, Canv
 
 export default function DemoChart() {
   const container = useRef<HTMLDivElement>(null)
+  const [failure, setFailure] = useState<{ error: unknown } | null>(null)
   const { theme } = useTheme()
   const { data, isPending, isError } = useQuery({
     queryKey: ['demo', 'indexed-series'],
@@ -18,48 +19,81 @@ export default function DemoChart() {
   })
   useEffect(() => {
     if (!container.current || !data) return
-    const chart = init(container.current)
-    const dark = theme === 'dark'
-    chart.setOption({
-      animation: false,
-      aria: {
-        enabled: true,
-        description: 'Synthetischer Demo-Verlauf mit Indexwerten. Keine Bitcoin-Kursdaten.',
-      },
-      grid: { top: 20, left: 44, right: 20, bottom: 32 },
-      tooltip: { trigger: 'axis', valueFormatter: (value: number) => `${value} (Demo-Index)` },
-      xAxis: {
-        type: 'category',
-        data: data.values.map((_, i) => `P${i + 1}`),
-        boundaryGap: false,
-        axisLine: { lineStyle: { color: dark ? '#252D37' : '#E2E7ED' } },
-        axisLabel: { color: dark ? '#98A5B5' : '#526174' },
-        axisTick: { show: false },
-      },
-      yAxis: {
-        type: 'value',
-        min: 90,
-        max: 130,
-        splitLine: { lineStyle: { color: dark ? '#252D37' : '#E2E7ED' } },
-        axisLabel: { color: dark ? '#98A5B5' : '#526174' },
-      },
-      series: [
-        {
-          type: 'line',
-          data: data.values,
-          showSymbol: false,
-          lineStyle: { color: dark ? '#F7931A' : '#D97706', width: 2 },
-          areaStyle: { color: dark ? '#F7931A' : '#D97706', opacity: 0.06 },
-        },
-      ],
-    })
-    const observer = new ResizeObserver(() => chart.resize())
-    observer.observe(container.current)
-    return () => {
-      observer.disconnect()
-      chart.dispose()
+    const element = container.current
+    let chart: ReturnType<typeof init> | undefined
+    let observer: ResizeObserver | undefined
+    let stopped = false
+    const cleanup = () => {
+      if (stopped) return
+      stopped = true
+      try {
+        observer?.disconnect()
+      } finally {
+        // init can throw after registering an instance (e.g. in an afterinit hook).
+        const instance = chart ?? getInstanceByDom(element)
+        instance?.dispose()
+      }
     }
+    try {
+      const instance = init(element)
+      chart = instance
+      const dark = theme === 'dark'
+      instance.setOption({
+        animation: false,
+        aria: {
+          enabled: true,
+          description: 'Synthetischer Demo-Verlauf mit Indexwerten. Keine Bitcoin-Kursdaten.',
+        },
+        grid: { top: 20, left: 44, right: 20, bottom: 32 },
+        tooltip: { trigger: 'axis', valueFormatter: (value: number) => `${value} (Demo-Index)` },
+        xAxis: {
+          type: 'category',
+          data: data.values.map((_, i) => `P${i + 1}`),
+          boundaryGap: false,
+          axisLine: { lineStyle: { color: dark ? '#252D37' : '#E2E7ED' } },
+          axisLabel: { color: dark ? '#98A5B5' : '#526174' },
+          axisTick: { show: false },
+        },
+        yAxis: {
+          type: 'value',
+          min: 90,
+          max: 130,
+          splitLine: { lineStyle: { color: dark ? '#252D37' : '#E2E7ED' } },
+          axisLabel: { color: dark ? '#98A5B5' : '#526174' },
+        },
+        series: [
+          {
+            type: 'line',
+            data: data.values,
+            showSymbol: false,
+            lineStyle: { color: dark ? '#F7931A' : '#D97706', width: 2 },
+            areaStyle: { color: dark ? '#F7931A' : '#D97706', opacity: 0.06 },
+          },
+        ],
+      })
+      observer = new ResizeObserver(() => {
+        if (stopped) return
+        try {
+          instance.resize()
+        } catch (error) {
+          let cause = error
+          try {
+            cleanup()
+          } catch (cleanupError) {
+            cause = cleanupError
+          }
+          // Throw during the next React render so the local boundary can recover.
+          setFailure({ error: cause })
+        }
+      })
+      observer.observe(element)
+    } catch (error) {
+      cleanup()
+      throw error
+    }
+    return cleanup
   }, [data, theme])
+  if (failure) throw failure.error
   if (isPending)
     return (
       <div className="chart-placeholder" role="status">

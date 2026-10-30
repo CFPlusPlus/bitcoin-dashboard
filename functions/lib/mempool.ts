@@ -1,21 +1,16 @@
 import type { Block, Fees, Mempool, BitcoinResources, BitcoinResponse } from '../../shared/bitcoin'
-import { MAX_HISTOGRAM_ENTRIES } from '../../shared/bitcoin-limits'
+import {
+  MAX_BLOCK_SIZE,
+  MAX_BLOCK_TIMESTAMP,
+  MAX_FEE_RATE,
+  MAX_HISTOGRAM_ENTRIES,
+} from '../../shared/bitcoin-limits'
+import { number } from '../../shared/bitcoin-number'
 import { cancelBody, readBoundedText, UpstreamError } from './upstream'
 
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid object')
   return value as Record<string, unknown>
-}
-
-function number(value: unknown, integer = true): number {
-  if (
-    typeof value !== 'number' ||
-    !Number.isFinite(value) ||
-    value < 0 ||
-    (integer && !Number.isSafeInteger(value))
-  )
-    throw new Error('Invalid number')
-  return value
 }
 
 export function parseHeight(value: unknown): { height: number } {
@@ -27,11 +22,9 @@ export function parseBlock(value: unknown): Block {
   const block = object(value)
   if (typeof block.id !== 'string' || !/^[a-f0-9]{64}$/.test(block.id))
     throw new Error('Invalid block hash')
-  const timestamp = number(block.timestamp)
-  if (timestamp > 8_640_000_000_000) throw new Error('Invalid timestamp')
-  const sizeBytes = number(block.size)
-  const weightUnits = number(block.weight)
-  if (sizeBytes > 4_000_000 || weightUnits > 4_000_000) throw new Error('Invalid block size')
+  const timestamp = number(block.timestamp, true, MAX_BLOCK_TIMESTAMP)
+  const sizeBytes = number(block.size, true, MAX_BLOCK_SIZE)
+  const weightUnits = number(block.weight, true, MAX_BLOCK_SIZE)
   return {
     hash: block.id,
     height: number(block.height),
@@ -57,11 +50,11 @@ export function parseBlocks(value: unknown): Block[] {
 export function parseFees(value: unknown): Fees {
   const fees = object(value)
   return {
-    fastest: number(fees.fastestFee, false),
-    halfHour: number(fees.halfHourFee, false),
-    hour: number(fees.hourFee, false),
-    economy: number(fees.economyFee, false),
-    minimum: number(fees.minimumFee, false),
+    fastest: number(fees.fastestFee, false, MAX_FEE_RATE),
+    halfHour: number(fees.halfHourFee, false, MAX_FEE_RATE),
+    hour: number(fees.hourFee, false, MAX_FEE_RATE),
+    economy: number(fees.economyFee, false, MAX_FEE_RATE),
+    minimum: number(fees.minimumFee, false, MAX_FEE_RATE),
   }
 }
 
@@ -71,7 +64,10 @@ export function parseMempool(value: unknown): Mempool {
     throw new Error('Invalid histogram')
   const feeHistogram = mempool.fee_histogram.map((entry) => {
     if (!Array.isArray(entry) || entry.length !== 2) throw new Error('Invalid histogram entry')
-    return { feeRate: number(entry[0], false), virtualSizeBytes: number(entry[1]) }
+    return {
+      feeRate: number(entry[0], false, MAX_FEE_RATE),
+      virtualSizeBytes: number(entry[1]),
+    }
   })
   return {
     transactionCount: number(mempool.count),
