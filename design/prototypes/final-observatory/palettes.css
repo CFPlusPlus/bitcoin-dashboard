@@ -1,0 +1,88 @@
+/* Palette differences are confined to color tokens. No geometry or typography. */
+:root {
+  color-scheme: dark;
+  --bg: #111214;
+  --surface: #191b1e;
+  --rail: #202226;
+  --subtle: #24272c;
+  --text: #f2f3f5;
+  --muted: #adb2bb;
+  --line: #373b42;
+  --control: #7d848f;
+  --brand: #f7931a;
+  --accent: #f7931a;
+  --brand-wash: #35291c;
+  --data: #f4f5f7;
+  --bar: #929aa7;
+  --selected: #30343b;
+  --warning: #e3bc69;
+  --danger: #f0a1ae;
+  --positive: #86c6ae;
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f3f4f5;
+  --surface: #ffffff;
+  --rail: #e9ecef;
+  --subtle: #eef0f3;
+  --text: #1c2026;
+  --muted: #555e6b;
+  --line: #d2d7de;
+  --control: #78818e;
+  --accent: #9a4b00;
+  --brand-wash: #fff0dc;
+  --data: #303945;
+  --bar: #717d8d;
+  --selected: #e2e7ed;
+  --warning: #76530b;
+  --danger: #a42f46;
+  --positive: #23644d;
+}
+:root[data-palette='analytical'] {
+  --data: #9ab9de;
+  --bar: #7294be;
+  --selected: #263549;
+}
+:root[data-palette='analytical'][data-theme='light'] {
+  --data: #355f8c;
+  --bar: #6281a5;
+  --selected: #e5edf6;
+}
+:root[data-palette='warm'] {
+  --bg: #171513;
+  --surface: #201d1a;
+  --rail: #28231f;
+  --subtle: #2b2621;
+  --text: #f3eee7;
+  --muted: #b9aea2;
+  --line: #443b33;
+  --control: #948579;
+  --brand: #d69768;
+  --accent: #d69768;
+  --brand-wash: #392c22;
+  --data: #e1c5aa;
+  --bar: #ae927b;
+  --selected: #3a3028;
+  --warning: #e3bc69;
+  --danger: #f0a1ae;
+  --positive: #86c6ae;
+}
+:root[data-palette='warm'][data-theme='light'] {
+  --bg: #f3efe9;
+  --surface: #fffcf7;
+  --rail: #eae3da;
+  --subtle: #f0e9e0;
+  --text: #2c241e;
+  --muted: #695b4e;
+  --line: #d9cdbf;
+  --control: #8e7a68;
+  --brand: #b16b3c;
+  --accent: #8e4c24;
+  --brand-wash: #f5e4d4;
+  --data: #73543c;
+  --bar: #94745b;
+  --selected: #e9dccd;
+  --warning: #76530b;
+  --danger: #a42f46;
+  --positive: #23644d;
+}
