@@ -1,0 +1,84 @@
+:root {
+  --bg: #101114;
+  --surface: #191b20;
+  --subtle: #202329;
+  --text: #f1f3f6;
+  --muted: #a0a6b2;
+  --line: #343840;
+  --control: #747e91;
+  --accent: #8cbbff;
+  --data: #8cbbff;
+  --bar: #5381b6;
+  --selected: #243246;
+  --warning: #edc67f;
+}
+:root[data-theme='light'] {
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --subtle: #e9edf3;
+  --text: #171c26;
+  --muted: #596476;
+  --line: #d5dae3;
+  --control: #727d90;
+  --accent: #205caa;
+  --data: #205caa;
+  --bar: #527db2;
+  --selected: #e5edf9;
+  --warning: #785310;
+}
+.chart-panel {
+  padding: 0;
+}
+.chart-panel figure {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px 20px 14px;
+  /* One light edge defines the plot; current measurements stay on the open workspace. */
+  box-shadow: 0 1px 0 rgb(255 255 255 / 3%) inset;
+}
+.page-heading h1 {
+  font-weight: 600;
+}
+.context-rail {
+  padding-top: 0;
+}
+.context-rail .height {
+  color: var(--text);
+}
+.network-top > .eyebrow {
+  color: var(--data);
+}
+.heading-dot {
+  display: none;
+}
+.chart-panel .inspection {
+  border-color: var(--control);
+}
+@media (max-width: 560px) {
+  .chart-panel figure {
+    padding: 14px 10px 12px;
+  }
+}
+@media (max-width: 700px) {
+  .context-rail {
+    border-top: 1px solid var(--line);
+    padding: 22px 0 0;
+  }
+  .network-top {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 0 10px;
+  }
+  .network-top > .eyebrow,
+  .network-top > .resource-stamp {
+    grid-column: 1 / -1;
+  }
+  .network-top .height {
+    margin-bottom: 0;
+  }
+  .unconnected {
+    margin-top: 20px;
+  }
+}

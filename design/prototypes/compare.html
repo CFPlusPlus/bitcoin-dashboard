@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>B / B2-A / B2-B · Vergleich</title>
+    <link rel="icon" href="data:," />
+    <style>
+      @font-face {
+        font-family: Inter;
+        src: url('shared/fonts/inter-latin-500-normal.woff2');
+        font-weight: 500;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          500 14px Inter,
+          sans-serif;
+        background: #101114;
+        color: #f1f3f6;
+      }
+      main > p {
+        padding: 20px 24px;
+        margin: 0;
+      }
+      a {
+        color: inherit;
+      }
+      .comparison {
+        width: 2224px;
+        padding: 24px;
+        margin: 0;
+      }
+      .comparison > header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      h1 {
+        margin: 0;
+        font: inherit;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 720px);
+        gap: 8px;
+      }
+      figure {
+        margin: 0;
+      }
+      figcaption {
+        padding: 0 0 12px;
+      }
+      img {
+        display: block;
+        width: 720px;
+        height: 450px;
+      }
+      #comparison-dark {
+        background: #101114;
+        color: #f1f3f6;
+      }
+      #comparison-light {
+        background: #e8eaed;
+        color: #171c26;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p>
+        <a href="./">← Prototypen</a> · Originalrenderings jeweils 1440 × 900, hier auf 50 %
+        verkleinert. Identischer Fixture-Stand und ausgewählter Gebührenbereich. Zum Prüfen der
+        Details die einzelnen Prototypen öffnen.
+      </p>
+      <section id="comparison-dark" class="comparison" aria-label="Desktopvergleich Dark">
+        <header>
+          <h1>Refined Observatory → Contemporary Design Refinement</h1>
+          <span>Dark / OBS-01 / 1440 × 900 / Auswahl 1–&lt;2 sat/vB</span>
+        </header>
+        <div class="grid">
+          <figure>
+            <figcaption>B / Refined Observatory</figcaption>
+            <img
+              src="screenshots/refined-1440x900-dark.png"
+              width="1440"
+              height="900"
+              alt="B im dunklen Theme"
+            />
+          </figure>
+          <figure>
+            <figcaption>B2-A / Contemporary Precision</figcaption>
+            <img
+              src="screenshots/precision-1440x900-dark.png"
+              width="1440"
+              height="900"
+              alt="B2-A im dunklen Theme"
+            />
+          </figure>
+          <figure>
+            <figcaption>B2-B / Expressive Observatory</figcaption>
+            <img
+              src="screenshots/expressive-1440x900-dark.png"
+              width="1440"
+              height="900"
+              alt="B2-B im dunklen Theme"
+            />
+          </figure>
+        </div>
+      </section>
+      <section id="comparison-light" class="comparison" aria-label="Desktopvergleich Light">
+        <header>
+          <h1>Refined Observatory → Contemporary Design Refinement</h1>
+          <span>Light / OBS-01 / 1440 × 900 / Auswahl 1–&lt;2 sat/vB</span>
+        </header>
+        <div class="grid">
+          <figure>
+            <figcaption>B / Refined Observatory</figcaption>
+            <img
+              src="screenshots/refined-1440x900-light.png"
+              width="1440"
+              height="900"
+              alt="B im hellen Theme"
+            />
+          </figure>
+          <figure>
+            <figcaption>B2-A / Contemporary Precision</figcaption>
+            <img
+              src="screenshots/precision-1440x900-light.png"
+              width="1440"
+              height="900"
+              alt="B2-A im hellen Theme"
+            />
+          </figure>
+          <figure>
+            <figcaption>B2-B / Expressive Observatory</figcaption>
+            <img
+              src="screenshots/expressive-1440x900-light.png"
+              width="1440"
+              height="900"
+              alt="B2-B im hellen Theme"
+            />
+          </figure>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,48 +1,133 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="de" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Phase 2.1 · Observatory Designexperimente</title>
+    <title>Contemporary Design Refinement · Bitcoin Dashboard</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="shared/base.css" />
+    <link rel="stylesheet" href="shared/refinement.css" />
+    <link rel="stylesheet" href="contemporary-precision/style.css" />
+    <style>
+      main {
+        max-width: 1280px;
+        margin: 6vh auto;
+        padding: 24px;
+      }
+      h1 {
+        font-size: clamp(36px, 5vw, 60px);
+        line-height: 1.1;
+        margin: 20px 0;
+        font-weight: 500;
+      }
+      .intro {
+        max-width: 55em;
+        color: var(--muted);
+      }
+      .directions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        margin: 40px 0;
+      }
+      .directions img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        margin-bottom: 22px;
+      }
+      h2 {
+        margin: 10px 0;
+      }
+      .directions p {
+        color: var(--muted);
+        margin-bottom: 16px;
+      }
+      .archive {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px 40px;
+        border-top: 1px solid var(--line);
+        margin-top: 40px;
+        padding-top: 24px;
+      }
+      a {
+        display: inline-block;
+        padding-block: 10px;
+      }
+      @media (max-width: 700px) {
+        .directions {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
   </head>
-  <body>
-    <main style="max-width: 1000px; margin: 8vh auto; padding: 24px">
-      <p class="eyebrow">Bitcoin Dashboard · Phase 2.1</p>
-      <h1 style="font-size: 48px; margin: 16px 0">Ein Datenkern.<br />Zwei Perspektiven.</h1>
-      <p class="muted">
-        Isolierte Designexperimente mit denselben statischen Beispieldaten. Keine Live-Verbindung,
-        keine produktive Designfreigabe.
+  <body data-font="inter">
+    <main>
+      <p class="eyebrow">Bitcoin Dashboard / Phase 2.1.1</p>
+      <h1>Eine Datenbasis.<br />Zwei neue Perspektiven.</h1>
+      <p class="intro">
+        Zwei eigenständige Weiterentwicklungen von Refined Observatory. Identische Beispieldaten und
+        Interaktionen, unterschiedliche Art Direction. Lokal, ohne Live-Verbindung. Die visuelle
+        Betreiberfreigabe steht aus.
       </p>
-      <div class="font-pair" style="margin: 40px 0">
-        <section style="border-top: 1px solid var(--line); padding-top: 20px">
-          <p class="eyebrow">Variante A</p>
-          <h2 style="margin: 12px 0">Analytical Observatory</h2>
-          <p class="muted">
-            Kompaktes Messraster, simultaner Vergleich und präzise Datenhierarchie.
+      <div class="directions">
+        <section>
+          <a href="contemporary-precision/" aria-label="Contemporary Precision in Dark öffnen"
+            ><img
+              src="screenshots/precision-1440x900-dark.png"
+              width="1440"
+              height="900"
+              alt="Contemporary Precision mit Graphitflächen, blauen Histogrammbalken und Netzwerkspalte rechts"
+          /></a>
+          <p class="eyebrow">B2-A / Contemporary Precision</p>
+          <h2>Präzision mit ruhiger Tiefe.</h2>
+          <p>
+            Inter, neutrale Analysefläche und eine offene Kontextspalte. Blau führt durch die
+            Datenauswahl.
           </p>
-          <p style="margin-top: 20px">
-            <a href="analytical-observatory/">Dark ansehen ↗</a> ·
-            <a href="analytical-observatory/?theme=light">Light ansehen ↗</a>
-          </p>
+          <a href="contemporary-precision/">Dark öffnen →</a> ·
+          <a href="contemporary-precision/?theme=light">Light öffnen →</a>
         </section>
-        <section style="border-top: 1px solid var(--line); padding-top: 20px">
-          <p class="eyebrow">Variante B</p>
-          <h2 style="margin: 12px 0">Refined Observatory</h2>
-          <p class="muted">
-            Große Analysefläche, asymmetrische Kontextspalte und abgestufte Typografie.
+        <section>
+          <a href="expressive-observatory/" aria-label="Expressive Observatory in Dark öffnen"
+            ><img
+              src="screenshots/expressive-1440x900-dark.png"
+              width="1440"
+              height="900"
+              alt="Expressive Observatory mit warmer Palette, großer Mempool-Zahl und heller Netzwerkspalte links"
+          /></a>
+          <p class="eyebrow">B2-B / Expressive Observatory</p>
+          <h2>Ein stärkerer eigener Charakter.</h2>
+          <p>
+            Manrope, markante Zahlen und gegensätzliche Lichtwerte. Koralle akzentuiert die Analyse.
           </p>
-          <p style="margin-top: 20px">
-            <a href="refined-observatory/">Dark ansehen ↗</a> ·
-            <a href="refined-observatory/?theme=light">Light ansehen ↗</a>
-          </p>
+          <a href="expressive-observatory/">Dark öffnen →</a> ·
+          <a href="expressive-observatory/?theme=light">Light öffnen →</a>
         </section>
       </div>
+      <a href="compare.html">Vergleichstafeln B / B2-A / B2-B ansehen →</a>
       <p class="meta">
-        Unter „Prototyp prüfen“: Datenzustände, lokale Wiederholung und direkter Vergleich von IBM
-        Plex Sans mit Inter. Zielansichten: 1440 × 900 und 390 × 844, jeweils Dark / Light.
+        Unter „Prototyp prüfen“: Mempool-Zustände, Fixture-Wiederholung und Schriftvergleich.
+        Screenshots: 1440 × 900 und 390 × 844, jeweils Dark / Light; zusätzlich vollständige
+        Desktopansichten.
       </p>
+      <div class="archive">
+        <div>
+          <p class="eyebrow">Phase 2.1 / Original A</p>
+          <h2>Analytical Observatory</h2>
+          <a href="analytical-observatory/">Dark</a> ·
+          <a href="analytical-observatory/?theme=light">Light</a>
+        </div>
+        <div>
+          <p class="eyebrow">Phase 2.1 / Original B</p>
+          <h2>Refined Observatory</h2>
+          <a href="refined-observatory/">Dark</a> ·
+          <a href="refined-observatory/?theme=light">Light</a>
+        </div>
+      </div>
     </main>
   </body>
 </html>

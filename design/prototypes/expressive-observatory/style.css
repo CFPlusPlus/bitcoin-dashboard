@@ -1,0 +1,328 @@
+:root {
+  --bg: #161514;
+  --surface: #1d1c1a;
+  --subtle: #262420;
+  --text: #f3efe7;
+  --muted: #b0a99f;
+  --line: #423e38;
+  --control: #857e72;
+  --accent: #ff9a82;
+  --data: #ff9a82;
+  --bar: #b97462;
+  --selected: #382b25;
+  --warning: #eac581;
+  --rail-bg: #e9e4d9;
+  --rail-text: #24221e;
+  --rail-muted: #625b51;
+  --rail-line: #b4ac9f;
+  --rail-data: #923823;
+}
+:root[data-theme='light'] {
+  --bg: #f0ede6;
+  --surface: #faf8f3;
+  --subtle: #e6e0d5;
+  --text: #26221e;
+  --muted: #655d53;
+  --line: #cec6b9;
+  --control: #81776a;
+  --accent: #a23824;
+  --data: #a23824;
+  --bar: #b05e49;
+  --selected: #efe0d4;
+  --warning: #785310;
+  --rail-bg: #25231f;
+  --rail-text: #f3efe7;
+  --rail-muted: #bcb3a6;
+  --rail-line: #605a50;
+  --rail-data: #ff9a82;
+}
+.shell {
+  max-width: 1576px;
+  padding-inline: 48px;
+}
+.brand-suffix {
+  font-family: 'Inter', sans-serif;
+}
+.brand {
+  font-weight: 700;
+}
+.site-header {
+  min-height: 80px;
+}
+.navigation a {
+  border-radius: 0;
+  position: relative;
+}
+.navigation a[aria-current='page'] {
+  background: none;
+}
+.navigation a[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 13px;
+  right: 13px;
+  height: 2px;
+  background: var(--accent);
+}
+.page-heading {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+.page-heading h1 {
+  font-size: 62px;
+  font-weight: 500;
+  letter-spacing: -0.065em;
+}
+.page-heading .eyebrow {
+  margin-bottom: 8px;
+}
+.observatory-stage {
+  grid-template-columns: 296px minmax(0, 1fr);
+  gap: 0;
+  background: var(--surface);
+  border-radius: 5px;
+}
+.chart-panel {
+  grid-column: 2;
+  grid-row: 1;
+  padding: 30px 36px 20px;
+}
+.chart-panel h2 {
+  font-weight: 500;
+  font-size: 21px;
+}
+.context-rail {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 30px 28px 26px;
+  border-radius: 5px 0 0 5px;
+  background: var(--rail-bg);
+  color: var(--rail-text);
+  --muted: var(--rail-muted);
+  --line: var(--rail-line);
+  --data: var(--rail-data);
+  --accent: var(--rail-data);
+}
+.context-rail .resource-stamp a:hover {
+  color: var(--rail-data);
+}
+.context-rail .weight-heading strong {
+  color: var(--rail-text);
+}
+.context-rail .height {
+  font-size: 46px;
+  font-weight: 600;
+  letter-spacing: -0.07em;
+  margin-top: 18px;
+}
+.context-rail .network-block {
+  margin-top: 30px;
+  padding-top: 24px;
+}
+.context-rail .unconnected {
+  padding-top: 20px;
+}
+.context-rail .metric-pair {
+  gap: 12px;
+}
+.context-rail .metric-pair dd {
+  font-size: 25px;
+}
+.mempool-lead {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.mempool-lead .metric-value {
+  font-size: 100px;
+  font-weight: 500;
+  letter-spacing: -0.075em;
+}
+.mempool-lead .metric-value small {
+  font-size: 23px;
+}
+.side-facts {
+  padding-left: 20px;
+  border-left: 1px solid var(--line);
+}
+.snapshot-chip {
+  border-radius: 0;
+  border-width: 0 0 1px;
+  padding-inline: 0;
+}
+.chart-target .chart-bar {
+  rx: 1px;
+}
+.inspection {
+  padding: 14px 18px;
+  border: 0;
+  background: var(--subtle);
+  border-radius: 3px;
+  margin-top: 16px;
+}
+.inspection-value strong {
+  font-size: 23px;
+}
+.lower-stage {
+  grid-template-columns: 296px minmax(0, 1fr);
+  gap: 36px;
+  margin-top: 38px;
+}
+.fee-panel h2 {
+  font-size: 18px;
+}
+.fee-row {
+  padding-block: 16px;
+}
+.fee-visual {
+  opacity: 0.8;
+}
+.block-detail {
+  border-radius: 2px;
+  border-left: 2px solid var(--data);
+}
+@media (max-width: 1200px) {
+  .shell {
+    padding-inline: 32px;
+  }
+  .observatory-stage {
+    grid-template-columns: 264px minmax(0, 1fr);
+  }
+  .context-rail {
+    padding-inline: 24px;
+  }
+  .context-rail .height {
+    font-size: 40px;
+  }
+  .chart-panel {
+    padding-inline: 28px;
+  }
+  .mempool-lead .metric-value {
+    font-size: 82px;
+  }
+  .side-facts {
+    border: 0;
+    padding-left: 0;
+  }
+  .lower-stage {
+    grid-template-columns: 264px minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+@media (max-width: 900px) {
+  .site-header {
+    min-height: 0;
+  }
+  .page-heading h1 {
+    font-size: 54px;
+  }
+  .observatory-stage {
+    grid-template-columns: 238px minmax(0, 1fr);
+  }
+  .context-rail {
+    padding: 26px 20px;
+  }
+  .context-rail .height {
+    font-size: 36px;
+  }
+  .context-rail .metric-pair dd {
+    font-size: 21px;
+  }
+  .chart-panel {
+    padding: 26px 20px 20px;
+  }
+  .mempool-lead .metric-value {
+    font-size: 72px;
+  }
+  .lower-stage {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+}
+@media (max-width: 700px) {
+  .shell {
+    padding-inline: 20px;
+  }
+  .observatory-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: none;
+  }
+  .chart-panel {
+    background: var(--surface);
+    border-radius: 4px;
+  }
+  .context-rail {
+    border-radius: 4px;
+    margin-top: 20px;
+    padding: 26px;
+  }
+  .context-rail .height {
+    font-size: 48px;
+  }
+  .context-rail .network-block {
+    margin-top: 24px;
+  }
+  .context-rail .metric-pair dd {
+    font-size: 29px;
+  }
+  .context-rail .unconnected {
+    margin-top: 24px;
+  }
+}
+@media (max-width: 560px) {
+  .page-heading {
+    padding-top: 22px;
+    padding-bottom: 26px;
+  }
+  .page-heading h1 {
+    font-size: 48px;
+  }
+  .page-heading .eyebrow {
+    font-size: 9px;
+  }
+  .chart-panel {
+    padding: 22px 16px 16px;
+  }
+  .chart-panel h2 {
+    font-size: 18px;
+  }
+  .mempool-lead {
+    margin-top: 24px;
+  }
+  .mempool-lead .metric-value {
+    font-size: 80px;
+  }
+  .mempool-lead .metric-value small {
+    font-size: 20px;
+  }
+  .inspection {
+    padding: 14px 12px;
+    min-height: 83px;
+  }
+  .inspection-value strong {
+    font-size: 20px;
+  }
+  .navigation a[aria-current='page']::after {
+    left: 8px;
+    right: 8px;
+  }
+  .context-rail .height {
+    margin-top: 14px;
+  }
+  .lower-stage {
+    margin-top: 32px;
+  }
+}
+@media (max-width: 360px) {
+  .shell {
+    padding-inline: 14px;
+  }
+  .mempool-lead .metric-value {
+    font-size: 72px;
+  }
+  .chart-panel {
+    padding-inline: 12px;
+  }
+}
