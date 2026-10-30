@@ -42,7 +42,7 @@ Development quality tools are ESLint 10.13.0, typescript-eslint 8.72.1, eslint-p
 
 ## Stack and structure
 
-React, TypeScript, Vite, Tailwind CSS v4, editable shadcn/ui primitives, Apache ECharts and TanStack Query. Inter is self-hosted through `@fontsource/inter`.
+React, TypeScript, Vite, Tailwind CSS v4, editable shadcn/ui primitives, Apache ECharts and TanStack Query. Manrope and Inter are self-hosted through curated, licensed WOFF2 assets in `public/fonts`.
 
 The lockfile pins the dependency graph. A version-scoped `undici@7.29.1` override pins Miniflare's Undici dependency to the patched 7.30.1 release while leaving jsdom's Undici 8 dependency unchanged. This form preserves the override with npm 10.9.7; remove it when Wrangler's dependency graph includes that fix itself. Miniflare's original `undici: 7.29.1` declaration remains in the lockfile metadata; the nested installed package must resolve to 7.30.1 through the override. Do not manually edit that upstream declaration. The lazy ECharts chunk currently triggers Vite's 500 kB advisory (approximately 171 kB gzip); it is loaded only on chart pages.
 
@@ -51,11 +51,12 @@ src/components/ui/    Locally owned, adapted shadcn/ui primitives
 src/components/       Theme, metrics, table and chart components
 src/pages/            Four route components
 src/lib/              Query client, Bitcoin queries, synthetic chart fixture and utilities
+src/styles/           Semantic design tokens and local font declarations
 shared/               TypeScript API response and Bitcoin data models
 src/test/             Behavior and API contract tests
 functions/api/        Cloudflare Pages Functions
 functions/lib/        Public mempool.space adapter and runtime validation
-public/               Headers and Functions routing
+public/               Headers, Functions routing and licensed local fonts
 ```
 
 `components.json` configures shadcn/ui with the `@/` alias and New York style. Further components can be added with `npx shadcn@latest add <component>`; review generated changes. Button and Card are editable local source, with no separate shadcn runtime.
@@ -113,16 +114,19 @@ Run `npm run pages:dev` to exercise the full integration locally. For Vite hot r
 
 ## Design system
 
-Minimal Dark meets Advanced Analytics. Dark is the default regardless of OS preference. A manual toggle persists the theme in local storage; storage failure does not prevent toggling. An early inline script avoids theme flash.
+Bitcoin Analytical follows the approved final Observatory prototype, palette B. Dark is the default regardless of OS preference. A manual toggle persists the theme in local storage; storage failure does not prevent toggling. An early inline script avoids theme flash, and the provider applies the current theme before chart effects read CSS tokens.
 
-| Token      | Dark      | Light     |
-| ---------- | --------- | --------- |
-| Background | `#0B0F14` | `#F6F8FA` |
-| Cards      | `#151A21` | `#FFFFFF` |
-| Borders    | `#252D37` | `#E2E7ED` |
-| Accent     | `#F7931A` | `#D97706` |
+| Token       | Dark      | Light     |
+| ----------- | --------- | --------- |
+| Background  | `#111214` | `#F3F4F5` |
+| Cards       | `#191B1E` | `#FFFFFF` |
+| Borders     | `#373B42` | `#D2D7DE` |
+| Interaction | `#F7931A` | `#9A4B00` |
+| Data        | `#9AB9DE` | `#355F8C` |
 
-1600px maximum content width, 12-column desktop grid, 12px card radius, 16–20px gaps and 20–24px padding. Inter and tabular metric digits. Horizontal navigation wraps below the header and scrolls on narrow screens. No glass effects or chart animations. ECharts is lazy-loaded with selective imports; charts resize and dispose on unmount and theme change.
+1536px maximum container width, the existing 12-column content grid, 8px panel radius and 16–20px grid gaps. Manrope carries the interface; Inter carries technical labels, metadata and tables. Metrics use tabular digits. All four navigation targets remain visible on mobile, including the full “Netzwerk & Mining” label. Route changes update the document title and focus the page heading. No glass effects or chart animations. ECharts is lazy-loaded with selective imports; charts resize and dispose on unmount and theme change.
+
+See [Phase 2.2: design system and app shell](docs/phase-2.2-design-system-app-shell.md) for all semantic tokens, local font licenses, responsive behavior, actual browser screenshots, prototype deviations and validation results. Content components retain their current composition for Phase 2.3. Code review and visual owner approval remain pending.
 
 ## Cloudflare and external access boundary
 

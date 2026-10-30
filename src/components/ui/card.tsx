@@ -5,7 +5,7 @@ export function Card({ className, ...props }: ComponentProps<'section'>) {
   return (
     <section
       data-slot="card"
-      className={cn('rounded-xl border border-border bg-card p-5 md:p-6', className)}
+      className={cn('rounded-panel border border-border bg-card p-5 md:p-6', className)}
       {...props}
     />
   )

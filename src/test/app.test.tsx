@@ -36,6 +36,8 @@ describe('dashboard shell', () => {
     renderApp(path)
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: title })).toHaveAttribute('aria-current', 'page')
+    expect(document.title).toBe(`${title} · Bitcoin Dashboard`)
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(
       screen.getByText(
         path === '/' || path === '/blockchain'
@@ -48,6 +50,16 @@ describe('dashboard shell', () => {
     renderApp()
     await userEvent.click(screen.getByRole('link', { name: 'Blockchain' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Blockchain' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Blockchain' })).toHaveFocus()
+    expect(document.title).toBe('Blockchain · Bitcoin Dashboard')
+  })
+  it.each([
+    ['/market/', 'Markt'],
+    ['/MINING', 'Netzwerk & Mining'],
+  ])('matches the router title for %s', (path, title) => {
+    renderApp(path)
+    expect(document.title).toBe(`${title} · Bitcoin Dashboard`)
+    expect(screen.getByRole('link', { name: title })).toHaveAttribute('aria-current', 'page')
   })
   it('defaults to dark and persists a manually selected theme', async () => {
     const view = renderApp()
@@ -71,5 +83,36 @@ describe('dashboard shell', () => {
     renderApp()
     expect(screen.getByText('Synthetische Demo-Daten')).toBeInTheDocument()
     expect(screen.getAllByText('Datenquelle folgt')).toHaveLength(4)
+  })
+  it('leaves initial focus available for the skip link and preserves the full mining label', () => {
+    renderApp('/mining')
+    expect(screen.getByRole('heading', { level: 1 })).not.toHaveFocus()
+    expect(screen.getByRole('link', { name: 'Zum Inhalt springen' })).toHaveAttribute(
+      'href',
+      '#main',
+    )
+    expect(screen.getByRole('main')).toHaveAttribute('tabindex', '-1')
+    expect(screen.getByRole('link', { name: 'Netzwerk & Mining' })).toHaveTextContent(
+      'Netzwerk & Mining',
+    )
+  })
+  it('keeps theme and route usable when localStorage is unavailable', async () => {
+    const read = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('disabled')
+    })
+    const write = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('disabled')
+    })
+    try {
+      renderApp()
+      await userEvent.click(screen.getByRole('button', { name: 'Light Mode aktivieren' }))
+      expect(document.documentElement).not.toHaveClass('dark')
+      await userEvent.click(screen.getByRole('link', { name: 'Netzwerk & Mining' }))
+      expect(screen.getByRole('heading', { level: 1, name: 'Netzwerk & Mining' })).toHaveFocus()
+      expect(screen.getByRole('button', { name: 'Dark Mode aktivieren' })).toBeInTheDocument()
+    } finally {
+      read.mockRestore()
+      write.mockRestore()
+    }
   })
 })

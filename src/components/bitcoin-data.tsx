@@ -6,7 +6,7 @@ import { dashboardNavigation, formatNumber as n, formatTime, useBitcoin } from '
 
 export function DataStatus({ query }: { query: UseQueryResult<BitcoinResponse<unknown>, Error> }) {
   return (
-    <div className="mt-3 space-y-2 text-xs text-muted-foreground" aria-live="polite">
+    <div className="metadata-text mt-3 space-y-2 text-muted-foreground" aria-live="polite">
       <p>
         Quelle:{' '}
         <a href="https://mempool.space" className="underline">
@@ -21,11 +21,11 @@ export function DataStatus({ query }: { query: UseQueryResult<BitcoinResponse<un
       )}
       {query.isPending && <p role="status">Daten werden geladen …</p>}
       {query.data && (query.isError || query.isStale) && (
-        <p className="text-primary">Veraltete Daten · Aktualisierung ausstehend</p>
+        <p className="text-warning">Veraltete Daten · Aktualisierung ausstehend</p>
       )}
       {query.isError && (
         <div role="alert">
-          <p>{query.error.message}</p>
+          <p className="text-danger">{query.error.message}</p>
           <div className="mt-2 flex flex-wrap gap-2">
             <Button
               variant="outline"
@@ -54,9 +54,7 @@ export function HeightMetric() {
   return (
     <Card className="col-span-6 md:col-span-4 xl:col-span-2">
       <CardTitle>Blockhöhe</CardTitle>
-      <p className="my-3 text-3xl font-semibold tabular-nums">
-        {query.data ? n(query.data.data.height) : '—'}
-      </p>
+      <p className="metric-value my-3">{query.data ? n(query.data.data.height) : '—'}</p>
       <p className="text-xs text-muted-foreground">Blöcke</p>
       <DataStatus query={query} />
     </Card>
@@ -68,9 +66,7 @@ export function FeeMetric() {
   return (
     <Card className="col-span-6 md:col-span-4 xl:col-span-2">
       <CardTitle>Gebühren</CardTitle>
-      <p className="my-3 text-3xl font-semibold tabular-nums">
-        {query.data ? n(query.data.data.fastest, 3) : '—'}
-      </p>
+      <p className="metric-value my-3">{query.data ? n(query.data.data.fastest, 3) : '—'}</p>
       <p className="text-xs text-muted-foreground">sat/vB · Hohe Priorität</p>
       <DataStatus query={query} />
     </Card>
@@ -146,9 +142,7 @@ export function LatestBlockMetrics() {
       ).map(([label, value, unit]) => (
         <Card key={label} className="col-span-6 md:col-span-4 xl:col-span-2">
           <CardTitle>{label}</CardTitle>
-          <p className="my-3 text-3xl font-semibold tabular-nums">
-            {value === undefined ? '—' : n(value / 1_000_000, 2)}
-          </p>
+          <p className="metric-value my-3">{value === undefined ? '—' : n(value / 1_000_000, 2)}</p>
           <p className="text-xs text-muted-foreground">
             {unit}
             {block && ` · Block ${n(block.height)}`}
