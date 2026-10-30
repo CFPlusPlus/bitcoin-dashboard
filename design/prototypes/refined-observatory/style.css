@@ -1,0 +1,338 @@
+:root {
+  --bg: #131b19;
+  --surface: #1c2924;
+  --subtle: #18231e;
+  --line: #3a4b41;
+  --bar: #608575;
+  --data: #b6d3bd;
+  --accent: #e7b98d;
+}
+:root[data-theme='light'] {
+  --bg: #f4f2e9;
+  --surface: #e8ede3;
+  --subtle: #eeeee4;
+  --line: #c8d1c3;
+  --bar: #628770;
+  --data: #315f48;
+  --accent: #865127;
+}
+.shell {
+  max-width: 1512px;
+  margin: auto;
+  padding: 0 48px;
+}
+.site-header {
+  min-height: 86px;
+}
+.navigation {
+  gap: 32px;
+}
+.navigation a {
+  min-height: 86px;
+}
+.page-heading {
+  padding: 26px 0 30px;
+}
+.page-heading h1 {
+  font-size: 48px;
+  line-height: 1.1;
+}
+.page-heading .eyebrow {
+  margin-bottom: 10px;
+}
+.observatory-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 2.4fr) minmax(260px, 1fr);
+  gap: 36px;
+  align-items: stretch;
+}
+.chart-panel {
+  background: var(--surface);
+  padding: 28px 32px 22px;
+  min-width: 0;
+  border-top: 2px solid var(--data);
+}
+.mempool-lead {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 16px 0 24px;
+}
+.mempool-lead .metric-value {
+  font-size: 62px;
+  letter-spacing: -0.045em;
+  margin: 0;
+  line-height: 1.06;
+}
+.mempool-lead .metric-value small {
+  font-size: 21px;
+  letter-spacing: 0;
+}
+.mempool-lead .side-facts {
+  border-left: 1px solid var(--control);
+  padding-left: 20px;
+}
+.side-facts p {
+  font-size: 12px;
+  color: var(--muted);
+}
+.side-facts strong {
+  color: var(--text);
+  font-weight: 500;
+}
+.chart-panel h2 {
+  font-size: 21px;
+}
+.histogram {
+  margin-inline: -5px;
+}
+.context-rail {
+  padding: 24px 0 0;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+.context-rail .height {
+  font-size: 40px;
+  font-family: 'Plex Mono', monospace;
+  letter-spacing: -0.065em;
+  line-height: 1.2;
+  margin: 16px 0 8px;
+}
+.context-rail .rail-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 28px 0 20px;
+}
+.context-rail .metric-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.context-rail .metric-value {
+  font-size: 23px;
+}
+.weight-track {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 3px;
+  margin: 18px 0 8px;
+}
+.weight-track span {
+  background: var(--line);
+  height: 18px;
+}
+.weight-track i {
+  display: block;
+  height: 100%;
+  background: var(--data);
+}
+.context-rail .unconnected {
+  margin-top: auto;
+  display: grid;
+  gap: 10px;
+  padding-bottom: 0;
+}
+.lower-stage {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) minmax(0, 2.4fr);
+  gap: 36px;
+  margin: 38px 0;
+}
+.fee-panel {
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+}
+.fee-panel h2 {
+  font-size: 21px;
+}
+.fee-row {
+  position: relative;
+  padding: 13px 0 18px;
+}
+.fee-row:first-child {
+  padding-top: 5px;
+}
+.fee-row dd {
+  font-size: 21px;
+}
+.fee-visual {
+  position: absolute;
+  bottom: -1px;
+  height: 2px;
+  left: 0;
+  background: var(--accent);
+}
+.blocks-panel {
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+  min-width: 0;
+}
+.blocks-panel h2 {
+  font-size: 21px;
+}
+.blocks-panel .section-head {
+  margin-bottom: 14px;
+}
+.table-extra {
+  display: none;
+}
+.sources {
+  margin-top: 0;
+}
+.source-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+@media (max-width: 1100px) {
+  .shell {
+    padding: 0 28px;
+  }
+  .observatory-stage {
+    grid-template-columns: minmax(0, 2fr) minmax(230px, 1fr);
+    gap: 24px;
+  }
+  .chart-panel {
+    padding: 24px;
+  }
+  .mempool-lead .metric-value {
+    font-size: 50px;
+  }
+  .mempool-lead {
+    display: block;
+  }
+  .mempool-lead .side-facts {
+    border: 0;
+    padding: 12px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+  }
+  .lower-stage {
+    grid-template-columns: 1fr 2fr;
+    gap: 24px;
+  }
+}
+@media (max-width: 800px) {
+  .observatory-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+  .context-rail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 28px;
+    padding-top: 20px;
+  }
+  .context-rail .rail-divider {
+    display: none;
+  }
+  .context-rail .unconnected {
+    grid-column: 1 / -1;
+    display: flex;
+    margin-top: 20px;
+    padding-bottom: 0;
+  }
+  .lower-stage {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .source-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .shell {
+    padding: 0 18px;
+  }
+  .site-header {
+    min-height: 0;
+  }
+  .navigation a {
+    min-height: 48px;
+  }
+  .navigation {
+    gap: 0 20px;
+  }
+  .page-heading {
+    padding: 18px 0 24px;
+  }
+  .page-heading h1 {
+    font-size: 38px;
+  }
+  .page-heading p:last-child {
+    max-width: 28em;
+    font-size: 13px;
+  }
+  .snapshot-label {
+    margin-top: 12px;
+    font-size: 11px;
+  }
+  .chart-panel {
+    padding: 22px 13px 18px;
+  }
+  .chart-panel h2 {
+    font-size: 20px;
+  }
+  .chart-panel .section-head {
+    display: block;
+    margin-bottom: 16px;
+  }
+  .chart-key {
+    margin-top: 8px;
+  }
+  .mempool-lead {
+    margin: 0 0 22px;
+  }
+  .mempool-lead .metric-value {
+    font-size: 48px;
+  }
+  .mempool-lead .metric-value small {
+    font-size: 18px;
+  }
+  .mempool-lead .side-facts {
+    gap: 4px 12px;
+    padding-top: 12px;
+  }
+  .side-facts p {
+    font-size: 11px;
+  }
+  .context-rail {
+    gap: 0 18px;
+  }
+  .context-rail .height {
+    font-size: 28px;
+    margin-top: 18px;
+  }
+  .context-rail .metric-pair {
+    display: block;
+  }
+  .context-rail .metric-pair > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .context-rail .metric-value {
+    font-size: 18px;
+    margin: 4px 0;
+  }
+  .context-rail .resource-stamp {
+    font-size: 10px;
+  }
+  .weight-track {
+    gap: 2px;
+    margin-top: 12px;
+  }
+  .weight-track span {
+    height: 12px;
+  }
+  .weight-caption {
+    font-size: 10px;
+  }
+  .lower-stage {
+    margin: 30px 0;
+  }
+}

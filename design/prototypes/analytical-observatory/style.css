@@ -1,0 +1,168 @@
+.shell {
+  max-width: 1440px;
+  margin: auto;
+  padding: 0 36px;
+}
+.page-heading {
+  padding: 16px 0 24px;
+}
+.metrics-band {
+  display: grid;
+  grid-template-columns: 1.1fr 1.15fr 1fr 1fr;
+  border-block: 1px solid var(--line);
+  margin-bottom: 24px;
+}
+.metric-group {
+  padding: 20px 24px;
+  border-right: 1px solid var(--line);
+}
+.metric-group:first-child {
+  padding-left: 0;
+}
+.metric-group:last-child {
+  border-right: 0;
+}
+.metric-group .height {
+  font:
+    500 37px/1.2 'Plex Mono',
+    monospace;
+  letter-spacing: -0.06em;
+  margin-top: 9px;
+}
+.metric-pair {
+  display: flex;
+  gap: 28px;
+}
+.metric-pair .metric-value {
+  font-size: 23px;
+}
+.metric-secondary {
+  font-size: 12px;
+  color: var(--muted);
+}
+.analysis-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2.25fr) minmax(270px, 1fr);
+  gap: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.chart-panel {
+  padding: 22px 26px 18px;
+  min-width: 0;
+}
+.fee-panel {
+  border-left: 1px solid var(--line);
+  padding: 22px 24px;
+}
+.chart-panel .section-head {
+  margin-bottom: 12px;
+}
+.histogram {
+  margin-inline: -6px;
+}
+.blocks-panel {
+  margin-top: 30px;
+}
+.blocks-panel .section-head {
+  margin-bottom: 12px;
+}
+.sources {
+  margin-top: 28px;
+}
+.table-extra {
+  display: table-cell;
+}
+.fee-row .fee-visual {
+  display: none;
+}
+@media (max-width: 1080px) {
+  .metrics-band {
+    grid-template-columns: 1fr 1fr;
+  }
+  .metric-group:nth-child(2) {
+    border-right: 0;
+  }
+  .metric-group:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+  .metric-group:nth-child(3) {
+    padding-left: 0;
+  }
+  .analysis-grid {
+    grid-template-columns: minmax(0, 1.7fr) minmax(250px, 1fr);
+  }
+  .chart-panel {
+    padding: 20px;
+  }
+}
+@media (max-width: 760px) {
+  .shell {
+    padding: 0 20px;
+  }
+  .analysis-grid {
+    display: block;
+  }
+  .fee-panel {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+}
+@media (max-width: 560px) {
+  .shell {
+    padding: 0 16px;
+  }
+  .page-heading {
+    padding: 12px 0 20px;
+  }
+  .metrics-band {
+    margin-bottom: 20px;
+  }
+  .metric-group {
+    padding: 16px 0 16px 16px;
+  }
+  .metric-group .height {
+    font-size: 29px;
+  }
+  .metric-pair {
+    display: block;
+  }
+  .metric-pair > div {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .metric-group .metric-pair .metric-value {
+    font-size: 18px;
+    margin: 2px 0;
+    white-space: nowrap;
+  }
+  .metric-pair .metric-label {
+    font-size: 11px;
+  }
+  .metric-group .metric-value {
+    font-size: 23px;
+  }
+  .metric-secondary {
+    font-size: 11px;
+  }
+  .chart-panel {
+    padding: 19px 12px 16px;
+  }
+  .chart-panel .section-head {
+    display: block;
+  }
+  .chart-key {
+    margin-top: 8px;
+  }
+  .fee-panel {
+    padding: 20px;
+  }
+  .table-extra {
+    display: none;
+  }
+  .blocks-panel {
+    margin-top: 26px;
+  }
+}
