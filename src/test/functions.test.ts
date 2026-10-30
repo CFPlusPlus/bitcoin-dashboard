@@ -6,7 +6,16 @@ import { onRequestGet } from '../../functions/api/health'
 import { onRequest } from '../../functions/api/[[path]]'
 
 afterEach(() => vi.unstubAllGlobals())
-const context = (resource: string, method = 'GET') => ({ request: new Request(`https://dashboard.test/api/bitcoin/${resource}`, { method }), params: { resource } }) as Parameters<typeof bitcoin>[0]
+const context = (resource: string, method = 'GET'): Parameters<typeof bitcoin>[0] => ({
+  request: new Request(`https://dashboard.test/api/bitcoin/${resource}`, { method }),
+  params: { resource },
+  functionPath: `/api/bitcoin/${resource}`,
+  waitUntil: vi.fn(),
+  passThroughOnException: vi.fn(),
+  next: vi.fn(async () => new Response()),
+  env: { ASSETS: { fetch: vi.fn<typeof fetch>() } },
+  data: {},
+})
 
 describe('Bitcoin Pages route', () => {
   it('returns validated data without shared caching or CORS', async () => {
@@ -43,13 +52,13 @@ describe('Bitcoin Pages route', () => {
 
 describe('Pages Functions', () => {
   it('returns a non-cacheable health response', async () => {
-    const response = await onRequestGet({} as Parameters<typeof onRequestGet>[0])
+    const response = await onRequestGet(context('health'))
     expect(response.status).toBe(200)
     expect(response.headers.get('Cache-Control')).toBe('no-store')
     expect(await response.json()).toEqual({ status: 'ok', service: 'bitcoin-dashboard' })
   })
   it('returns JSON 404 for unknown API routes instead of the SPA', async () => {
-    const response = await onRequest({} as Parameters<typeof onRequest>[0])
+    const response = await onRequest(context('unknown'))
     expect(response.status).toBe(404)
     expect(await response.json()).toEqual({ error: 'API endpoint not found' })
   })
