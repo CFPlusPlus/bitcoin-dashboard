@@ -103,6 +103,6 @@ describe('mempool adapters', () => {
     ).rejects.toThrow()
     await expect(
       fetchBitcoin('fees', vi.fn<typeof fetch>().mockRejectedValue(new Error('offline'))),
-    ).rejects.toThrow('offline')
+    ).rejects.toMatchObject({ category: 'network' })
   })
 })

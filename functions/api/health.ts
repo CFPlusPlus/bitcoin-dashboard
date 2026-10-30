@@ -1,9 +1,7 @@
 import type { PagesFunction } from '@cloudflare/workers-types'
+import { jsonResponse, methodNotAllowed } from '../lib/response'
 
-export const onRequestGet: PagesFunction = () =>
-  Response.json(
-    { status: 'ok', service: 'bitcoin-dashboard' },
-    {
-      headers: { 'Cache-Control': 'no-store' },
-    },
-  )
+export const onRequest: PagesFunction = ({ request }) =>
+  request.method === 'GET'
+    ? jsonResponse({ status: 'ok', service: 'bitcoin-dashboard' })
+    : methodNotAllowed()

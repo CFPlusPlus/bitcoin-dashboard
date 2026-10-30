@@ -1,4 +1,5 @@
 import type { BitcoinResources, BitcoinResponse, Block, Fees, Mempool } from './bitcoin'
+import { MAX_HISTOGRAM_ENTRIES } from './bitcoin-limits'
 
 // Pure normalized-contract validation, shared without importing any server adapter.
 function object(value: unknown): Record<string, unknown> {
@@ -61,7 +62,8 @@ function fees(value: unknown): Fees {
 
 function mempool(value: unknown): Mempool {
   const data = object(value)
-  if (!Array.isArray(data.feeHistogram)) throw new Error('Invalid histogram')
+  if (!Array.isArray(data.feeHistogram) || data.feeHistogram.length > MAX_HISTOGRAM_ENTRIES)
+    throw new Error('Invalid histogram')
   return {
     transactionCount: number(data.transactionCount),
     virtualSizeBytes: number(data.virtualSizeBytes),

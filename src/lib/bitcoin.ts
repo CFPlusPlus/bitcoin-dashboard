@@ -14,14 +14,17 @@ class ApiError extends Error {
   }
 }
 
+class InvalidApiResponseError extends Error {}
+
 export function bitcoinOptions<K extends keyof BitcoinResources>(resource: K) {
   return queryOptions({
     queryKey: ['bitcoin', resource],
     queryFn: async ({ signal }): Promise<BitcoinResponse<BitcoinResources[K]>> => {
+      const requestSignal = AbortSignal.any([signal, AbortSignal.timeout(15_000)])
       let response: Response
       try {
         response = await fetch(`/api/bitcoin/${resource}`, {
-          signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]),
+          signal: requestSignal,
           credentials: 'same-origin',
           cache: 'no-store',
           redirect: 'error',
@@ -36,11 +39,23 @@ export function bitcoinOptions<K extends keyof BitcoinResources>(resource: K) {
       }
       if (!response.ok) throw new ApiError(response.status)
       if (!response.headers.get('content-type')?.includes('application/json'))
-        throw new Error('Keine API-Antwort. Bitte Anmeldung prüfen.')
+        throw new InvalidApiResponseError('Keine API-Antwort. Bitte Anmeldung prüfen.')
+      let raw: unknown
       try {
-        return parseBitcoinResponse(resource, await response.json())
+        raw = await response.json()
+      } catch (error) {
+        // Body transport failures and timeouts remain eligible for one retry.
+        if (signal.aborted) throw error
+        if (requestSignal.aborted || !(error instanceof SyntaxError))
+          throw new Error('Verbindung fehlgeschlagen. Bitte später erneut versuchen.', {
+            cause: error,
+          })
+        throw new InvalidApiResponseError('Ungültige API-Antwort. Bitte später erneut versuchen.')
+      }
+      try {
+        return parseBitcoinResponse(resource, raw)
       } catch {
-        throw new Error('Ungültige API-Antwort. Bitte später erneut versuchen.')
+        throw new InvalidApiResponseError('Ungültige API-Antwort. Bitte später erneut versuchen.')
       }
     },
     staleTime: 60_000,
@@ -49,7 +64,10 @@ export function bitcoinOptions<K extends keyof BitcoinResources>(resource: K) {
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    retry: (count, error) => count < 1 && !(error instanceof ApiError && error.status < 500),
+    retry: (count, error) =>
+      count < 1 &&
+      !(error instanceof InvalidApiResponseError) &&
+      !(error instanceof ApiError && error.status < 500),
   })
 }
 

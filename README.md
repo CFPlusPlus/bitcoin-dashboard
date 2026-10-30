@@ -2,6 +2,8 @@
 
 A private-use Bitcoin analytics dashboard in a public source repository. Overview and Blockchain use public Bitcoin mainnet data from mempool.space through same-origin Cloudflare Pages Functions. Market and mining metrics remain explicitly labeled placeholders. This repository does not configure authentication or deployment.
 
+See [Phase 1.4: API robustness and safe diagnostics](docs/phase-1.4-api-robustness.md) for response budgets, error categories, logging, HTTP headers and retry rules.
+
 ## Development
 
 Use Node.js 22.22.2 (pinned in `.nvmrc`) and its bundled npm 10.9.7 (pinned in `package.json`). CI uses that bundled npm without a global npm installation and verifies its version against `packageManager`. The minimum Node version also satisfies the locked development dependencies.
