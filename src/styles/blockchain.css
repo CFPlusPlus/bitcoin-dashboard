@@ -1,0 +1,686 @@
+/* Phase 2.3: categorical analysis surface, using the shared Analytical tokens. */
+.blockchain-reference {
+  --analysis-rail-width: 280px;
+}
+.blockchain-reference :is(section, aside, figure, dl, div) {
+  min-width: 0;
+}
+.blockchain-reference :is(p, dt, dd, strong, small, a) {
+  overflow-wrap: anywhere;
+}
+.analysis-stage {
+  display: grid;
+  grid-template-columns: var(--analysis-rail-width) minmax(0, 1fr);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+}
+.mempool-analysis {
+  grid-column: 2;
+  grid-row: 1;
+  padding: 26px 32px 22px;
+}
+.network-rail {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 24px;
+  background: var(--surface-secondary);
+  border-right: 1px solid var(--border);
+}
+.analysis-section-head {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.analysis-eyebrow {
+  color: var(--foreground-secondary);
+  font: 500 var(--text-label)/1.5 var(--font-technical);
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+.analysis-section-head .section-title,
+.analysis-fees .section-title {
+  margin-top: 5px;
+}
+.analysis-meta,
+.blockchain-reference dt,
+.resource-status,
+.histogram-caption {
+  color: var(--foreground-secondary);
+  font: 400 var(--text-metadata)/1.6 var(--font-technical);
+}
+.resource-badge {
+  display: inline-flex;
+  color: var(--foreground-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+  padding: 3px 8px;
+  font: 400 var(--text-label)/1.5 var(--font-technical);
+}
+.resource-badge[data-state='Veraltet'],
+.resource-warning {
+  color: var(--warning);
+}
+.resource-badge[data-state='Fehlend'],
+.resource-error {
+  color: var(--danger);
+}
+.resource-status {
+  margin-top: 12px;
+}
+.resource-status a,
+.block-detail a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.resource-status p + p {
+  margin-top: 5px;
+}
+.resource-error {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  background: var(--surface-raised);
+  border-left: 2px solid var(--danger);
+  border-radius: var(--radius-small);
+}
+.resource-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.blockchain-reference button:disabled,
+.blockchain-reference select:disabled {
+  cursor: default;
+  color: var(--foreground-subtle);
+}
+.resource-actions button,
+.histogram-controls :is(button, select) {
+  min-height: 44px;
+  max-width: 100%;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--foreground);
+  padding: 8px 12px;
+  font: inherit;
+}
+.resource-actions button:hover,
+.histogram-controls button:hover {
+  background: var(--surface-raised);
+}
+.mempool-lead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  margin: 16px 0 18px;
+}
+.mempool-lead .metric-value-large {
+  margin-bottom: 7px;
+  line-height: 1.05;
+}
+.mempool-lead small {
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--foreground-secondary);
+}
+.mempool-facts {
+  display: flex;
+  gap: 30px;
+}
+.mempool-facts dd {
+  margin-top: 5px;
+  font-size: 18px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.histogram-caption {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.histogram-caption span:last-child {
+  text-align: right;
+}
+.fee-histogram {
+  overflow-x: auto;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  height: 204px;
+  padding-top: 22px;
+}
+.histogram-y {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 26px;
+  color: var(--foreground-secondary);
+  font: var(--text-label)/1 var(--font-technical);
+  font-variant-numeric: tabular-nums;
+}
+.histogram-plot {
+  min-width: calc(var(--bucket-count) * 2.5em);
+  font-size: var(--text-label);
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--bucket-count), minmax(0, 1fr));
+  gap: 4px;
+}
+.histogram-grid {
+  position: absolute;
+  inset: 0 0 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.histogram-grid span {
+  border-top: 1px dashed var(--border);
+  width: 100%;
+}
+.histogram-bucket {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  padding: 0 4px;
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--foreground-secondary);
+  font: 400 var(--text-label)/1.2 var(--font-technical);
+  font-variant-numeric: tabular-nums;
+}
+.histogram-bucket:hover,
+.histogram-bucket[data-inspected='true'] {
+  background: var(--surface-raised);
+}
+.histogram-bucket:focus-visible {
+  outline-offset: -2px;
+}
+.histogram-bucket[aria-pressed='true'] {
+  background: var(--data-selection);
+  box-shadow: inset 0 -3px var(--data-primary);
+}
+.histogram-column {
+  display: flex;
+  flex: 1;
+  align-items: end;
+  justify-content: center;
+  width: 100%;
+  min-height: 0;
+}
+.histogram-bar {
+  display: block;
+  position: relative;
+  width: 64%;
+  max-width: 80px;
+  background: var(--data-secondary);
+  border-radius: 3px 3px 0 0;
+}
+.histogram-bucket[aria-pressed='true'] .histogram-bar,
+.histogram-bucket[data-inspected='true'] .histogram-bar {
+  background: var(--data-primary);
+}
+.histogram-bar-value {
+  max-width: 150%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding-bottom: 6px;
+  white-space: nowrap;
+}
+.histogram-x {
+  display: flex;
+  min-height: 26px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  white-space: nowrap;
+}
+.histogram-inspection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  margin-top: 14px;
+  min-height: 72px;
+  background: var(--surface-raised);
+  border-left: 2px solid var(--data-primary);
+  border-radius: var(--radius-small);
+}
+.histogram-inspection .analysis-eyebrow {
+  margin-bottom: 4px;
+}
+.histogram-inspection strong {
+  font-size: 20px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.histogram-inspection small {
+  font-size: var(--text-label);
+  color: var(--foreground-secondary);
+}
+.inspection-value {
+  text-align: right;
+}
+.histogram-coverage,
+.histogram-help {
+  margin-top: 12px;
+}
+.histogram-controls {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  font: var(--text-label)/1.5 var(--font-technical);
+}
+.histogram-controls label {
+  display: grid;
+  gap: 6px;
+  color: var(--foreground-secondary);
+  flex: 1;
+}
+.inspection-share {
+  margin-left: 18px;
+}
+@media (min-width: 35.001rem) {
+  .histogram-controls label > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .histogram-controls {
+    justify-content: space-between;
+  }
+  .histogram-controls label {
+    flex: 0 1 320px;
+  }
+}
+.histogram-controls select {
+  width: 100%;
+  min-width: 0;
+}
+.histogram-empty {
+  min-height: 224px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--foreground-secondary);
+  font-size: var(--text-label);
+  text-align: center;
+  padding: var(--space-4);
+}
+.network-height {
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.055em;
+  margin: 18px 0 5px;
+  font-variant-numeric: tabular-nums;
+}
+.network-rail > .analysis-section-head {
+  align-items: start;
+}
+.network-rail > .analysis-section-head .resource-badge {
+  margin-top: 4px;
+}
+.network-block {
+  border-top: 1px solid var(--border);
+  margin-top: 26px;
+  padding-top: 22px;
+}
+.network-block h3 {
+  font-weight: 600;
+}
+.block-mined-time {
+  margin-top: 8px;
+}
+.network-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 18px;
+}
+.network-pair dd {
+  margin-top: 5px;
+  font-size: 24px;
+  letter-spacing: -0.04em;
+}
+.network-pair small {
+  color: var(--foreground-secondary);
+  font-size: var(--text-label);
+  letter-spacing: 0;
+}
+.weight-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--foreground-secondary);
+  font: var(--text-label)/1.5 var(--font-technical);
+}
+.weight-heading strong {
+  color: var(--foreground);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.weight-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+.weight-track span {
+  display: block;
+  height: 100%;
+  background: var(--data-secondary);
+}
+.network-unconnected {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 22px;
+}
+.network-unconnected dd {
+  color: var(--foreground-secondary);
+  font-size: var(--text-label);
+}
+.network-unconnected dd span {
+  margin-left: 8px;
+}
+.analysis-lower {
+  display: grid;
+  grid-template-columns: var(--analysis-rail-width) minmax(0, 1fr);
+  gap: 32px;
+  margin-block: 34px;
+}
+.analysis-fees,
+.analysis-blocks {
+  min-width: 0;
+  border-top: 1px solid var(--border);
+  padding-top: 22px;
+}
+.analysis-fees .section-title {
+  font-size: 18px;
+}
+.fee-list {
+  margin-top: 14px;
+}
+.fee-row {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  padding-block: 14px;
+}
+.fee-row dt {
+  color: var(--foreground);
+}
+.fee-index {
+  color: var(--foreground-secondary);
+  margin-right: 8px;
+}
+.fee-row dd {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.fee-bar {
+  position: absolute;
+  height: 2px;
+  bottom: -1px;
+  left: 0;
+  background: var(--data-secondary);
+}
+.fee-note {
+  margin-top: 16px;
+}
+.blocks-table-wrap {
+  overflow-x: auto;
+  margin-top: 18px;
+}
+.blocks-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+}
+.blocks-table caption {
+  text-align: left;
+  color: var(--foreground-secondary);
+  font-size: var(--text-label);
+  margin-bottom: 12px;
+}
+.blocks-table :is(th, td) {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.blocks-table th {
+  font-weight: 400;
+  color: var(--foreground-secondary);
+  font-size: var(--text-label);
+}
+.blocks-table :is(th, td):first-child {
+  text-align: left;
+  padding-left: 8px;
+}
+.blocks-table :is(th, td):last-child {
+  padding-right: 8px;
+}
+.blocks-table button {
+  min-height: 44px;
+  color: var(--accent);
+  background: transparent;
+  border: 0;
+  padding: 8px;
+  margin-block: -8px;
+  font: inherit;
+}
+.blocks-table button span {
+  margin-left: 8px;
+  color: var(--foreground-secondary);
+}
+.blocks-table tbody tr {
+  cursor: pointer;
+}
+.blocks-table tr[data-selected='true'] {
+  background: var(--data-selection);
+}
+.blocks-table tr[data-selected='true'] td:first-child {
+  box-shadow: inset 2px 0 var(--data-primary);
+}
+.blocks-table tbody tr:hover {
+  background: var(--surface-raised);
+}
+.block-detail {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: var(--radius-small);
+  border-left: 2px solid var(--data-primary);
+  background: var(--surface-raised);
+}
+.block-detail h3 {
+  font-weight: 500;
+}
+.block-detail a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font-size: var(--text-label);
+}
+.block-detail dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin-block: 12px;
+}
+.block-detail dd {
+  font: var(--text-table)/1.6 var(--font-technical);
+}
+.analysis-method {
+  border-top: 1px solid var(--border);
+  padding-block: 24px;
+}
+.analysis-method p {
+  color: var(--foreground-secondary);
+  font: var(--text-label)/1.8 var(--font-technical);
+  margin-top: 12px;
+  max-width: 100ch;
+}
+@media (max-width: 75rem) {
+  .blockchain-reference {
+    --analysis-rail-width: 252px;
+  }
+  .mempool-analysis {
+    padding-inline: 24px;
+  }
+  .mempool-lead {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+}
+@media (max-width: 56.25rem) {
+  .blockchain-reference {
+    --analysis-rail-width: 232px;
+  }
+  .network-rail,
+  .mempool-analysis {
+    padding-inline: 20px;
+  }
+  .network-height {
+    font-size: 36px;
+  }
+  .network-pair {
+    gap: 8px;
+  }
+  .network-pair dd {
+    font-size: 22px;
+  }
+  .analysis-lower {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+}
+@media (max-width: 43.75rem) {
+  .analysis-stage {
+    display: flex;
+    flex-direction: column;
+  }
+  .mempool-analysis {
+    padding: 22px 20px;
+  }
+  .network-rail {
+    border: 0;
+    border-top: 1px solid var(--border);
+    padding: 24px;
+  }
+  .network-unconnected {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 35rem) {
+  .inspection-share {
+    display: block;
+    margin: 4px 0 0;
+  }
+  .mempool-analysis {
+    padding: 20px 16px;
+  }
+  .analysis-section-head {
+    gap: 8px;
+    align-items: start;
+  }
+  .mempool-analysis > .analysis-section-head {
+    flex-wrap: nowrap;
+  }
+  .mempool-analysis .analysis-eyebrow {
+    letter-spacing: 0.02em;
+  }
+  .resource-badge {
+    padding: 3px 6px;
+  }
+  .mempool-lead {
+    display: block;
+    margin: 14px 0 16px;
+  }
+  .mempool-lead small {
+    font-size: 18px;
+  }
+  .mempool-facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .mempool-facts dd {
+    font-size: 17px;
+  }
+  .fee-histogram {
+    height: 196px;
+    gap: 6px;
+  }
+  .histogram-bucket {
+    padding-inline: 2px;
+  }
+  .histogram-plot {
+    gap: 0;
+  }
+  .histogram-bar {
+    width: 68%;
+  }
+  .histogram-inspection {
+    padding: 12px;
+    align-items: start;
+    gap: 8px;
+  }
+  .histogram-inspection strong {
+    font-size: 18px;
+  }
+  .network-rail {
+    padding: 22px 20px;
+  }
+  .analysis-lower {
+    margin-block: 28px;
+  }
+  .blocks-table :is(th, td) {
+    padding-inline: 10px;
+  }
+}
+@media (max-width: 22.5rem) {
+  .mempool-analysis {
+    padding-inline: 12px;
+  }
+  .histogram-controls {
+    display: grid;
+  }
+  .histogram-inspection {
+    flex-wrap: wrap;
+  }
+  .histogram-bar-value {
+    font-size: var(--text-label);
+  }
+}
