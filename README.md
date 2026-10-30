@@ -66,6 +66,22 @@ public/               Headers and Functions routing
 
 UI content is German; code and documentation are English. Overview and Blockchain show block height, latest blocks, recommended fees and mempool statistics. Blockchain additionally shows the latest block's size and weight and all five fee recommendations. Block time, throughput and other unconnected metrics remain em dashes with pending-data labels. The price chart still uses an explicitly labeled synthetic index, never fabricated Bitcoin prices. Analytics and calculator remain placeholders.
 
+## React error recovery
+
+`ErrorBoundary` uses React's class boundary API without additional dependencies. Three placements keep failures contained:
+
+- `src/main.tsx`: the global boundary surrounds the query, theme and router providers. Its standalone German fallback has its own main landmark and reload action, without requiring dashboard layout or provider context.
+- `src/App.tsx`: one view boundary surrounds `Routes` inside the existing main content. Header, navigation, theme controls and footer remain available. React Router's location key remounts the boundary on navigation, including back/forward and returning to a previously failed view.
+- `src/components/dashboard.tsx`: a chart boundary surrounds Suspense and the lazy ECharts component inside the existing card. Other cards and chart labels remain visible when importing, rendering or mounting the chart fails.
+
+Unexpected view and chart rendering failures offer a local retry that remounts the failed subtree, plus a document reload. A persistent error returns to the fallback. Dynamic chart import rejections are explicitly wrapped as `ComponentLoadError`; these offer only document reload. React caches lazy loaders and their rejected promises, and browser module caches can also prevent a local remount from requesting a failed module again. Reload starts a fresh application load but cannot guarantee recovery while network, deployment or code failures persist. Existing API/network status, query retry and cached data behavior remain unchanged.
+
+Fallbacks use the existing Button and theme tokens, semantic headings and `role="alert"`. No exception messages, causes or stacks are rendered. The global fallback works without the theme provider and uses the document's current light/dark tokens (light defaults if theme initialization itself fails).
+
+Diagnostics deliberately retain React 19's default reporting. React exposes `onCaughtError`, `onUncaughtError` and `onRecoverableError` on `createRoot`, including component-stack information; no additional `componentDidCatch` logger or root callback duplicates those reports. Developer diagnostics stay in the local console/development tools. There is no custom monitoring, external telemetry endpoint or personal-data transmission; future monitoring would be a separate, optional change. See the official [createRoot reference](https://react.dev/reference/react-dom/client/createRoot) and [lazy cache behavior](https://react.dev/reference/react/lazy).
+
+`src/test/error-boundaries.test.tsx` and `src/test/chart-load-error.test.tsx` cover healthy rendering, standalone fallback and reload in both theme states, view retry and persistent failures, navigation/reset, lazy loading and import rejection, local chart recovery, hidden error details and unchanged API refetch recovery. The existing browser-location test verifies that the reload helper calls `window.location.reload()`. DOM tests verify behavior and theme state; they do not verify pixel appearance or real network recovery after a browser reload. Boundaries do not handle event-handler exceptions, unrelated asynchronous callbacks, failures before React starts, or errors in their own fallback.
+
 ## Bitcoin data integration
 
 All endpoints accept GET only and return `{ data, source: "mempool.space", updatedAt }`. `updatedAt` is the successful validated retrieval time in ISO 8601 UTC, not the block timestamp or a guarantee of provider freshness. The UI formats timestamps in the browser's local timezone. Resources are independently sampled; the tip can advance between requests. Latest-block size, weight and the table share one blocks snapshot in the UI.
