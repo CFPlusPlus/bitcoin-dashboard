@@ -11,6 +11,7 @@ nvm use
 npm ci
 npm run dev
 npm test
+npm run typecheck
 npm run build
 npm run pages:check
 ```
@@ -22,6 +23,8 @@ If your Node version manager does not read `.nvmrc`, select Node 22.22.2 explici
 - `dev`: Vite frontend; `/api` is proxied to local Pages on port 8788.
 - `pages:dev`: build and serve the SPA with Pages Functions locally on port 8788; no Cloudflare login needed.
 - `preview`: frontend production-build preview only, without Functions.
+- `typecheck`: check frontend, Cloudflare Functions and Functions tests separately. `tsconfig.functions-tests.json` extends the Functions configuration, including its strict checks and Worker types, without adding browser DOM globals. The frontend continues to exclude `src/test/functions.test.ts`; the dedicated Functions-test check covers it and its imports.
+- `build`: run all TypeScript checks before the Vite production build.
 - `pages:check`: compile Functions without deployment.
 - CI runs tests, TypeScript checks, Vite build and Functions compilation. There is no deployment job.
 

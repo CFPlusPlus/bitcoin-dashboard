@@ -22,5 +22,6 @@ jobs:
           test "npm@$(npm --version)" = "$(node -p "require('./package.json').packageManager")"
       - run: npm ci
       - run: npm test
+      - run: npm run typecheck
       - run: npm run build
       - run: npm run pages:check
