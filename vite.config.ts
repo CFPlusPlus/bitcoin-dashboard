@@ -7,5 +7,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: { proxy: { '/api': 'http://localhost:8788' } },
-  test: { environment: 'jsdom', setupFiles: ['./src/test/setup.ts'], css: false },
+  test: {
+    include: ['src/test/**/*.test.{ts,tsx}'],
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    css: false,
+  },
 })
