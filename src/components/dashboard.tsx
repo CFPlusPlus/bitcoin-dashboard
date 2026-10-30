@@ -1,8 +1,14 @@
 import { lazy, Suspense } from 'react'
 import { CircleDashed, Database } from 'lucide-react'
 import { Card, CardTitle } from '@/components/ui/card'
+import { ErrorBoundary } from '@/components/error-boundary'
+import { ComponentLoadError } from '@/lib/component-load-error'
 
-const DemoChart = lazy(() => import('@/components/demo-chart'))
+const DemoChart = lazy(() =>
+  import('@/components/demo-chart').catch((cause: unknown) => {
+    throw new ComponentLoadError(cause)
+  }),
+)
 
 export function PageHeading({
   title,
@@ -78,15 +84,17 @@ export function PriceChart() {
         </div>
         <span className="status-label">Synthetische Demo-Daten</span>
       </div>
-      <Suspense
-        fallback={
-          <div className="chart-placeholder" role="status">
-            Chart wird geladen …
-          </div>
-        }
-      >
-        <DemoChart />
-      </Suspense>
+      <ErrorBoundary scope="chart">
+        <Suspense
+          fallback={
+            <div className="chart-placeholder" role="status">
+              Chart wird geladen …
+            </div>
+          }
+        >
+          <DemoChart />
+        </Suspense>
+      </ErrorBoundary>
       <p className="mt-3 text-xs text-muted-foreground">
         Illustrativer Verlauf zur Darstellung des Diagramms. Keine realen Kurse, Zeiträume oder
         Live-Daten.

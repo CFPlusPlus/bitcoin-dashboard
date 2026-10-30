@@ -1,5 +1,6 @@
 import { Bitcoin, Moon, Sun } from 'lucide-react'
-import { Link, NavLink, Route, Routes } from 'react-router-dom'
+import { Link, NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { ErrorBoundary } from '@/components/error-boundary'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/lib/theme'
 import Overview from '@/pages/overview'
@@ -9,6 +10,7 @@ import Mining from '@/pages/mining'
 
 export default function App() {
   const { theme, toggleTheme } = useTheme()
+  const location = useLocation()
   return (
     <>
       <a href="#main" className="skip-link">
@@ -67,23 +69,25 @@ export default function App() {
         tabIndex={-1}
         className="mx-auto min-h-[calc(100vh-150px)] max-w-[1600px] px-4 py-7 outline-none md:px-8 md:py-8"
       >
-        <Routes>
-          <Route path="/" element={<Overview />} />
-          <Route path="/market" element={<Market />} />
-          <Route path="/blockchain" element={<Blockchain />} />
-          <Route path="/mining" element={<Mining />} />
-          <Route
-            path="*"
-            element={
-              <div className="py-20 text-center">
-                <h1 className="mb-4 text-2xl font-semibold">Seite nicht gefunden</h1>
-                <Button asChild>
-                  <Link to="/">Zur Übersicht</Link>
-                </Button>
-              </div>
-            }
-          />
-        </Routes>
+        <ErrorBoundary key={location.key} scope="view">
+          <Routes>
+            <Route path="/" element={<Overview />} />
+            <Route path="/market" element={<Market />} />
+            <Route path="/blockchain" element={<Blockchain />} />
+            <Route path="/mining" element={<Mining />} />
+            <Route
+              path="*"
+              element={
+                <div className="py-20 text-center">
+                  <h1 className="mb-4 text-2xl font-semibold">Seite nicht gefunden</h1>
+                  <Button asChild>
+                    <Link to="/">Zur Übersicht</Link>
+                  </Button>
+                </div>
+              }
+            />
+          </Routes>
+        </ErrorBoundary>
       </main>
       <footer className="mx-auto flex max-w-[1600px] flex-wrap justify-between gap-2 px-4 py-6 text-xs text-muted-foreground md:px-8">
         <span>Bitcoin Dashboard</span>
