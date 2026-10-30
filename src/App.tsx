@@ -1,7 +1,7 @@
 import { Bitcoin, Moon, Sun } from 'lucide-react'
 import { Link, NavLink, Route, Routes } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { useTheme } from '@/components/theme-provider'
+import { useTheme } from '@/lib/theme'
 import Overview from '@/pages/overview'
 import Market from '@/pages/market'
 import Blockchain from '@/pages/blockchain'

@@ -20,7 +20,7 @@ export function bitcoinOptions<K extends keyof BitcoinResources>(resource: K) {
       } catch (error) {
         if (signal.aborted) throw error
         // Browsers do not distinguish blocked redirects from network failures.
-        throw new Error('Verbindung fehlgeschlagen. Bitte Netzwerk prüfen oder die Seite neu laden, um gegebenenfalls die Anmeldung zu erneuern.')
+        throw new Error('Verbindung fehlgeschlagen. Bitte Netzwerk prüfen oder die Seite neu laden, um gegebenenfalls die Anmeldung zu erneuern.', { cause: error })
       }
       if (!response.ok) throw new ApiError(response.status)
       if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('Keine API-Antwort. Bitte Anmeldung prüfen.')

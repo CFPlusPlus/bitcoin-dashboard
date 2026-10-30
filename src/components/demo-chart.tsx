@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { init, use } from 'echarts/core'
+import { init, use as registerECharts } from 'echarts/core'
 import { LineChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, AriaComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import { getDemoSeries } from '@/lib/demo'
-import { useTheme } from '@/components/theme-provider'
+import { useTheme } from '@/lib/theme'
 
-use([LineChart, GridComponent, TooltipComponent, AriaComponent, CanvasRenderer])
+registerECharts([LineChart, GridComponent, TooltipComponent, AriaComponent, CanvasRenderer])
 
 export default function DemoChart() {
   const container = useRef<HTMLDivElement>(null)

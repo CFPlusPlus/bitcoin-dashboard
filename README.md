@@ -10,6 +10,8 @@ Use Node.js 22.22.2 (pinned in `.nvmrc`) and its bundled npm 10.9.7 (pinned in `
 nvm use
 npm ci
 npm run dev
+npm run lint
+npm run format:check
 npm test
 npm run typecheck
 npm run build
@@ -23,10 +25,15 @@ If your Node version manager does not read `.nvmrc`, select Node 22.22.2 explici
 - `dev`: Vite frontend; `/api` is proxied to local Pages on port 8788.
 - `pages:dev`: build and serve the SPA with Pages Functions locally on port 8788; no Cloudflare login needed.
 - `preview`: frontend production-build preview only, without Functions.
+- `lint` / `lint:fix`: ESLint flat config with recommended JavaScript and TypeScript rules, React Hooks and Vite React Refresh checks; warnings fail CI. Browser, Vitest, Node configuration and Worker environments are scoped separately. TypeScript remains responsible for type safety through the existing strict configurations.
+- `format` / `format:check`: write or check Prettier formatting (two spaces, single quotes, no JavaScript/TypeScript semicolons, 100-column target, LF). The Tailwind CSS 4 plugin reads `src/index.css` and sorts classes, including `cn` and `cva` calls. Dependencies, build output, coverage, Wrangler state and the npm-generated lockfile are excluded.
 - `typecheck`: check frontend, Cloudflare Functions and Functions tests separately. `tsconfig.functions-tests.json` extends the Functions configuration, including its strict checks and Worker types, without adding browser DOM globals. The frontend continues to exclude `src/test/functions.test.ts`; the dedicated Functions-test check covers it and its imports.
 - `build`: run all TypeScript checks before the Vite production build.
 - `pages:check`: compile Functions without deployment.
-- CI runs tests, TypeScript checks, Vite build and Functions compilation. There is no deployment job.
+- Before opening a PR, run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build` and `npm run pages:check`. Use `lint:fix` or `format` for intended changes and review their diff.
+- CI runs lint and formatting checks after `npm ci`, then tests, TypeScript checks, Vite build and Functions compilation. Any failed check fails the job. There is no deployment job.
+
+Development quality tools are ESLint 10.13.0, typescript-eslint 8.72.1, eslint-plugin-react-hooks 7.1.1, eslint-plugin-react-refresh 0.5.7, Prettier 3.9.10 and prettier-plugin-tailwindcss 0.8.1. Direct tool versions and the lockfile are pinned; eslint-config-prettier keeps ESLint's rules compatible with the formatter. Tailwind v4 integration follows the [plugin's stylesheet configuration](https://github.com/tailwindlabs/prettier-plugin-tailwindcss#specifying-your-tailwind-stylesheet-path-tailwind-css-v4).
 
 ## Stack and structure
 

@@ -1,7 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-
-type Theme = 'dark' | 'light'
-const ThemeContext = createContext<{ theme: Theme; toggleTheme: () => void } | null>(null)
+import { useEffect, useState, type ReactNode } from 'react'
+import { ThemeContext, type Theme } from '@/lib/theme'
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
@@ -12,10 +10,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     try { localStorage.setItem('theme', theme) } catch { /* Theme still works when storage is unavailable. */ }
   }, [theme])
   return <ThemeContext.Provider value={{ theme, toggleTheme: () => setTheme(value => value === 'dark' ? 'light' : 'dark') }}>{children}</ThemeContext.Provider>
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext)
-  if (!context) throw new Error('useTheme must be used within ThemeProvider')
-  return context
 }
