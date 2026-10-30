@@ -633,3 +633,126 @@ die LOW-Punkte können später bearbeitet werden. Vor einer vollständigen exter
 Betriebsfreigabe bleiben die in Abschnitt 11 benannten Access-/Deploymentprüfungen
 offen. Es gibt keinen nachgewiesenen kritischen Fehler, der den Beginn von
 Designsystem- und UX-Arbeit verhindert.
+
+---
+
+## 13. Nachtrag Phase 1.6.1 – Behebung der MEDIUM-Findings
+
+**Stand: 30. Oktober 2026.** Dieser Nachtrag dokumentiert die Implementierung
+nach dem ursprünglichen Audit. Die Abschnitte 1–12 einschließlich ihrer damaligen
+Feststellungen und Bewertung bleiben unverändert. Basis ist der Auditcommit
+`e5f3f13`; separater Korrekturbranch: `feature/phase-1.6.1-medium-fixes`.
+
+### A16-01 – Behoben: Freigabe bei fehlgeschlagener Initialisierung
+
+**Ursache:** Der bisherige Effect registrierte sein Cleanup erst nach erfolgreichem
+`init()`, `setOption()`, Observer-Konstruktor und `observe()`. Ein vorheriger Throw
+ließ bereits erworbene Ressourcen zurück.
+
+**Korrektur:** `src/components/demo-chart.tsx` hält Chart und Observer im lokalen
+Effect-Lebenszyklus. Dieselbe idempotente Cleanup-Funktion läuft bei Setupfehlern,
+Resizefehlern, Themewechsel und Unmount. Sie deaktiviert zuerst weitere Callbacks,
+trennt einen vorhandenen Observer und disposed die Instanz. `try/finally` stellt
+den Dispose-Aufruf auch bei einem Fehler in `disconnect()` sicher. Der einmalige
+Stopzustand verhindert doppelte Freigabe durch den späteren React-Cleanup.
+
+Wirft `init()` vor der Rückgabe, wird zusätzlich `getInstanceByDom()` verwendet:
+ECharts registriert die Instanz vor dem `afterinit`-Lifecyclehook. Eine dort
+geworfene Exception lässt somit eine über die öffentliche API auffindbare
+Instanz zurück, die nun ebenfalls freigegeben wird. Ohne erzeugte/registrierte
+Instanz gibt es keinen Dispose-Aufruf. Bibliotheksinterne, vor Registrierung
+fehlgeschlagene Konstruktorallokationen sind über diese API nicht zugänglich.
+
+**Regressionstests:** `src/test/demo-chart.test.tsx` führt die echte Chartkomponente
+innerhalb der vorhandenen `PriceChart`-Boundary aus; nur ECharts und der Observer
+werden als kontrollierte Ressourcen ersetzt. Fehler vor und nach der Registrierung
+in `init()`, in `setOption()`, im Observer-Konstruktor und in `observe()` werden
+gezielt injiziert. Die Tests prüfen tatsächlich erzeugte Ressourcen und exakt einen
+`dispose()`-/`disconnect()`-Aufruf pro Ressource, den lokalen Fallback, unverändert
+verfügbare Dashboard-Inhalte und erfolgreichen Retry. Themewechsel, StrictMode und
+Unmount sind zusätzlich abgesichert.
+
+### A16-02 – Behoben: Resizefehler im lokalen React-Fehlerzustand
+
+**Ursache:** Ein späterer ResizeObserver-Callback läuft außerhalb der von React
+überwachten Render-/Effect-Ausführung und erreichte deshalb die Boundary nicht.
+
+**Korrektur:** Der Callback fängt `resize()`-Exceptions ab, räumt die Ressourcen
+sofort auf und speichert den Fehler als Objekt in React-State. Im nächsten Render
+wird dieser Fehler geworfen und von der bestehenden lokalen Chart-Boundary
+behandelt. Das verwendet React-19-kompatible State-/Rendermechanismen; die
+[React-Dokumentation zur Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)
+beschreibt deren Renderfehler-Behandlung und die Grenze für asynchrone Callbacks.
+Auch ein zusätzlicher Cleanupfehler wird in diesen Fehlerzustand überführt und
+entweicht nicht aus dem Callback. Fehler werden weder nur geloggt noch verschluckt.
+
+Der bestehende verständliche Diagramm-Fallback und sein Retry bleiben unverändert.
+Retry remountet die Komponente mit frischem State, neuer Instanz und neuem Observer.
+Bereits vorgemerkte Callbacks alter Observer werden nach Freigabe ignoriert.
+
+**Regressionstests:** Der Resize-Test ruft den erfassten Observer-Callback auf,
+lässt `resize()` werfen und prüft, dass der Aufruf keine Exception weitergibt.
+Er prüft den lokalen Alert ohne interne Fehlerdetails, weiterhin sichtbare übrige
+Dashboard-Inhalte, exakt einmalige Freigabe sowie das Ignorieren weiterer alter
+Callbacks vor und nach Retry. Eine neue Instanz nach Retry lässt sich erfolgreich
+resizen. Die Tests laufen mit React StrictMode.
+
+### A16-03 – Behoben: Einheitliche numerische Akzeptanzgrenzen
+
+**Ursache:** Der Adapter akzeptierte bei Gebühren jede endliche nichtnegative Zahl;
+der Browser begrenzte dieselben Werte zusätzlich auf `Number.MAX_SAFE_INTEGER`.
+
+**Korrektur:** Beide Schichten verwenden jetzt dieselbe reine Zahlenprüfung aus
+`shared/bitcoin-number.ts` und dieselben expliziten Grenzen aus
+`shared/bitcoin-limits.ts`. Gebührenempfehlungen und Histogrammraten akzeptieren
+`0` bis einschließlich `2_100_000_000_000_000` sat/vB, einschließlich gebrochener
+Werte und Sub-sat/vB. Die bewusst großzügige Plausibilitätsgrenze entspricht
+21 Millionen BTC in Satoshis pro vByte; sie liegt unterhalb der sicheren
+Ganzzahlgrenze und vermeidet einen willkürlichen, marktpreisabhängigen Grenzwert.
+Sie ist keine Aussage über übliche Gebühren oder eine neue APIeinheit.
+
+Zähler, Höhen, aggregierte Satoshis und virtuelle Größen bleiben nichtnegative
+sichere Ganzzahlen bis `Number.MAX_SAFE_INTEGER`. Die bestehenden Grenzen von
+4.000.000 für Blockbytes/-gewicht und 8.640.000.000.000 Sekunden für Blockzeiten
+bleiben erhalten und werden nun ebenfalls gemeinsam referenziert. JSONstruktur,
+Feldnamen, Metadaten und öffentliche Fehlerantworten bleiben unverändert; es gibt
+keine zusätzliche Produktionsabhängigkeit und keinen Browserimport des Adapters.
+
+**Regressionstests:** `src/test/bitcoin-numeric-contract.test.ts` prüft 21 numerische
+Feld-/Ressourcenkombinationen mit jeweils einem Akzeptanz- und Ablehnungstest
+(42 Tests). Dazu gehören Höhe, Einzelblock und Blockliste, alle fünf Gebührenwerte,
+alle Mempoolzähler und beide Histogrammwerte. Geprüft werden Null, exakte Obergrenze,
+Werte unmittelbar darunter/darüber, gebrochene Gebühren, unerlaubte gebrochene
+Ganzzahlen, negative Werte, unsichere Ganzzahlen, `Number.MAX_VALUE`, NaN und beide
+Unendlichkeiten. Jeder akzeptierte normalisierte Adapterwert wird anschließend
+auch durch den Browservertrag validiert und auf unveränderte Werte geprüft.
+
+### Qualitätsprüfungen und Abschlussbewertung
+
+Alle Prüfungen wurden lokal mit **Node 22.22.2 und npm 10.9.7** ausgeführt. Die
+Toolchain wurde wie im ursprünglichen Audit temporär per `npm.cmd exec` gewählt;
+Manifest, Lockfile und globale Installation wurden nicht geändert.
+
+| Prüfung                | Ergebnis                                                      |
+| ---------------------- | ------------------------------------------------------------- |
+| `npm ci`               | PASS; 300 Pakete hinzugefügt, 301 geprüft, 0 Schwachstellen   |
+| `npm run lint`         | PASS; keine Fehler oder Warnungen                             |
+| `npm run format:check` | PASS                                                          |
+| `npm run typecheck`    | PASS; Frontend, Functions, Functions-Tests und E2E            |
+| `npm test`             | PASS; 203 Tests in 11 Dateien, davon 49 neue Regressionstests |
+| `npm run build`        | PASS; einschließlich erneuter Typechecks                      |
+| `npm run pages:check`  | PASS; `Compiled Worker successfully`                          |
+| `npm run test:e2e`     | PASS; 23 Tests mit einem Chromium-Worker gegen lokales Pages  |
+
+Die vorhandenen 154 Tests und 23 E2E-Tests wurden nicht abgeschwächt. Der
+Produktionsbuild bleibt ohne 500-kB-Chunkwarnung. Die gezielten Fehler werden in
+DOMtests injiziert; die E2E-Suite prüft den realen Build mit der bisherigen
+Browser-/Pages-Abdeckung, keine echten Provider- oder Access-Anmeldungen.
+
+**Aktualisierte Bewertung: GO – Phase 1 ist technisch vollständig abgeschlossen;
+Phase 2 kann beginnen.** A16-01, A16-02 und A16-03 sind behoben und durch
+Regressionstests abgesichert. Die LOW-Findings A16-04 bis A16-06 bleiben bewusst
+unbearbeitet. Es wurden keine Funktionen, Designs, Datenquellen oder
+Cloudflare-Access-Einstellungen geändert. Die separate externe Betriebsfreigabe
+und die dafür offenen Prüfungen aus Abschnitt 11 behalten ihren eigenen Umfang;
+dieser Nachtrag behauptet hierfür keine neue Verifikation.

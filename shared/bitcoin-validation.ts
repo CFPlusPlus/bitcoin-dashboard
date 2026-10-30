@@ -1,22 +1,16 @@
 import type { BitcoinResources, BitcoinResponse, Block, Fees, Mempool } from './bitcoin'
-import { MAX_HISTOGRAM_ENTRIES } from './bitcoin-limits'
+import {
+  MAX_BLOCK_SIZE,
+  MAX_BLOCK_TIMESTAMP,
+  MAX_FEE_RATE,
+  MAX_HISTOGRAM_ENTRIES,
+} from './bitcoin-limits'
+import { number } from './bitcoin-number'
 
 // Pure normalized-contract validation, shared without importing any server adapter.
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid object')
   return value as Record<string, unknown>
-}
-
-function number(value: unknown, integer = true, maximum = Number.MAX_SAFE_INTEGER): number {
-  if (
-    typeof value !== 'number' ||
-    !Number.isFinite(value) ||
-    value < 0 ||
-    value > maximum ||
-    (integer && !Number.isSafeInteger(value))
-  )
-    throw new Error('Invalid number')
-  return value
 }
 
 function height(value: unknown) {
@@ -30,10 +24,10 @@ function block(value: unknown): Block {
   return {
     hash: data.hash,
     height: number(data.height),
-    timestamp: number(data.timestamp, true, 8_640_000_000_000),
+    timestamp: number(data.timestamp, true, MAX_BLOCK_TIMESTAMP),
     transactionCount: number(data.transactionCount),
-    sizeBytes: number(data.sizeBytes, true, 4_000_000),
-    weightUnits: number(data.weightUnits, true, 4_000_000),
+    sizeBytes: number(data.sizeBytes, true, MAX_BLOCK_SIZE),
+    weightUnits: number(data.weightUnits, true, MAX_BLOCK_SIZE),
   }
 }
 
@@ -52,11 +46,11 @@ function blocks(value: unknown): Block[] {
 function fees(value: unknown): Fees {
   const data = object(value)
   return {
-    fastest: number(data.fastest, false),
-    halfHour: number(data.halfHour, false),
-    hour: number(data.hour, false),
-    economy: number(data.economy, false),
-    minimum: number(data.minimum, false),
+    fastest: number(data.fastest, false, MAX_FEE_RATE),
+    halfHour: number(data.halfHour, false, MAX_FEE_RATE),
+    hour: number(data.hour, false, MAX_FEE_RATE),
+    economy: number(data.economy, false, MAX_FEE_RATE),
+    minimum: number(data.minimum, false, MAX_FEE_RATE),
   }
 }
 
@@ -71,7 +65,7 @@ function mempool(value: unknown): Mempool {
     feeHistogram: data.feeHistogram.map((value) => {
       const entry = object(value)
       return {
-        feeRate: number(entry.feeRate, false),
+        feeRate: number(entry.feeRate, false, MAX_FEE_RATE),
         virtualSizeBytes: number(entry.virtualSizeBytes),
       }
     }),
