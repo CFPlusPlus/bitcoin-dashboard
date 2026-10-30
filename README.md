@@ -1,6 +1,6 @@
 # Bitcoin Dashboard
 
-A private-use Bitcoin analytics dashboard in a public source repository. Overview and Blockchain use public Bitcoin mainnet data from mempool.space through same-origin Cloudflare Pages Functions. Market and mining metrics remain explicitly labeled placeholders. This repository does not configure authentication or deployment.
+A private-use Bitcoin analytics dashboard in a public source repository. Overview and Blockchain use public Bitcoin mainnet data from mempool.space through same-origin Cloudflare Pages Functions. Market and mining metrics remain explicitly labeled placeholders. Deployment configuration is versioned here; Cloudflare Access and project settings are managed externally.
 
 See [Phase 1.4: API robustness and safe diagnostics](docs/phase-1.4-api-robustness.md) for response budgets, error categories, logging, HTTP headers and retry rules.
 
@@ -18,6 +18,8 @@ npm test
 npm run typecheck
 npm run build
 npm run pages:check
+npx --no-install playwright install --only-shell chromium
+npm run test:e2e
 ```
 
 On Windows PowerShell with script execution disabled, use `npm.cmd`.
@@ -32,8 +34,9 @@ If your Node version manager does not read `.nvmrc`, select Node 22.22.2 explici
 - `typecheck`: check frontend, Cloudflare Functions and Functions tests separately. `tsconfig.functions-tests.json` extends the Functions configuration, including its strict checks and Worker types, without adding browser DOM globals. The frontend continues to exclude `src/test/functions.test.ts`; the dedicated Functions-test check covers it and its imports.
 - `build`: run all TypeScript checks before the Vite production build.
 - `pages:check`: compile Functions without deployment.
-- Before opening a PR, run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build` and `npm run pages:check`. Use `lint:fix` or `format` for intended changes and review their diff.
-- CI runs lint and formatting checks after `npm ci`, then tests, TypeScript checks, Vite build and Functions compilation. Any failed check fails the job. There is no deployment job.
+- `test:e2e`: Chromium UI tests and real HTTP smoke tests against the production `dist` build in local Wrangler Pages on port 8799. Run `build` first; no Cloudflare login or public API availability required. On Linux, install Chromium with `npx --no-install playwright install --with-deps --only-shell chromium`.
+- Before opening a PR, run `npm run lint`, `npm run format:check`, `npm run typecheck`, `npm test`, `npm run build`, `npm run pages:check` and `npm run test:e2e`. Use `lint:fix` or `format` for intended changes and review their diff.
+- CI runs lint and formatting checks after `npm ci`, then tests, TypeScript checks, Vite build, Functions compilation and local Pages smoke/E2E tests with Chromium. Any failed check fails the job. There is no deployment job. See [Pages deployment and Access verification](docs/cloudflare-pages-verification.md) for test scope, diagnostics and the separate external release gate.
 
 Development quality tools are ESLint 10.13.0, typescript-eslint 8.72.1, eslint-plugin-react-hooks 7.1.1, eslint-plugin-react-refresh 0.5.7, Prettier 3.9.10 and prettier-plugin-tailwindcss 0.8.1. Direct tool versions and the lockfile are pinned; eslint-config-prettier keeps ESLint's rules compatible with the formatter. Tailwind v4 integration follows the [plugin's stylesheet configuration](https://github.com/tailwindlabs/prettier-plugin-tailwindcss#specifying-your-tailwind-stylesheet-path-tailwind-css-v4).
 
@@ -121,7 +124,7 @@ Minimal Dark meets Advanced Analytics. Dark is the default regardless of OS pref
 
 1600px maximum content width, 12-column desktop grid, 12px card radius, 16–20px gaps and 20–24px padding. Inter and tabular metric digits. Horizontal navigation wraps below the header and scrolls on narrow screens. No glass effects or chart animations. ECharts is lazy-loaded with selective imports; charts resize and dispose on unmount and theme change.
 
-## Cloudflare and future access boundary
+## Cloudflare and external access boundary
 
 For Pages builds, use `.nvmrc` to select Node.js 22.22.2 and its bundled npm 10.9.7. Set the build command to `npm run build` and the output directory to `dist`. Pages v3 does not select Node or npm from `package.json`'s `engines`; those entries describe the supported toolchain. Remove any existing `NPM_VERSION=11.20.0` override or global npm installation from the Pages build settings, and remove a conflicting `NODE_VERSION` override or set it to `22.22.2`. Check both production and preview settings. A `Cannot find module 'promise-retry'` error during npm initialization indicates an incomplete npm installation; adding it to application dependencies cannot repair that bootstrap failure. If a previous broken npm installation persists, clear the Pages build cache before the next authorized build.
 
@@ -129,12 +132,7 @@ References: [Node.js 22.22.2 bundled npm](https://nodejs.org/en/download/archive
 
 `wrangler.jsonc` declares `dist` as build output. File-based Functions expose `GET /api/health`; unknown `/api/*` endpoints return JSON 404. `_routes.json` invokes Functions only for `/api/*`. Pages' built-in SPA fallback supports deep links; do not add a top-level `404.html` unless replacing that behavior intentionally.
 
-The eventual hostname is **bitcoin.falkner.info**, exclusively behind Cloudflare Access. This scaffold does **not** configure Access, DNS, a Pages project or a custom domain. Before deployment:
-
-1. Create the Access application with an explicit allow policy for authorized identities and denial for everyone else.
-2. Protect the custom domain and all alternate entry points: production `pages.dev`, preview deployments and branch aliases. Disable or protect unused aliases; protecting the custom domain alone is insufficient.
-3. Verify unauthenticated HTML and `/api/*` requests are denied or redirected to authentication on every hostname.
-4. Only then enable deployment and attach the domain. Do not enable automatic Git deployments before these checks.
+The reported production hostnames are **bitcoin.falkner.info** and **bitcoin-dashboard-erm.pages.dev**. Cloudflare Access has been set up externally; its actual configuration is not verified by this repository. Follow the [manual Access verification](docs/cloudflare-pages-verification.md#manual-external-access-verification-separate-release-gate) for both production addresses, deployment hashes and branch aliases. Anonymous requests must return no protected HTML, static assets or API responses; a login redirect is acceptable. The Pages preview protection option alone does not establish protection for either production hostname.
 
 Secrets belong in Cloudflare bindings or ignored `.dev.vars`, never `VITE_*` values or tracked source. Bitcoin requests use only public mainnet data and require no provider secret or private node. New endpoints stay under the existing `/api/*` routing and hostname-level Access boundary, add no CORS permission or bypass route, and do not change Access configuration. Access enforcement remains the responsibility of the existing Cloudflare application; local tests cannot verify deployed hostname policies. The unauthenticated HTML/API checks above still apply to every production and preview hostname. Package scripts intentionally contain no deployment command.
 

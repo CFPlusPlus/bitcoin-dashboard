@@ -150,5 +150,6 @@ vite.config.ts.timestamp-*
 
 # Cloudflare local state and secrets
 .wrangler/
+test-results/
 .dev.vars*
 !.dev.vars.example

@@ -7,7 +7,7 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig([
-  globalIgnores(['dist/**', '.wrangler/**', 'coverage/**', 'node_modules/**']),
+  globalIgnores(['dist/**', '.wrangler/**', 'coverage/**', 'node_modules/**', 'test-results/**']),
   {
     files: ['**/*.{js,mjs,cjs,ts,tsx}'],
     extends: [js.configs.recommended, tseslint.configs.recommended],
