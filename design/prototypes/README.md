@@ -1,4 +1,46 @@
-# Phase 2.1 / 2.1.1 — lokale Observatory-Prototypen
+# Phase 2.1 / 2.1.1 / 2.1.2 — lokale Observatory-Prototypen
+
+## Aktuell: konsolidierte Art Direction
+
+[Final Observatory](http://127.0.0.1:4175/final-observatory/) übernimmt die
+Komposition aus Expressive und beruhigt Flächen, Zahlen und Datenanordnung.
+Genau drei umschaltbare Paletten, jeweils Dark und Light, mit demselben Markup,
+Controller, Manrope und dem unveränderten Fixture OBS-01:
+
+- [A · Bitcoin Signature](http://127.0.0.1:4175/final-observatory/?palette=signature)
+- [B · Bitcoin Analytical](http://127.0.0.1:4175/final-observatory/?palette=analytical)
+- [C · Warm Bitcoin](http://127.0.0.1:4175/final-observatory/?palette=warm)
+
+Zusätzlich `theme=light` und `state=snapshot|stale|missing`.
+`capture=1` blendet ausschließlich die separate Reviewleiste aus; so unterscheiden
+sich die verbindlichen Screenshots nur durch ihre Farben. Ohne diesen Parameter
+stehen alle drei Palettenschalter oberhalb des Dashboards bereit. Umschalten
+erhält Diagramm-/Blockauswahl und Datenzustand. Es gibt keinen Schriftwechsel.
+
+[Direkter Palettenvergleich](http://127.0.0.1:4175/final-observatory/compare.html):
+Desktop Dark/Light und Mobil Dark/Light, gleiche Bildgrößen je Tafel.
+Viewportbilder, vollständige Seiten, Tafeln und Kennzahlengrößenvergleich:
+`screenshots/final/`. Der Größenvergleich ist auch unter „Prototyp prüfen“ sichtbar.
+
+Nach dem Produktionsbuild und **nach** `npm run test:e2e` ausführen, weil die
+E2E-Prüfung `test-results/` leert:
+
+```sh
+node design/prototypes/verify-final.mjs
+```
+
+Das Skript prüft die zwölf Zielansichten, 144 weitere Breiten-/Theme-/Zustandsfälle,
+138 Farbkontraste, Textgrößen ab 12 px, Geometrie-/Typografiegleichheit zwischen
+Paletten, Diagrammlabels, lokale Fonts, Bedienung, Datenzustände und Buildisolation.
+Es erzeugt die Screenshots reproduzierbar neu und schreibt Messwerte nach
+`test-results/prototypes/final/report.json`. Vorhandenes Playwright genügt.
+
+Der gesamte neue Prototyp liegt unter `final-observatory/`; nur die bestehenden
+lokalen Fonts und `shared/fixture.js` werden wiederverwendet. Die älteren Varianten
+und ihre Prüfungen bleiben erhalten. Empfehlung und Grenzen:
+[Phase 2.1.2](../../docs/phase-2.1.2-final-art-direction.md).
+
+## Frühere Varianten
 
 Vier Designexperimente für dieselbe Blockchain-Ansicht. Ausschließlich statische,
 synthetische Beispieldaten, keine Verbindung zu Bitcoin-APIs und kein Deployment.
