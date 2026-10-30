@@ -26,11 +26,13 @@ export class ErrorBoundary extends Component<Props, State> {
           ? 'Diese Ansicht konnte nicht angezeigt werden'
           : 'Das Diagramm konnte nicht angezeigt werden'
     const content = (
-      <div role="alert" className="rounded-xl border border-border bg-card p-6 text-foreground">
+      <div role="alert" className="rounded-panel border border-border bg-card p-6 text-foreground">
         {scope === 'chart' ? (
           <h2 className="text-lg font-semibold">{title}</h2>
         ) : (
-          <h1 className="text-2xl font-semibold">{title}</h1>
+          <h1 tabIndex={-1} className="text-2xl font-semibold">
+            {title}
+          </h1>
         )}
         <p className="mt-2 text-sm text-muted-foreground">
           {loadError

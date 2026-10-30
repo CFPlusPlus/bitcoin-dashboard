@@ -1,4 +1,5 @@
 import { test, expect, type APIResponse } from '@playwright/test'
+import { readdirSync } from 'node:fs'
 
 // Real HTTP requests to Wrangler; no browser interception and no upstream GETs.
 function expectJson(response: APIResponse, status: number) {
@@ -72,5 +73,23 @@ test('Pages serves SPA deep links and real JavaScript/CSS assets with security h
     expect(response.headers()['x-frame-options']).toBe('DENY')
     expect(response.headers()['referrer-policy']).toBe('strict-origin-when-cross-origin')
     expect(await response.text()).not.toContain('<div id="root">')
+  }
+})
+
+test('production contains only curated font assets and excludes isolated design prototypes', async ({
+  request,
+}) => {
+  const files = readdirSync('dist', { recursive: true, encoding: 'utf8' }).map((path) =>
+    path.replaceAll('\\', '/'),
+  )
+  expect(files.filter((path) => /(^|\/)(design|prototypes|screenshots)(\/|$)/.test(path))).toEqual(
+    [],
+  )
+  expect(files.some((path) => /final-observatory|fixture\.js|palettes\.css/.test(path))).toBe(false)
+  expect(files.filter((path) => path.endsWith('.woff2'))).toHaveLength(6)
+  for (const family of ['manrope', 'inter']) {
+    const license = await request.get(`/fonts/${family}-LICENSE.txt`)
+    expect(license.status()).toBe(200)
+    expect(await license.text()).toContain('SIL OPEN FONT LICENSE')
   }
 })

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { CircleDashed, Database } from 'lucide-react'
+import { Database } from 'lucide-react'
 import { Card, CardTitle } from '@/components/ui/card'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { ComponentLoadError } from '@/lib/component-load-error'
@@ -20,16 +20,20 @@ export function PageHeading({
   live?: boolean
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+    <div className="page-heading">
       <div>
-        <p className="mb-2 text-xs font-medium tracking-[0.15em] text-muted-foreground uppercase">
-          Bitcoin Dashboard
+        <p className="page-eyebrow">
+          Bitcoin Dashboard <span aria-hidden="true">/</span> {title}
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        <h1 tabIndex={-1} className="page-title">
+          {title}
+          <span className="heading-dot" aria-hidden="true">
+            .
+          </span>
+        </h1>
+        <p className="page-description">{description}</p>
       </div>
-      <span className="status-label">
-        <CircleDashed size={13} />{' '}
+      <span className="page-source">
         {live ? 'Blockchain · mempool.space' : 'Vorschau · Keine Live-Daten'}
       </span>
     </div>
@@ -40,10 +44,7 @@ export function MetricCard({ label, unit }: { label: string; unit: string }) {
   return (
     <Card className="col-span-6 md:col-span-4 xl:col-span-2">
       <CardTitle className="text-xs font-medium text-muted-foreground">{label}</CardTitle>
-      <p
-        className="my-3 text-3xl font-semibold tabular-nums"
-        aria-label={`${label}: noch keine Daten`}
-      >
+      <p className="metric-value my-3" aria-label={`${label}: noch keine Daten`}>
         — <span className="text-xs font-normal text-muted-foreground">{unit}</span>
       </p>
       <p className="text-xs text-muted-foreground">Datenquelle folgt</p>
