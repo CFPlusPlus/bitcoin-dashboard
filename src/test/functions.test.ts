@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { onRequest as bitcoin } from '../../functions/api/bitcoin/[resource]'
-import { rawFees } from './bitcoin-fixtures'
+import { difficulty, rawDifficulty, rawFees } from './bitcoin-fixtures'
 import { onRequest as health } from '../../functions/api/health'
 import { onRequest } from '../../functions/api/[[path]]'
 
@@ -21,6 +21,39 @@ const context = (resource: string, method = 'GET'): Parameters<typeof bitcoin>[0
 })
 
 describe('Bitcoin Pages route', () => {
+  it('adds the difficulty contract with existing response security conventions', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(rawDifficulty)))
+    const response = await bitcoin(context('difficulty-adjustment'))
+    expect(response.status).toBe(200)
+    expect(response.headers.get('Cache-Control')).toBe('no-store')
+    expect(response.headers.has('Access-Control-Allow-Origin')).toBe(false)
+    expect(await response.json()).toMatchObject({ data: difficulty, source: 'mempool.space' })
+    expect((await bitcoin(context('difficulty-adjustment', 'POST'))).status).toBe(405)
+  })
+  it('exposes a safe 429 only for difficulty, without forwarding Retry-After or private diagnostics', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const fetcher = vi.fn().mockImplementation(() =>
+      Promise.resolve(
+        new Response('private', {
+          status: 429,
+          headers: { 'Retry-After': '999999999', 'Set-Cookie': 'private' },
+        }),
+      ),
+    )
+    vi.stubGlobal('fetch', fetcher)
+    const response = await bitcoin(context('difficulty-adjustment'))
+    expect(response.status).toBe(429)
+    expect(response.headers.get('Retry-After')).toBe('600')
+    expect(response.headers.has('Set-Cookie')).toBe(false)
+    expect(await response.json()).toEqual({ error: 'UPSTREAM_RATE_LIMIT' })
+    expect(log).toHaveBeenCalledExactlyOnceWith({
+      event: 'bitcoin_upstream_failure',
+      resource: 'difficulty-adjustment',
+      category: 'rate_limit',
+      providerStatus: 429,
+    })
+    expect(fetcher).toHaveBeenCalledOnce()
+  })
   it.each([
     [
       new Error('secret Cookie Authorization https://private.test/?token=secret'),

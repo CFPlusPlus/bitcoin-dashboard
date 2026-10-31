@@ -14,6 +14,7 @@ export const onRequest: PagesFunction = async ({ request, params }) => {
   } catch (error) {
     const failure = error instanceof UpstreamError ? error : undefined
     const timeout = failure?.category === 'timeout'
+    const rateLimited = resource === 'difficulty-adjustment' && failure?.category === 'rate_limit'
     console.error({
       event: 'bitcoin_upstream_failure',
       resource,
@@ -21,8 +22,15 @@ export const onRequest: PagesFunction = async ({ request, params }) => {
       ...(failure?.providerStatus !== undefined ? { providerStatus: failure.providerStatus } : {}),
     })
     return jsonResponse(
-      { error: timeout ? 'UPSTREAM_TIMEOUT' : 'UPSTREAM_UNAVAILABLE' },
-      timeout ? 504 : 502,
+      {
+        error: rateLimited
+          ? 'UPSTREAM_RATE_LIMIT'
+          : timeout
+            ? 'UPSTREAM_TIMEOUT'
+            : 'UPSTREAM_UNAVAILABLE',
+      },
+      rateLimited ? 429 : timeout ? 504 : 502,
+      rateLimited ? { 'Retry-After': '600' } : {},
     )
   }
 }

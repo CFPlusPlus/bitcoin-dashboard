@@ -1,4 +1,5 @@
 import { MetricCard, PageHeading, PlaceholderCard } from '@/components/dashboard'
+import { DifficultyAdjustment } from '@/components/mining/difficulty-adjustment'
 
 export default function Mining() {
   return (
@@ -6,12 +7,13 @@ export default function Mining() {
       <PageHeading
         title="Netzwerk & Mining"
         description="Rechenleistung, Mining und das Bitcoin-Angebot."
+        sourceLabel="Difficulty-Prognose · mempool.space"
       />
+      <DifficultyAdjustment />
       <div className="dashboard-grid">
         {[
           ['Hashrate', 'EH/s'],
           ['Difficulty', 'T'],
-          ['Nächste Anpassung', '%'],
           ['Bitcoin-Angebot', 'BTC'],
           ['Inflationsrate', '% p. a.'],
           ['Nächstes Halving', 'Blöcke'],

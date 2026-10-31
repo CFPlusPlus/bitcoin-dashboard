@@ -36,3 +36,25 @@ export const envelope = <T>(data: T) => ({
   source: 'mempool.space' as const,
   updatedAt: new Date().toISOString(),
 })
+
+export const rawDifficulty = {
+  progressPercent: 12.599206349206348,
+  difficultyChange: -3.700433495570643,
+  estimatedRetargetDate: 1794556819028,
+  remainingBlocks: 1762,
+  remainingTime: 1100006028,
+  previousRetarget: 5.5392014927774085,
+  previousTime: 1793301298,
+  nextRetargetHeight: 975744,
+  timeAvg: 612263,
+  adjustedTimeAvg: 624294,
+  timeOffset: 0,
+  expectedBlocks: 259.19166666666666,
+}
+export const difficulty = {
+  estimatedChangePercent: rawDifficulty.difficultyChange,
+  remainingBlocks: rawDifficulty.remainingBlocks,
+  progressPercent: rawDifficulty.progressPercent,
+  nextRetargetHeight: rawDifficulty.nextRetargetHeight,
+  estimatedRetargetAt: new Date(rawDifficulty.estimatedRetargetDate).toISOString(),
+}

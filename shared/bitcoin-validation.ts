@@ -6,6 +6,7 @@ import {
   MAX_HISTOGRAM_ENTRIES,
 } from './bitcoin-limits'
 import { number } from './bitcoin-number'
+import { parseDifficultyAdjustment } from './difficulty-adjustment'
 
 // Pure normalized-contract validation, shared without importing any server adapter.
 function object(value: unknown): Record<string, unknown> {
@@ -78,6 +79,7 @@ const validators: { [K in keyof BitcoinResources]: (value: unknown) => BitcoinRe
   blocks,
   fees,
   mempool,
+  'difficulty-adjustment': parseDifficultyAdjustment,
 }
 
 export function parseBitcoinResponse<K extends keyof BitcoinResources>(

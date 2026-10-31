@@ -40,9 +40,11 @@ describe('dashboard shell', () => {
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(
       screen.getByText(
-        path === '/' || path === '/blockchain'
-          ? 'Blockchain · mempool.space'
-          : 'Vorschau · Keine Live-Daten',
+        path === '/mining'
+          ? 'Difficulty-Prognose · mempool.space'
+          : path === '/' || path === '/blockchain'
+            ? 'Blockchain · mempool.space'
+            : 'Vorschau · Keine Live-Daten',
       ),
     ).toBeInTheDocument()
   })

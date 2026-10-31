@@ -36,7 +36,14 @@ for (const path of [
   })
 }
 
-for (const resource of ['height', 'latest-block', 'blocks', 'fees', 'mempool']) {
+for (const resource of [
+  'height',
+  'latest-block',
+  'blocks',
+  'fees',
+  'mempool',
+  'difficulty-adjustment',
+]) {
   test(`supported route dispatches to Bitcoin Function without upstream: ${resource}`, async ({
     request,
   }) => {
