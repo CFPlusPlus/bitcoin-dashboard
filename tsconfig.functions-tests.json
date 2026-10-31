@@ -1,4 +1,4 @@
 {
   "extends": "./tsconfig.functions.json",
-  "include": ["src/test/functions.test.ts"]
+  "include": ["src/test/functions.test.ts", "src/test/market-functions.test.ts"]
 }

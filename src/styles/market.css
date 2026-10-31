@@ -1,0 +1,108 @@
+.market-snapshot {
+  margin-bottom: var(--space-6);
+  padding: var(--space-8);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+.market-snapshot :is(div, dl) {
+  min-width: 0;
+}
+.market-snapshot :is(h2, p, dt, dd, a) {
+  overflow-wrap: anywhere;
+}
+.market-snapshot-head,
+.market-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.market-controls label {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  align-items: center;
+  gap: var(--space-2);
+}
+.market-controls :is(select, button) {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--foreground);
+  min-height: 44px;
+}
+.market-controls button:disabled {
+  opacity: 0.55;
+}
+.market-controls :is(select, button):focus-visible {
+  outline: 2px solid var(--data-primary);
+  outline-offset: 3px;
+}
+.market-kpis,
+.market-changes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-block: var(--space-6);
+}
+.market-kpis dt,
+.market-changes dt,
+.market-note,
+.market-state {
+  color: var(--foreground-secondary);
+  font: var(--text-label)/1.7 var(--font-technical);
+}
+.market-kpis dd {
+  color: var(--data-primary);
+  font: 500 clamp(1.25rem, 1.8vw, 2rem)/1.4 var(--font-technical);
+  font-variant-numeric: tabular-nums;
+  margin-top: var(--space-2);
+}
+.market-changes {
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border);
+}
+.market-changes dd {
+  font: 500 1rem/1.7 var(--font-technical);
+}
+.market-state {
+  margin-top: var(--space-4);
+}
+.market-warning {
+  margin-top: var(--space-3);
+  color: var(--foreground);
+}
+.market-footer {
+  display: grid;
+  gap: var(--space-2);
+}
+.market-footer a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 1100px) {
+  .market-kpis,
+  .market-changes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .market-snapshot {
+    padding: var(--space-5);
+  }
+  .market-kpis {
+    grid-template-columns: 1fr;
+  }
+  .market-controls {
+    align-items: stretch;
+  }
+  .market-kpis dd {
+    font-size: 1.125rem;
+  }
+  .market-changes {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  }
+}

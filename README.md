@@ -1,6 +1,8 @@
 # Bitcoin Dashboard
 
-A private-use Bitcoin analytics dashboard in a public source repository. Overview and Blockchain use public Bitcoin mainnet data from mempool.space through same-origin Cloudflare Pages Functions. Market and mining metrics remain explicitly labeled placeholders. Deployment configuration is versioned here; Cloudflare Access and project settings are managed externally.
+A private-use Bitcoin analytics dashboard in a public source repository. Overview and Blockchain use public Bitcoin mainnet data from mempool.space through same-origin Cloudflare Pages Functions. Mining includes a difficulty forecast. The CoinGecko USD/EUR market snapshot is implemented behind a disabled server release gate; account, usage-rights and authenticated schema evidence remain required. Deployment configuration is versioned here; Cloudflare Access and project settings are managed externally.
+
+See [Phase 2.7: market snapshot and release evidence](docs/phase-2.7-market-snapshot.md). `COINGECKO_DEMO_API_KEY` belongs exclusively in the server-side Cloudflare Pages Secrets for the intended environment. `MARKET_SNAPSHOT_ENABLED` defaults to `false`; neither adding a secret nor merging code authorizes provider use. Historical data is deferred to Phase 2.8.
 
 See [Phase 1.4: API robustness and safe diagnostics](docs/phase-1.4-api-robustness.md) for response budgets, error categories, logging, HTTP headers and retry rules.
 
@@ -31,7 +33,7 @@ If your Node version manager does not read `.nvmrc`, select Node 22.22.2 explici
 - `preview`: frontend production-build preview only, without Functions.
 - `lint` / `lint:fix`: ESLint flat config with recommended JavaScript and TypeScript rules, React Hooks and Vite React Refresh checks; warnings fail CI. Browser, Vitest, Node configuration and Worker environments are scoped separately. TypeScript remains responsible for type safety through the existing strict configurations.
 - `format` / `format:check`: write or check Prettier formatting (two spaces, single quotes, no JavaScript/TypeScript semicolons, 100-column target, LF). The Tailwind CSS 4 plugin reads `src/index.css` and sorts classes, including `cn` and `cva` calls. Dependencies, build output, coverage, Wrangler state and the npm-generated lockfile are excluded.
-- `typecheck`: check frontend, Cloudflare Functions and Functions tests separately. `tsconfig.functions-tests.json` extends the Functions configuration, including its strict checks and Worker types, without adding browser DOM globals. The frontend continues to exclude `src/test/functions.test.ts`; the dedicated Functions-test check covers it and its imports.
+- `typecheck`: check frontend, Cloudflare Functions and Functions tests separately. `tsconfig.functions-tests.json` extends the Functions configuration, including its strict checks and Worker types, without adding browser DOM globals. The frontend excludes `src/test/functions.test.ts` and `src/test/market-functions.test.ts`; the dedicated Functions-test check covers them and their imports.
 - `build`: run all TypeScript checks before the Vite production build.
 - `pages:check`: compile Functions without deployment.
 - `test:e2e`: Chromium UI tests and real HTTP smoke tests against the production `dist` build in local Wrangler Pages on port 8799. Run `build` first; no Cloudflare login or public API availability required. On Linux, install Chromium with `npx --no-install playwright install --with-deps --only-shell chromium`.

@@ -1,6 +1,10 @@
 # ADR 0002 – Aggregierte Bitcoin-Marktdaten über CoinGecko
 
 Datum: **31. Oktober 2026**. Status: **proposed**.
+Die Betreiberentscheidungen für AP4 sind bedingt freigegeben; die Entscheidung
+ist bis zum Abschluss der unten genannten Konto-, Rechte- und Schemanachweise
+**nicht accepted**. Implementierungsstand und Freigaberegister:
+[Phase 2.7](../phase-2.7-market-snapshot.md).
 Umfang: Phase 2.6 / AP2 aus
 [Phase 2.4](../phase-2.4-data-function-inventory.md).
 Details, Evidenz, Rechnungen und Abnahmekriterien:
@@ -113,10 +117,43 @@ Der Bericht §11/12 enthält die vollständigen Abnahmekriterien.
 
 ## Annahmebedingungen und Überprüfung
 
-`proposed` bleibt bestehen, bis der Betreiber Tarif-/Kontolimits samt anderem
-Verbrauch, Nutzungsprofil, Datenalter, Rechte für Anzeige/kurzfristigen Speicher/
-Ableitung und Kostenrahmen bestätigt. Vor AP4: eine bereinigte begrenzte
-Snapshot-Schema-/Größenprobe im freigegebenen Konto. Vor AP5: Historienberechtigung
+### Betreiberergänzung für Phase 2.7 / AP4
+
+Am 31. Oktober 2026 hat der Betreiber verbindlich festgelegt:
+
+- CoinGecko **Demo, kostenlos**, Kostenrahmen **0 €**, kein automatisches Upgrade.
+- Ausschließlich private, nichtkommerzielle Nutzung hinter Cloudflare Access;
+  gelegentlich einige Stunden pro Woche. Die genaue Zahl gleichzeitiger Tabs,
+  Geräte sowie sonstiger Kontoverbrauch ist damit noch nicht beziffert.
+- Ein gemeinsamer Snapshot für **EUR und USD**, zunächst **fünf Minuten** bei
+  aktivem und sichtbarem Marktbereich. Alterswarnungen gemäß §8 der Analyse.
+- Historische Daten ausschließlich in **Phase 2.8 / AP5**; kein Historienbudget
+  und keine Historienabrufe in AP4.
+- Zunächst **kein gemeinsamer serverseitiger Cache**. Mempool- und
+  Difficulty-Abfragen bleiben unverändert.
+- API-Schlüssel ausschließlich als **serverseitiges Cloudflare-Pages-Secret**;
+  kein Browser-/Buildsecret und keine Übernahme in Repository oder Dokumentation.
+
+Diese Festlegungen ersetzen die noch offenen Produkt-/Kostenannahmen für AP4,
+belegen aber keine konkreten Kontolimits oder vertraglichen Nutzungsrechte.
+Offen bleiben die tatsächlichen Monats-/Minutenlimits, Reset und bisheriger
+Verbrauch, die Demo-Rechte für private Anzeige, kurzzeitigen Queryspeicher und
+ATH-Ableitung sowie genau eine begrenzte authentifizierte Schema-/Größenprobe.
+Die öffentliche Dokumentation ist kein Nachweis dieser Kontofreigaben.
+
+Vertragstreue Implementierung mit synthetischen Testfixtures ist freigegeben.
+Die serverseitige Variable `MARKET_SNAPSHOT_ENABLED` bleibt standardmäßig
+`false`; allein ein vorhandenes `COINGECKO_DEMO_API_KEY`-Secret schaltet keine
+Providerrequests frei. Erst nach dokumentierter Schließung der Betriebsnachweise
+darf der Betreiber die jeweilige Pages-Umgebung separat aktivieren. Ein Merge,
+grüne CI oder ein Preview mit Testfixtures ersetzt diese Freigabe nicht.
+
+### Noch erforderliche Nachweise
+
+`proposed` bleibt bestehen, bis die verbleibenden Konto-/Rechtenachweise und die
+bereinigte begrenzte Snapshot-Schema-/Größenprobe im freigegebenen Konto vorliegen.
+Die oben bestätigten Betreiberentscheidungen müssen nicht erneut bestätigt werden.
+Vor AP5: Historienberechtigung
 und erweitertes Budget bestätigen. Deployter SHA und authentifizierter Accesspfad
 sind weiterhin separate Release-Nachweise. Keine stillschweigende Annahme durch
 Merge dieses Planungs-PR.
