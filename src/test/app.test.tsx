@@ -44,7 +44,7 @@ describe('dashboard shell', () => {
           ? 'Difficulty-Prognose · mempool.space'
           : path === '/' || path === '/blockchain'
             ? 'Blockchain · mempool.space'
-            : 'Vorschau · Keine Live-Daten',
+            : 'Marktsnapshot · CoinGecko',
       ),
     ).toBeInTheDocument()
   })

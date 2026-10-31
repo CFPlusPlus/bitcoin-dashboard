@@ -1,6 +1,7 @@
 import { test as base, expect } from '@playwright/test'
 import type { BitcoinResources } from '../shared/bitcoin'
 import { block, difficulty } from '../src/test/bitcoin-fixtures'
+import { marketSnapshot } from '../src/test/market-fixtures'
 
 const resources: BitcoinResources = {
   'difficulty-adjustment': difficulty,
@@ -29,7 +30,8 @@ export const test = base.extend<{ browserDiagnostics: void; apiStatus: number }>
           new RegExp(
             `Failed to load resource: the server responded with a status of ${apiStatus}\\b`,
           ).test(message.text()) &&
-          message.location().url.startsWith('http://127.0.0.1:8799/api/bitcoin/')
+          (message.location().url.startsWith('http://127.0.0.1:8799/api/bitcoin/') ||
+            message.location().url === 'http://127.0.0.1:8799/api/market/snapshot')
         if (message.type() === 'error' && !expectedHttpError) errors.push(message.text())
       })
       await page.route('**/*', async (route) => {
@@ -38,6 +40,10 @@ export const test = base.extend<{ browserDiagnostics: void; apiStatus: number }>
           errors.push(`Unexpected external request: ${url.origin}${url.pathname}`)
           await route.abort()
         } else if (url.pathname.startsWith('/api/')) {
+          if (url.pathname === '/api/market/snapshot') {
+            await route.fulfill({ json: marketSnapshot() })
+            return
+          }
           const resource = url.pathname.replace('/api/bitcoin/', '')
           if (!Object.hasOwn(resources, resource)) {
             errors.push(`Unmocked API request: ${url.pathname}`)
