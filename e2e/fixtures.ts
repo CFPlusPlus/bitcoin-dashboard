@@ -1,8 +1,9 @@
 import { test as base, expect } from '@playwright/test'
 import type { BitcoinResources } from '../shared/bitcoin'
-import { block } from '../src/test/bitcoin-fixtures'
+import { block, difficulty } from '../src/test/bitcoin-fixtures'
 
 const resources: BitcoinResources = {
+  'difficulty-adjustment': difficulty,
   height: { height: 900000 },
   'latest-block': block,
   blocks: [block],

@@ -2,6 +2,7 @@ import { test, expect } from './fixtures'
 import type { Page } from '@playwright/test'
 import type { BitcoinResources } from '../shared/bitcoin'
 import { writeFileSync } from 'node:fs'
+import { difficulty } from '../src/test/bitcoin-fixtures'
 
 test.use({ timezoneId: 'Europe/Berlin' })
 
@@ -15,6 +16,7 @@ const blocks = Array.from({ length: 6 }, (_, index) => ({
   weightUnits: 3993216 - index * 971,
 }))
 const data: BitcoinResources = {
+  'difficulty-adjustment': difficulty,
   height: { height: 900000 },
   blocks,
   'latest-block': blocks[0],
@@ -49,9 +51,14 @@ async function fixture(page: Page) {
       .split('/')
       .at(-1) as keyof BitcoinResources
     state.requests.push(resource)
-    const seconds = { height: '12', blocks: '11', fees: '10', mempool: '09', 'latest-block': '11' }[
-      resource
-    ]
+    const seconds = {
+      height: '12',
+      blocks: '11',
+      fees: '10',
+      mempool: '09',
+      'latest-block': '11',
+      'difficulty-adjustment': '08',
+    }[resource]
     const retrievedAt = new Date(
       (await page.evaluate(() => Date.now())) - (30 - Number(seconds)) * 1000,
     ).toISOString()

@@ -14,10 +14,12 @@ export function PageHeading({
   title,
   description,
   live = false,
+  sourceLabel,
 }: {
   title: string
   description: string
   live?: boolean
+  sourceLabel?: string
 }) {
   return (
     <div className="page-heading">
@@ -34,7 +36,7 @@ export function PageHeading({
         <p className="page-description">{description}</p>
       </div>
       <span className="page-source">
-        {live ? 'Blockchain · mempool.space' : 'Vorschau · Keine Live-Daten'}
+        {sourceLabel ?? (live ? 'Blockchain · mempool.space' : 'Vorschau · Keine Live-Daten')}
       </span>
     </div>
   )

@@ -1,0 +1,123 @@
+.difficulty-adjustment {
+  margin-bottom: var(--space-6);
+  padding: var(--space-8);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+.difficulty-adjustment :is(div, dl) {
+  min-width: 0;
+}
+.difficulty-adjustment :is(p, dd, a) {
+  overflow-wrap: anywhere;
+}
+.difficulty-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+  margin-block: var(--space-6);
+}
+.difficulty-label,
+.difficulty-facts dt,
+.difficulty-progress-label,
+.difficulty-note {
+  color: var(--foreground-secondary);
+  font: var(--text-label)/1.7 var(--font-technical);
+}
+.difficulty-value {
+  color: var(--data-primary);
+  font: 500 clamp(2.5rem, 5vw, 4.5rem)/1.2 var(--font-technical);
+  letter-spacing: -0.06em;
+  font-variant-numeric: tabular-nums;
+  margin-block: var(--space-2);
+}
+.difficulty-direction {
+  margin-bottom: var(--space-3);
+}
+.difficulty-forecast > .difficulty-note {
+  max-width: 46ch;
+}
+.difficulty-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+.difficulty-facts dd {
+  font: 500 1.5rem/1.5 var(--font-technical);
+  font-variant-numeric: tabular-nums;
+}
+.difficulty-date {
+  grid-column: 1 / -1;
+}
+.difficulty-date dd {
+  font-size: 1rem;
+}
+.difficulty-progress-label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: var(--space-5);
+}
+.difficulty-progress-label strong {
+  color: var(--foreground);
+  font-weight: 500;
+}
+.difficulty-adjustment progress,
+.difficulty-progress-empty {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 6px;
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-block: var(--space-2);
+  background: var(--border);
+}
+.difficulty-adjustment progress::-webkit-progress-bar {
+  background: var(--border);
+}
+.difficulty-adjustment progress::-webkit-progress-value {
+  background: var(--data-secondary);
+}
+.difficulty-adjustment progress::-moz-progress-bar {
+  background: var(--data-secondary);
+}
+.difficulty-footer {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-4);
+}
+.difficulty-footer .resource-status {
+  margin-top: 0;
+}
+.difficulty-footer > p {
+  margin-top: var(--space-2);
+}
+.resource-badge[data-state='Abruffehler'] {
+  color: var(--warning);
+}
+.difficulty-adjustment button:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+@media (max-width: 56.25rem) {
+  .difficulty-adjustment {
+    padding: var(--space-6);
+  }
+  .difficulty-body {
+    gap: var(--space-6);
+  }
+}
+@media (max-width: 43.75rem) {
+  .difficulty-adjustment {
+    padding: var(--space-5);
+  }
+  .difficulty-body {
+    grid-template-columns: 1fr;
+  }
+  .difficulty-epoch {
+    border-top: 1px solid var(--border);
+    padding-top: var(--space-5);
+  }
+}

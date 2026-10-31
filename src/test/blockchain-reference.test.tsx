@@ -7,6 +7,7 @@ import { FeeHistogram } from '@/components/blockchain/fee-histogram'
 import Blockchain from '@/pages/blockchain'
 import { block, envelope } from './bitcoin-fixtures'
 import type { BitcoinResources } from '../../shared/bitcoin'
+import { difficulty } from './bitcoin-fixtures'
 
 const histogram = [
   { feeRate: 0.1, virtualSizeBytes: 1_000_000 },
@@ -14,6 +15,7 @@ const histogram = [
 ]
 const clients: QueryClient[] = []
 const resources: BitcoinResources = {
+  'difficulty-adjustment': difficulty,
   height: { height: 900000 },
   blocks: [block, { ...block, hash: 'b'.repeat(64), height: 899999 }],
   'latest-block': block,

@@ -6,6 +6,7 @@ import {
   MAX_HISTOGRAM_ENTRIES,
 } from '../../shared/bitcoin-limits'
 import { number } from '../../shared/bitcoin-number'
+import { parseDifficultyAdjustment, retargetTimestamp } from '../../shared/difficulty-adjustment'
 import { cancelBody, readBoundedText, UpstreamError } from './upstream'
 
 function object(value: unknown): Record<string, unknown> {
@@ -77,7 +78,25 @@ export function parseMempool(value: unknown): Mempool {
   }
 }
 
-export const resources = ['height', 'latest-block', 'blocks', 'fees', 'mempool'] as const
+export function parseDifficulty(value: unknown) {
+  const data = object(value)
+  return parseDifficultyAdjustment({
+    estimatedChangePercent: data.difficultyChange,
+    remainingBlocks: data.remainingBlocks,
+    progressPercent: data.progressPercent,
+    nextRetargetHeight: data.nextRetargetHeight,
+    estimatedRetargetAt: new Date(retargetTimestamp(data.estimatedRetargetDate)).toISOString(),
+  })
+}
+
+export const resources = [
+  'height',
+  'latest-block',
+  'blocks',
+  'fees',
+  'mempool',
+  'difficulty-adjustment',
+] as const
 export type Resource = keyof BitcoinResources
 
 // Limits apply to bytes actually delivered by the response stream.
@@ -87,6 +106,7 @@ export const responseByteLimits: Record<Resource, number> = {
   blocks: 64 * 1024,
   fees: 4 * 1024,
   mempool: 1024 * 1024,
+  'difficulty-adjustment': 4 * 1024,
 }
 
 export async function fetchBitcoin<K extends Resource>(
@@ -99,6 +119,7 @@ export async function fetchBitcoin<K extends Resource>(
     blocks: '/blocks',
     fees: '/v1/fees/recommended',
     mempool: '/mempool',
+    'difficulty-adjustment': '/v1/difficulty-adjustment',
   }
   const timeout = AbortSignal.timeout(8_000)
   const controller = new AbortController()
@@ -125,6 +146,7 @@ export async function fetchBitcoin<K extends Resource>(
         blocks: parseBlocks,
         fees: parseFees,
         mempool: parseMempool,
+        'difficulty-adjustment': parseDifficulty,
       }
       const data = parsers[resource](raw) as BitcoinResources[K]
       return { data, source: 'mempool.space', updatedAt: new Date().toISOString() }
