@@ -1,5 +1,36 @@
 export type Currency = 'usd' | 'eur'
 
+export const MARKET_HISTORY_DAYS = [1, 7, 30, 90, 365] as const
+export type HistoryDays = (typeof MARKET_HISTORY_DAYS)[number]
+
+// Application freshness targets, not a promise about the provider's update cadence.
+export const HISTORY_TTL_MS: Record<HistoryDays, number> = {
+  1: 5 * 60_000,
+  7: 10 * 60_000,
+  30: 15 * 60_000,
+  90: 30 * 60_000,
+  365: 60 * 60_000,
+}
+
+export const HISTORY_LIMITS = {
+  rawBytes: 1024 * 1024,
+  responseBytes: 256 * 1024,
+  maxPoints: 3000,
+  dayMs: 86_400_000,
+} as const
+
+export type MarketHistoryResponse = {
+  data: {
+    asset: 'BTC'
+    currency: Currency
+    days: HistoryDays
+    points: { timestamp: number; price: number }[]
+  }
+  source: 'coingecko'
+  provider: typeof MARKET_PROVIDER
+  updatedAt: string
+}
+
 export const MARKET_PROVIDER = {
   assetId: 'bitcoin',
   market: 'aggregated',

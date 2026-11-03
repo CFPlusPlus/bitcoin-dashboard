@@ -1,10 +1,15 @@
 // @vitest-environment node
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { onRequest } from '../../functions/api/market/[resource]'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createMarketHandler } from '../../functions/api/market/[resource]'
 import { COINGECKO_SNAPSHOT_URL, fetchMarketSnapshot } from '../../functions/lib/coingecko'
 import { MARKET_LIMITS } from '../../shared/market'
 import { parseMarketSnapshot } from '../../shared/market-validation'
 import { rawMarket } from './market-fixtures'
+
+let onRequest = createMarketHandler()
+beforeEach(() => {
+  onRequest = createMarketHandler()
+})
 
 function context(
   env = { COINGECKO_DEMO_API_KEY: 'synthetic-key', MARKET_SNAPSHOT_ENABLED: 'true' },
@@ -92,8 +97,8 @@ describe('market Pages route and bounded Demo adapter', () => {
       expect(fetcher).not.toHaveBeenCalled()
     },
   )
-  it('returns 404 for history and 405 with Allow for non-GET', async () => {
-    expect((await onRequest(context(undefined, 'history'))).status).toBe(404)
+  it('returns 404 for unknown resources and 405 with Allow for non-GET', async () => {
+    expect((await onRequest(context(undefined, 'unknown'))).status).toBe(404)
     const response = await onRequest(context(undefined, 'snapshot', 'POST'))
     expect(response.status).toBe(405)
     expect(response.headers.get('Allow')).toBe('GET')
