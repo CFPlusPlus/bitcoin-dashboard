@@ -1,6 +1,9 @@
 import {
   MARKET_LIMITS,
   MARKET_PROVIDER,
+  HISTORY_LIMITS,
+  type HistoryDays,
+  type MarketHistoryResponse,
   type Currency,
   type MarketQuote,
   type MarketSnapshotResponse,
@@ -11,6 +14,9 @@ import {
   marketPrice,
   marketTime,
   parseMarketSnapshot,
+  parseMarketHistory,
+  marketCurrency,
+  historyDays,
 } from '../../shared/market-validation'
 import { number } from '../../shared/bitcoin-number'
 import { cancelBody, readBoundedText, UpstreamError } from './upstream'
@@ -67,13 +73,82 @@ export function normalizeCoinGecko(value: unknown, now = Date.now()): MarketSnap
   )
 }
 
-export async function fetchMarketSnapshot(key: string, fetcher: typeof fetch = fetch) {
+export function normalizeCoinGeckoHistory(
+  value: unknown,
+  currency: Currency,
+  days: HistoryDays,
+  now = Date.now(),
+): MarketHistoryResponse {
+  const prices = marketObject(value).prices
+  if (!Array.isArray(prices) || prices.length > HISTORY_LIMITS.maxPoints)
+    throw new Error('Invalid prices')
+  return parseMarketHistory(
+    {
+      data: {
+        asset: 'BTC',
+        currency,
+        days,
+        points: prices.map((pair: unknown) => {
+          if (!Array.isArray(pair) || pair.length !== 2) throw new Error('Invalid price pair')
+          return { timestamp: pair[0], price: pair[1] }
+        }),
+      },
+      source: 'coingecko',
+      provider: MARKET_PROVIDER,
+      updatedAt: new Date(now).toISOString(),
+    },
+    currency,
+    days,
+    now,
+  )
+}
+
+export function coinGeckoHistoryUrl(currency: Currency, days: HistoryDays) {
+  // Validate even typed arguments at the trust boundary; never accept a caller-supplied URL.
+  return `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=${marketCurrency(currency)}&days=${historyDays(days)}`
+}
+
+export function fetchMarketSnapshot(key: string, fetcher: typeof fetch = fetch) {
+  return fetchCoinGecko(
+    COINGECKO_SNAPSHOT_URL,
+    key,
+    normalizeCoinGecko,
+    MARKET_LIMITS.rawBytes,
+    MARKET_LIMITS.snapshotBytes,
+    fetcher,
+  )
+}
+
+export function fetchMarketHistory(
+  key: string,
+  currency: Currency,
+  days: HistoryDays,
+  fetcher: typeof fetch = fetch,
+) {
+  return fetchCoinGecko(
+    coinGeckoHistoryUrl(currency, days),
+    key,
+    (value) => normalizeCoinGeckoHistory(value, currency, days),
+    HISTORY_LIMITS.rawBytes,
+    HISTORY_LIMITS.responseBytes,
+    fetcher,
+  )
+}
+
+async function fetchCoinGecko<T>(
+  url: string,
+  key: string,
+  normalize: (value: unknown) => T,
+  rawLimit: number,
+  normalizedLimit: number,
+  fetcher: typeof fetch,
+) {
   const timeout = AbortSignal.timeout(8_000)
   const controller = new AbortController()
   const signal = AbortSignal.any([timeout, controller.signal])
   let status: number | undefined
   try {
-    const response = await fetcher(COINGECKO_SNAPSHOT_URL, {
+    const response = await fetcher(url, {
       method: 'GET',
       headers: { Accept: 'application/json', 'x-cg-demo-api-key': key },
       signal,
@@ -85,16 +160,17 @@ export async function fetchMarketSnapshot(key: string, fetcher: typeof fetch = f
       cancelBody(response)
       throw new UpstreamError(status === 429 ? 'rate_limit' : 'http', status)
     }
-    if (!response.headers.get('content-type')?.toLowerCase().includes('application/json')) {
+    if (
+      response.headers.get('content-type')?.split(';')[0].trim().toLowerCase() !==
+      'application/json'
+    ) {
       cancelBody(response)
       throw new UpstreamError('invalid_data', status)
     }
-    const text = await readBoundedText(response, MARKET_LIMITS.rawBytes, signal)
+    const text = await readBoundedText(response, rawLimit, signal)
     try {
-      const snapshot = normalizeCoinGecko(JSON.parse(text))
-      if (
-        new TextEncoder().encode(JSON.stringify(snapshot)).byteLength > MARKET_LIMITS.snapshotBytes
-      )
+      const snapshot = normalize(JSON.parse(text))
+      if (new TextEncoder().encode(JSON.stringify(snapshot)).byteLength > normalizedLimit)
         throw new Error('Oversized normalized snapshot')
       return snapshot
     } catch {

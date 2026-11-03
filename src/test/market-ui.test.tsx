@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { useState } from 'react'
 import {
   QueryClient,
   QueryClientProvider,
@@ -7,12 +8,17 @@ import {
   onlineManager,
 } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { MarketSnapshot } from '@/components/market/snapshot'
+import { MarketSnapshot as ControlledSnapshot } from '@/components/market/snapshot'
+import type { Currency } from '../../shared/market'
 import { marketManualAt, marketOptions, marketRetryAt } from '@/lib/market'
 import { marketPolicy } from '@/lib/market-policy'
 import { marketSnapshot, MARKET_TEST_NOW } from './market-fixtures'
 
 const clients: QueryClient[] = []
+function MarketSnapshot() {
+  const [currency, setCurrency] = useState<Currency>('usd')
+  return <ControlledSnapshot currency={currency} onCurrencyChange={setCurrency} />
+}
 function client() {
   const value = new QueryClient()
   clients.push(value)

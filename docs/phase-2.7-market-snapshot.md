@@ -5,6 +5,10 @@ Stand: **31. Oktober 2026**, Europe/Berlin. Repository:
 `8c2fec8f2e14b1ca2647e2972189e2421bca0dd9`.
 Branch: `feature/phase-2.7-market-snapshot`.
 
+Nachfolgestand: [Phase 2.8](phase-2.8-market-history.md) ergänzt die Historie.
+Die nachstehenden Freigabeangaben beschreiben Phase 2.7; der aktuelle Checkout
+enthält bereits `MARKET_SNAPSHOT_ENABLED=true` (Commit `be53471`).
+
 **Implementierung vorbereitet, produktiver Providerbetrieb gesperrt.**
 [ADR 0002](adr/0002-market-data-provider.md) bleibt `proposed`, mit bedingt
 freigegebenen Betreiberentscheidungen. Synthetische Fixtures prüfen ausschließlich
