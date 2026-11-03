@@ -100,7 +100,7 @@ for (const scenario of [
       expect(
         (await runtime.dispatchFetch('http://localhost/api/market/snapshot?currency=eur')).status,
       ).toBe(400)
-      expect((await runtime.dispatchFetch('http://localhost/api/market/history')).status).toBe(404)
+      expect((await runtime.dispatchFetch('http://localhost/api/market/history')).status).toBe(400)
       const post = await runtime.dispatchFetch('http://localhost/api/market/snapshot', {
         method: 'POST',
       })

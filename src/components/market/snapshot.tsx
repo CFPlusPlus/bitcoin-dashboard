@@ -1,34 +1,18 @@
-import { useEffect, useState } from 'react'
-import { useMarketSnapshot } from '@/lib/market'
+import { useMarketClock, useMarketSnapshot } from '@/lib/market'
 import { marketAge } from '@/lib/market-policy'
 import { formatNumber, formatTime } from '@/lib/bitcoin'
 import { MARKET_PROVIDER, type Currency } from '../../../shared/market'
 import '@/styles/market.css'
 
-function useVisibleClock() {
-  const [now, setNow] = useState(Date.now)
-  useEffect(() => {
-    let timer: ReturnType<typeof setInterval> | undefined
-    const visibility = () => {
-      clearInterval(timer)
-      setNow(Date.now())
-      if (document.visibilityState !== 'hidden')
-        timer = setInterval(() => setNow(Date.now()), 30_000)
-    }
-    visibility()
-    document.addEventListener('visibilitychange', visibility)
-    return () => {
-      clearInterval(timer)
-      document.removeEventListener('visibilitychange', visibility)
-    }
-  }, [])
-  return now
-}
-
-export function MarketSnapshot() {
-  const [currency, setCurrency] = useState<Currency>('usd')
+export function MarketSnapshot({
+  currency,
+  onCurrencyChange,
+}: {
+  currency: Currency
+  onCurrencyChange: (currency: Currency) => void
+}) {
   const query = useMarketSnapshot()
-  const now = useVisibleClock()
+  const now = useMarketClock()
   const snapshot = query.data
   const quote = snapshot?.data.quotes[currency]
   const age = snapshot ? marketAge(snapshot, now) : undefined
@@ -68,7 +52,7 @@ export function MarketSnapshot() {
             Währung{' '}
             <select
               value={currency}
-              onChange={(event) => setCurrency(event.target.value as Currency)}
+              onChange={(event) => onCurrencyChange(event.target.value as Currency)}
             >
               <option value="usd">USD</option>
               <option value="eur">EUR</option>

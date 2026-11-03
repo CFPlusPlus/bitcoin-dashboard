@@ -2,6 +2,8 @@ import { test as base, expect } from '@playwright/test'
 import type { BitcoinResources } from '../shared/bitcoin'
 import { block, difficulty } from '../src/test/bitcoin-fixtures'
 import { marketSnapshot } from '../src/test/market-fixtures'
+import { marketHistory } from '../src/test/market-history-fixtures'
+import { historyDays, marketCurrency } from '../shared/market-validation'
 
 const resources: BitcoinResources = {
   'difficulty-adjustment': difficulty,
@@ -31,7 +33,7 @@ export const test = base.extend<{ browserDiagnostics: void; apiStatus: number }>
             `Failed to load resource: the server responded with a status of ${apiStatus}\\b`,
           ).test(message.text()) &&
           (message.location().url.startsWith('http://127.0.0.1:8799/api/bitcoin/') ||
-            message.location().url === 'http://127.0.0.1:8799/api/market/snapshot')
+            message.location().url.startsWith('http://127.0.0.1:8799/api/market/'))
         if (message.type() === 'error' && !expectedHttpError) errors.push(message.text())
       })
       await page.route('**/*', async (route) => {
@@ -42,6 +44,16 @@ export const test = base.extend<{ browserDiagnostics: void; apiStatus: number }>
         } else if (url.pathname.startsWith('/api/')) {
           if (url.pathname === '/api/market/snapshot') {
             await route.fulfill({ json: marketSnapshot() })
+            return
+          }
+          if (url.pathname === '/api/market/history') {
+            await route.fulfill({
+              json: marketHistory(
+                await page.evaluate(() => Date.now()),
+                historyDays(Number(url.searchParams.get('days'))),
+                marketCurrency(url.searchParams.get('currency')),
+              ),
+            })
             return
           }
           const resource = url.pathname.replace('/api/bitcoin/', '')

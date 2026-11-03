@@ -11,6 +11,7 @@ import { HeightMetric } from '@/components/bitcoin-data'
 import { dashboardNavigation } from '@/lib/bitcoin'
 import { createQueryClient } from '@/lib/query-client'
 import { envelope } from './bitcoin-fixtures'
+import { marketHistory } from './market-history-fixtures'
 
 const failures = vi.hoisted(() => ({ view: false, chart: false }))
 const secret = 'private error details / token=secret'
@@ -24,6 +25,12 @@ vi.mock('@/components/demo-chart', () => ({
   default: () => {
     if (failures.chart) throw new Error('private error details / token=secret')
     return <div>Demo chart</div>
+  },
+}))
+vi.mock('@/components/market/history-chart', () => ({
+  default: () => {
+    if (failures.chart) throw new Error('private error details / token=secret')
+    return <div>History chart</div>
   },
 }))
 
@@ -134,6 +141,14 @@ describe('rendering error recovery', () => {
 
   it('contains lazy chart rendering errors and remounts the chart on retry', async () => {
     failures.chart = true
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: string) =>
+        input.includes('/history')
+          ? Promise.resolve(Response.json(marketHistory(Date.now())))
+          : new Promise(() => {}),
+      ),
+    )
     renderApp('/market')
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Das Diagramm konnte nicht angezeigt werden',
@@ -142,7 +157,7 @@ describe('rendering error recovery', () => {
     expect(screen.getByText('Marktkapitalisierung')).toBeInTheDocument()
     failures.chart = false
     await userEvent.click(screen.getByRole('button', { name: 'Erneut versuchen' }))
-    expect(await screen.findByText('Demo chart')).toBeInTheDocument()
+    expect(await screen.findByText('History chart')).toBeInTheDocument()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 

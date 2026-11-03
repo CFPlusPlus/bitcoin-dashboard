@@ -16,8 +16,10 @@ for (const theme of ['dark', 'light'] as const) {
       await page.clock.install({ time: MARKET_TEST_NOW })
       await page.goto('/market')
       await expect(page.getByLabel(/Bitcoin-Kurs: 80\.000,00/)).toBeVisible()
-      await expect(page.getByText('Synthetische Demo-Daten')).toBeVisible()
-      await expect(page.getByText('Chart-Vorschau · Index statt Kurswerten')).toBeVisible()
+      await expect(page.getByText('Synthetische Demo-Daten')).toHaveCount(0)
+      await expect(
+        page.getByRole('img', { name: /Bitcoin-Kursverlauf in USD · 30 Tage/ }),
+      ).toBeVisible()
       const currency = page.getByRole('combobox', { name: 'Währung' })
       await currency.focus()
       await page.keyboard.press('ArrowDown')
@@ -27,7 +29,9 @@ for (const theme of ['dark', 'light'] as const) {
       await expect(page.getByLabel(/Bitcoin-Kurs: 72\.000,00/)).toBeVisible()
       await expect(page.getByLabel(/Marktkapitalisierung: 1\.440\.000\.000\.000,00/)).toBeVisible()
       await expect(page.getByText('+1,25 %', { exact: true })).toBeVisible()
-      await expect(page.locator('time[datetime="2026-02-01T12:00:00.000Z"]')).toBeVisible()
+      await expect(
+        page.locator('.market-snapshot time[datetime="2026-02-01T12:00:00.000Z"]'),
+      ).toBeVisible()
       await expect(page.getByRole('link', { name: 'Powered by CoinGecko' })).toHaveAttribute(
         'href',
         'https://www.coingecko.com/en/api/',
@@ -39,7 +43,7 @@ for (const theme of ['dark', 'light'] as const) {
       )
       expect(calls).toBe(1)
       await page.screenshot({
-        path: `docs/screenshots/phase-2.7/market-${width}-${theme}.png`,
+        path: `test-results/phase-2.8/market-${width}-${theme}.png`,
         fullPage: true,
       })
     })
@@ -64,7 +68,7 @@ for (const theme of ['dark', 'light'] as const) {
     await expect(page.locator('canvas').first()).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await page.screenshot({
-      path: `docs/screenshots/phase-2.7/market-320-text-200-${theme}.png`,
+      path: `test-results/phase-2.8/market-320-text-200-${theme}.png`,
       fullPage: true,
     })
   })
@@ -90,6 +94,7 @@ test('market keyboard refresh and inactive route budget', async ({ page }) => {
     .getByRole('navigation')
     .getByRole('link', { name: 'Netzwerk & Mining', exact: true })
     .click()
+  await expect(page.getByRole('heading', { name: 'Netzwerk & Mining', exact: true })).toBeVisible()
   await page.clock.fastForward(6 * 60_000)
   expect(calls).toBe(2)
   await page.getByRole('navigation').getByRole('link', { name: 'Markt', exact: true }).click()
@@ -151,7 +156,7 @@ for (const state of ['loading', 'error', 'stale', 'cooldown', 'not-released'] as
         )
         await expect(page.locator('canvas').first()).toBeVisible()
         await page.screenshot({
-          path: `docs/screenshots/phase-2.7/market-${state}-390-${theme}.png`,
+          path: `test-results/phase-2.8/market-${state}-390-${theme}.png`,
           fullPage: true,
         })
       })
@@ -182,7 +187,9 @@ test.describe('market refresh failure', () => {
       'letzte erfolgreiche Snapshot bleibt sichtbar',
     )
     await expect(page.getByLabel(/Bitcoin-Kurs: 80\.000,00/)).toBeVisible()
-    await expect(page.locator('time[datetime="2026-10-31T10:00:00.000Z"]')).toBeVisible()
+    await expect(
+      page.locator('.market-snapshot time[datetime="2026-10-31T10:00:00.000Z"]'),
+    ).toBeVisible()
     await page.clock.fastForward(60_000)
     await button.focus()
     await page.keyboard.press('Enter')
