@@ -110,7 +110,9 @@ describe('real chart lifecycle inside the local boundary', () => {
       expect(screen.getByText('Andere Dashboard-Informationen')).toBeInTheDocument()
       expect(echarts.init).toHaveBeenCalled()
       expect(charts).toHaveLength(stage === 'init-before' ? 0 : echarts.init.mock.calls.length)
-      expect(observers).toHaveLength(stage === 'observe' ? charts.length : 0)
+      expect(observers).toHaveLength(
+        stage === 'observe' || stage === 'setOption' ? charts.length : 0,
+      )
       expectReleased()
 
       failure = null
@@ -157,17 +159,17 @@ describe('real chart lifecycle inside the local boundary', () => {
     expectReleased()
   })
 
-  it('cleans up on theme changes, StrictMode remounts and unmount', async () => {
+  it('updates the existing instance on theme changes and cleans up StrictMode remounts and unmount', async () => {
     const { client, rerender, unmount } = mount()
     await screen.findByRole('img', { name: /Demo-Chart/ })
     const previous = charts.at(-1)!
     const previousObserver = observers.at(-1)!
     rerender(view(client, 'light'))
-    expect(previous.dispose).toHaveBeenCalledOnce()
-    expect(previousObserver.disconnect).toHaveBeenCalledOnce()
-    act(() => previousObserver.notify())
-    expect(previous.resize).not.toHaveBeenCalled()
+    expect(previous.dispose).not.toHaveBeenCalled()
+    expect(previousObserver.disconnect).not.toHaveBeenCalled()
+    expect(previous.setOption).toHaveBeenCalledTimes(2)
     const current = charts.at(-1)!
+    expect(current).toBe(previous)
     act(() => observers.at(-1)!.notify())
     expect(current.resize).toHaveBeenCalledOnce()
     unmount()

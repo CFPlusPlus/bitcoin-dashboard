@@ -1,7 +1,11 @@
-import { MetricCard, PageHeading, PlaceholderCard, PriceChart } from '@/components/dashboard'
+import { useState } from 'react'
+import { MetricCard, PageHeading, PlaceholderCard } from '@/components/dashboard'
 import { MarketSnapshot } from '@/components/market/snapshot'
+import { MarketHistory } from '@/components/market/history'
+import type { Currency } from '../../shared/market'
 
 export default function Market() {
+  const [currency, setCurrency] = useState<Currency>('usd')
   return (
     <>
       <PageHeading
@@ -9,9 +13,9 @@ export default function Market() {
         description="Kursentwicklung, Bewertung und Marktstimmung."
         sourceLabel="Marktsnapshot · CoinGecko"
       />
-      <MarketSnapshot />
+      <MarketSnapshot currency={currency} onCurrencyChange={setCurrency} />
       <div className="dashboard-grid">
-        <PriceChart />
+        <MarketHistory currency={currency} />
         <PlaceholderCard
           className="col-span-12 xl:col-span-4"
           title="Sats-Rechner"

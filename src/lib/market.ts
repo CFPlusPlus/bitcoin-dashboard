@@ -1,7 +1,19 @@
-import { useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import { queryOptions, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
-import { MARKET_ERROR_STATUS, MARKET_LIMITS, type MarketErrorCode } from '../../shared/market'
-import { marketObject, parseMarketSnapshot } from '../../shared/market-validation'
+import {
+  MARKET_ERROR_STATUS,
+  MARKET_LIMITS,
+  HISTORY_LIMITS,
+  HISTORY_TTL_MS,
+  type Currency,
+  type HistoryDays,
+  type MarketErrorCode,
+} from '../../shared/market'
+import {
+  marketObject,
+  parseMarketSnapshot,
+  parseMarketHistory,
+} from '../../shared/market-validation'
 // Pure bounded stream utility; this module contains no adapter, URL or secret.
 import { cancelBody, readBoundedText, UpstreamError } from '../../functions/lib/upstream'
 import { marketPolicy } from './market-policy'
@@ -54,13 +66,19 @@ export function marketManualAt(client: QueryClient) {
   )
 }
 
-async function snapshotRequest(client: QueryClient, signal: AbortSignal) {
+async function marketRequest<T>(
+  client: QueryClient,
+  signal: AbortSignal,
+  path: string,
+  limit: number,
+  parse: (value: unknown) => T,
+) {
   const budget = state(client)
   if (budget.retryAt > Date.now()) throw new MarketRequestError('UPSTREAM_RATE_LIMIT')
   budget.lastAttemptAt = Date.now()
   const requestSignal = AbortSignal.any([signal, AbortSignal.timeout(15_000)])
   try {
-    const response = await fetch('/api/market/snapshot', {
+    const response = await fetch(path, {
       signal: requestSignal,
       credentials: 'same-origin',
       redirect: 'error',
@@ -76,13 +94,16 @@ async function snapshotRequest(client: QueryClient, signal: AbortSignal) {
       budget.retryAt = Date.now() + marketPolicy.cooldownMs
       throw new MarketRequestError('UPSTREAM_RATE_LIMIT')
     }
-    if (!response.headers.get('content-type')?.toLowerCase().includes('application/json')) {
+    if (
+      response.headers.get('content-type')?.split(';')[0].trim().toLowerCase() !==
+      'application/json'
+    ) {
       cancelBody(response)
       throw new MarketRequestError('INVALID_RESPONSE')
     }
     const text = await readBoundedText(
       response,
-      response.ok ? MARKET_LIMITS.snapshotBytes : MARKET_LIMITS.errorBytes,
+      response.ok ? limit : MARKET_LIMITS.errorBytes,
       requestSignal,
     )
     let raw: unknown
@@ -108,7 +129,7 @@ async function snapshotRequest(client: QueryClient, signal: AbortSignal) {
       )
     }
     try {
-      return parseMarketSnapshot(raw)
+      return parse(raw)
     } catch {
       throw new MarketRequestError('INVALID_RESPONSE')
     }
@@ -125,7 +146,14 @@ export function marketOptions(client: QueryClient) {
   const allowed = () => marketRetryAt(client) <= Date.now()
   return queryOptions({
     queryKey: ['market', 'snapshot'],
-    queryFn: ({ signal }) => snapshotRequest(client, signal),
+    queryFn: ({ signal }) =>
+      marketRequest(
+        client,
+        signal,
+        '/api/market/snapshot',
+        MARKET_LIMITS.snapshotBytes,
+        parseMarketSnapshot,
+      ),
     staleTime: marketPolicy.intervalMs,
     gcTime: marketPolicy.gcTimeMs,
     refetchInterval: () => Math.max(marketPolicy.intervalMs, marketRetryAt(client) - Date.now()),
@@ -140,11 +168,77 @@ export function marketOptions(client: QueryClient) {
   })
 }
 
+export function historyOptions(client: QueryClient, currency: Currency, days: HistoryDays) {
+  const allowed = () => marketRetryAt(client) <= Date.now()
+  return queryOptions({
+    queryKey: ['market', 'history', currency, days],
+    queryFn: ({ signal }) =>
+      marketRequest(
+        client,
+        signal,
+        `/api/market/history?currency=${currency}&days=${days}`,
+        HISTORY_LIMITS.responseBytes,
+        (raw) => parseMarketHistory(raw, currency, days),
+      ),
+    // Base freshness on original server retrieval, including isolate cache hits.
+    staleTime: (query) =>
+      Math.max(
+        0,
+        HISTORY_TTL_MS[days] -
+          (query.state.dataUpdatedAt -
+            Date.parse(query.state.data?.updatedAt ?? new Date().toISOString())),
+      ),
+    gcTime: Math.max(2 * HISTORY_TTL_MS[days], marketPolicy.gcTimeMs),
+    refetchInterval: false,
+    refetchOnMount: allowed,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: allowed,
+    retryOnMount: allowed(),
+    retry: (count, error) =>
+      count < 1 && error instanceof MarketRequestError && error.transient && allowed(),
+    retryDelay: () => 5_000 + Math.floor(Math.random() * 5_001),
+  })
+}
+
 const subscribeVisibility = (notify: () => void) => {
   document.addEventListener('visibilitychange', notify)
   return () => document.removeEventListener('visibilitychange', notify)
 }
 const visible = () => document.visibilityState !== 'hidden'
+
+export function useMarketClock() {
+  const [now, setNow] = useState(Date.now)
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval> | undefined
+    const visibility = () => {
+      clearInterval(timer)
+      setNow(Date.now())
+      if (visible()) timer = setInterval(() => setNow(Date.now()), 30_000)
+    }
+    visibility()
+    document.addEventListener('visibilitychange', visibility)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', visibility)
+    }
+  }, [])
+  return now
+}
+
+export function useMarketHistory(currency: Currency, days: HistoryDays) {
+  const client = useQueryClient()
+  const isVisible = useSyncExternalStore(subscribeVisibility, visible)
+  const query = useQuery({ ...historyOptions(client, currency, days), enabled: isVisible })
+  return {
+    ...query,
+    manualAt: marketManualAt(client),
+    retryAt: marketRetryAt(client),
+    refresh: () => {
+      if (isVisible && marketManualAt(client) <= Date.now() && !query.isFetching)
+        void query.refetch()
+    },
+  }
+}
 
 export function useMarketSnapshot() {
   const client = useQueryClient()

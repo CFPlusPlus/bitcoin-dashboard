@@ -5,6 +5,56 @@
   border-radius: var(--radius-panel);
   background: var(--surface);
 }
+.market-history {
+  min-width: 0;
+}
+.market-history-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.market-ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+.market-ranges button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--foreground-secondary);
+  font-family: var(--font-technical);
+}
+.market-ranges button[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.market-ranges button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.market-chart-canvas {
+  height: 320px;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  margin-block: var(--space-4);
+}
+.market-history .market-footer {
+  margin-top: var(--space-4);
+}
+.market-history :is(p, a) {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .market-chart-canvas {
+    height: 288px;
+  }
+}
 .market-snapshot :is(div, dl) {
   min-width: 0;
 }
