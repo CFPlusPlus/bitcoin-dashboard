@@ -84,7 +84,9 @@ describe('Kraken service lifecycle', () => {
     advance(1000)
     expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(-1)
     advance(300)
-    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(0)
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(-1)
+    // The small indicator persists; no feedback timeout publishes a second visual change.
+    expect(notify).toHaveBeenCalledTimes(2)
     socket().message(krakenTicker('BTC/EUR', 72001))
     advance(700)
     expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(0)
@@ -373,12 +375,14 @@ describe('Kraken service lifecycle', () => {
       socket().message(krakenTicker('BTC/EUR', 72010))
       advance(1000)
     })
-    expect(screen.getByText(/↑ Gestiegen/)).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: /Gestiegen um 10 EUR/ })).toBeInTheDocument()
     act(() => {
       socket().message(krakenTicker('BTC/EUR', 72009))
       advance(1000)
     })
-    expect(screen.getByText(/↓ Gefallen/)).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: /Gefallen um 1 EUR/ })).toBeInTheDocument()
+    // The 24-hour percentage belongs to Kraken, independently of the falling tick.
+    expect(screen.getAllByText(/24 h · Kraken: \+1,25 %/)).toHaveLength(2)
     view.unmount()
     expect(socket().closeCount).toBe(1)
     expect(vi.getTimerCount()).toBe(0)

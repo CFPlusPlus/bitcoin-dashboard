@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card'
 import { formatNumber, formatTime } from '@/lib/bitcoin'
 import { useKraken, type LiveStatus } from '@/lib/kraken'
 import { KRAKEN_SYMBOLS } from '@/lib/kraken-protocol'
-import { RollingPrice } from './rolling-price'
+import { SoftPrice } from './soft-price'
 
 const labels: Record<LiveStatus, string> = {
   connecting: 'Verbindung wird aufgebaut',
@@ -45,14 +45,26 @@ export function LivePrices() {
                   {labels[status]}
                 </span>
               </div>
-              <p className="overview-price" data-direction={direction}>
-                <RollingPrice quote={quote} active={status === 'live'} />
+              <p className="overview-price">
+                <SoftPrice quote={quote} active={status === 'live'} />
                 <span className="overview-currency">{currency}</span>
               </p>
-              <p className="overview-tick" data-direction={direction}>
-                {direction && quote
-                  ? `${direction > 0 ? '↑ Gestiegen' : '↓ Gefallen'} · ${formatNumber(Math.abs(quote.delta), 2)} ${currency} zum angezeigten Kurs`
-                  : 'Letzter Handelspreis · Kraken'}
+              <p className="overview-tick">
+                <span
+                  className="overview-tick-direction"
+                  data-direction={direction}
+                  role="img"
+                  aria-label={
+                    direction && quote
+                      ? `${direction > 0 ? 'Gestiegen' : 'Gefallen'} um ${formatNumber(Math.abs(quote.delta), 2)} ${currency} zum vorher angezeigten Kurs`
+                      : status === 'live' && quote?.previousPrice != null
+                        ? 'Unverändert zum vorher angezeigten Kurs'
+                        : 'Kein Kursvergleich'
+                  }
+                >
+                  <span aria-hidden="true">{direction > 0 ? '↑' : direction < 0 ? '↓' : '−'}</span>
+                </span>
+                <span>Letzter Handelspreis · Kraken</span>
               </p>
               <p className="market-note">
                 24 h · Kraken:{' '}

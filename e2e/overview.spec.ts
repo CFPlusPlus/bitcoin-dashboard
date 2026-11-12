@@ -138,16 +138,16 @@ test('Kraken UI changes without layout shift, becomes stale independently, recon
     JSON.stringify(krakenTicker('BTC/EUR', 72010, 'update', await page.evaluate(() => Date.now()))),
   )
   await page.clock.runFor(1000)
-  await expect(eur).toContainText('↑ Gestiegen')
+  await expect(eur.getByRole('img', { name: /Gestiegen um 10 EUR/ })).toBeVisible()
   sockets[0].send(
     JSON.stringify(krakenTicker('BTC/EUR', 72009, 'update', await page.evaluate(() => Date.now()))),
   )
   await page.clock.runFor(1000)
-  await expect(eur).toContainText('↓ Gefallen')
+  await expect(eur.getByRole('img', { name: /Gefallen um 1 EUR/ })).toBeVisible()
   const after = await eur.locator('.overview-price').boundingBox()
   expect(after).toEqual(before)
   await page.clock.runFor(1500)
-  await expect(eur.locator('.overview-price')).toHaveAttribute('data-direction', '0')
+  await expect(eur.locator('.overview-tick-direction')).toHaveAttribute('data-direction', '-1')
   for (let i = 0; i < 13; i++) {
     sockets[0].send(JSON.stringify({ channel: 'heartbeat' }))
     sockets[0].send(
@@ -174,81 +174,6 @@ test('Kraken UI changes without layout shift, becomes stale independently, recon
   await page.getByRole('navigation').getByRole('link', { name: 'Übersicht', exact: true }).click()
   await expect(page.locator('[data-pair-status="live"]')).toHaveCount(2)
   expect(sockets).toHaveLength(3)
-})
-
-test('rolling digits animate only changes, preserve geometry across carries, and respect reduced motion', async ({
-  page,
-}) => {
-  await page.clock.install({ time: now })
-  await page.clock.pauseAt(now)
-  let socket: WebSocketRoute
-  await page.routeWebSocket('wss://ws.kraken.com/v2', (ws) => {
-    socket = ws
-    ws.onMessage(() => {
-      for (const pair of ['BTC/EUR', 'BTC/USD'] as const) {
-        ws.send(JSON.stringify(krakenAck(pair, now)))
-        ws.send(JSON.stringify(krakenTicker(pair, 99999.99, 'snapshot', now)))
-      }
-    })
-  })
-  await page.goto('/')
-  await page.clock.runFor(1)
-  const eur = page.getByRole('region', { name: 'BTC/EUR Live-Kurs' })
-  await expect(eur.locator('.sr-only')).toHaveText('99.999,99')
-  await page.evaluate(() => document.fonts.ready)
-  const before = await eur.locator('.rolling-price').boundingBox()
-  socket!.send(JSON.stringify(krakenTicker('BTC/EUR', 100000, 'update', now + 1)))
-  await page.clock.runFor(1000)
-  await expect(eur.locator('.sr-only')).toHaveText('100.000,00')
-  expect(await eur.locator('.rolling-price').boundingBox()).toEqual(before)
-  await expect(eur.locator('[data-animation]')).toHaveAttribute('data-animation', 'fade')
-  socket!.send(JSON.stringify(krakenTicker('BTC/EUR', 100001, 'update', now + 1001)))
-  await page.clock.runFor(1000)
-  await expect(eur.locator('.sr-only')).toHaveText('100.001,00')
-  await expect(eur.locator('[data-rolling]')).toHaveCount(1)
-  await expect(eur.locator('.price-separator [data-rolling]')).toHaveCount(0)
-  expect(
-    await eur.locator('[data-rolling]').evaluate((el) => getComputedStyle(el).animationName),
-  ).toBe('overview-digit-up')
-  await page.evaluate(() => {
-    document.querySelectorAll('.overview-price').forEach((el) =>
-      el.getAnimations({ subtree: true }).forEach((animation) => {
-        animation.pause()
-        animation.currentTime = 130
-      }),
-    )
-    const caption = document.createElement('p')
-    caption.textContent =
-      'Testfixture OV-2101 · synthetische Prüfdaten · Ziffernübergang bei 130 ms'
-    document.querySelector('main')!.prepend(caption)
-  })
-  await page.screenshot({
-    path: 'docs/screenshots/phase-2.10.1/overview-rolling-fixture.png',
-    fullPage: true,
-  })
-  await page.emulateMedia({ reducedMotion: 'reduce' })
-  expect(
-    await eur.locator('[data-rolling]').evaluate((el) => getComputedStyle(el).animationName),
-  ).toBe('none')
-  await expect(eur.locator('.price-digit-old')).not.toBeVisible()
-  await page.clock.runFor(300)
-  await expect(eur.locator('[data-rolling]')).toHaveCount(0)
-  socket!.send(JSON.stringify(krakenTicker('BTC/EUR', 100001, 'update', now + 1301)))
-  await page.clock.runFor(1000)
-  await expect(eur.locator('[data-animation]')).toHaveAttribute('data-animation', 'none')
-  await expect(eur.locator('.overview-price')).toHaveAttribute('data-direction', '0')
-  socket!.send(JSON.stringify(krakenTicker('BTC/EUR', 1_000_000_000_000, 'update', now + 2301)))
-  await page.clock.runFor(1000)
-  await expect(eur.locator('.sr-only')).toHaveText('1.000.000.000.000,00')
-  expect(await eur.locator('.rolling-price').boundingBox()).toMatchObject({
-    x: before!.x,
-    width: before!.width,
-  })
-  expect(
-    await eur
-      .locator('.overview-price-number')
-      .evaluate((el) => el.scrollWidth <= el.clientWidth + 1),
-  ).toBe(true)
 })
 
 test('greeting crosses its local time boundary; fiat, history ranges and navigation share existing caches', async ({

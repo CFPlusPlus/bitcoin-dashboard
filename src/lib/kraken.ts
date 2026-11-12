@@ -10,7 +10,6 @@ import {
 
 export const KRAKEN_POLICY = {
   uiMs: 1_000,
-  flashMs: 300,
   staleMs: 60_000,
   activityMs: 20_000,
   handshakeMs: 15_000,
@@ -26,7 +25,6 @@ type ReceivedQuote = KrakenTick & {
 export type LiveQuote = ReceivedQuote & {
   direction: -1 | 0 | 1
   delta: number
-  flashUntil: number
   previousPrice: number | null
 }
 export type LiveState = {
@@ -74,7 +72,6 @@ export class KrakenService {
   private paused = false
   private offline = false
   private retryTimer?: Timer
-  private flashTimer?: Timer
   private backgroundTimer?: Timer
   private watchTimer?: ReturnType<typeof setInterval>
 
@@ -119,8 +116,13 @@ export class KrakenService {
         quote: this.displayed[pair] ?? null,
       }
       const visible = pairs[pair].quote
-      if (visible?.direction && (status !== 'live' || visible.flashUntil <= now))
-        pairs[pair].quote = this.displayed[pair] = { ...visible, direction: 0, delta: 0 }
+      if (visible && status !== 'live' && (visible.direction || visible.previousPrice != null))
+        pairs[pair].quote = this.displayed[pair] = {
+          ...visible,
+          direction: 0,
+          delta: 0,
+          previousPrice: null,
+        }
     }
     const statuses = KRAKEN_SYMBOLS.map((pair) => pairs[pair].status)
     const status = statuses.every((value) => value === 'live')
@@ -179,30 +181,8 @@ export class KrakenService {
       previousPrice: continuous ? previous.price : null,
       delta,
       direction: delta > 0 ? 1 : delta < 0 ? -1 : 0,
-      flashUntil: delta ? Date.now() + KRAKEN_POLICY.flashMs : 0,
     }
     this.publish()
-    clearTimeout(this.flashTimer)
-    const deadlines = Object.values(this.displayed)
-      .filter((value) => value.direction)
-      .map((value) => value.flashUntil)
-    if (deadlines.length)
-      this.flashTimer = setTimeout(
-        this.expireFlash,
-        Math.max(0, Math.min(...deadlines) - Date.now()),
-      )
-  }
-  private expireFlash = () => {
-    this.flashTimer = undefined
-    this.publish()
-    const deadlines = Object.values(this.displayed)
-      .filter((value) => value.direction)
-      .map((value) => value.flashUntil)
-    if (deadlines.length)
-      this.flashTimer = setTimeout(
-        this.expireFlash,
-        Math.max(0, Math.min(...deadlines) - Date.now()),
-      )
   }
   private retire() {
     const socket = this.socket
@@ -210,13 +190,11 @@ export class KrakenService {
     this.acknowledged.clear()
     this.failures.clear()
     this.onlineSince = 0
-    clearTimeout(this.flashTimer)
-    this.flashTimer = undefined
     for (const pair of KRAKEN_SYMBOLS) {
       clearInterval(this.displayTimers[pair])
       delete this.displayTimers[pair]
       const quote = this.displayed[pair]
-      if (quote) this.displayed[pair] = { ...quote, direction: 0, delta: 0, flashUntil: 0 }
+      if (quote) this.displayed[pair] = { ...quote, direction: 0, delta: 0, previousPrice: null }
     }
     if (socket) {
       socket.onopen = socket.onmessage = socket.onerror = socket.onclose = null
