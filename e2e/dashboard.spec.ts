@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures'
+const overviewHeading = /Guten Morgen|Guten Tag|Guten Abend|Gute Nacht/
 
 const views = [
   ['/', 'Übersicht'],
@@ -9,13 +10,15 @@ const views = [
 
 test('home renders data and navigation reaches all four views', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: 'Übersicht', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: overviewHeading })).toBeVisible()
   await expect(page.getByRole('link', { name: '900.000', exact: true })).toBeVisible()
   await expect(page.getByRole('alert')).toHaveCount(0)
   for (const [path, title] of [...views.slice(1), views[0]]) {
     await page.getByRole('navigation').getByRole('link', { name: title, exact: true }).click()
     await expect(page).toHaveURL(path)
-    await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: path === '/' ? overviewHeading : title, exact: true }),
+    ).toBeVisible()
     await expect(
       page.getByRole('navigation').getByRole('link', { name: title, exact: true }),
     ).toHaveAttribute('aria-current', 'page')
@@ -37,7 +40,7 @@ test('unknown frontend route renders React 404 and a working return link', async
   await page.goto('/does-not-exist/deep-link')
   await expect(page.getByRole('heading', { name: 'Seite nicht gefunden' })).toBeVisible()
   await page.getByRole('link', { name: 'Zur Übersicht', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Übersicht', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: overviewHeading })).toBeVisible()
 })
 
 for (const status of [401, 403, 502, 504]) {

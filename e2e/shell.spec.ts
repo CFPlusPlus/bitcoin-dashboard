@@ -1,4 +1,6 @@
 import { test, expect } from './fixtures'
+const headingFor = (title: string) =>
+  title === 'Übersicht' ? /Guten Morgen|Guten Tag|Guten Abend|Gute Nacht/ : title
 
 const views = [
   ['/', 'Übersicht', 'overview'],
@@ -24,7 +26,7 @@ for (const theme of ['dark', 'light'] as const) {
       for (const [path, title, slug] of views) {
         await page.goto(path)
         await expect(
-          page.getByRole('heading', { level: 1, name: title, exact: true }),
+          page.getByRole('heading', { level: 1, name: headingFor(title), exact: true }),
         ).toBeVisible()
         await expect(page).toHaveTitle(`${title} · Bitcoin Dashboard`)
         await page.evaluate(() => document.fonts.ready)
@@ -89,7 +91,7 @@ for (const theme of ['dark', 'light'] as const) {
     await expect(page).toHaveTitle('Markt · Bitcoin Dashboard')
     await page.goBack()
     await expect(
-      page.getByRole('heading', { level: 1, name: 'Übersicht', exact: true }),
+      page.getByRole('heading', { level: 1, name: headingFor('Übersicht'), exact: true }),
     ).toBeFocused()
   })
 
@@ -153,7 +155,9 @@ for (const theme of ['dark', 'light'] as const) {
       await page.evaluate(() => {
         document.documentElement.style.fontSize = '200%'
       })
-      await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
+      await expect(
+        page.getByRole('heading', { name: headingFor(title), exact: true }),
+      ).toBeVisible()
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
         320,
       )

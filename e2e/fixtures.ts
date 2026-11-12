@@ -5,6 +5,7 @@ import { marketSnapshot } from '../src/test/market-fixtures'
 import { marketHistory } from '../src/test/market-history-fixtures'
 import { historyDays, marketCurrency } from '../shared/market-validation'
 import { dominance, fearGreed } from '../src/test/market-indicator-fixtures'
+import { hashrateFixture, krakenAck, krakenTicker } from '../src/test/kraken-fixtures'
 
 const resources: BitcoinResources = {
   'difficulty-adjustment': difficulty,
@@ -26,6 +27,34 @@ export const test = base.extend<{ browserDiagnostics: void; apiStatus: number }>
   browserDiagnostics: [
     async ({ page, apiStatus }, use) => {
       const errors: string[] = []
+      // Intercepts every socket. Nothing connects to a real provider, even on unrelated routes.
+      await page.routeWebSocket('**/*', (ws) => {
+        if (ws.url() !== 'wss://ws.kraken.com/v2') {
+          errors.push(`Unexpected websocket: ${ws.url()}`)
+          ws.close()
+          return
+        }
+        ws.onMessage(async (message) => {
+          const request = JSON.parse(String(message))
+          if (
+            request.method !== 'subscribe' ||
+            request.params?.channel !== 'ticker' ||
+            request.params?.event_trigger !== 'trades'
+          ) {
+            errors.push('Unexpected Kraken subscription')
+            return
+          }
+          const now = await page.evaluate(() => Date.now())
+          for (const pair of ['BTC/EUR', 'BTC/USD'] as const) {
+            ws.send(JSON.stringify(krakenAck(pair, now)))
+            ws.send(
+              JSON.stringify(
+                krakenTicker(pair, pair === 'BTC/EUR' ? 72000 : 80000, 'snapshot', now),
+              ),
+            )
+          }
+        })
+      })
       page.on('pageerror', (error) => errors.push(error.message))
       page.on('console', (message) => {
         const expectedHttpError =
@@ -43,6 +72,10 @@ export const test = base.extend<{ browserDiagnostics: void; apiStatus: number }>
           errors.push(`Unexpected external request: ${url.origin}${url.pathname}`)
           await route.abort()
         } else if (url.pathname.startsWith('/api/')) {
+          if (url.pathname === '/api/mining/hashrate') {
+            await route.fulfill({ json: hashrateFixture(await page.evaluate(() => Date.now())) })
+            return
+          }
           if (
             url.pathname === '/api/market/dominance' ||
             url.pathname === '/api/market/fear-greed'
@@ -54,7 +87,7 @@ export const test = base.extend<{ browserDiagnostics: void; apiStatus: number }>
             return
           }
           if (url.pathname === '/api/market/snapshot') {
-            await route.fulfill({ json: marketSnapshot() })
+            await route.fulfill({ json: marketSnapshot(await page.evaluate(() => Date.now())) })
             return
           }
           if (url.pathname === '/api/market/history') {
@@ -80,7 +113,7 @@ export const test = base.extend<{ browserDiagnostics: void; apiStatus: number }>
                 ? {
                     data: resources[resource as keyof BitcoinResources],
                     source: 'mempool.space',
-                    updatedAt: '2026-10-30T10:00:00.000Z',
+                    updatedAt: new Date(await page.evaluate(() => Date.now())).toISOString(),
                   }
                 : { error: 'CONTROLLED_TEST_ERROR' },
           })

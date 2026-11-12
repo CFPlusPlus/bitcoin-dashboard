@@ -15,11 +15,13 @@ export function PageHeading({
   description,
   live = false,
   sourceLabel,
+  heading,
 }: {
   title: string
   description: string
   live?: boolean
   sourceLabel?: string
+  heading?: string
 }) {
   return (
     <div className="page-heading">
@@ -28,7 +30,7 @@ export function PageHeading({
           Bitcoin Dashboard <span aria-hidden="true">/</span> {title}
         </p>
         <h1 tabIndex={-1} className="page-title">
-          {title}
+          {heading ?? title}
           <span className="heading-dot" aria-hidden="true">
             .
           </span>
