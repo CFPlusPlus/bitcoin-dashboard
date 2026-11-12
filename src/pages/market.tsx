@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { MetricCard, PageHeading, PlaceholderCard } from '@/components/dashboard'
+import { PageHeading } from '@/components/dashboard'
+import { ErrorBoundary } from '@/components/error-boundary'
+import { SatsCalculator } from '@/components/market/sats-calculator'
+import { MarketIndicatorCard } from '@/components/market/indicator'
 import { MarketSnapshot } from '@/components/market/snapshot'
 import { MarketHistory } from '@/components/market/history'
 import type { Currency } from '../../shared/market'
@@ -16,17 +19,15 @@ export default function Market() {
       <MarketSnapshot currency={currency} onCurrencyChange={setCurrency} />
       <div className="dashboard-grid">
         <MarketHistory currency={currency} />
-        <PlaceholderCard
-          className="col-span-12 xl:col-span-4"
-          title="Sats-Rechner"
-          description="Die Umrechnung zwischen Bitcoin, Satoshis und Fiat-Währungen folgt in einem späteren Schritt."
-        />
-        {[
-          ['BTC-Dominanz', '%'],
-          ['Fear & Greed', '/ 100'],
-        ].map(([label, unit]) => (
-          <MetricCard key={label} label={label} unit={unit} />
-        ))}
+        <ErrorBoundary scope="card" className="col-span-12 xl:col-span-4">
+          <SatsCalculator />
+        </ErrorBoundary>
+        <ErrorBoundary scope="card" className="col-span-12 md:col-span-6">
+          <MarketIndicatorCard resource="dominance" />
+        </ErrorBoundary>
+        <ErrorBoundary scope="card" className="col-span-12 md:col-span-6">
+          <MarketIndicatorCard resource="fear-greed" />
+        </ErrorBoundary>
       </div>
     </>
   )

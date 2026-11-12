@@ -18,6 +18,7 @@
   "exclude": [
     "src/test/functions.test.ts",
     "src/test/market-functions.test.ts",
-    "src/test/market-history-functions.test.ts"
+    "src/test/market-history-functions.test.ts",
+    "src/test/market-indicator-functions.test.ts"
   ]
 }

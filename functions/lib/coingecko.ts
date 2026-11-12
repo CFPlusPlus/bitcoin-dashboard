@@ -2,6 +2,8 @@ import {
   MARKET_LIMITS,
   MARKET_PROVIDER,
   HISTORY_LIMITS,
+  INDICATOR_LIMITS,
+  type MarketDominanceResponse,
   type HistoryDays,
   type MarketHistoryResponse,
   type Currency,
@@ -17,13 +19,47 @@ import {
   parseMarketHistory,
   marketCurrency,
   historyDays,
+  parseMarketDominance,
+  unixSeconds,
 } from '../../shared/market-validation'
 import { number } from '../../shared/bitcoin-number'
-import { cancelBody, readBoundedText, UpstreamError } from './upstream'
+import { fetchProviderJson } from './provider-json'
 
 // Fixed Demo host, asset and flags. No request-derived URL, currency, or credentials.
 export const COINGECKO_SNAPSHOT_URL =
   'https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&market_data=true&sparkline=false'
+export const COINGECKO_DOMINANCE_URL = 'https://api.coingecko.com/api/v3/global'
+
+export function normalizeCoinGeckoDominance(
+  value: unknown,
+  now = Date.now(),
+): MarketDominanceResponse {
+  const data = marketObject(marketObject(value).data)
+  return parseMarketDominance(
+    {
+      data: {
+        btcPercent: marketObject(data.market_cap_percentage).btc,
+        method: 'provider_market_cap_percentage',
+      },
+      source: 'coingecko',
+      provider: MARKET_PROVIDER,
+      updatedAt: new Date(now).toISOString(),
+      sourceUpdatedAt: unixSeconds(data.updated_at, now),
+    },
+    now,
+  )
+}
+
+export function fetchMarketDominance(key: string, fetcher: typeof fetch = fetch) {
+  return fetchCoinGecko(
+    COINGECKO_DOMINANCE_URL,
+    key,
+    normalizeCoinGeckoDominance,
+    INDICATOR_LIMITS.rawBytes,
+    INDICATOR_LIMITS.responseBytes,
+    fetcher,
+  )
+}
 
 export function normalizeCoinGecko(value: unknown, now = Date.now()): MarketSnapshotResponse {
   const raw = marketObject(value)
@@ -135,7 +171,7 @@ export function fetchMarketHistory(
   )
 }
 
-async function fetchCoinGecko<T>(
+function fetchCoinGecko<T>(
   url: string,
   key: string,
   normalize: (value: unknown) => T,
@@ -143,44 +179,12 @@ async function fetchCoinGecko<T>(
   normalizedLimit: number,
   fetcher: typeof fetch,
 ) {
-  const timeout = AbortSignal.timeout(8_000)
-  const controller = new AbortController()
-  const signal = AbortSignal.any([timeout, controller.signal])
-  let status: number | undefined
-  try {
-    const response = await fetcher(url, {
-      method: 'GET',
-      headers: { Accept: 'application/json', 'x-cg-demo-api-key': key },
-      signal,
-      redirect: 'manual',
-      cache: 'no-store',
-    })
-    status = response.status
-    if (!response.ok) {
-      cancelBody(response)
-      throw new UpstreamError(status === 429 ? 'rate_limit' : 'http', status)
-    }
-    if (
-      response.headers.get('content-type')?.split(';')[0].trim().toLowerCase() !==
-      'application/json'
-    ) {
-      cancelBody(response)
-      throw new UpstreamError('invalid_data', status)
-    }
-    const text = await readBoundedText(response, rawLimit, signal)
-    try {
-      const snapshot = normalize(JSON.parse(text))
-      if (new TextEncoder().encode(JSON.stringify(snapshot)).byteLength > normalizedLimit)
-        throw new Error('Oversized normalized snapshot')
-      return snapshot
-    } catch {
-      throw new UpstreamError('invalid_data', status)
-    }
-  } catch (error) {
-    const timedOut = timeout.aborted || (error instanceof Error && error.name === 'TimeoutError')
-    controller.abort()
-    if (timedOut) throw new UpstreamError('timeout', status)
-    if (error instanceof UpstreamError) throw error
-    throw new UpstreamError('network', status)
-  }
+  return fetchProviderJson(
+    url,
+    { Accept: 'application/json', 'x-cg-demo-api-key': key },
+    normalize,
+    rawLimit,
+    normalizedLimit,
+    fetcher,
+  )
 }

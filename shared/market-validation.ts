@@ -4,6 +4,11 @@ import {
   MARKET_PROVIDER,
   MARKET_HISTORY_DAYS,
   HISTORY_LIMITS,
+  FEAR_GREED_LABELS,
+  FEAR_GREED_PROVIDER,
+  type FearGreedClassification,
+  type FearGreedResponse,
+  type MarketDominanceResponse,
   type Currency,
   type HistoryDays,
   type MarketHistoryResponse,
@@ -188,5 +193,78 @@ export function parseMarketSnapshot(value: unknown, now = Date.now()): MarketSna
     provider: MARKET_PROVIDER,
     updatedAt,
     sourceUpdatedAt,
+  }
+}
+
+export function unixSeconds(value: unknown, now: number): string {
+  if (typeof value !== 'number' || !Number.isSafeInteger(value))
+    throw new Error('Invalid Unix seconds')
+  const ms = value * 1000
+  if (
+    !Number.isSafeInteger(ms) ||
+    ms < MARKET_LIMITS.genesisMs ||
+    ms > now + MARKET_LIMITS.futureMs
+  )
+    throw new Error('Invalid Unix timestamp')
+  return new Date(ms).toISOString()
+}
+
+export function parseMarketDominance(value: unknown, now = Date.now()): MarketDominanceResponse {
+  const raw = marketObject(value)
+  const provider = marketObject(raw.provider)
+  const data = marketObject(raw.data)
+  if (
+    raw.source !== 'coingecko' ||
+    provider.assetId !== MARKET_PROVIDER.assetId ||
+    provider.market !== MARKET_PROVIDER.market ||
+    provider.attributionUrl !== MARKET_PROVIDER.attributionUrl ||
+    data.method !== 'provider_market_cap_percentage' ||
+    typeof data.btcPercent !== 'number' ||
+    !Number.isFinite(data.btcPercent) ||
+    data.btcPercent < 0 ||
+    data.btcPercent > 100
+  )
+    throw new Error('Invalid dominance')
+  const updatedAt = marketTime(raw.updatedAt, now + MARKET_LIMITS.futureMs)
+  return {
+    data: { btcPercent: data.btcPercent, method: 'provider_market_cap_percentage' },
+    source: 'coingecko',
+    provider: MARKET_PROVIDER,
+    updatedAt,
+    sourceUpdatedAt: marketTime(
+      raw.sourceUpdatedAt,
+      Math.min(now, Date.parse(updatedAt)) + MARKET_LIMITS.futureMs,
+    ),
+  }
+}
+
+export function fearGreedClassification(value: unknown): FearGreedClassification {
+  if (typeof value !== 'string' || !Object.hasOwn(FEAR_GREED_LABELS, value))
+    throw new Error('Invalid classification')
+  return value as FearGreedClassification
+}
+
+export function parseFearGreed(value: unknown, now = Date.now()): FearGreedResponse {
+  const raw = marketObject(value)
+  const data = marketObject(raw.data)
+  if (
+    raw.source !== 'alternative.me' ||
+    marketObject(raw.provider).attributionUrl !== FEAR_GREED_PROVIDER.attributionUrl ||
+    typeof data.value !== 'number' ||
+    !Number.isInteger(data.value) ||
+    data.value < 0 ||
+    data.value > 100
+  )
+    throw new Error('Invalid index')
+  const updatedAt = marketTime(raw.updatedAt, now + MARKET_LIMITS.futureMs)
+  return {
+    data: { value: data.value, classification: fearGreedClassification(data.classification) },
+    source: 'alternative.me',
+    provider: FEAR_GREED_PROVIDER,
+    updatedAt,
+    sourceUpdatedAt: marketTime(
+      raw.sourceUpdatedAt,
+      Math.min(now, Date.parse(updatedAt)) + MARKET_LIMITS.futureMs,
+    ),
   }
 }

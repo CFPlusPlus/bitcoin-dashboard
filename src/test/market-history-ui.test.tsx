@@ -19,6 +19,8 @@ import { marketHistory } from './market-history-fixtures'
 
 const echarts = vi.hoisted(() => ({ init: vi.fn(), getInstanceByDom: vi.fn(), use: vi.fn() }))
 vi.mock('echarts/core', () => echarts)
+// This suite isolates history requests; indicator behavior has its own integration suite.
+vi.mock('@/components/market/indicator', () => ({ MarketIndicatorCard: () => null }))
 const clients: QueryClient[] = []
 let charts: {
   setOption: ReturnType<typeof vi.fn>
@@ -122,7 +124,7 @@ describe('market page with real historical response contract', () => {
     await userEvent.selectOptions(screen.getByRole('combobox', { name: 'Währung' }), 'eur')
     expect(await screen.findByRole('img', { name: /EUR · 30 Tage/ })).toBeInTheDocument()
     expect(screen.getByLabelText(/Bitcoin-Kurs: 72\.000,00/)).toBeInTheDocument()
-    expect(screen.getAllByRole('combobox')).toHaveLength(1)
+    expect(screen.getByRole('combobox', { name: 'Währung' })).toHaveValue('eur')
     expect(fetcher.mock.calls.filter(([url]) => url === '/api/market/snapshot')).toHaveLength(1)
     expect(fetcher.mock.calls).toContainEqual([
       '/api/market/history?currency=eur&days=30',
