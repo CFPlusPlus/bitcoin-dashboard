@@ -5,6 +5,9 @@ import {
   MARKET_LIMITS,
   HISTORY_LIMITS,
   HISTORY_TTL_MS,
+  INDICATOR_POLICY,
+  INDICATOR_LIMITS,
+  type MarketIndicator,
   type Currency,
   type HistoryDays,
   type MarketErrorCode,
@@ -13,6 +16,8 @@ import {
   marketObject,
   parseMarketSnapshot,
   parseMarketHistory,
+  parseMarketDominance,
+  parseFearGreed,
 } from '../../shared/market-validation'
 // Pure bounded stream utility; this module contains no adapter, URL or secret.
 import { cancelBody, readBoundedText, UpstreamError } from '../../functions/lib/upstream'
@@ -24,7 +29,7 @@ const messages: Partial<Record<MarketErrorCode, string>> = {
   UPSTREAM_CONFIGURATION: 'Die Datenquelle hat den Abruf abgelehnt. Betreiberkonfiguration prüfen.',
   UPSTREAM_INVALID_RESPONSE: 'Ungültige Antwort der Datenquelle. Später erneut versuchen.',
   UPSTREAM_RATE_LIMIT:
-    'Abruflimit der Datenquelle erreicht. Marktabrufe pausieren für mindestens 10 Minuten.',
+    'Abruflimit der Datenquelle erreicht. Abrufe dieser Datenquelle pausieren für mindestens 10 Minuten.',
   UPSTREAM_TIMEOUT: 'Zeitüberschreitung beim Marktdatenabruf.',
 }
 
@@ -46,20 +51,27 @@ export class MarketRequestError extends Error {
 }
 
 // Shared by all market queries of one QueryClient; never reset on observer unmount or GC.
-const states = new WeakMap<QueryClient, { retryAt: number; lastAttemptAt: number }>()
-function state(client: QueryClient) {
-  let value = states.get(client)
+type Provider = 'coingecko' | 'alternative.me'
+type Budget = { retryAt: number; lastAttemptAt: number }
+const states = new WeakMap<QueryClient, Partial<Record<Provider, Budget>>>()
+function state(client: QueryClient, provider: Provider = 'coingecko') {
+  let providers = states.get(client)
+  if (!providers) {
+    providers = {}
+    states.set(client, providers)
+  }
+  let value = providers[provider]
   if (!value) {
     value = { retryAt: 0, lastAttemptAt: 0 }
-    states.set(client, value)
+    providers[provider] = value
   }
   return value
 }
-export function marketRetryAt(client: QueryClient) {
-  return state(client).retryAt
+export function marketRetryAt(client: QueryClient, provider: Provider = 'coingecko') {
+  return state(client, provider).retryAt
 }
-export function marketManualAt(client: QueryClient) {
-  const value = state(client)
+export function marketManualAt(client: QueryClient, provider: Provider = 'coingecko') {
+  const value = state(client, provider)
   return Math.max(
     value.retryAt,
     value.lastAttemptAt ? value.lastAttemptAt + marketPolicy.manualPauseMs : 0,
@@ -72,8 +84,9 @@ async function marketRequest<T>(
   path: string,
   limit: number,
   parse: (value: unknown) => T,
+  provider: Provider = 'coingecko',
 ) {
-  const budget = state(client)
+  const budget = state(client, provider)
   if (budget.retryAt > Date.now()) throw new MarketRequestError('UPSTREAM_RATE_LIMIT')
   budget.lastAttemptAt = Date.now()
   const requestSignal = AbortSignal.any([signal, AbortSignal.timeout(15_000)])
@@ -198,6 +211,54 @@ export function historyOptions(client: QueryClient, currency: Currency, days: Hi
       count < 1 && error instanceof MarketRequestError && error.transient && allowed(),
     retryDelay: () => 5_000 + Math.floor(Math.random() * 5_001),
   })
+}
+
+export function indicatorOptions(client: QueryClient, resource: MarketIndicator) {
+  const provider: Provider = resource === 'dominance' ? 'coingecko' : 'alternative.me'
+  const allowed = () => marketRetryAt(client, provider) <= Date.now()
+  const ttl = INDICATOR_POLICY[resource].ttlMs
+  return queryOptions({
+    queryKey: ['market', resource],
+    queryFn: ({ signal }) =>
+      marketRequest(
+        client,
+        signal,
+        `/api/market/${resource}`,
+        INDICATOR_LIMITS.responseBytes,
+        (raw) => (resource === 'dominance' ? parseMarketDominance(raw) : parseFearGreed(raw)),
+        provider,
+      ),
+    staleTime: (query) =>
+      Math.max(
+        0,
+        ttl -
+          (query.state.dataUpdatedAt -
+            Date.parse(query.state.data?.updatedAt ?? new Date().toISOString())),
+      ),
+    gcTime: Math.max(ttl * 2, marketPolicy.gcTimeMs),
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: allowed,
+    refetchOnReconnect: allowed,
+    retryOnMount: allowed(),
+    // Slow-moving indicators recover on reopen/manual refresh, without retry loops.
+    retry: false,
+  })
+}
+
+export function useMarketIndicator(resource: MarketIndicator) {
+  const client = useQueryClient()
+  const isVisible = useSyncExternalStore(subscribeVisibility, visible)
+  const provider = resource === 'dominance' ? 'coingecko' : 'alternative.me'
+  const query = useQuery({ ...indicatorOptions(client, resource), enabled: isVisible })
+  return {
+    ...query,
+    manualAt: marketManualAt(client, provider),
+    refresh: () => {
+      if (isVisible && marketManualAt(client, provider) <= Date.now() && !query.isFetching)
+        void query.refetch()
+    },
+  }
 }
 
 const subscribeVisibility = (notify: () => void) => {

@@ -62,6 +62,42 @@ export type MarketSnapshotResponse = {
   sourceUpdatedAt: string
 }
 
+export const INDICATOR_POLICY = {
+  dominance: { ttlMs: 15 * 60_000, warnMs: 30 * 60_000, sourceWarnMs: 30 * 60_000 },
+  'fear-greed': {
+    ttlMs: 6 * 60 * 60_000,
+    warnMs: 12 * 60 * 60_000,
+    sourceWarnMs: 48 * 60 * 60_000,
+  },
+} as const
+export type MarketIndicator = keyof typeof INDICATOR_POLICY
+export const INDICATOR_LIMITS = { rawBytes: 64 * 1024, responseBytes: 4 * 1024 } as const
+export const FEAR_GREED_PROVIDER = {
+  attributionUrl: 'https://alternative.me/crypto/fear-and-greed-index/',
+} as const
+export const FEAR_GREED_LABELS = {
+  'Extreme Fear': 'Extreme Angst',
+  Fear: 'Angst',
+  Neutral: 'Neutral',
+  Greed: 'Gier',
+  'Extreme Greed': 'Extreme Gier',
+} as const
+export type FearGreedClassification = keyof typeof FEAR_GREED_LABELS
+export type MarketDominanceResponse = {
+  data: { btcPercent: number; method: 'provider_market_cap_percentage' }
+  source: 'coingecko'
+  provider: typeof MARKET_PROVIDER
+  updatedAt: string
+  sourceUpdatedAt: string
+}
+export type FearGreedResponse = {
+  data: { value: number; classification: FearGreedClassification }
+  source: 'alternative.me'
+  provider: typeof FEAR_GREED_PROVIDER
+  updatedAt: string
+  sourceUpdatedAt: string
+}
+
 export const MARKET_ERROR_STATUS = {
   INVALID_REQUEST: 400,
   NOT_FOUND: 404,

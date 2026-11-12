@@ -104,7 +104,8 @@ describe('real chart lifecycle inside the local boundary', () => {
     async (stage) => {
       failure = stage
       const { unmount } = mount()
-      const alert = await screen.findByRole('alert')
+      // The real lazy module can take over one second to load during the full parallel suite.
+      const alert = await screen.findByRole('alert', {}, { timeout: 5_000 })
       expect(alert).toHaveTextContent('Das Diagramm konnte nicht angezeigt werden')
       expect(alert).not.toHaveTextContent(secret)
       expect(screen.getByText('Andere Dashboard-Informationen')).toBeInTheDocument()

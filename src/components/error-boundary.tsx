@@ -2,8 +2,13 @@ import { Component, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { dashboardNavigation } from '@/lib/bitcoin'
 import { ComponentLoadError } from '@/lib/component-load-error'
+import { cn } from '@/lib/utils'
 
-type Props = { children: ReactNode; scope: 'global' | 'view' | 'chart' }
+type Props = {
+  children: ReactNode
+  scope: 'global' | 'view' | 'chart' | 'card'
+  className?: string
+}
 type State = { failed: boolean; loadError: boolean }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -24,10 +29,18 @@ export class ErrorBoundary extends Component<Props, State> {
         ? 'Das Dashboard konnte nicht angezeigt werden'
         : scope === 'view'
           ? 'Diese Ansicht konnte nicht angezeigt werden'
-          : 'Das Diagramm konnte nicht angezeigt werden'
+          : scope === 'card'
+            ? 'Dieser Bereich konnte nicht angezeigt werden'
+            : 'Das Diagramm konnte nicht angezeigt werden'
     const content = (
-      <div role="alert" className="rounded-panel border border-border bg-card p-6 text-foreground">
-        {scope === 'chart' ? (
+      <div
+        role="alert"
+        className={cn(
+          'rounded-panel border border-border bg-card p-6 text-foreground',
+          this.props.className,
+        )}
+      >
+        {scope === 'chart' || scope === 'card' ? (
           <h2 className="text-lg font-semibold">{title}</h2>
         ) : (
           <h1 tabIndex={-1} className="text-2xl font-semibold">

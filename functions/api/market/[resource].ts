@@ -9,6 +9,8 @@ type Env = {
   COINGECKO_DEMO_API_KEY?: string
   MARKET_SNAPSHOT_ENABLED?: string
   MARKET_HISTORY_ENABLED?: string
+  MARKET_DOMINANCE_ENABLED?: string
+  MARKET_FEAR_GREED_ENABLED?: string
 }
 
 function failure(code: MarketErrorCode) {
@@ -27,11 +29,17 @@ export function createMarketHandler(): PagesFunction<Env> {
   const service = createMarketService()
   return async ({ request, params, env }) => {
     const resource = params.resource
-    if (resource !== 'snapshot' && resource !== 'history') return failure('NOT_FOUND')
+    if (
+      resource !== 'snapshot' &&
+      resource !== 'history' &&
+      resource !== 'dominance' &&
+      resource !== 'fear-greed'
+    )
+      return failure('NOT_FOUND')
     if (request.method !== 'GET') return failure('METHOD_NOT_ALLOWED')
     const url = new URL(request.url)
     let history: { currency: 'eur' | 'usd'; days: ReturnType<typeof historyDays> } | undefined
-    if (resource === 'snapshot' && url.search) return failure('INVALID_REQUEST')
+    if (resource !== 'history' && url.search) return failure('INVALID_REQUEST')
     if (resource === 'history') {
       try {
         const pairs = [...url.searchParams]
@@ -50,18 +58,27 @@ export function createMarketHandler(): PagesFunction<Env> {
         return failure('INVALID_REQUEST')
       }
     }
-    if (!env.COINGECKO_DEMO_API_KEY?.trim()) return failure('MARKET_NOT_CONFIGURED')
+    if (resource !== 'fear-greed' && !env.COINGECKO_DEMO_API_KEY?.trim())
+      return failure('MARKET_NOT_CONFIGURED')
     // A secret alone never authorizes provider use. Enable separately only after release evidence.
     if (
-      (resource === 'snapshot' ? env.MARKET_SNAPSHOT_ENABLED : env.MARKET_HISTORY_ENABLED) !==
-      'true'
+      {
+        snapshot: env.MARKET_SNAPSHOT_ENABLED,
+        history: env.MARKET_HISTORY_ENABLED,
+        dominance: env.MARKET_DOMINANCE_ENABLED,
+        'fear-greed': env.MARKET_FEAR_GREED_ENABLED,
+      }[resource] !== 'true'
     )
       return failure('MARKET_NOT_RELEASED')
     try {
       return jsonResponse(
-        history
-          ? await service.history(env.COINGECKO_DEMO_API_KEY, history.currency, history.days)
-          : await service.snapshot(env.COINGECKO_DEMO_API_KEY),
+        resource === 'fear-greed'
+          ? await service.fearGreed()
+          : resource === 'dominance'
+            ? await service.dominance(env.COINGECKO_DEMO_API_KEY!)
+            : history
+              ? await service.history(env.COINGECKO_DEMO_API_KEY!, history.currency, history.days)
+              : await service.snapshot(env.COINGECKO_DEMO_API_KEY!),
       )
     } catch (error) {
       const upstream = error instanceof UpstreamError ? error : undefined

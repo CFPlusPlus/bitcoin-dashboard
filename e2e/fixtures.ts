@@ -4,6 +4,7 @@ import { block, difficulty } from '../src/test/bitcoin-fixtures'
 import { marketSnapshot } from '../src/test/market-fixtures'
 import { marketHistory } from '../src/test/market-history-fixtures'
 import { historyDays, marketCurrency } from '../shared/market-validation'
+import { dominance, fearGreed } from '../src/test/market-indicator-fixtures'
 
 const resources: BitcoinResources = {
   'difficulty-adjustment': difficulty,
@@ -42,6 +43,16 @@ export const test = base.extend<{ browserDiagnostics: void; apiStatus: number }>
           errors.push(`Unexpected external request: ${url.origin}${url.pathname}`)
           await route.abort()
         } else if (url.pathname.startsWith('/api/')) {
+          if (
+            url.pathname === '/api/market/dominance' ||
+            url.pathname === '/api/market/fear-greed'
+          ) {
+            const now = await page.evaluate(() => Date.now())
+            await route.fulfill({
+              json: url.pathname.endsWith('dominance') ? dominance(now) : fearGreed(now),
+            })
+            return
+          }
           if (url.pathname === '/api/market/snapshot') {
             await route.fulfill({ json: marketSnapshot() })
             return

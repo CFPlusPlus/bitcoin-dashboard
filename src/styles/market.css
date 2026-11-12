@@ -133,6 +133,103 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.sats-calculator,
+.market-indicator {
+  min-width: 0;
+}
+.sats-calculator :is(p, dd, a),
+.market-indicator :is(p, a, h2) {
+  overflow-wrap: anywhere;
+}
+.calculator-inputs {
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-5) var(--space-3);
+}
+.calculator-inputs label {
+  font: var(--text-label)/1.7 var(--font-technical);
+  color: var(--foreground-secondary);
+}
+.calculator-inputs :is(input, select) {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--foreground);
+  font-family: var(--font-technical);
+}
+.calculator-inputs input {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--data-primary);
+}
+.calculator-inputs :is(input, select):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+.calculator-inputs input[aria-invalid='true'] {
+  border-color: var(--accent);
+}
+.calculator-results {
+  margin-block: var(--space-5);
+}
+.calculator-results > div {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  padding-block: var(--space-3);
+}
+.calculator-results dt {
+  color: var(--foreground-secondary);
+}
+.calculator-results dd {
+  text-align: right;
+  font-family: var(--font-technical);
+  font-variant-numeric: tabular-nums;
+}
+.indicator-value {
+  margin-top: var(--space-4);
+  color: var(--data-primary);
+  font: 500 2rem/1.4 var(--font-technical);
+  font-variant-numeric: tabular-nums;
+}
+.indicator-value span {
+  font-size: 1rem;
+  color: var(--foreground-secondary);
+}
+.indicator-description {
+  margin-block: var(--space-2) var(--space-4);
+}
+.market-indicator meter {
+  display: block;
+  width: 100%;
+  height: 10px;
+  appearance: none;
+}
+.market-indicator meter::-webkit-meter-bar {
+  background: var(--border);
+  border: 0;
+  border-radius: 2px;
+}
+.market-indicator meter::-webkit-meter-optimum-value {
+  background: var(--data-primary);
+}
+.market-indicator meter::-moz-meter-bar {
+  background: var(--data-primary);
+}
+.indicator-scale {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.market-indicator .market-footer {
+  margin-top: var(--space-4);
+}
 @media (max-width: 1100px) {
   .market-kpis,
   .market-changes {
