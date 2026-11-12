@@ -34,7 +34,12 @@ describe('dashboard shell', () => {
     ['/mining', 'Netzwerk & Mining'],
   ])('renders route %s', (path, title) => {
     renderApp(path)
-    expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: path === '/' ? /Guten Morgen|Guten Tag|Guten Abend|Gute Nacht/ : title,
+      }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('link', { name: title })).toHaveAttribute('aria-current', 'page')
     expect(document.title).toBe(`${title} · Bitcoin Dashboard`)
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
@@ -42,9 +47,12 @@ describe('dashboard shell', () => {
       screen.getByText(
         path === '/mining'
           ? 'Difficulty-Prognose · mempool.space'
-          : path === '/' || path === '/blockchain'
-            ? 'Blockchain · mempool.space'
-            : 'Marktsnapshot · CoinGecko',
+          : path === '/'
+            ? 'Markt & Netzwerk'
+            : path === '/blockchain'
+              ? 'Blockchain · mempool.space'
+              : 'Marktsnapshot · CoinGecko',
+        { selector: '.page-source' },
       ),
     ).toBeInTheDocument()
   })
@@ -79,12 +87,19 @@ describe('dashboard shell', () => {
     renderApp('/missing')
     expect(screen.getByRole('heading', { name: 'Seite nicht gefunden' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('link', { name: 'Zur Übersicht' }))
-    expect(screen.getByRole('heading', { level: 1, name: 'Übersicht' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: /Guten Morgen|Guten Tag|Guten Abend|Gute Nacht/,
+      }),
+    ).toBeInTheDocument()
   })
-  it('labels synthetic data and the remaining placeholder metrics', () => {
+  it('replaces overview demos with independent real-data resources and honest loading states', () => {
     renderApp()
-    expect(screen.getByText('Synthetische Demo-Daten')).toBeInTheDocument()
-    expect(screen.getAllByText('Datenquelle folgt')).toHaveLength(4)
+    expect(screen.queryByText('Synthetische Demo-Daten')).not.toBeInTheDocument()
+    expect(screen.queryByText('Datenquelle folgt')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Bitcoin-Live-Kurse' })).toBeInTheDocument()
+    expect(screen.getByText('Historische Kursdaten werden geladen …')).toBeInTheDocument()
   })
   it('leaves initial focus available for the skip link and preserves the full mining label', () => {
     renderApp('/mining')

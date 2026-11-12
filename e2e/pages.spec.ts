@@ -60,6 +60,9 @@ test('Pages serves SPA deep links and real JavaScript/CSS assets with security h
   const home = await request.get('/')
   const html = await home.text()
   expect(home.status()).toBe(200)
+  expect(home.headers()['content-security-policy']).toBe(
+    "connect-src 'self' wss://ws.kraken.com/v2",
+  )
   expect(home.headers()['content-type']).toContain('text/html')
   expect(html).toContain('<div id="root"></div>')
   for (const path of ['/market', '/blockchain', '/mining', '/unknown/deep-link']) {

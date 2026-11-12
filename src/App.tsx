@@ -112,7 +112,7 @@ export default function App() {
           <span>
             Bitcoin Dashboard <span aria-hidden="true">/</span> Analytical
           </span>
-          <span>Blockchain: mempool.space · Weitere Bereiche als Vorschau gekennzeichnet.</span>
+          <span>Markt: Kraken &amp; CoinGecko · Blockchain: mempool.space</span>
         </footer>
       </div>
     </div>
