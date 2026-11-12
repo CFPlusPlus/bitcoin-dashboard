@@ -102,7 +102,7 @@ describe('dynamic overview integration', () => {
     await screen.findByText('Hashrate ist noch nicht für den Betrieb freigegeben.')
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '900.000' })).toBeInTheDocument()
-    expect(screen.getByText(/Zugriff verweigert/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Zugriff verweigert/)[0]).toBeInTheDocument()
   })
   it('retains valid hashrate on invalid browser data and labels it stale', async () => {
     const fetcher = vi.fn().mockResolvedValue(Response.json(hashrateFixture()))
@@ -132,7 +132,7 @@ describe('dynamic overview integration', () => {
     )
     wrap(<App />)
     await screen.findByText('Schätzwert verfügbar')
-    await screen.findByText('Marktkennzahlen verfügbar')
+    await screen.findAllByText('Marktkennzahlen verfügbar')
     await screen.findByText('Historische Kursdaten nicht verfügbar')
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '900.000' })).toBeInTheDocument()

@@ -17,7 +17,6 @@ function connected() {
     socket().message(krakenAck(pair))
     socket().message(krakenTicker(pair, pair === 'BTC/EUR' ? 72000 : 80000, 'snapshot'))
   }
-  advance(250)
 }
 beforeEach(() => {
   vi.useFakeTimers()
@@ -45,11 +44,11 @@ describe('Kraken service lifecycle', () => {
     expect(JSON.parse(socket().sent[0])).toEqual(KRAKEN_SUBSCRIBE)
     expect(service.getSnapshot().status).toBe('subscribing')
     socket().message(krakenTicker('BTC/EUR'))
-    advance(250)
+    advance(1000)
     expect(service.getSnapshot().pairs['BTC/EUR'].quote).toBeNull()
     socket().message(krakenAck('BTC/EUR'))
     socket().message(krakenTicker('BTC/EUR', 72000, 'snapshot'))
-    advance(250)
+    advance(1000)
     expect(service.getSnapshot().pairs['BTC/EUR'].status).toBe('live')
     expect(service.getSnapshot().pairs['BTC/USD'].status).toBe('subscribing')
     const unsubscribe = service.subscribe(() => {})
@@ -57,30 +56,138 @@ describe('Kraken service lifecycle', () => {
     unsubscribe()
     expect(socket().closeCount).toBe(0)
   })
-  it('tracks every valid received price, throttles rendering, handles up/down/unchanged and expires highlights', () => {
+  it('processes ticks immediately and displays the latest valid price on fixed one-second boundaries against the displayed baseline', () => {
     connected()
     const notify = vi.fn()
     const unsubscribe = service.subscribe(notify)
     socket().message(krakenTicker('BTC/EUR', 72010))
+    advance(400)
     socket().message(krakenTicker('BTC/EUR', 72005))
+    socket().message(krakenTicker('BTC/EUR', -1))
+    expect(service.getLatestQuote('BTC/EUR')).toMatchObject({
+      price: 72005,
+      receivedAt: Date.now(),
+    })
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.price).toBe(72000)
     expect(notify).not.toHaveBeenCalled()
-    advance(250)
+    advance(599)
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.price).toBe(72000)
+    advance(1)
     expect(service.getSnapshot().pairs['BTC/EUR'].quote).toMatchObject({
       price: 72005,
-      direction: -1,
-      delta: -5,
+      direction: 1,
+      delta: 5,
       change24h: 1.25,
     })
     expect(notify).toHaveBeenCalledOnce()
-    socket().message(krakenTicker('BTC/EUR', 72006))
-    advance(250)
-    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(1)
-    advance(1500)
+    socket().message(krakenTicker('BTC/EUR', 72001))
+    advance(1000)
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(-1)
+    advance(300)
     expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(0)
-    socket().message(krakenTicker('BTC/EUR', 72006))
-    advance(250)
+    socket().message(krakenTicker('BTC/EUR', 72001))
+    advance(700)
     expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(0)
     unsubscribe()
+  })
+  it('does not publish on empty display frames or heartbeats and never renews reception timestamps', () => {
+    connected()
+    const notify = vi.fn()
+    const unsubscribe = service.subscribe(notify)
+    const initial = service.getSnapshot()
+    socket().message({ channel: 'heartbeat' })
+    advance(5000)
+    expect(service.getSnapshot()).toBe(initial)
+    expect(notify).not.toHaveBeenCalled()
+    expect(service.getLatestQuote('BTC/EUR')?.receivedAt).toBe(Date.parse('2026-11-12T10:00:00Z'))
+    unsubscribe()
+  })
+  it('handles independently timed pair snapshots and never lets status messages flush buffered prices early', () => {
+    advance(0)
+    socket().open()
+    socket().message(krakenAck('BTC/EUR'))
+    socket().message(krakenTicker('BTC/EUR', 72000, 'snapshot'))
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.price).toBe(72000)
+    advance(400)
+    socket().message(krakenAck('BTC/USD'))
+    socket().message(krakenTicker('BTC/USD', 80000, 'snapshot'))
+    for (const pair of KRAKEN_SYMBOLS) socket().message(krakenTicker(pair, 81000))
+    socket().message({
+      channel: 'status',
+      type: 'update',
+      data: [{ api_version: 'v2', system: 'maintenance' }],
+    })
+    expect(service.getSnapshot().status).toBe('stale')
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.price).toBe(72000)
+    advance(600)
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.price).toBe(81000)
+    expect(service.getSnapshot().pairs['BTC/USD'].quote?.price).toBe(80000)
+    advance(400)
+    expect(service.getSnapshot().pairs['BTC/USD'].quote?.price).toBe(81000)
+    expect(service.getSnapshot().pairs['BTC/USD'].quote?.direction).toBe(0)
+  })
+  it('shows errors immediately without leaking a pending value and discards that value on reconnect', () => {
+    connected()
+    socket().message(krakenTicker('BTC/EUR', 1))
+    socket().onerror?.call(socket() as unknown as WebSocket, new Event('error'))
+    expect(service.getSnapshot().status).toBe('error')
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.price).toBe(72000)
+    advance(5000)
+    socket().open()
+    socket().message(krakenAck('BTC/EUR'))
+    socket().message(krakenTicker('BTC/EUR', 90000, 'snapshot'))
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote).toMatchObject({
+      price: 90000,
+      direction: 0,
+      previousPrice: null,
+    })
+    advance(1000)
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(0)
+  })
+  it('does not animate a rounded zero change or a replacement snapshot', () => {
+    connected()
+    socket().message(krakenTicker('BTC/EUR', 72000.001))
+    advance(1000)
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(0)
+    socket().message(krakenTicker('BTC/EUR', 90000, 'snapshot'))
+    advance(1000)
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote).toMatchObject({
+      price: 90000,
+      direction: 0,
+      previousPrice: null,
+    })
+  })
+  it('uses the same decimal rounding as Intl at half-cent boundaries', () => {
+    connected()
+    socket().message(krakenTicker('BTC/EUR', 1.005, 'snapshot'))
+    advance(1000)
+    socket().message(krakenTicker('BTC/EUR', 1.004))
+    advance(1000)
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote).toMatchObject({
+      direction: -1,
+      delta: -0.01,
+    })
+  })
+  it('resumes a short hidden tab on a neutral baseline without rendering hidden ticks or changing their reception time', () => {
+    connected()
+    const visibility = vi.spyOn(document, 'visibilityState', 'get')
+    visibility.mockReturnValue('hidden')
+    document.dispatchEvent(new Event('visibilitychange'))
+    advance(100)
+    socket().message(krakenTicker('BTC/EUR', 73000))
+    const receivedAt = Date.now()
+    advance(900)
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.price).toBe(72000)
+    visibility.mockReturnValue('visible')
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote?.price).toBe(72000)
+    advance(1000)
+    expect(service.getSnapshot().pairs['BTC/EUR'].quote).toMatchObject({
+      price: 73000,
+      direction: 0,
+      receivedAt,
+    })
+    expect(MockWebSocket.instances).toHaveLength(1)
   })
   it('keeps heartbeats distinct from independent stale ticker data and does not reconnect for an absent trade', () => {
     connected()
@@ -97,7 +204,7 @@ describe('Kraken service lifecycle', () => {
   it('ignores malformed activity, times out a silent connection and caps exponential reconnect backoff with jitter', () => {
     connected()
     socket().message('invalid')
-    advance(19750)
+    advance(20000)
     expect(service.getSnapshot().status).toBe('reconnecting')
     advance(4999)
     expect(MockWebSocket.instances).toHaveLength(1)
@@ -136,14 +243,14 @@ describe('Kraken service lifecycle', () => {
       socket().message(krakenAck(pair))
       socket().message(krakenTicker(pair, 90000, 'snapshot'))
     }
-    advance(250)
+    advance(1000)
     expect(service.getSnapshot().status).toBe('live')
     expect(service.getSnapshot().pairs['BTC/EUR'].quote?.direction).toBe(0)
   })
   it('does not accept reordered provider timestamps, marks old snapshots stale and handles subscription failures', () => {
     connected()
     socket().message(krakenTicker('BTC/EUR', 1, 'update', Date.now() - 1000))
-    advance(250)
+    advance(1000)
     expect(service.getSnapshot().pairs['BTC/EUR'].quote?.price).toBe(72000)
     socket().message({
       method: 'subscribe',
@@ -196,7 +303,7 @@ describe('Kraken service lifecycle', () => {
       advance(5000)
     }
     expect(MockWebSocket.instances).toHaveLength(1)
-    expect(vi.getTimerCount()).toBeLessThanOrEqual(3)
+    expect(vi.getTimerCount()).toBeLessThanOrEqual(5)
     stop()
     expect(vi.getTimerCount()).toBe(0)
     expect(socket().closeCount).toBe(1)
@@ -228,10 +335,10 @@ describe('Kraken service lifecycle', () => {
       socket().message(krakenAck(pair))
       socket().message(krakenTicker(pair, 72000, 'snapshot', Date.now() - 120_000))
     }
-    advance(250)
+    advance(1000)
     expect(service.getSnapshot().status).toBe('stale')
     for (const pair of KRAKEN_SYMBOLS) socket().message(krakenTicker(pair))
-    advance(250)
+    advance(1000)
     expect(service.getSnapshot().status).toBe('live')
     socket().message({
       channel: 'status',
@@ -260,16 +367,16 @@ describe('Kraken service lifecycle', () => {
         socket().message(krakenAck(pair))
         socket().message(krakenTicker(pair, 72000, 'snapshot'))
       }
-      advance(250)
+      advance(1000)
     })
     act(() => {
       socket().message(krakenTicker('BTC/EUR', 72010))
-      advance(250)
+      advance(1000)
     })
     expect(screen.getByText(/↑ Gestiegen/)).toBeInTheDocument()
     act(() => {
       socket().message(krakenTicker('BTC/EUR', 72009))
-      advance(250)
+      advance(1000)
     })
     expect(screen.getByText(/↓ Gefallen/)).toBeInTheDocument()
     view.unmount()
