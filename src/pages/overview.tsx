@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { PageHeading } from '@/components/dashboard'
-import { FeeMetric, HeightMetric, LiveBlocksTable, MempoolCard } from '@/components/bitcoin-data'
+import { LiveBlocksTable, MempoolCard } from '@/components/bitcoin-data'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { MarketHistory } from '@/components/market/history'
 import { LivePrices } from '@/components/overview/live-prices'
-import { HalvingCard, HashrateCard } from '@/components/overview/network'
+import { HalvingCard, HashrateCard, OverviewChainMetric } from '@/components/overview/network'
 import { OverviewMarketMetrics } from '@/components/overview/market-metrics'
 import { useGreeting } from '@/lib/overview'
 import type { Currency } from '../../shared/market'
@@ -42,14 +42,14 @@ export default function Overview() {
           </div>
         </div>
         <div className="overview-metrics">
-          <ErrorBoundary scope="card" className="overview-market">
+          <ErrorBoundary scope="card" className="overview-market-error">
             <OverviewMarketMetrics currency={currency} />
           </ErrorBoundary>
-          <HeightMetric />
+          <OverviewChainMetric kind="height" />
           <ErrorBoundary scope="card">
             <HashrateCard />
           </ErrorBoundary>
-          <FeeMetric />
+          <OverviewChainMetric kind="fees" />
         </div>
         <div className="overview-analysis">
           <ErrorBoundary scope="card" className="overview-history">

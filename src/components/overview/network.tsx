@@ -49,29 +49,29 @@ export function HashrateCard() {
     query.data &&
     (query.isError || now - Date.parse(query.data.updatedAt) >= HASHRATE_POLICY.warnMs)
   return (
-    <Card className="overview-hashrate">
+    <Card className="overview-metric overview-hashrate">
       <CardTitle>Netzwerk-Hashrate</CardTitle>
       <p className="overview-network-value">
         {query.data ? n(toExahashes(query.data.data.hashesPerSecond), 2) : '—'} <span>EH/s</span>
       </p>
       <p className="market-note">Schätzung über 1.008 Blöcke · ungefähr 1 Woche</p>
-      <p className="market-state" role="status">
-        {query.fetchStatus === 'paused'
-          ? 'Offline · Abruf pausiert'
-          : old
-            ? 'Veraltet · Letzter erfolgreicher Wert'
-            : query.data
-              ? 'Schätzwert verfügbar'
-              : query.isPending
-                ? 'Hashrate wird geladen …'
-                : 'Keine Hashrate verfügbar'}
-      </p>
-      {query.isError && (
-        <p className="market-warning" role="alert">
-          {query.error.message}
+      <footer className="overview-metric-footer market-footer">
+        <p className="market-note" role="status">
+          {query.fetchStatus === 'paused'
+            ? 'Offline · Abruf pausiert'
+            : old
+              ? 'Veraltet · Letzter erfolgreicher Wert'
+              : query.data
+                ? 'Schätzwert verfügbar'
+                : query.isPending
+                  ? 'Hashrate wird geladen …'
+                  : 'Keine Hashrate verfügbar'}
         </p>
-      )}
-      <footer className="market-footer">
+        {query.isError && (
+          <p className="market-warning" role="alert">
+            {query.error.message}
+          </p>
+        )}
         <p className="market-note">
           Quelle:{' '}
           <a href="https://mempool.space/mining" target="_blank" rel="noreferrer">
@@ -86,6 +86,25 @@ export function HashrateCard() {
             separater Messzeitpunkt vom Anbieter.
           </p>
         )}
+      </footer>
+    </Card>
+  )
+}
+
+// Overview-specific presentation; resources, query keys and other pages stay unchanged.
+export function OverviewChainMetric({ kind }: { kind: 'height' | 'fees' }) {
+  const query = useBitcoin(kind)
+  const data = query.data?.data
+  const value = data && ('height' in data ? n(data.height) : n(data.fastest, 3))
+  return (
+    <Card className="overview-metric">
+      <CardTitle>{kind === 'height' ? 'Blockhöhe' : 'Gebühren'}</CardTitle>
+      <p className="overview-network-value">{value || '—'}</p>
+      <p className="market-note">
+        {kind === 'height' ? 'Blöcke · Bitcoin-Netzwerk' : 'sat/vB · Hohe Priorität'}
+      </p>
+      <footer className="overview-metric-footer">
+        <DataStatus query={query} />
       </footer>
     </Card>
   )

@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/card'
 import { formatNumber, formatTime } from '@/lib/bitcoin'
 import { useKraken, type LiveStatus } from '@/lib/kraken'
 import { KRAKEN_SYMBOLS } from '@/lib/kraken-protocol'
+import { RollingPrice } from './rolling-price'
 
 const labels: Record<LiveStatus, string> = {
   connecting: 'Verbindung wird aufgebaut',
@@ -45,17 +46,12 @@ export function LivePrices() {
                 </span>
               </div>
               <p className="overview-price" data-direction={direction}>
-                {quote
-                  ? new Intl.NumberFormat('de-DE', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    }).format(quote.price)
-                  : '—'}
+                <RollingPrice quote={quote} active={status === 'live'} />
                 <span className="overview-currency">{currency}</span>
               </p>
               <p className="overview-tick" data-direction={direction}>
                 {direction && quote
-                  ? `${direction > 0 ? '↑ Gestiegen' : '↓ Gefallen'} · ${formatNumber(Math.abs(quote.delta), 2)} ${currency} zum vorherigen Tick`
+                  ? `${direction > 0 ? '↑ Gestiegen' : '↓ Gefallen'} · ${formatNumber(Math.abs(quote.delta), 2)} ${currency} zum angezeigten Kurs`
                   : 'Letzter Handelspreis · Kraken'}
               </p>
               <p className="market-note">

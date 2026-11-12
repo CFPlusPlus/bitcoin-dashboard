@@ -9,8 +9,8 @@ import {
 } from './kraken-protocol'
 
 export const KRAKEN_POLICY = {
-  uiMs: 250,
-  flashMs: 1_200,
+  uiMs: 1_000,
+  flashMs: 300,
   staleMs: 60_000,
   activityMs: 20_000,
   handshakeMs: 15_000,
@@ -18,12 +18,16 @@ export const KRAKEN_POLICY = {
 } as const
 export type LiveStatus =
   'connecting' | 'subscribing' | 'live' | 'reconnecting' | 'stale' | 'disconnected' | 'error'
-export type LiveQuote = KrakenTick & {
+type ReceivedQuote = KrakenTick & {
   receivedAt: number
+  generation: number
+  baseline: number
+}
+export type LiveQuote = ReceivedQuote & {
   direction: -1 | 0 | 1
   delta: number
   flashUntil: number
-  generation: number
+  previousPrice: number | null
 }
 export type LiveState = {
   status: LiveStatus
@@ -43,13 +47,21 @@ const initial: LiveState = {
   now: 0,
 }
 type Timer = ReturnType<typeof setTimeout>
+// Intl's decimal rounding matches the rendered price, including half-cent boundaries.
+const displayedPrice = new Intl.NumberFormat('en-US', {
+  useGrouping: false,
+  maximumFractionDigits: 2,
+})
 
 // One service per browser module; consumers share one socket and one immutable snapshot.
 export class KrakenService {
   private listeners = new Set<() => void>()
   private socket: WebSocket | null = null
   private generation = 0
-  private quotes: Partial<Record<KrakenSymbol, LiveQuote>> = {}
+  private quotes: Partial<Record<KrakenSymbol, ReceivedQuote>> = {}
+  private displayed: Partial<Record<KrakenSymbol, LiveQuote>> = {}
+  private presented: Partial<Record<KrakenSymbol, ReceivedQuote>> = {}
+  private displayTimers: Partial<Record<KrakenSymbol, ReturnType<typeof setInterval>>> = {}
   private acknowledged = new Set<KrakenSymbol>()
   private failures = new Set<KrakenSymbol>()
   private stage: LiveStatus = 'disconnected'
@@ -62,7 +74,6 @@ export class KrakenService {
   private paused = false
   private offline = false
   private retryTimer?: Timer
-  private flushTimer?: Timer
   private flashTimer?: Timer
   private backgroundTimer?: Timer
   private watchTimer?: ReturnType<typeof setInterval>
@@ -72,6 +83,8 @@ export class KrakenService {
     private random = Math.random,
   ) {}
   getSnapshot = () => this.snapshot
+  // Reception is independent of the presentation clock; useful to inspect real data freshness.
+  getLatestQuote = (pair: KrakenSymbol) => this.quotes[pair] ?? null
   getServerSnapshot = () => initial
   subscribe = (listener: () => void) => {
     this.listeners.add(listener)
@@ -82,8 +95,6 @@ export class KrakenService {
     }
   }
   private publish = () => {
-    clearTimeout(this.flushTimer)
-    this.flushTimer = undefined
     const now = Date.now()
     const pairs = {} as LiveState['pairs']
     for (const pair of KRAKEN_SYMBOLS) {
@@ -105,8 +116,11 @@ export class KrakenService {
       }
       pairs[pair] = {
         status,
-        quote: quote && quote.flashUntil <= now ? { ...quote, direction: 0, delta: 0 } : quote,
+        quote: this.displayed[pair] ?? null,
       }
+      const visible = pairs[pair].quote
+      if (visible?.direction && (status !== 'live' || visible.flashUntil <= now))
+        pairs[pair].quote = this.displayed[pair] = { ...visible, direction: 0, delta: 0 }
     }
     const statuses = KRAKEN_SYMBOLS.map((pair) => pairs[pair].status)
     const status = statuses.every((value) => value === 'live')
@@ -116,11 +130,79 @@ export class KrakenService {
         : statuses.includes('stale')
           ? 'stale'
           : this.stage
+    const changed = KRAKEN_SYMBOLS.some(
+      (pair) =>
+        pairs[pair].status !== this.snapshot.pairs[pair].status ||
+        pairs[pair].quote !== this.snapshot.pairs[pair].quote,
+    )
+    const ageChanged =
+      KRAKEN_SYMBOLS.some((pair) => pairs[pair].quote && pairs[pair].status !== 'live') &&
+      Math.floor(now / 5_000) !== Math.floor(this.snapshot.now / 5_000)
+    if (
+      !changed &&
+      !ageChanged &&
+      status === this.snapshot.status &&
+      this.offline === this.snapshot.offline &&
+      this.paused === this.snapshot.paused
+    )
+      return
     this.snapshot = { status, pairs, now, offline: this.offline, paused: this.paused }
     this.listeners.forEach((listener) => listener())
   }
-  private queuePublish() {
-    if (!this.flushTimer) this.flushTimer = setTimeout(this.publish, KRAKEN_POLICY.uiMs)
+  private displayQuote(pair: KrakenSymbol) {
+    if (
+      !this.socket ||
+      this.socket.readyState !== 1 ||
+      this.offline ||
+      this.paused ||
+      this.failures.has(pair) ||
+      document.visibilityState === 'hidden'
+    )
+      return
+    const quote = this.quotes[pair]
+    if (!quote || quote.generation !== this.generation || this.presented[pair] === quote) return
+    const previous = this.displayed[pair]
+    const continuous =
+      previous?.generation === quote.generation && previous.baseline === quote.baseline
+    // Compare the actual two-decimal prices on screen, not intervening unshown trades.
+    const delta = continuous
+      ? Number(
+          (
+            Number(displayedPrice.format(quote.price)) -
+            Number(displayedPrice.format(previous.price))
+          ).toFixed(2),
+        )
+      : 0
+    this.presented[pair] = quote
+    this.displayed[pair] = {
+      ...quote,
+      previousPrice: continuous ? previous.price : null,
+      delta,
+      direction: delta > 0 ? 1 : delta < 0 ? -1 : 0,
+      flashUntil: delta ? Date.now() + KRAKEN_POLICY.flashMs : 0,
+    }
+    this.publish()
+    clearTimeout(this.flashTimer)
+    const deadlines = Object.values(this.displayed)
+      .filter((value) => value.direction)
+      .map((value) => value.flashUntil)
+    if (deadlines.length)
+      this.flashTimer = setTimeout(
+        this.expireFlash,
+        Math.max(0, Math.min(...deadlines) - Date.now()),
+      )
+  }
+  private expireFlash = () => {
+    this.flashTimer = undefined
+    this.publish()
+    const deadlines = Object.values(this.displayed)
+      .filter((value) => value.direction)
+      .map((value) => value.flashUntil)
+    if (deadlines.length)
+      this.flashTimer = setTimeout(
+        this.expireFlash,
+        Math.max(0, Math.min(...deadlines) - Date.now()),
+      )
   }
   private retire() {
     const socket = this.socket
@@ -128,12 +210,13 @@ export class KrakenService {
     this.acknowledged.clear()
     this.failures.clear()
     this.onlineSince = 0
-    clearTimeout(this.flushTimer)
     clearTimeout(this.flashTimer)
-    this.flushTimer = this.flashTimer = undefined
+    this.flashTimer = undefined
     for (const pair of KRAKEN_SYMBOLS) {
-      const quote = this.quotes[pair]
-      if (quote) this.quotes[pair] = { ...quote, direction: 0, delta: 0, flashUntil: 0 }
+      clearInterval(this.displayTimers[pair])
+      delete this.displayTimers[pair]
+      const quote = this.displayed[pair]
+      if (quote) this.displayed[pair] = { ...quote, direction: 0, delta: 0, flashUntil: 0 }
     }
     if (socket) {
       socket.onopen = socket.onmessage = socket.onerror = socket.onclose = null
@@ -212,17 +295,23 @@ export class KrakenService {
             Date.parse(tick.timestamp) < Date.parse(previous.timestamp)
           )
             continue
-          const delta =
-            message.kind === 'update' && previous?.generation === generation
-              ? tick.price - previous.price
-              : 0
+          const reset =
+            message.kind === 'snapshot' ||
+            previous?.generation !== generation ||
+            this.snapshot.pairs[tick.symbol].status !== 'live'
           this.quotes[tick.symbol] = {
             ...tick,
             receivedAt: Date.now(),
-            delta,
-            direction: delta > 0 ? 1 : delta < 0 ? -1 : 0,
-            flashUntil: Date.now() + KRAKEN_POLICY.flashMs,
             generation,
+            baseline: (previous?.baseline ?? 0) + (reset ? 1 : 0),
+          }
+          if (!this.displayTimers[tick.symbol]) {
+            // Each pair starts its fixed cadence at its first confirmed value.
+            this.displayQuote(tick.symbol)
+            this.displayTimers[tick.symbol] = setInterval(
+              () => this.displayQuote(tick.symbol),
+              KRAKEN_POLICY.uiMs,
+            )
           }
         }
         if (
@@ -233,9 +322,8 @@ export class KrakenService {
           this.stage = 'live'
           if (!this.onlineSince) this.onlineSince = Date.now()
         }
-        this.queuePublish()
-        clearTimeout(this.flashTimer)
-        this.flashTimer = setTimeout(this.publish, KRAKEN_POLICY.flashMs + KRAKEN_POLICY.uiMs)
+        // Status and freshness always use received data and are never presentation-throttled.
+        this.publish()
       }
     }
     socket.onerror = () => {
@@ -278,6 +366,11 @@ export class KrakenService {
       }, KRAKEN_POLICY.backgroundMs)
     } else {
       this.paused = false
+      // Browser timers can be suspended while hidden. Resume from a neutral baseline.
+      for (const pair of KRAKEN_SYMBOLS) {
+        const quote = this.quotes[pair]
+        if (quote) this.quotes[pair] = { ...quote, baseline: quote.baseline + 1 }
+      }
       if (this.socket && Date.now() - this.activityAt >= KRAKEN_POLICY.activityMs) this.reconnect()
       else if (!this.socket && !this.retryTimer) this.connect()
       this.publish()

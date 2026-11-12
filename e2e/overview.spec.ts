@@ -5,7 +5,7 @@ import { krakenAck, krakenTicker } from '../src/test/kraken-fixtures'
 test.use({ timezoneId: 'Europe/Berlin' })
 const now = Date.parse('2026-11-12T09:00:00Z')
 for (const theme of ['dark', 'light'] as const) {
-  for (const width of [320, 390, 768, 1440, 1920]) {
+  for (const width of [320, 390, 768, 1100, 1440, 1920]) {
     test(`overview ${width}px ${theme}: controlled live fixtures, responsive and accessible`, async ({
       page,
     }) => {
@@ -26,7 +26,42 @@ for (const theme of ['dark', 'light'] as const) {
       await expect(page.getByRole('progressbar')).toBeVisible()
       await expect(page.getByText('Schätzwert verfügbar')).toBeVisible()
       await expect(page.getByRole('alert')).toHaveCount(0)
-      await expect(page.locator('.overview-market-values')).toContainText('1,44 Bio.')
+      await expect(page.locator('.overview-market').first()).toContainText('1,44 Bio.')
+      const metrics = page.locator('.overview-metric')
+      await expect(metrics).toHaveCount(5)
+      const geometry = await metrics.evaluateAll((cards) =>
+        cards.map((card) => {
+          const box = card.getBoundingClientRect()
+          return {
+            top: box.top,
+            bottom: box.bottom,
+            width: box.width,
+            title: card.querySelector('[data-slot="card-title"]')!.getBoundingClientRect().top,
+            value: card.querySelector('.overview-network-value')!.getBoundingClientRect().top,
+            footer: card.querySelector('.overview-metric-footer')!.getBoundingClientRect().top,
+          }
+        }),
+      )
+      for (const row of new Set(geometry.map((box) => box.top))) {
+        const boxes = geometry.filter((box) => box.top === row)
+        for (const key of ['bottom', 'width', 'title', 'value', 'footer'] as const)
+          expect(
+            Math.max(...boxes.map((box) => box[key])) - Math.min(...boxes.map((box) => box[key])),
+          ).toBeLessThanOrEqual(1)
+      }
+      if (width > 1100) expect(new Set(geometry.map((box) => box.top)).size).toBe(1)
+      const liveBox = await page.locator('.overview-live').boundingBox()
+      const blocksBox = await page.locator('.overview-blocks').boundingBox()
+      expect(blocksBox?.x).toBe(liveBox?.x)
+      expect(blocksBox?.width).toBe(liveBox?.width)
+      if (width > 1100) {
+        const historyBox = await page.locator('.market-history').boundingBox()
+        const contextBox = await page.locator('.overview-context').boundingBox()
+        expect(historyBox?.y).toBe(contextBox?.y)
+        expect(
+          Math.abs(historyBox!.y + historyBox!.height - contextBox!.y - contextBox!.height),
+        ).toBeLessThanOrEqual(1)
+      }
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
         width,
       )
@@ -34,33 +69,42 @@ for (const theme of ['dark', 'light'] as const) {
       await page.evaluate(() => document.fonts.ready)
       await page.evaluate(() => {
         const caption = document.createElement('p')
-        caption.textContent = 'Testfixture OV-210 · synthetische Prüfdaten · kein Live-Nachweis'
+        caption.textContent = 'Testfixture OV-2101 · synthetische Prüfdaten · kein Live-Nachweis'
         caption.style.cssText = 'padding:8px 0;font-size:12px;color:var(--foreground-secondary)'
         document.querySelector('main')!.prepend(caption)
       })
       await page.screenshot({
-        path: `test-results/phase-2.10/overview-${width}-${theme}-fixture.png`,
+        path: `test-results/phase-2.10.1/overview-${width}-${theme}-fixture.png`,
         fullPage: true,
       })
-      if ([390, 1440].includes(width))
+      if ([390, 1100, 1440].includes(width))
         await page.screenshot({
-          path: `docs/screenshots/phase-2.10/overview-${width}-${theme}-fixture.png`,
+          path: `docs/screenshots/phase-2.10.1/overview-${width}-${theme}-fixture.png`,
           fullPage: true,
         })
-      if (width === 320) {
+      // Every requested width also gets a 200% text pass, including the live digits.
+      {
         await page.emulateMedia({ reducedMotion: 'reduce' })
         await page.evaluate(() => {
           document.documentElement.style.fontSize = '200%'
         })
         expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
-          320,
+          width,
         )
+        for (const number of await page.locator('.overview-price-number').all()) {
+          expect(await number.evaluate((el) => el.scrollWidth <= el.clientWidth + 1)).toBe(true)
+        }
         expect(
           await page
             .locator('.overview-price')
             .first()
             .evaluate((el) => getComputedStyle(el).transitionDuration),
         ).toBe('0s')
+        if (width === 320)
+          await page.screenshot({
+            path: `docs/screenshots/phase-2.10.1/overview-320-text-200-${theme}-fixture.png`,
+            fullPage: true,
+          })
       }
     })
   }
@@ -93,12 +137,12 @@ test('Kraken UI changes without layout shift, becomes stale independently, recon
   sockets[0].send(
     JSON.stringify(krakenTicker('BTC/EUR', 72010, 'update', await page.evaluate(() => Date.now()))),
   )
-  await page.clock.runFor(300)
+  await page.clock.runFor(1000)
   await expect(eur).toContainText('↑ Gestiegen')
   sockets[0].send(
     JSON.stringify(krakenTicker('BTC/EUR', 72009, 'update', await page.evaluate(() => Date.now()))),
   )
-  await page.clock.runFor(300)
+  await page.clock.runFor(1000)
   await expect(eur).toContainText('↓ Gefallen')
   const after = await eur.locator('.overview-price').boundingBox()
   expect(after).toEqual(before)
@@ -130,6 +174,81 @@ test('Kraken UI changes without layout shift, becomes stale independently, recon
   await page.getByRole('navigation').getByRole('link', { name: 'Übersicht', exact: true }).click()
   await expect(page.locator('[data-pair-status="live"]')).toHaveCount(2)
   expect(sockets).toHaveLength(3)
+})
+
+test('rolling digits animate only changes, preserve geometry across carries, and respect reduced motion', async ({
+  page,
+}) => {
+  await page.clock.install({ time: now })
+  await page.clock.pauseAt(now)
+  let socket: WebSocketRoute
+  await page.routeWebSocket('wss://ws.kraken.com/v2', (ws) => {
+    socket = ws
+    ws.onMessage(() => {
+      for (const pair of ['BTC/EUR', 'BTC/USD'] as const) {
+        ws.send(JSON.stringify(krakenAck(pair, now)))
+        ws.send(JSON.stringify(krakenTicker(pair, 99999.99, 'snapshot', now)))
+      }
+    })
+  })
+  await page.goto('/')
+  await page.clock.runFor(1)
+  const eur = page.getByRole('region', { name: 'BTC/EUR Live-Kurs' })
+  await expect(eur.locator('.sr-only')).toHaveText('99.999,99')
+  await page.evaluate(() => document.fonts.ready)
+  const before = await eur.locator('.rolling-price').boundingBox()
+  socket!.send(JSON.stringify(krakenTicker('BTC/EUR', 100000, 'update', now + 1)))
+  await page.clock.runFor(1000)
+  await expect(eur.locator('.sr-only')).toHaveText('100.000,00')
+  expect(await eur.locator('.rolling-price').boundingBox()).toEqual(before)
+  await expect(eur.locator('[data-animation]')).toHaveAttribute('data-animation', 'fade')
+  socket!.send(JSON.stringify(krakenTicker('BTC/EUR', 100001, 'update', now + 1001)))
+  await page.clock.runFor(1000)
+  await expect(eur.locator('.sr-only')).toHaveText('100.001,00')
+  await expect(eur.locator('[data-rolling]')).toHaveCount(1)
+  await expect(eur.locator('.price-separator [data-rolling]')).toHaveCount(0)
+  expect(
+    await eur.locator('[data-rolling]').evaluate((el) => getComputedStyle(el).animationName),
+  ).toBe('overview-digit-up')
+  await page.evaluate(() => {
+    document.querySelectorAll('.overview-price').forEach((el) =>
+      el.getAnimations({ subtree: true }).forEach((animation) => {
+        animation.pause()
+        animation.currentTime = 130
+      }),
+    )
+    const caption = document.createElement('p')
+    caption.textContent =
+      'Testfixture OV-2101 · synthetische Prüfdaten · Ziffernübergang bei 130 ms'
+    document.querySelector('main')!.prepend(caption)
+  })
+  await page.screenshot({
+    path: 'docs/screenshots/phase-2.10.1/overview-rolling-fixture.png',
+    fullPage: true,
+  })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  expect(
+    await eur.locator('[data-rolling]').evaluate((el) => getComputedStyle(el).animationName),
+  ).toBe('none')
+  await expect(eur.locator('.price-digit-old')).not.toBeVisible()
+  await page.clock.runFor(300)
+  await expect(eur.locator('[data-rolling]')).toHaveCount(0)
+  socket!.send(JSON.stringify(krakenTicker('BTC/EUR', 100001, 'update', now + 1301)))
+  await page.clock.runFor(1000)
+  await expect(eur.locator('[data-animation]')).toHaveAttribute('data-animation', 'none')
+  await expect(eur.locator('.overview-price')).toHaveAttribute('data-direction', '0')
+  socket!.send(JSON.stringify(krakenTicker('BTC/EUR', 1_000_000_000_000, 'update', now + 2301)))
+  await page.clock.runFor(1000)
+  await expect(eur.locator('.sr-only')).toHaveText('1.000.000.000.000,00')
+  expect(await eur.locator('.rolling-price').boundingBox()).toMatchObject({
+    x: before!.x,
+    width: before!.width,
+  })
+  expect(
+    await eur
+      .locator('.overview-price-number')
+      .evaluate((el) => el.scrollWidth <= el.clientWidth + 1),
+  ).toBe(true)
 })
 
 test('greeting crosses its local time boundary; fiat, history ranges and navigation share existing caches', async ({
@@ -175,10 +294,53 @@ test('invalid market and hashrate responses leave real-history and chain fixture
   await expect(page.locator('canvas')).toBeVisible()
   await expect(page.getByRole('link', { name: '900.000', exact: true })).toBeVisible()
   await expect(page.getByRole('progressbar')).toBeVisible()
-  await expect(page.locator('.overview-market').getByRole('alert')).toContainText(
+  await expect(page.locator('.overview-market').first().getByRole('alert')).toContainText(
     'Ungültige API-Antwort',
   )
   await expect(page.locator('.overview-hashrate').getByRole('alert')).toContainText(
     'Hashrate konnte nicht geladen werden',
   )
 })
+
+for (const state of ['loading', 'error'] as const) {
+  for (const width of [390, 1440]) {
+    test(`overview ${state} cards stay aligned at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.route('**/api/**', (route) => {
+        if (state === 'error') return route.fulfill({ json: { invalid: true } })
+        // Deliberately keep requests pending to inspect the real loading UI.
+      })
+      await page.goto('/')
+      const metrics = page.locator('.overview-metric')
+      await expect(metrics).toHaveCount(5)
+      if (state === 'error') await expect(metrics.getByRole('alert')).toHaveCount(5)
+      else await expect(page.getByText('Hashrate wird geladen …')).toBeVisible()
+      const boxes = await metrics.evaluateAll((cards) =>
+        cards.map((card) => {
+          const box = card.getBoundingClientRect()
+          return {
+            top: box.top,
+            bottom: box.bottom,
+            footer: card.querySelector('footer')!.getBoundingClientRect().top,
+          }
+        }),
+      )
+      if (width === 1440) {
+        for (const key of ['top', 'bottom', 'footer'] as const)
+          expect(new Set(boxes.map((box) => box[key])).size).toBe(1)
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        width,
+      )
+      await page.evaluate((state) => {
+        const caption = document.createElement('p')
+        caption.textContent = `Testfixture OV-2101 · synthetischer ${state === 'error' ? 'Fehlerzustand' : 'Ladezustand'}`
+        document.querySelector('main')!.prepend(caption)
+      }, state)
+      await page.screenshot({
+        path: `test-results/phase-2.10.1/overview-${state}-${width}-fixture.png`,
+        fullPage: true,
+      })
+    })
+  }
+}
