@@ -271,6 +271,15 @@ One existing lazy-chart test's default one-second element wait repeatedly expire
 during the enlarged parallel suite but passed alone. Its first real asynchronous
 module-load wait is now five seconds, keeping all error, retry and cleanup
 assertions. No application chart behavior or global test timeout was changed.
+The first GitHub CI run passed all unit/build checks and 135/136 browser tests.
+Its existing snapshot keyboard-recovery test advanced virtual time before the
+initial history request had settled, moving the shared CoinGecko refresh budget
+on the slower runner. The test now waits for the history canvas and dominance
+load, allows the existing 30-second display-clock tick after the 60-second minimum
+pause, and checks button readiness before pressing Enter. Request counts, retained
+timestamps and successful recovery assertions remain intact; no production policy
+or application behavior was changed to accommodate the test.
+The corrected keyboard-recovery test passed ten consecutive local Chromium runs.
 Wrangler needs a local unsandboxed compiler/test process because its resolver
 traverses parent directories; telemetry is disabled and logs stay in ignored
 `.wrangler/analysis-logs`. This is local verification, not deployment.

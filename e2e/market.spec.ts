@@ -179,8 +179,14 @@ test.describe('market refresh failure', () => {
     })
     await page.goto('/market')
     await expect(page.getByLabel(/Bitcoin-Kurs: 80\.000,00/)).toBeVisible()
+    // Settle every initial CoinGecko load before advancing its shared manual budget.
+    // A slower CI runner can otherwise start history only after the virtual time jump.
+    await expect(page.locator('.market-history canvas')).toBeVisible()
+    await expect(page.getByLabel('BTC-Dominanz: 57,95 %')).toBeVisible()
     const button = page.getByRole('button', { name: 'Aktualisieren', exact: true })
-    await page.clock.fastForward(60_000)
+    // Include one display-clock tick beyond the 60-second minimum pause.
+    await page.clock.fastForward(90_000)
+    await expect(button).toBeEnabled()
     await button.focus()
     await page.keyboard.press('Enter')
     await expect(page.getByRole('alert')).toContainText(
@@ -190,9 +196,11 @@ test.describe('market refresh failure', () => {
     await expect(
       page.locator('.market-snapshot time[datetime="2026-10-31T10:00:00.000Z"]'),
     ).toBeVisible()
-    await page.clock.fastForward(60_000)
+    await page.clock.fastForward(90_000)
+    await expect(button).toBeEnabled()
     await button.focus()
     await page.keyboard.press('Enter')
+    await expect.poll(() => calls).toBe(3)
     await expect(page.getByRole('alert')).toHaveCount(0)
     expect(calls).toBe(3)
   })
