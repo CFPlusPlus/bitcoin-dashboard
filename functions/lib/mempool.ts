@@ -5,7 +5,7 @@ import {
   MAX_FEE_RATE,
   MAX_HISTOGRAM_ENTRIES,
 } from '../../shared/bitcoin-limits'
-import { number } from '../../shared/bitcoin-number'
+import { difficulty, number } from '../../shared/bitcoin-number'
 import { parseDifficultyAdjustment, retargetTimestamp } from '../../shared/difficulty-adjustment'
 import { cancelBody, readBoundedText, UpstreamError } from './upstream'
 
@@ -33,6 +33,7 @@ export function parseBlock(value: unknown): Block {
     transactionCount: number(block.tx_count),
     sizeBytes,
     weightUnits,
+    difficulty: difficulty(block.difficulty),
   }
 }
 

@@ -1,5 +1,8 @@
-import { MetricCard, PageHeading, PlaceholderCard } from '@/components/dashboard'
+import { PageHeading } from '@/components/dashboard'
 import { DifficultyAdjustment } from '@/components/mining/difficulty-adjustment'
+import { MiningFundamentals } from '@/components/mining/fundamentals'
+import { ErrorBoundary } from '@/components/error-boundary'
+import '@/styles/mining.css'
 
 export default function Mining() {
   return (
@@ -7,40 +10,12 @@ export default function Mining() {
       <PageHeading
         title="Netzwerk & Mining"
         description="Rechenleistung, Mining und das Bitcoin-Angebot."
-        sourceLabel="Difficulty-Prognose · mempool.space"
+        sourceLabel="Netzwerk · mempool.space · Subventionsmodell"
       />
       <DifficultyAdjustment />
-      <div className="dashboard-grid">
-        {[
-          ['Hashrate', 'EH/s'],
-          ['Difficulty', 'T'],
-          ['Bitcoin-Angebot', 'BTC'],
-          ['Inflationsrate', '% p. a.'],
-          ['Nächstes Halving', 'Blöcke'],
-        ].map(([label, unit]) => (
-          <MetricCard key={label} label={label} unit={unit} />
-        ))}
-        <PlaceholderCard
-          className="col-span-12 lg:col-span-8"
-          title="Hashrate & Difficulty"
-          description="Historische Entwicklung der Rechenleistung und Mining-Schwierigkeit."
-        />
-        <PlaceholderCard
-          className="col-span-12 lg:col-span-4"
-          title="Mining-Pools"
-          description="Verteilung der gefundenen Blöcke auf Mining-Pools."
-        />
-        <PlaceholderCard
-          className="col-span-12 lg:col-span-6"
-          title="Halving"
-          description="Blocksubvention und Fortschritt zum nächsten Halving."
-        />
-        <PlaceholderCard
-          className="col-span-12 lg:col-span-6"
-          title="Bitcoin-Angebot"
-          description="Umlaufmenge, verbleibendes Angebot und Inflationsrate."
-        />
-      </div>
+      <ErrorBoundary scope="card">
+        <MiningFundamentals />
+      </ErrorBoundary>
     </>
   )
 }

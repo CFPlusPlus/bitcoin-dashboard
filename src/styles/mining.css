@@ -121,3 +121,160 @@
     padding-top: var(--space-5);
   }
 }
+
+/* Fundamentals share the existing card, typography and Analytical color tokens. */
+.mining-fundamentals {
+  container-type: inline-size;
+}
+.app-shell:has(.mining-fundamentals) .navigation {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.mining-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--grid-gutter);
+}
+.mining-kpis > .mining-kpi {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 4;
+  grid-column: auto;
+  gap: var(--space-3);
+}
+.mining-kpi > [data-slot='card-title'] {
+  color: var(--foreground-secondary);
+  font: 500 var(--text-label)/1.6 var(--font-technical);
+}
+.mining-value,
+.mining-kpi .overview-network-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font: 500 clamp(1.2rem, 1.8vw, 1.8rem)/1.4 var(--font-technical);
+  font-variant-numeric: tabular-nums;
+}
+.mining-value-number {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.mining-unit,
+.mining-kpi .overview-unit {
+  color: var(--foreground-secondary);
+  font-size: 0.65em;
+}
+.mining-note,
+.mining-kpi .market-note {
+  color: var(--foreground-secondary);
+  font: var(--text-label)/1.7 var(--font-technical);
+}
+.mining-kpi-source,
+.mining-kpi .overview-metric-footer {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
+.mining-kpi-source a {
+  display: inline-block;
+  margin-top: var(--space-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.mining-snapshot {
+  margin-block: var(--space-4) var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+}
+.mining-snapshot .resource-status {
+  margin-block: var(--space-2);
+}
+.mining-fundamentals :is(p, dd, dt, time) {
+  overflow-wrap: anywhere;
+}
+.mining-analysis-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.mining-progress-label {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  color: var(--foreground-secondary);
+  font: var(--text-label)/1.7 var(--font-technical);
+}
+.mining-progress-label strong {
+  color: var(--foreground);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.mining-progress-track,
+.mining-progress progress {
+  display: block;
+  width: 100%;
+  height: 6px;
+  border: 0;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+  appearance: none;
+}
+.mining-progress progress::-webkit-progress-bar {
+  background: var(--border);
+}
+.mining-progress progress::-webkit-progress-value {
+  background: var(--accent);
+}
+.mining-progress progress::-moz-progress-bar {
+  background: var(--accent);
+}
+.mining-facts {
+  display: grid;
+  gap: var(--space-3);
+  font: var(--text-label)/1.7 var(--font-technical);
+}
+.mining-facts > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-2);
+}
+.mining-facts dt {
+  color: var(--foreground-secondary);
+}
+.mining-facts dd {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.mining-analysis-footer {
+  margin-top: auto;
+}
+.mining-analysis-footer p + p {
+  margin-top: var(--space-3);
+}
+.mining-fundamentals [data-state='stale'],
+.mining-fundamentals [data-state='offline'] {
+  color: var(--warning);
+}
+@container (max-width: 68.75rem) {
+  .mining-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mining-analysis > * {
+    grid-column: 1 / -1;
+  }
+}
+@container (max-width: 37.5rem) {
+  .mining-kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

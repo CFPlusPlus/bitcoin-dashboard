@@ -6,6 +6,7 @@ export const rawBlock = {
   tx_count: 2345,
   size: 1500000,
   weight: 3999999,
+  difficulty: 123_456_789_012_345.67,
 }
 export const rawFees = {
   fastestFee: 2,
@@ -30,6 +31,7 @@ export const block = {
   transactionCount: rawBlock.tx_count,
   sizeBytes: rawBlock.size,
   weightUnits: rawBlock.weight,
+  difficulty: rawBlock.difficulty,
 }
 export const envelope = <T>(data: T) => ({
   data,

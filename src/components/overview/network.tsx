@@ -48,14 +48,14 @@ export function HalvingCard() {
     </Card>
   )
 }
-export function HashrateCard() {
+export function HashrateCard({ className = '' }: { className?: string }) {
   const query = useHashrate()
   const now = useMarketClock()
   const old =
     query.data &&
     (query.isError || now - Date.parse(query.data.updatedAt) >= HASHRATE_POLICY.warnMs)
   return (
-    <Card className="overview-metric overview-hashrate">
+    <Card className={`overview-metric overview-hashrate ${className}`}>
       <CardTitle>Netzwerk-Hashrate</CardTitle>
       <p className="overview-network-value">
         <span className="overview-value-number">

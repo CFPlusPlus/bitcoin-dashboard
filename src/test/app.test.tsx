@@ -46,7 +46,7 @@ describe('dashboard shell', () => {
     expect(
       screen.getByText(
         path === '/mining'
-          ? 'Difficulty-Prognose · mempool.space'
+          ? 'Netzwerk · mempool.space · Subventionsmodell'
           : path === '/'
             ? 'Markt & Netzwerk'
             : path === '/blockchain'

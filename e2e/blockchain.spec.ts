@@ -14,6 +14,7 @@ const blocks = Array.from({ length: 6 }, (_, index) => ({
   transactionCount: 2846 + index * 127,
   sizeBytes: 1543210 + index * 1037,
   weightUnits: 3993216 - index * 971,
+  difficulty: 123_456_789_012_345.67,
 }))
 const data: BitcoinResources = {
   'difficulty-adjustment': difficulty,

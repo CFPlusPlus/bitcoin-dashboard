@@ -5,6 +5,7 @@ export interface Block {
   transactionCount: number
   sizeBytes: number
   weightUnits: number
+  difficulty: number // Actual block difficulty, dimensionless; not the retarget forecast.
 }
 
 export interface Fees {
