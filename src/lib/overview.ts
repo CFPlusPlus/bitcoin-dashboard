@@ -40,17 +40,4 @@ export function useGreeting() {
   return greeting
 }
 
-export function halvingAt(height: number) {
-  if (!Number.isSafeInteger(height) || height < 0 || height > 2_147_483_647)
-    throw new Error('Invalid block height')
-  const cycle = Math.floor(height / 210_000)
-  const completed = height % 210_000
-  return {
-    height,
-    nextHeight: (cycle + 1) * 210_000,
-    remaining: 210_000 - completed,
-    progressPercent: (completed / 210_000) * 100,
-    // Consensus subsidy uses integer satoshis, and stops after 64 halvings.
-    subsidySats: cycle >= 64 ? 0 : Number(5_000_000_000n >> BigInt(cycle)),
-  }
-}
+export { halvingAt } from '../../shared/bitcoin-supply'

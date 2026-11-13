@@ -5,7 +5,7 @@ import {
   MAX_FEE_RATE,
   MAX_HISTOGRAM_ENTRIES,
 } from './bitcoin-limits'
-import { number } from './bitcoin-number'
+import { difficulty, number } from './bitcoin-number'
 import { parseDifficultyAdjustment } from './difficulty-adjustment'
 
 // Pure normalized-contract validation, shared without importing any server adapter.
@@ -29,6 +29,7 @@ function block(value: unknown): Block {
     transactionCount: number(data.transactionCount),
     sizeBytes: number(data.sizeBytes, true, MAX_BLOCK_SIZE),
     weightUnits: number(data.weightUnits, true, MAX_BLOCK_SIZE),
+    difficulty: difficulty(data.difficulty),
   }
 }
 

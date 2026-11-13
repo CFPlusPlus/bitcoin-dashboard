@@ -51,11 +51,11 @@ for (const theme of ['dark', 'light']) {
       await expect(page.getByLabel('Erwartete Difficulty-Anpassung: -3,7 %')).toBeVisible()
       await expect(page.getByText('1.762', { exact: true })).toBeVisible()
       await expect(page.getByText('975.744', { exact: true })).toBeVisible()
-      await expect(page.getByRole('progressbar')).toHaveAttribute(
+      await expect(page.locator('.difficulty-adjustment').getByRole('progressbar')).toHaveAttribute(
         'value',
         String(difficulty.progressPercent),
       )
-      await expect(page.getByRole('alert')).toHaveCount(0)
+      await expect(page.locator('.difficulty-adjustment').getByRole('alert')).toHaveCount(0)
       expect(state.calls).toBe(1)
       await annotate(page)
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
@@ -75,9 +75,13 @@ for (const theme of ['dark', 'light']) {
         await page.addInitScript((value) => localStorage.setItem('theme', value), theme)
         await page.goto('/mining')
         if (mode === 'loading')
-          await expect(page.getByRole('status')).toContainText('Daten werden geladen')
+          await expect(page.locator('.difficulty-adjustment').getByRole('status')).toContainText(
+            'Daten werden geladen',
+          )
         if (mode === 'error') {
-          await expect(page.getByRole('alert')).toContainText('Ungültige API-Antwort')
+          await expect(page.locator('.difficulty-adjustment').getByRole('alert')).toContainText(
+            'Ungültige API-Antwort',
+          )
           await expect(page.getByLabel('Erwartete Difficulty-Anpassung: —')).toBeVisible()
         }
         if (mode === 'stale')
@@ -97,20 +101,27 @@ for (const theme of ['dark', 'light']) {
 test('DA-25 keyboard retry, last success and epoch reset', async ({ page }) => {
   const state = await fixture(page, 'error')
   await page.goto('/mining')
-  await expect(page.getByRole('alert')).toBeVisible()
-  const retry = page.getByRole('button', { name: 'Erneut versuchen', exact: true })
+  await expect(page.locator('.difficulty-adjustment').getByRole('alert')).toBeVisible()
+  const retry = page
+    .locator('.difficulty-adjustment')
+    .getByRole('button', { name: 'Erneut versuchen', exact: true })
   await retry.focus()
   await expect(retry).toBeFocused()
   expect(await retry.evaluate((element) => getComputedStyle(element).outlineStyle)).toBe('solid')
   state.mode = 'success'
   await page.keyboard.press('Enter')
   await expect(page.getByText('1.762', { exact: true })).toBeVisible()
-  const retrievedAt = await page.locator('.resource-status time').getAttribute('datetime')
+  const retrievedAt = await page
+    .locator('.difficulty-adjustment .resource-status time')
+    .getAttribute('datetime')
   state.mode = 'error'
   await page.clock.fastForward(600_001)
-  await expect(page.getByRole('alert')).toBeVisible()
+  await expect(page.locator('.difficulty-adjustment').getByRole('alert')).toBeVisible()
   await expect(page.getByText('1.762', { exact: true })).toBeVisible()
-  await expect(page.locator('.resource-status time')).toHaveAttribute('datetime', retrievedAt!)
+  await expect(page.locator('.difficulty-adjustment .resource-status time')).toHaveAttribute(
+    'datetime',
+    retrievedAt!,
+  )
   state.mode = 'success'
   state.epoch = {
     ...difficulty,
@@ -123,7 +134,10 @@ test('DA-25 keyboard retry, last success and epoch reset', async ({ page }) => {
   await expect(page.getByText('2.016', { exact: true })).toBeVisible()
   await expect(page.getByText('977.760', { exact: true })).toBeVisible()
   await expect(page.getByLabel('Erwartete Difficulty-Anpassung: 0 %')).toBeVisible()
-  await expect(page.getByRole('progressbar')).toHaveAttribute('value', '0')
+  await expect(page.locator('.difficulty-adjustment').getByRole('progressbar')).toHaveAttribute(
+    'value',
+    '0',
+  )
 })
 
 test('DA-25 200 percent text at 320px remains readable without page overflow', async ({ page }) => {
@@ -161,8 +175,12 @@ test.describe('DA-25 rate limit', () => {
       })
     })
     await page.goto('/mining')
-    await expect(page.getByRole('alert')).toContainText('Abruflimit')
-    const retry = page.getByRole('button', { name: 'Erneut versuchen', exact: true })
+    await expect(page.locator('.difficulty-adjustment').getByRole('alert')).toContainText(
+      'Abruflimit',
+    )
+    const retry = page
+      .locator('.difficulty-adjustment')
+      .getByRole('button', { name: 'Erneut versuchen', exact: true })
     await expect(retry).toBeDisabled()
     await page.clock.fastForward(599_000)
     expect(calls).toBe(1)

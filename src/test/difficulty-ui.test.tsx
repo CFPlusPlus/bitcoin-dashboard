@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { act, render, screen } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {
   QueryClient,
@@ -43,9 +43,15 @@ describe('difficulty states and keyboard interaction', () => {
       vi.fn(() => new Promise(() => {})),
     )
     setup(<Mining />)
-    expect(screen.getByRole('status')).toHaveTextContent('Daten werden geladen')
+    expect(
+      within(document.querySelector('.difficulty-adjustment')!).getByRole('status'),
+    ).toHaveTextContent('Daten werden geladen')
     expect(screen.getByLabelText('Erwartete Difficulty-Anpassung: —')).toBeInTheDocument()
-    expect(screen.getAllByText('Datenquelle folgt')).toHaveLength(5)
+    expect(document.querySelectorAll('.mining-kpi')).toHaveLength(5)
+    expect(document.querySelectorAll('.mining-kpi .mining-value-number')).toHaveLength(4)
+    for (const value of document.querySelectorAll('.mining-kpi .mining-value-number'))
+      expect(value).toHaveTextContent('—')
+    expect(screen.getAllByText('Platzhalter · Noch nicht verbunden')).toHaveLength(2)
     expect(document.querySelector('time')).toBeNull()
   })
   it.each([-3.7, 0, 3.7])('displays signed %s with neutral data color', async (change) => {
