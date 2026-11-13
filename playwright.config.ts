@@ -7,7 +7,9 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   timeout: 30_000,
-  globalTimeout: 180_000,
+  // The 184-test suite exceeds three minutes on the single-worker CI runner.
+  // Keep individual test limits strict while allowing the full suite and teardown.
+  globalTimeout: 300_000,
   expect: { timeout: 10_000 },
   reporter: 'list',
   use: {

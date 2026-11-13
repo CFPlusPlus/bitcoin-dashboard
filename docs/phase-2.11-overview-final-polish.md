@@ -87,6 +87,7 @@ Abhängigkeiten werden nicht geändert.
 | `src/components/bitcoin-data.tsx`                 | Optionale Offline-Darstellung, Standard bleibt |
 | `src/test/overview-ui.test.tsx`                   | Offline vor Daten, Erholung, geteilte Defaults |
 | `e2e/overview-polish.spec.ts`                     | 20 deterministische Browserprüfungen           |
+| `playwright.config.ts`                            | Gesamtbudget für vollständigen CI-Durchlauf    |
 | `README.md`                                       | Phasenverweis und aktueller Hashrate-Flagstand |
 | `docs/screenshots/phase-2.11/` und dieser Bericht | Vorher-/Nachher- und Zustandsnachweise         |
 
@@ -138,6 +139,24 @@ gültigen Extremwert, Ladewechsel, veraltete/ungültige Antworten und Offline/Ko
 Ein zusätzlicher Integrationstest prüft anfängliches Offline und Erholung,
 einschließlich unverändertem Standardverhalten der gemeinsamen Komponente.
 Bestehende Tests werden vollständig ausgeführt und nicht abgeschwächt.
+
+### CI-Nachprüfung
+
+Der [erste GitHub-CI-Lauf](https://github.com/CFPlusPlus/bitcoin-dashboard/actions/runs/43438530656/job/131929817541?pr=27)
+auf `f54aa59` bestand Lint, Formatprüfung, alle 753 Unit-/Integrationstests,
+Typechecks, Build und Pages-Kompilierung. Die E2E-Suite bestand 183 Tests und
+erreichte dann ihr bisheriges globales 180-Sekunden-Limit. Ein Test kam nicht
+mehr zum Zug; es gab keinen fehlgeschlagenen einzelnen Test. Lokal hatte dieselbe
+vollständige Suite 2,1 Minuten benötigt.
+
+Das globale Playwright-Budget wird deshalb von drei auf fünf Minuten erhöht,
+einschließlich Reserve für Teardown und schwankende Runnerleistung. Einzelne
+Tests behalten 30 Sekunden, Assertions zehn Sekunden. Ein Worker, null Retries,
+alle 184 Tests und das 15-Minuten-Limit des CI-Jobs bleiben unverändert.
+Der korrigierte Stand besteht lokal mit `CI=true` erneut alle 184 E2E-Tests
+in 2,1 Minuten sowie Lint, Formatprüfung und alle Typechecks. Das Ergebnis des
+GitHub-Nachlaufs ist im CI-Check von [PR #27](https://github.com/CFPlusPlus/bitcoin-dashboard/pull/27)
+dokumentiert.
 
 ## Visuelle Nachweise
 
