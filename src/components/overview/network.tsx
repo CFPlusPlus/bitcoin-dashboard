@@ -52,7 +52,13 @@ export function HashrateCard() {
     <Card className="overview-metric overview-hashrate">
       <CardTitle>Netzwerk-Hashrate</CardTitle>
       <p className="overview-network-value">
-        {query.data ? n(toExahashes(query.data.data.hashesPerSecond), 2) : '—'} <span>EH/s</span>
+        {query.data
+          ? toExahashes(query.data.data.hashesPerSecond).toLocaleString('de-DE', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })
+          : '—'}{' '}
+        <span>EH/s</span>
       </p>
       <p className="market-note">Schätzung über 1.008 Blöcke · ungefähr 1 Woche</p>
       <footer className="overview-metric-footer market-footer">
