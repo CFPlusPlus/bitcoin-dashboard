@@ -8,6 +8,28 @@
     "MARKET_HISTORY_ENABLED": "true",
     "MARKET_DOMINANCE_ENABLED": "true",
     "MARKET_FEAR_GREED_ENABLED": "true",
-    "MINING_HASHRATE_ENABLED": "true"
+    "MINING_HASHRATE_ENABLED": "false",
+  },
+  // Release each deployed environment separately after manual approval.
+  // Pages vars are not inherited: retain every existing market flag here.
+  "env": {
+    "preview": {
+      "vars": {
+        "MARKET_SNAPSHOT_ENABLED": "true",
+        "MARKET_HISTORY_ENABLED": "true",
+        "MARKET_DOMINANCE_ENABLED": "true",
+        "MARKET_FEAR_GREED_ENABLED": "true",
+        "MINING_HASHRATE_ENABLED": "false",
+      },
+    },
+    "production": {
+      "vars": {
+        "MARKET_SNAPSHOT_ENABLED": "true",
+        "MARKET_HISTORY_ENABLED": "true",
+        "MARKET_DOMINANCE_ENABLED": "true",
+        "MARKET_FEAR_GREED_ENABLED": "true",
+        "MINING_HASHRATE_ENABLED": "false",
+      },
+    },
   },
 }

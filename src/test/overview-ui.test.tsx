@@ -1,6 +1,6 @@
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '@/App'
@@ -11,6 +11,7 @@ import { block, envelope } from './bitcoin-fixtures'
 import { hashrateFixture } from './kraken-fixtures'
 import { HashrateCard } from '@/components/overview/network'
 import { HASHRATE_POLICY } from '../../shared/hashrate'
+import { hashrateOptions } from '@/lib/hashrate'
 
 vi.mock('@/components/market/history-chart', () => ({
   default: ({ history }: { history: ReturnType<typeof marketHistory> }) => (
@@ -59,6 +60,8 @@ afterEach(() => {
   cleanup()
   clients.splice(0).forEach((client) => client.clear())
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
+  focusManager.setFocused(undefined)
   vi.useRealTimers()
 })
 describe('dynamic overview integration', () => {
@@ -158,5 +161,93 @@ describe('dynamic overview integration', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json(old)))
     wrap(<HashrateCard />)
     await screen.findByText('Veraltet · Letzter erfolgreicher Wert')
+  })
+  it.each(['not-released', 'network'])(
+    'recovers from %s on the next scheduled query without a reload or aggressive retries',
+    async (scenario) => {
+      vi.useFakeTimers()
+      focusManager.setFocused(true)
+      const fetcher = vi.fn()
+      if (scenario === 'not-released')
+        fetcher.mockResolvedValueOnce(
+          Response.json({ error: { code: 'HASHRATE_NOT_RELEASED' } }, { status: 503 }),
+        )
+      else fetcher.mockRejectedValueOnce(new TypeError('private provider details'))
+      fetcher.mockImplementation(() => Promise.resolve(Response.json(hashrateFixture())))
+      vi.stubGlobal('fetch', fetcher)
+      const { client } = wrap(<HashrateCard />)
+      await act(() => vi.advanceTimersByTimeAsync(100))
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        scenario === 'not-released'
+          ? 'noch nicht für den Betrieb freigegeben'
+          : 'Verbindungsfehler',
+      )
+      expect(screen.queryByText(/1\.050,00/)).not.toBeInTheDocument()
+      await act(() => vi.advanceTimersByTimeAsync(HASHRATE_POLICY.ttlMs - 200))
+      expect(fetcher).toHaveBeenCalledOnce()
+      await act(() => vi.advanceTimersByTimeAsync(200))
+      expect(fetcher).toHaveBeenCalledTimes(2)
+      expect(screen.getByText('Schätzwert verfügbar')).toBeInTheDocument()
+      expect(screen.getByText(/1\.050,00/)).toBeInTheDocument()
+      expect(screen.getByText(/Schätzung über 1.008 Blöcke/)).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'mempool.space' })).toBeInTheDocument()
+      expect(screen.getByText(/Letzter Abruf:/).querySelector('time')).toHaveAttribute(
+        'datetime',
+        client.getQueryData(hashrateOptions(client).queryKey)?.updatedAt,
+      )
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    },
+  )
+  it('shares concurrent consumers, ignores rerenders and pauses polling in the background', async () => {
+    vi.useFakeTimers()
+    focusManager.setFocused(true)
+    const fetcher = vi
+      .fn()
+      .mockImplementation(() => Promise.resolve(Response.json(hashrateFixture())))
+    vi.stubGlobal('fetch', fetcher)
+    const { client, rerender, unmount } = wrap(
+      <>
+        <HashrateCard />
+        <HashrateCard />
+      </>,
+    )
+    await act(() => vi.advanceTimersByTimeAsync(100))
+    expect(fetcher).toHaveBeenCalledOnce()
+    rerender(
+      <QueryClientProvider client={client}>
+        <HashrateCard />
+        <HashrateCard />
+      </QueryClientProvider>,
+    )
+    await act(() => vi.advanceTimersByTimeAsync(HASHRATE_POLICY.ttlMs))
+    expect(fetcher).toHaveBeenCalledTimes(2)
+    act(() => focusManager.setFocused(false))
+    await act(() => vi.advanceTimersByTimeAsync(2 * HASHRATE_POLICY.ttlMs))
+    expect(fetcher).toHaveBeenCalledTimes(2)
+    await act(async () => {
+      focusManager.setFocused(true)
+      await vi.advanceTimersByTimeAsync(100)
+    })
+    expect(fetcher).toHaveBeenCalledTimes(3)
+    unmount()
+    await act(() => vi.advanceTimersByTimeAsync(HASHRATE_POLICY.ttlMs))
+    expect(fetcher).toHaveBeenCalledTimes(3)
+  })
+  it('allows a successful browser query after its rate-limit cooldown expires', async () => {
+    vi.useFakeTimers()
+    const client = new QueryClient()
+    clients.push(client)
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('', { status: 429 }))
+      .mockImplementation(() => Promise.resolve(Response.json(hashrateFixture())))
+    vi.stubGlobal('fetch', fetcher)
+    await expect(client.fetchQuery(hashrateOptions(client))).rejects.toThrow('Abruflimit')
+    vi.advanceTimersByTime(HASHRATE_POLICY.cooldownMs - 1)
+    await expect(client.fetchQuery(hashrateOptions(client))).rejects.toThrow('Abruflimit')
+    expect(fetcher).toHaveBeenCalledOnce()
+    vi.advanceTimersByTime(1)
+    await expect(client.fetchQuery(hashrateOptions(client))).resolves.toEqual(hashrateFixture())
+    expect(fetcher).toHaveBeenCalledTimes(2)
   })
 })

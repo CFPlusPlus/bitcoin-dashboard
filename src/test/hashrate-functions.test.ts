@@ -93,6 +93,43 @@ describe('bounded hashrate resource', () => {
     delete ctx.env.MINING_HASHRATE_ENABLED
     expect((await handler(ctx)).status).toBe(503)
   })
+  it('recovers from a not-released response as soon as the flag is enabled', async () => {
+    const fetcher = vi
+      .fn()
+      .mockImplementation(() => Promise.resolve(Response.json({ currentHashrate: 1e21 })))
+    vi.stubGlobal('fetch', fetcher)
+    const disabled = await handler(context('false'))
+    expect(await disabled.json()).toEqual({ error: { code: 'HASHRATE_NOT_RELEASED' } })
+    expect(disabled.headers.get('Cache-Control')).toBe('no-store')
+    expect(fetcher).not.toHaveBeenCalled()
+    const enabled = await handler(context())
+    expect(enabled.status).toBe(200)
+    expect(parseHashrate(await enabled.json()).data.hashesPerSecond).toBe(1e21)
+    expect(fetcher).toHaveBeenCalledOnce()
+  })
+  it.each([429, 500])(
+    'recovers after provider HTTP %s without caching the error',
+    async (status) => {
+      vi.useFakeTimers()
+      const fetcher = vi
+        .fn()
+        .mockResolvedValueOnce(new Response('private', { status }))
+        .mockImplementation(() => Promise.resolve(Response.json({ currentHashrate: 1e21 })))
+      vi.stubGlobal('fetch', fetcher)
+      expect((await handler(context())).status).toBe(status === 429 ? 429 : 502)
+      if (status === 429) {
+        vi.advanceTimersByTime(HASHRATE_POLICY.cooldownMs - 1)
+        expect((await handler(context())).status).toBe(429)
+        expect(fetcher).toHaveBeenCalledOnce()
+        vi.advanceTimersByTime(1)
+      }
+      const recovered = await handler(context())
+      expect(recovered.status).toBe(200)
+      const value = parseHashrate(await recovered.json())
+      expect(await (await handler(context())).json()).toEqual(value)
+      expect(fetcher).toHaveBeenCalledTimes(2)
+    },
+  )
   it('deduplicates concurrent requests, preserves retrieval time, expires cache and never caches an error as success', async () => {
     vi.useFakeTimers()
     const fetcher = vi
@@ -170,11 +207,23 @@ describe('bounded hashrate resource', () => {
     { currentHashrate: 0 },
     { currentHashrate: -1 },
     { currentHashrate: '1000' },
+    { currentHashrate: null },
     { currentHashrate: 1e31 },
   ])('rejects missing or invalid provider data %#', async (raw) => {
     await expect(
       fetchHashrate(vi.fn().mockResolvedValue(Response.json(raw))),
     ).rejects.toMatchObject({ category: 'invalid_data' })
+  })
+  it('rejects JSON numeric overflow instead of returning a non-finite hashrate', async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response('{"currentHashrate":1e999}', {
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    vi.stubGlobal('fetch', fetcher)
+    const response = await handler(context())
+    expect(response.status).toBe(502)
+    expect(await response.json()).toEqual({ error: { code: 'UPSTREAM_INVALID_RESPONSE' } })
   })
   it('validates browser metadata independently including method, unit, timestamp and numeric values', () => {
     const value = {
@@ -190,6 +239,8 @@ describe('bounded hashrate resource', () => {
       { ...value, data: { ...value.data, unit: 'EH/s' } },
       { ...value, data: { ...value.data, estimationBlocks: 144 } },
       { ...value, data: { ...value.data, hashesPerSecond: Infinity } },
+      { ...value, data: { ...value.data, hashesPerSecond: -Infinity } },
+      { ...value, data: { ...value.data, hashesPerSecond: NaN } },
     ])
       expect(() => parseHashrate(invalid)).toThrow()
   })
