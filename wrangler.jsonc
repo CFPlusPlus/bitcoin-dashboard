@@ -8,5 +8,6 @@
     "MARKET_HISTORY_ENABLED": "true",
     "MARKET_DOMINANCE_ENABLED": "true",
     "MARKET_FEAR_GREED_ENABLED": "true",
+    "MINING_HASHRATE_ENABLED": "true"
   },
 }
