@@ -59,7 +59,7 @@ export default function Overview() {
             <ErrorBoundary scope="card">
               <HalvingCard />
             </ErrorBoundary>
-            <MempoolCard className="overview-mempool" />
+            <MempoolCard className="overview-mempool" showOffline />
           </div>
         </div>
         <LiveBlocksTable className="overview-blocks" />
