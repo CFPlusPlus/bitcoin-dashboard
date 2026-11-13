@@ -10,6 +10,7 @@ export function OverviewMarketMetrics({ currency }: { currency: Currency }) {
   const snapshot = query.data
   const quote = snapshot?.data.quotes[currency]
   const age = snapshot ? marketAge(snapshot, now) : undefined
+  const old = age?.retrievalOld || age?.sourceOld || (query.isError && snapshot)
   return (
     <>
       {(
@@ -28,22 +29,28 @@ export function OverviewMarketMetrics({ currency }: { currency: Currency }) {
                 : new Intl.NumberFormat('de-DE', { style: 'currency', currency }).format(value)
             }
           >
-            {value == null
-              ? '—'
-              : new Intl.NumberFormat('de-DE', {
-                  notation: 'compact',
-                  maximumFractionDigits: 2,
-                }).format(value)}{' '}
-            <span>{currency.toUpperCase()}</span>
+            <span className="overview-value-number">
+              {value == null
+                ? '—'
+                : new Intl.NumberFormat('de-DE', {
+                    notation: 'compact',
+                    maximumFractionDigits: 2,
+                  }).format(value)}
+            </span>{' '}
+            <span className="overview-unit">{currency.toUpperCase()}</span>
           </p>
           <p className="market-note">
             {snapshot && value == null ? 'Nicht verfügbar' : 'Bitcoin · Aggregierter Markt'}
           </p>
           <footer className="overview-metric-footer market-footer">
-            <p className="market-note" role="status">
+            <p
+              className="market-note"
+              role="status"
+              data-state={query.fetchStatus === 'paused' ? 'offline' : old ? 'stale' : undefined}
+            >
               {query.fetchStatus === 'paused'
                 ? 'Offline · Marktabruf pausiert'
-                : age?.retrievalOld || age?.sourceOld || (query.isError && snapshot)
+                : old
                   ? 'Veraltete Marktkennzahlen · Letzter erfolgreicher Snapshot'
                   : snapshot
                     ? 'Marktkennzahlen verfügbar'

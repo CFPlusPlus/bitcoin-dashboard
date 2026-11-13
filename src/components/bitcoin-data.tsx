@@ -4,9 +4,21 @@ import { Card, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { dashboardNavigation, formatNumber as n, formatTime, useBitcoin } from '@/lib/bitcoin'
 
-export function DataStatus({ query }: { query: UseQueryResult<BitcoinResponse<unknown>, Error> }) {
+export function DataStatus({
+  query,
+  showOffline = false,
+}: {
+  query: UseQueryResult<BitcoinResponse<unknown>, Error>
+  showOffline?: boolean
+}) {
+  const offline = showOffline && query.fetchStatus === 'paused'
   return (
     <div className="metadata-text mt-3 space-y-2 text-muted-foreground" aria-live="polite">
+      {offline && (
+        <p role="status" className="text-warning">
+          Offline · Abruf pausiert
+        </p>
+      )}
       <p>
         Quelle:{' '}
         <a href="https://mempool.space" className="underline">
@@ -19,7 +31,7 @@ export function DataStatus({ query }: { query: UseQueryResult<BitcoinResponse<un
           <time dateTime={query.data.updatedAt}>{formatTime(query.data.updatedAt)}</time>
         </p>
       )}
-      {query.isPending && <p role="status">Daten werden geladen …</p>}
+      {query.isPending && !offline && <p role="status">Daten werden geladen …</p>}
       {query.data && (query.isError || query.isStale) && (
         <p className="text-warning">Veraltete Daten · Aktualisierung ausstehend</p>
       )}
@@ -103,7 +115,13 @@ export function FeeDetails() {
   )
 }
 
-export function MempoolCard({ className = 'col-span-12 md:col-span-6' }: { className?: string }) {
+export function MempoolCard({
+  className = 'col-span-12 md:col-span-6',
+  showOffline = false,
+}: {
+  className?: string
+  showOffline?: boolean
+}) {
   const query = useBitcoin('mempool')
   const data = query.data?.data
   return (
@@ -123,7 +141,7 @@ export function MempoolCard({ className = 'col-span-12 md:col-span-6' }: { class
           <dd>{data ? n(data.totalFeeSats) : '—'} sat</dd>
         </div>
       </dl>
-      <DataStatus query={query} />
+      <DataStatus query={query} showOffline={showOffline} />
     </Card>
   )
 }

@@ -1,6 +1,11 @@
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query'
+import {
+  QueryClient,
+  QueryClientProvider,
+  focusManager,
+  onlineManager,
+} from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '@/App'
@@ -9,7 +14,8 @@ import { marketSnapshot } from './market-fixtures'
 import { marketHistory } from './market-history-fixtures'
 import { block, envelope } from './bitcoin-fixtures'
 import { hashrateFixture } from './kraken-fixtures'
-import { HashrateCard } from '@/components/overview/network'
+import { HalvingCard, HashrateCard, OverviewChainMetric } from '@/components/overview/network'
+import { MempoolCard } from '@/components/bitcoin-data'
 import { HASHRATE_POLICY } from '../../shared/hashrate'
 import { hashrateOptions } from '@/lib/hashrate'
 
@@ -62,9 +68,33 @@ afterEach(() => {
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
   focusManager.setFocused(undefined)
+  onlineManager.setOnline(true)
   vi.useRealTimers()
 })
 describe('dynamic overview integration', () => {
+  it('labels initially paused overview chain queries offline while retaining the shared default presentation', async () => {
+    onlineManager.setOnline(false)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((path: string) => Promise.resolve(Response.json(fixture(path)))),
+    )
+    wrap(
+      <>
+        <OverviewChainMetric kind="height" />
+        <HalvingCard />
+        <MempoolCard showOffline />
+        <MempoolCard />
+      </>,
+    )
+    expect(screen.getAllByText('Offline · Abruf pausiert')).toHaveLength(3)
+    expect(screen.getAllByText('Daten werden geladen …')).toHaveLength(1)
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+    await act(async () => onlineManager.setOnline(true))
+    await screen.findByRole('progressbar')
+    await waitFor(() =>
+      expect(screen.queryByText('Offline · Abruf pausiert')).not.toBeInTheDocument(),
+    )
+  })
   it('reuses snapshot, block height and chart caches across overview and market navigation; switches fiat and periods without duplicate requests', async () => {
     const fetcher = vi.fn((path: string) => Promise.resolve(Response.json(fixture(path))))
     vi.stubGlobal('fetch', fetcher)

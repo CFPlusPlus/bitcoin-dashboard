@@ -13,15 +13,18 @@ export function HalvingCard() {
     <Card className="overview-halving">
       <CardTitle>Halving-Fortschritt</CardTitle>
       <p className="overview-network-value">
-        {cycle ? n(cycle.progressPercent, 2) : '—'} <span>%</span>
+        <span className="overview-value-number">{cycle ? n(cycle.progressPercent, 2) : '—'}</span>{' '}
+        <span className="overview-unit">%</span>
       </p>
-      {cycle && (
-        <progress
-          max={100}
-          value={cycle.progressPercent}
-          aria-label="Fortschritt im Halving-Zyklus"
-        />
-      )}
+      <div className="overview-halving-progress">
+        {cycle && (
+          <progress
+            max={100}
+            value={cycle.progressPercent}
+            aria-label="Fortschritt im Halving-Zyklus"
+          />
+        )}
+      </div>
       <dl className="overview-facts">
         {[
           ['Aktuelle Blockhöhe', cycle ? n(cycle.height) : '—'],
@@ -29,7 +32,10 @@ export function HalvingCard() {
           ['Verbleibende Blöcke', cycle ? n(cycle.remaining) : '—'],
           ['Blocksubvention', cycle ? `${n(cycle.subsidySats / 1e8, 8)} BTC` : '—'],
         ].map(([label, value]) => (
-          <div key={label}>
+          <div
+            key={label}
+            className={label === 'Verbleibende Blöcke' ? 'overview-remaining' : undefined}
+          >
             <dt>{label}</dt>
             <dd>{value}</dd>
           </div>
@@ -38,7 +44,7 @@ export function HalvingCard() {
       <p className="market-note">
         Zyklus: 210.000 Blöcke. Der nächste Halving-Termin hängt von der Blockproduktion ab.
       </p>
-      <DataStatus query={query} />
+      <DataStatus query={query} showOffline />
     </Card>
   )
 }
@@ -52,17 +58,23 @@ export function HashrateCard() {
     <Card className="overview-metric overview-hashrate">
       <CardTitle>Netzwerk-Hashrate</CardTitle>
       <p className="overview-network-value">
-        {query.data
-          ? toExahashes(query.data.data.hashesPerSecond).toLocaleString('de-DE', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })
-          : '—'}{' '}
-        <span>EH/s</span>
+        <span className="overview-value-number">
+          {query.data
+            ? toExahashes(query.data.data.hashesPerSecond).toLocaleString('de-DE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })
+            : '—'}
+        </span>{' '}
+        <span className="overview-unit">EH/s</span>
       </p>
       <p className="market-note">Schätzung über 1.008 Blöcke · ungefähr 1 Woche</p>
       <footer className="overview-metric-footer market-footer">
-        <p className="market-note" role="status">
+        <p
+          className="market-note"
+          role="status"
+          data-state={query.fetchStatus === 'paused' ? 'offline' : old ? 'stale' : undefined}
+        >
           {query.fetchStatus === 'paused'
             ? 'Offline · Abruf pausiert'
             : old
@@ -105,12 +117,14 @@ export function OverviewChainMetric({ kind }: { kind: 'height' | 'fees' }) {
   return (
     <Card className="overview-metric">
       <CardTitle>{kind === 'height' ? 'Blockhöhe' : 'Gebühren'}</CardTitle>
-      <p className="overview-network-value">{value || '—'}</p>
+      <p className="overview-network-value">
+        <span className="overview-value-number">{value || '—'}</span>
+      </p>
       <p className="market-note">
         {kind === 'height' ? 'Blöcke · Bitcoin-Netzwerk' : 'sat/vB · Hohe Priorität'}
       </p>
       <footer className="overview-metric-footer">
-        <DataStatus query={query} />
+        <DataStatus query={query} showOffline />
       </footer>
     </Card>
   )
